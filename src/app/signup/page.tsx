@@ -13,6 +13,7 @@ import XIcon from "@mui/icons-material/X";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import GoogleIcon from "@mui/icons-material/Google";
 import Image from "next/image";
+import { url } from "inspector";
 
 const signup = () => {
   return (
@@ -36,12 +37,11 @@ const signup = () => {
             justifyContent: "center",
           }}
         >
-          <Image
-            src="/image/A1.jpg"
+          <img
+            src="https://img.freepik.com/free-vector/medical-health-insurance-with-doctor-patient_107791-11142.jpg?w=900&t=st=1723524662~exp=1723525262~hmac=b248f85be5e4bc60130e807c6b5b9e17d852b5716ec65d985f5905a93a8170a4"
             alt="doctor"
             width={750}
             height={500}
-            layout="resposive"
             style={{}}
           />
         </Box>
