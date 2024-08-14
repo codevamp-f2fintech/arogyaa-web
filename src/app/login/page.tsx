@@ -23,33 +23,30 @@ export default function LoginPage() {
       justifyContent="center"
       alignItems="center"
       minHeight="100vh"
-      bgcolor="#5B99C2" 
-      padding="15px" 
+      bgcolor="#5B99C2"
+      padding="15px"
     >
-    
       <Box
         display="flex"
         flexDirection="column"
-        bgcolor="#ffffff" 
-        boxShadow="0px 4px 20px rgba(0, 0, 0, 0.1)" 
-        borderRadius="30px" 
-        overflow="hidden" 
-        maxWidth="1200px" 
+        bgcolor="#ffffff"
+        boxShadow="0px 4px 20px rgba(0, 0, 0, 0.1)"
+        borderRadius="30px"
+        overflow="hidden"
+        maxWidth="1200px"
         width="100%"
       >
-       
         <Box
           display="flex"
-          flexDirection={{ xs: "column", md: "row" }} 
+          flexDirection={{ xs: "column", md: "row" }}
           flex="1"
         >
-        
           <Box
             display="flex"
             justifyContent="center"
             alignItems="center"
             flex="1"
-            bgcolor="#f4f5fa" 
+            bgcolor="#f4f5fa"
           >
             <Box
               component="img"
@@ -62,34 +59,31 @@ export default function LoginPage() {
             />
           </Box>
 
-        
           <Box
             display="flex"
             flexDirection="column"
             justifyContent="center"
-            alignItems="center" 
-            flex="1" 
+            alignItems="center"
+            flex="1"
             padding={{ xs: "20px", md: "40px" }}
-            bgcolor="#ffffff" 
+            bgcolor="#ffffff"
           >
-            
             <Box
               display="flex"
               flexDirection="column"
               justifyContent="center"
               alignItems="center"
               width="100%"
-              maxWidth="400px" 
+              maxWidth="400px"
             >
-            
               <Typography
                 variant="h4"
                 gutterBottom
                 style={{
                   color: "#1976d2",
                   textAlign: "center",
-                  fontWeight: 900, 
-                  marginBottom: "10px", 
+                  fontWeight: 900,
+                  marginBottom: "10px",
                 }}
               >
                 Sign in
@@ -98,7 +92,7 @@ export default function LoginPage() {
               <Typography
                 variant="h4"
                 gutterBottom
-                style={{ color: "#1976d2", textAlign: "center" }} 
+                style={{ color: "#1976d2", textAlign: "center" }}
               >
                 Welcome to Arogya!
               </Typography>
@@ -115,7 +109,7 @@ export default function LoginPage() {
                   margin="normal"
                   variant="outlined"
                   required
-                  autoComplete="email" 
+                  autoComplete="email"
                 />
                 <TextField
                   label="Password"
@@ -124,7 +118,7 @@ export default function LoginPage() {
                   margin="normal"
                   variant="outlined"
                   required
-                  autoComplete="current-password" 
+                  autoComplete="current-password"
                 />
                 <Box
                   display="flex"
@@ -159,7 +153,6 @@ export default function LoginPage() {
               </Box>
             </Box>
 
-           
             <Box
               my={3}
               display="flex"
