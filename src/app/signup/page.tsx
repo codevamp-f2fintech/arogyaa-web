@@ -1,21 +1,12 @@
-import {
-  Box,
-  Container,
-  Typography,
-  TextField,
-  FormControlLabel,
-  Checkbox,
-  Button,
-} from "@mui/material";
+import { Box, Container, Typography, TextField, Button } from "@mui/material";
 import React from "react";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import XIcon from "@mui/icons-material/X";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import GoogleIcon from "@mui/icons-material/Google";
-import Image from "next/image";
-import { url } from "inspector";
+import SignUp from "../login";
 
-const signup = () => {
+const Signup = () => {
   return (
     <>
       <Container
@@ -97,18 +88,11 @@ const signup = () => {
               variant="outlined"
             />
           </Box>
-          <FormControlLabel
-            control={<Checkbox />}
-            label="remind me"
-            sx={{ display: "block", textAlign: "left" }}
-          />
-          <Button fullWidth variant="contained">
-            Sign Up
+
+          <Button sx={{ mt: 3 }} fullWidth variant="contained">
+            <SignUp />
           </Button>
-          <Box>
-            <Button>FORGET PASSWORD ?</Button>
-            <Button>CREATE AN ACCOUNT</Button>
-          </Box>
+
           <Typography variant="subtitle1">or sign in with </Typography>
           <Box>
             <Button>
@@ -130,4 +114,4 @@ const signup = () => {
   );
 };
 
-export default signup;
+export default Signup;
