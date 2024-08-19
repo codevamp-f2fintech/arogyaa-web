@@ -19,6 +19,6 @@ const RootLayout = ({ children }: Readonly<{ children: React.ReactNode; }>) => {
       </body>
     </html>
   );
-}
+};
 
-export default RootLayout
+export default RootLayout;
