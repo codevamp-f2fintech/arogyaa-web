@@ -10,13 +10,14 @@ const Signup = () => {
   return (
     <>
       <Container
-        maxWidth="lg"
+        maxWidth={false}
         sx={{
           display: "flex",
           height: "100vh",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "white",
+          backgroundColor: "#3FA2F6",
+          color: "white",
           marginTop: "4",
           marginRight: "4",
         }}
@@ -33,7 +34,10 @@ const Signup = () => {
             alt="doctor"
             width={750}
             height={500}
-            style={{}}
+            style={{
+              borderRadius: 8,
+              boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
+            }}
           />
         </Box>
         <Box
@@ -55,7 +59,7 @@ const Signup = () => {
           </Typography>
 
           <Typography variant="h6" sx={{ fontSize: "default" }}>
-            Please Sign-Up To Your Account For Consult With Our Doctors{" "}
+            Please Sign-Up To Your Account For Consult With Our Doctors
           </Typography>
 
           <Box component="form" noValidate autoComplete="off">
@@ -65,6 +69,25 @@ const Signup = () => {
               id="outlined-basic"
               label="Full Name"
               variant="outlined"
+              InputProps={{
+                style: { color: "white" },
+              }}
+              InputLabelProps={{
+                style: { color: "white" },
+              }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "white",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "white",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "white",
+                  },
+                },
+              }}
             />
             <TextField
               style={{ marginTop: 10 }}
@@ -72,6 +95,25 @@ const Signup = () => {
               id="outlined-basic"
               label="Email Address"
               variant="outlined"
+              InputProps={{
+                style: { color: "white" },
+              }}
+              InputLabelProps={{
+                style: { color: "white" },
+              }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "white",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "white",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "white",
+                  },
+                },
+              }}
             />
             <TextField
               style={{ marginTop: 10 }}
@@ -79,6 +121,25 @@ const Signup = () => {
               id="outlined-basic"
               label="Password"
               variant="outlined"
+              InputProps={{
+                style: { color: "white" },
+              }}
+              InputLabelProps={{
+                style: { color: "white" },
+              }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "white",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "white",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "white",
+                  },
+                },
+              }}
             />
             <TextField
               style={{ marginTop: 10 }}
@@ -86,6 +147,25 @@ const Signup = () => {
               id="outlined-basic"
               label="Confirm-Password"
               variant="outlined"
+              InputProps={{
+                style: { color: "white" },
+              }}
+              InputLabelProps={{
+                style: { color: "white" },
+              }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "white",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "white",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "white",
+                  },
+                },
+              }}
             />
           </Box>
 
@@ -95,16 +175,32 @@ const Signup = () => {
 
           <Typography variant="subtitle1">or sign in with </Typography>
           <Box>
-            <Button>
+            <Button
+              sx={{
+                color: "white",
+              }}
+            >
               <FacebookIcon />
             </Button>
-            <Button>
+            <Button
+              sx={{
+                color: "white",
+              }}
+            >
               <XIcon />
             </Button>
-            <Button>
+            <Button
+              sx={{
+                color: "white",
+              }}
+            >
               <GitHubIcon />
             </Button>
-            <Button>
+            <Button
+              sx={{
+                color: "white",
+              }}
+            >
               <GoogleIcon />
             </Button>
           </Box>
