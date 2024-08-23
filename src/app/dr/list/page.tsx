@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import { Select, MenuItem, FormControl, InputLabel, Grid, Paper, Typography, Button, AppBar } from '@mui/material';
 import styled from 'styled-components';
 import Header from '../../common/appbar';
+import Footer from '../../common/footer';
 export default function BasicSelect() {
   const [selectedValue, setSelectedValue] = useState('');
 
@@ -16,6 +17,7 @@ export default function BasicSelect() {
   const DoctorList = styled.div`
 padding:50px;
 margin-top:40px;
+padding-bottom:0;
 `;
   const DocListItem = styled.div`
 .box_wrp{
@@ -265,7 +267,7 @@ line-height:1.20rem;
           ))}
         </Grid>
       </DocListItem>
-
+<Footer/>
     </DoctorList>
   );
 }
