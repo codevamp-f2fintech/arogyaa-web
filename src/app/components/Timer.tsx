@@ -1,11 +1,19 @@
 "use client";
+import React, { useEffect, useState } from "react";
 
-import React from "react";
 import Countdown from "react-countdown";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
 const Timer: React.FC = () => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const countdownTime = Number(process.env.NEXT_PUBLIC_COUNTDOWN_TIME);
+
   const renderer = ({ days, hours, minutes, seconds }: any) => {
     return (
       <Box
@@ -16,8 +24,8 @@ const Timer: React.FC = () => {
           fontFamily: "Arial, sans-serif",
           fontWeight: "bold",
           color: "#333",
-          marginLeft:'-80vh',
-          marginTop:'10vh'
+          marginLeft: "-80vh",
+          marginTop: "10vh",
         }}
       >
         <Box sx={{ textAlign: "center", margin: "0 10px" }}>
@@ -43,9 +51,13 @@ const Timer: React.FC = () => {
     );
   };
 
+  if (!mounted || isNaN(countdownTime)) {
+    return null;
+  }
+
   return (
     <Countdown
-      date={Date.now() + 1209600000} // Adjust the time (e.g., 14 days from now)
+      date={Date.now() + countdownTime}
       renderer={renderer}
     />
   );
