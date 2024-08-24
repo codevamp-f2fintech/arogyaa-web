@@ -10,7 +10,7 @@ import { Box } from '@mui/material';
 
 import faqData from './faq.json';
 
-export default function FAQ() {
+const FAQ: React.FC =()=> {
   return (
     <React.Fragment>
       <CssBaseline />
@@ -33,3 +33,4 @@ export default function FAQ() {
     </React.Fragment>
   );
 }
+export default FAQ;

@@ -7,7 +7,7 @@ import { Typography } from '@mui/material';
 
 import FAQs from '../components/FAQ';
 
-export default function SimpleContainer() {
+const SimpleContainer: React.FC= ()=> {
   return (
     <React.Fragment>
       <CssBaseline />
@@ -72,3 +72,4 @@ export default function SimpleContainer() {
     </React.Fragment>
   );
 }
+export default SimpleContainer;

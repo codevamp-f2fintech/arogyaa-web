@@ -8,7 +8,7 @@ import Card from '@mui/material/Card';
 
 import Timer from '../components/Timer';
 
-export default function Maintenance() {
+const Maintenance: React.FC = () => {
   return (
     <React.Fragment>
       <CssBaseline />
@@ -17,7 +17,13 @@ export default function Maintenance() {
         height: '100vh',
         overflow: 'hidden'
       }}>
-        <Box sx={{ maxWidth: 875, maxHeight: 700, marginLeft: '30vh', marginTop: '5vh', boxShadow: 'rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;' }}>
+        <Box sx={{
+          maxWidth: 875,
+          maxHeight: 700,
+          marginLeft: '30vh',
+          marginTop: '5vh',
+          boxShadow: 'rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;'
+        }}>
           <Card variant="outlined">
             <Typography variant="h2" component="h2" sx={{
               textAlign: 'center',
@@ -34,8 +40,10 @@ export default function Maintenance() {
             <Timer />
             <img style={{ marginLeft: '70vh', height: '50vh', marginTop: '-20vh', marginRight: '-10vh' }} src='./img/maintainance.png'></img>
           </Card>
+          
         </Box>
       </Container>
     </React.Fragment>
   );
 }
+export default Maintenance;
