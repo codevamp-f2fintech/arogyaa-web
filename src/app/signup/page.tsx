@@ -16,7 +16,7 @@ const Signup = () => {
           height: "100vh",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#3FA2F6",
+          backgroundColor: "#449AC8",
           color: "white",
           marginTop: "4",
           marginRight: "4",
