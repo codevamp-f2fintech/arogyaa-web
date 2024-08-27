@@ -16,7 +16,7 @@ import TwitterIcon from "@mui/icons-material/Twitter";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import GoogleIcon from "@mui/icons-material/Google";
 
-export default function LoginPage() {
+export default function Login() {
   return (
     <Box
       display="flex"
