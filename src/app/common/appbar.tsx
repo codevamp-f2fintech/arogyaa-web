@@ -139,7 +139,7 @@ function Header() {
           <Button variant="contained" sx={{ color: '#000', backgroundColor: '#FAFAFA', width: '100%', borderRadius:100 , ':hover': {
       bgcolor: '#20ADA0', // theme.palette.primary.main
       color: 'white',
-    },}} endIcon={<ArrowCircleRightIcon />}>Book Appointment</Button>
+    },}} >Book Appointment</Button>
           </Box>
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
