@@ -1,4 +1,5 @@
 import React from 'react';
+
 import './loader.css';
 
 const Loader: React.FC = () => {
@@ -11,7 +12,7 @@ const Loader: React.FC = () => {
         <span></span>
         <span></span>
       </div>
-    
+
     </div>
   );
 };
