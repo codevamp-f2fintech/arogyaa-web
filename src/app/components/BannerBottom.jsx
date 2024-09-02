@@ -1,5 +1,6 @@
-import { Box, Button, InputBase, CardContent, Grid, Paper, Typography } from '@mui/material';
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
+
+import { Box, Button, InputBase, CardContent, Grid, Paper, Typography } from '@mui/material';
 
 import styles from '../page.module.css';
 

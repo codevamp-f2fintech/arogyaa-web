@@ -4,7 +4,7 @@ import SliderComponent from './common/SliderComponent';
 
 import { images } from "@/data";
 
-const Testimonials = () => {
+const Testimonials: React.FC = () => {
     return (
         <Box
             sx={{

@@ -1,8 +1,10 @@
-import { Box, Button, CardContent, Grid, Paper, InputBase, Typography } from '@mui/material';
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
+
+import { Box, Button, CardContent, Grid, Paper, InputBase, Typography } from '@mui/material';
+
 import styles from '../page.module.css';
 
-const BannerComponent = () => {
+const BannerComponent: React.FC = () => {
     return (
         <div className={styles.homebanner} style={{
             marginTop: '65px',
@@ -22,7 +24,7 @@ const BannerComponent = () => {
                         bottom: '0px'
                     }}
                     alt="The house from the offer."
-                    src={'../assets/images/dr1.png'}
+                    src={'/assets/images/dr1.png'}
                 />
                 <Grid container spacing={2} columns={{ xs: 4, sm: 8, md: 12 }}>
                     <Grid xs={6}>
@@ -68,7 +70,7 @@ const BannerComponent = () => {
                                 <InputBase
                                     sx={{ ml: 1, flex: 1 }}
                                     placeholder="Phone Number"
-                                    inputProps={{ 'aria-label': 'search google maps' }}
+                                    inputProps={{ 'aria-label': 'phone number' }}
                                 />
                             </Paper>
 

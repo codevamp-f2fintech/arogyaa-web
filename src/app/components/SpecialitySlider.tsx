@@ -5,10 +5,10 @@ import "slick-carousel/slick/slick-theme.css";
 
 import styles from '../page.module.css';
 
-import Slider from 'react-slick';
-import { Box, Button, Grid, ImageListItem } from '@mui/material';
-
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
+import Slider from 'react-slick';
+
+import { Box, Button, Grid, ImageListItem } from '@mui/material';
 
 import { specialistData } from "@/data";
 

@@ -1,8 +1,7 @@
 import { Box, Grid, Paper, Typography } from '@mui/material';
 
-const AboutUs = () => {
+const AboutUs: React.FC = () => {
     return (
-
         <Box sx={{
             textAlign: 'center',
             background: '#F9F6F6',

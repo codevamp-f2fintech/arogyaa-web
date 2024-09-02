@@ -1,7 +1,8 @@
-import { Box, Button, Grid, Paper, Typography } from '@mui/material';
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 
-const ExpertSpecialistSlider = () => {
+import { Box, Button, Grid, Paper, Typography } from '@mui/material';
+
+const ExpertSpecialistSlider: React.FC = () => {
     return (
 
         <Box sx={{
@@ -96,7 +97,7 @@ const ExpertSpecialistSlider = () => {
                             margin: '0 auto',
                         }}
                             alt="The house from the offer."
-                            src={'../assets/images/portrait-young-woman-doctor-with-stethoscope-uniform (1).png'}
+                            src={'/assets/images/portrait-young-woman-doctor-with-stethoscope-uniform (1).png'}
                         />
                         <Typography variant="h4" component="h4" sx={{
                             fontSize: '1.2rem',

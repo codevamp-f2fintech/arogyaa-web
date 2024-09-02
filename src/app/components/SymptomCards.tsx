@@ -1,9 +1,16 @@
-import { Box, Button, CardMedia, CardContent, Grid, Paper, Typography } from '@mui/material';
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
+
+import { Box, Button, CardMedia, CardContent, Grid, Paper, Typography } from '@mui/material';
 
 import { symptomsList } from "@/data";
 
-const SymptomCards = () => {
+interface Symptom {
+    title: string;
+    image: string;
+    Consult: string;
+}
+
+const SymptomCards: React.FC = () => {
     return (
         <Box sx={{
             textAlign: 'center',
@@ -27,17 +34,15 @@ const SymptomCards = () => {
                 Health Concerns </Typography>
 
             <Grid container columns={{ xs: 4, sm: 8, md: 12 }}>
-                {symptomsList.map((item, index) => (
+                {symptomsList.map((item: Symptom, index: number) => (
                     <Grid xs={3} sx={{
-                        display: 'flex', flexDirection: 'column', alignItems: 'center',
-                        // border: '2px solid black'
+                        display: 'flex', flexDirection: 'column', alignItems: 'center'
                     }}
                         key={index}
                     >
                         <Paper sx={{
                             padding: 2, borderRadius: '30px', width: '100%', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center',
                             background: 'white',
-                            // border:'2px solid black',
                             color: 'white',
                             boxShadow: '0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12)'
                         }}>

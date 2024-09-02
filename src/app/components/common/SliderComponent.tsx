@@ -6,6 +6,7 @@ import 'slick-carousel/slick/slick-theme.css';
 
 import React, { useRef } from 'react';
 import Slider from 'react-slick';
+
 import { Box, Paper, Typography } from '@mui/material';
 
 interface ImageData {
