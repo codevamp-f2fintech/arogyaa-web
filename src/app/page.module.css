@@ -1,75 +1,105 @@
-.appBar{
+.appBar {
   background-color: #1D869D;
 }
-.container_main{
+
+.container_main {
   background-color: #F9F6F6;
 }
-.page_title h4{
-  font-size:2.5rem;
-  text-align:left;
-  color:black;
-  line-height:4rem;
-  font-weight:600;
-  }
 
-  .page_title h4 span{
- color:#20ADA0;
-  }
-  .homebanner {
-    width: 100%;
-    height: 100vh;
-    background: 
-      /* linear-gradient(to left, #95E1D0 , #40BA9D), */
-      url('/assets/images/Gemini_Generated_Image_o9ery1o9ery1o9er.jpg'); /* Path to the image in the public folder */
-    background-size: cover; /* Ensure the image covers the container */
-    background-position: center; /* Center the image */
-    background-repeat: no-repeat; /* Prevent image repetition */
+.page_title h4 {
+  font-size: 2.5rem;
+  text-align: left;
+  color: black;
+  line-height: 4rem;
+  font-weight: 600;
+}
 
-  }
-  .banner2 {
-    position: relative;
-    width: 100%;
-    height: 100vh;
-    background: 
-      /* linear-gradient(to left, #95E1D0 , #40BA9D), */
-      url('/assets/images/Gemini_Generated_Image_o9ery1o9ery1o9er.jpg'); /* Path to the image in the public folder */
-    background-size: cover; /* Ensure the image covers the container */
-    background-position: center; /* Center the image */
-    background-repeat: no-repeat; /* Prevent image repetition */
+.page_title h4 span {
+  color: #20ADA0;
+}
 
-  }
-  .slider_src_place{
-    width:50px;
-    height:50px;
-    border-radius: 100px;
-  }
-  .nav-slide { padding: 0 5px; }
-  .customDots {
-    bottom: -30px; /* Adjust the position of the dots */
-    display: flex !important; /* Center align dots */
-    justify-content: center;
-  }
-  
-  .customDot {
-    width: 12px;
-    height: 12px;
-    background-color: #ccc; /* Default dot color */
-    border-radius: 50%;
-    margin: 0 5px; /* Space between dots */
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 12px; /* Adjust the size for custom content */
-    color: #333; /* Text color */
-  }
-  
-  .slick-active .customDot {
-    background-color: #ff5722; /* Active dot color */
-    color: white; /* Text color for active dot */
-  }
-  
-  .sliderImage {
-    width: 100%;
-    height: auto;
-  }
+.homebanner {
+  width: 100%;
+  height: 100vh;
+  background:
+    /* linear-gradient(to left, #95E1D0 , #40BA9D), */
+    url('/assets/images/Gemini_Generated_Image_o9ery1o9ery1o9er.jpg');
+  /* Path to the image in the public folder */
+  background-size: cover;
+  /* Ensure the image covers the container */
+  background-position: center;
+  /* Center the image */
+  background-repeat: no-repeat;
+  /* Prevent image repetition */
+
+}
+
+.slick-initialized .slick-slide {
+  display: block;
+  padding: 10px !important;
+}
+
+.banner2 {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background:
+    /* linear-gradient(to left, #95E1D0 , #40BA9D), */
+    url('/assets/images/Gemini_Generated_Image_o9ery1o9ery1o9er.jpg');
+  /* Path to the image in the public folder */
+  background-size: cover;
+  /* Ensure the image covers the container */
+  background-position: center;
+  /* Center the image */
+  background-repeat: no-repeat;
+  /* Prevent image repetition */
+
+}
+
+.slider_src_place {
+  width: 50px;
+  height: 50px;
+  border-radius: 100px;
+}
+
+.nav-slide {
+  padding: 0 5px;
+}
+
+.customDots {
+  bottom: -30px;
+  /* Adjust the position of the dots */
+  display: flex !important;
+  /* Center align dots */
+  justify-content: center;
+}
+
+.customDot {
+  width: 12px;
+  height: 12px;
+  background-color: #ccc;
+  /* Default dot color */
+  border-radius: 50%;
+  margin: 0 5px;
+  /* Space between dots */
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+  /* Adjust the size for custom content */
+  color: #333;
+  /* Text color */
+}
+
+.slick-active .customDot {
+  background-color: #ff5722;
+  /* Active dot color */
+  color: white;
+  /* Text color for active dot */
+}
+
+.sliderImage {
+  width: 100%;
+  height: auto;
+}

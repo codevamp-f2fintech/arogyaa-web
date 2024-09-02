@@ -14,10 +14,6 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
-import styled from 'styled-components';
-// const AppBar = styled.header`
-// background-color: #3BC2D5;
-// `;
 
 
 const pages = ['Products', 'Pricing', 'Blog'];

@@ -13,7 +13,6 @@
     "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^5.16.7",
     "@mui/material": "^5.16.7",
-    "@mui/material-nextjs": "^5.16.6",
     "@reduxjs/toolkit": "^2.2.7",
     "axios": "^1.7.4",
     "next": "14.2.5",
@@ -22,7 +21,6 @@
     "react-redux": "^9.1.2",
     "react-slick": "^0.30.2",
     "slick-carousel": "^1.8.1",
-    "styled-components": "^6.1.12",
     "swr": "^2.2.5"
   },
   "devDependencies": {

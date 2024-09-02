@@ -1,14 +1,23 @@
+'use client';
+
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-import { Box, Button, Grid, ImageListItem } from '@mui/material/';
-import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
-import Slider from 'react-slick';
-import styled from 'styled-components';
-
 import styles from '../page.module.css';
+
+import Slider from 'react-slick';
+import { Box, Button, Grid, ImageListItem } from '@mui/material';
+
+import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
+
 import { specialistData } from "@/data";
 
+interface Specialist {
+    img: string;
+    title: string;
+    caption: string;
+    readmore: string;
+}
 
 const settings = {
     dots: true,
@@ -53,78 +62,45 @@ const settings = {
     ]
 };
 
-const Speciality = styled.div`
-
-.slick-initialized .slick-slide {
-    display: block;
-    padding: 10px!important;
-}
-      .listof_specialities{
-       font-size: 32px;
-    color: #000;
-    line-height:40px;
-    font-weight: 700;
-    margin-top:20px;
-    margin-bottom:20px;
-    text-align:center;
-    }
-`;
-
-const StyledBox = styled(Box)`
-
-background:white;
-      height: 100%;
-    border: 4px solid white;
-    display:flex!important;
-    align-items:center;
-    flex-direction:column;
-    border-radius: 30px;
-        padding: 20px;
-        position:relative;
-        box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
-text-align:center;
-       h2{
-            font-size: 18px;
-    font-weight: 700;
-    line-height:26px;
-    color: #000;
-    margin-top:20px;
-    } 
-       h4{
-        font-size: 14px;
-    color: #000;
-    line-height:18px;
-    font-weight: 400;
-    margin-top:20px;
-    margin-bottom:20px;
-    } 
-
-    .vector_plus{
-    position: absolute;
-    right: 10px;
-    top: 10px;
-  
-    }
-
-`;
-
-const SpecialitySlider = () => {
+const SpecialitySlider: React.FC = () => {
     return (
         <>
             <Box sx={{ background: '#F9F6F6', padding: '50px', height: 50, width: '100%' }}>
             </Box>
-            <Speciality>
-                <h1 className='listof_specialities'>We Serve In Different Areas For Our Patients</h1>
+            <div>
+                <h1 style={{
+                    fontSize: '32px',
+                    color: '#000',
+                    lineHeight: '40px',
+                    fontWeight: 700,
+                    marginTop: '20px',
+                    marginBottom: '20px',
+                    textAlign: 'center',
+                }}>We Serve In Different Areas For Our Patients</h1>
 
-                <Slider {...settings} >
-                    {specialistData.map((item, index) => (
-
-
-                        <StyledBox className='vector_plus_container' sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+                <Slider {...settings}>
+                    {specialistData.map((item: Specialist, index: number) => (
+                        <Box sx={{
+                            display: 'flex', flexDirection: 'column', alignItems: 'center',
+                            background: 'white',
+                            height: '100%',
+                            border: '4px solid white',
+                            borderRadius: '30px',
+                            padding: '20px',
+                            position: 'relative',
+                            boxShadow: '0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12)',
+                            textAlign: 'center'
+                        }}
                             key={index}
                         >
-                            <img src="../assets/images/speciality-icons/vector_plus.png" className='vector_plus' />
-                            <ImageListItem key={item.img} sx={{
+                            <img src="/assets/images/speciality-icons/vector_plus.png"
+                                alt="Icon"
+                                style={{
+                                    position: 'absolute',
+                                    right: '10px',
+                                    top: '10px'
+                                }} />
+                            <ImageListItem sx={{
                                 height: 100,
                                 width: 100,
                                 background: '#f9f6f6',
@@ -139,32 +115,45 @@ const SpecialitySlider = () => {
                                 />
                             </ImageListItem>
 
-                            <h2>{item.title}</h2>
-                            <h4>{item.caption}</h4>
+                            <h2 style={{
+                                fontSize: '18px',
+                                fontWeight: 700,
+                                lineHeight: '26px',
+                                color: '#000',
+                                marginTop: '20px'
+                            }}>{item.title}</h2>
+                            <h4 style={{
+                                fontSize: '14px',
+                                color: '#000',
+                                lineHeight: '18px',
+                                fontWeight: '400',
+                                marginTop: '20px',
+                                marginBottom: '20px'
+                            }}
+                            >{item.caption}</h4>
                             <Button variant="contained" sx={{
-                                marginTop: 2, width: 'auto', color: '#fff', background: '#20ADA0', borderRadius: '100px', ':hover': {
+                                marginTop: 2, width: 'auto', color: '#fff', background: '#20ADA0', borderRadius: '100px',
+                                ':hover': {
                                     bgcolor: '#20ADA0', // theme.palette.primary.main
                                     color: 'white',
                                 },
                             }} endIcon={<ArrowCircleRightIcon />}>{item.readmore}</Button>
-                        </StyledBox>
-
-
+                        </Box>
                     ))}
                 </Slider>
 
                 <Grid container spacing={2} columns={{ xs: 4, sm: 8, md: 12 }}>
-
                     <Grid xs={12} sx={{ textAlign: 'center', marginTop: '20px' }}>
                         <Button variant="contained" sx={{
-                            marginTop: 2, width: 'auto', color: '#fff', background: '#20ADA0', borderRadius: '100px', ':hover': {
+                            marginTop: 4, marginLeft: 2, width: 'auto', color: '#fff', background: '#20ADA0', borderRadius: '100px',
+                            ':hover': {
                                 bgcolor: '#20ADA0', // theme.palette.primary.main
                                 color: 'white',
                             },
                         }} endIcon={<ArrowCircleRightIcon />}>More Specialty</Button>
                     </Grid>
                 </Grid>
-            </Speciality>
+            </div>
         </>
     )
 };

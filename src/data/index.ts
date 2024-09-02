@@ -247,8 +247,8 @@ const whyChoose = [
 
 const images = [
     {
-        src: '../../public/assets/images/portrait-young-woman-doctor-with-stethoscope-uniform (1).png',
-        srcquote: '../../public/assets/images/icons8-quote-left-100.png',
+        src: '../assets/images/portrait-young-woman-doctor-with-stethoscope-uniform (1).png',
+        srcquote: '../assets/images/icons8-quote-left-100.png',
         name: 'raghav Chadda',
         age: '87',
         description: 'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using  making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for  will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like). 1',
@@ -268,7 +268,7 @@ const images = [
         description: 't anything embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words, combined with a handful of model sentence structures, to generate Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore always free from repetition, injected humour, or non-characteristic words etc',
     },
     {
-        src: '../assets/images/green-eco-loop-leaf-check-mark.png',
+        src: '../assets/images/doctor-with-his-arms-crossed-white-background.png',
         srcquote: '../assets/images/icons8-quote-left-100.png',
         name: 'Sanjay Singh Bhalla',
         age: '45',

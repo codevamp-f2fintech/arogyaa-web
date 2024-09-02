@@ -1,10 +1,7 @@
-'use client';
-
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
-import styled from 'styled-components';
 
 import AdbIcon from '@mui/icons-material/Adb';
 import InstagramIcon from '@mui/icons-material/Instagram';
@@ -13,60 +10,28 @@ import XIcon from '@mui/icons-material/X';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import { InputBase, Paper } from '@mui/material';
 
-const Footersection = styled(Box)`
-padding:50px 0px;
-margin-top:150px;
-border-top:1px solid #dbdbdb;
-border-bottom:1px solid #dbdbdb;
-h4.ftr_list_menu{
-  font-size: 18px;
-    color: #000;
-    line-height:24px;
-    font-weight: 700;
-    margin-bottom:10px;
-}
-`;
-
-const FooterList = styled(Box)`
-h6{
-  font-size: 13px;
-    color: #000;
-    line-height:28px;
-    font-weight: 300;
-    margin-bottom:0px;
-    cursor:pointer;
-}
-    .social_icon{
-    color:white;
-    }
-`;
-
-const Copyright = styled(Box)`
-padding:20px 0px;
-padding-bottom:0px;
-background:inherit;
-// border-top:1px solid dbdbdb;
-p{
-  font-size: 14px;
-    color: gray;
-    line-height:20px;
-    font-weight: 300;
-    margin-bottom:10px;
-    cursor:pointer;
-}
-`;
-
 const Footer = () => {
-
     return (
         <>
-            <Footersection sx={{ marginTop: '50px' }}>
+            <Box sx={{
+                marginTop: '50px',
+                padding: '50px 0px',
+                borderTop: '1px solid #dbdbdb',
+                borderBottom: '1px solid #dbdbdb'
+            }}>
 
                 <Grid container spacing={2} columns={{ xs: 4, sm: 8, md: 12 }}>
-
                     <Grid xs={5} sx={{ textAlign: 'left', marginTop: '20px' }}>
-
-                        <FooterList>
+                        <Box sx={{
+                            '& h6': {
+                                fontSize: '13px',
+                                color: '#000',
+                                lineHeight: '28px',
+                                fontWeight: 300,
+                                marginBottom: 0,
+                                cursor: 'pointer',
+                            }
+                        }}>
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 <AdbIcon sx={{ display: { xs: 'none', md: 'flex', color: '#20ADA0' }, mr: 1 }} />
                                 <Typography
@@ -94,16 +59,29 @@ const Footer = () => {
                             <Typography variant="h6" component="h6">
                                 Arogya 2024
                             </Typography>
-
-
-                        </FooterList>
+                        </Box>
                     </Grid>
 
                     <Grid xs={2} sx={{ textAlign: 'left', marginTop: '20px' }}>
-                        <Typography variant="h4" component="h4" className='ftr_list_menu'>
+                        <h4 style={{
+                            fontSize: '18px',
+                            color: '#000',
+                            lineHeight: '24px',
+                            fontWeight: 700,
+                            marginBottom: '10px',
+                        }}>
                             Contact Us
-                        </Typography>
-                        <FooterList>
+                        </h4>
+                        <Box sx={{
+                            '& h6': {
+                                fontSize: '13px',
+                                color: '#000',
+                                lineHeight: '28px',
+                                fontWeight: 300,
+                                marginBottom: 0,
+                                cursor: 'pointer',
+                            }
+                        }}>
                             <Typography variant="h6" component="h6">
                                 Opening hours: 09:00 - 20:00
                             </Typography>
@@ -116,14 +94,29 @@ const Footer = () => {
                             <Typography variant="h6" component="h6">
                                 Read about medicines
                             </Typography>
-                        </FooterList>
+                        </Box>
                     </Grid>
 
                     <Grid xs={2} sx={{ textAlign: 'left', marginTop: '20px' }}>
-                        <Typography variant="h4" component="h4" className='ftr_list_menu'>
+                        <h4 style={{
+                            fontSize: '18px',
+                            color: '#000',
+                            lineHeight: '24px',
+                            fontWeight: 700,
+                            marginBottom: '10px',
+                        }}>
                             Pages
-                        </Typography>
-                        <FooterList>
+                        </h4>
+                        <Box sx={{
+                            '& h6': {
+                                fontSize: '13px',
+                                color: '#000',
+                                lineHeight: '28px',
+                                fontWeight: 300,
+                                marginBottom: 0,
+                                cursor: 'pointer',
+                            }
+                        }}>
                             <Typography variant="h6" component="h6">
                                 Search for doctors
                             </Typography>
@@ -136,13 +129,19 @@ const Footer = () => {
                             <Typography variant="h6" component="h6">
                                 Read about medicines
                             </Typography>
-                        </FooterList>
+                        </Box>
                     </Grid>
                     <Grid xs={3} sx={{ textAlign: 'left', marginTop: '20px' }}>
-                        <Typography variant="h4" component="h4" className='ftr_list_menu'>
+                        <h4 style={{
+                            fontSize: '18px',
+                            color: '#000',
+                            lineHeight: '24px',
+                            fontWeight: 700,
+                            marginBottom: '10px',
+                        }}>
                             Social
-                        </Typography>
-                        <FooterList className='social_icon'>
+                        </h4>
+                        <Box color={'white'}>
                             <InstagramIcon sx={{ marginRight: '15px', cursor: 'pointer', color: '#20ADA0' }} />
                             <FacebookIcon sx={{ margin: '0 15px', cursor: 'pointer', color: '#20ADA0' }} />
                             <XIcon sx={{ margin: '0 15px', cursor: 'pointer', color: '#20ADA0' }} />
@@ -161,37 +160,66 @@ const Footer = () => {
 
                             </Paper>
                             <Button variant="contained" sx={{ color: 'white', background: '#20ADA0', width: '100%', marginTop: '10px' }} >Subscribe</Button>
-
-                        </FooterList>
+                        </Box>
                     </Grid>
                 </Grid>
 
 
-            </Footersection>
-            <Copyright>
-
+            </Box>
+            <Box sx={{
+                padding: '20px 0px',
+                paddingBottom: '0px',
+                background: 'inherit'
+            }}>
                 <Grid container spacing={2} columns={{ xs: 4, sm: 8, md: 12 }}>
-
                     <Grid xs={5} sx={{ textAlign: 'left', }}>
-                        <Typography variant="body2" component="p" className=''>
+                        <Typography variant="body2" component="p" sx={{
+                            fontSize: '14px',
+                            color: 'gray',
+                            lineHeight: '20px',
+                            fontWeight: 300,
+                            marginBottom: '10px',
+                            cursor: 'pointer'
+                        }}>
                             © Copyright 2024, All rights reserved with Arogya HealtCare
                         </Typography>
                     </Grid>
                     <Grid xs={7} sx={{ textAlign: 'right', display: 'flex', justifyContent: 'flex-end' }}>
-                        <Typography variant="body2" component="p" className='' sx={{ marginRight: 3 }}>
+                        <Typography variant="body2" component="p" sx={{
+                            marginRight: 3,
+                            fontSize: '14px',
+                            color: 'gray',
+                            lineHeight: '20px',
+                            fontWeight: 300,
+                            marginBottom: '10px',
+                            cursor: 'pointer',
+                        }}>
                             Privacy Policy
                         </Typography>
-                        <Typography variant="body2" component="p" className='' sx={{ marginRight: 3 }}>
-                            terms & Conditions
+                        <Typography variant="body2" component="p" sx={{
+                            marginRight: 3,
+                            fontSize: '14px',
+                            color: 'gray',
+                            lineHeight: '20px',
+                            fontWeight: 300,
+                            marginBottom: '10px',
+                            cursor: 'pointer',
+                        }}>
+                            Terms & Conditions
                         </Typography>
-                        <Typography variant="body2" component="p" className=''>
+                        <Typography variant="body2" component="p" sx={{
+                            fontSize: '14px',
+                            color: 'gray',
+                            lineHeight: '20px',
+                            fontWeight: 300,
+                            marginBottom: '10px',
+                            cursor: 'pointer',
+                        }}>
                             FAQ
                         </Typography>
                     </Grid>
                 </Grid>
-
-
-            </Copyright>
+            </Box>
         </>
     );
 };

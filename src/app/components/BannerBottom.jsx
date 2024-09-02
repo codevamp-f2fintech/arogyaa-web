@@ -1,157 +1,177 @@
-import { Box, Button, InputBase, CardContent, Grid, Paper, Typography } from '@mui/material/';
+import { Box, Button, InputBase, CardContent, Grid, Paper, Typography } from '@mui/material';
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
-import styled from 'styled-components';
 
 import styles from '../page.module.css';
 
-const HealthPriority = styled(Box)`
-padding-top:50px;
-padding-bottom:50px;
-margin-top:100px;
-border-radius:30px;
-     .banner2_c_title{
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    margin-top: -66px;
-    margin-right: -16px;
-  }
-  .banner2_c_title span{
-      background: #F9F6F6;
-    padding:15px;
-    font-size: 2.5rem;
-    font-weight: bold;
-    line-height: 2.5rem;
-       border-radius:  0px 0px 0px 25px}
-  
-  
-  .banner2_c_title h4{
-      background: #F9F6F6;
-    padding: 15px;
-  border-radius: 0px 0px 0px 25px;
-    font-size: 2.5rem;
-    font-weight: bold;
-    line-height: 2.5rem;}
-  
-    `;
-
-const Banner2Card = styled.div`
-background-color:rgba(255, 255, 255, 0.53);
-padding: 40px;
-border-radius: 10px;
-text-align: left;
-max-width:400px;
-margin-right:40px;
-
-/* Nesting styles for child elements */
-h1 {
-  font-size: 32px;
-  line-height:48px;
-  color: #000;
-  margin-bottom: 10px;
-}
-h2 {
-  font-size: 24px;
-  line-height:26px;
-  color: #000;
-  margin-top: 20px;
-  margin-bottom: 30px;
-}
-
-p {
-  font-size: 14px;
-  color: #000;
-  font-weight: 400;
-  line-height: 20px;
-}`;
-
 const BannerBottom = () => {
     return (
-
-        <HealthPriority className={styles.banner2}>
-
+        <Box
+            sx={{
+                paddingTop: '50px',
+                paddingBottom: '50px',
+                marginTop: '100px',
+                borderRadius: '30px',
+                position: 'relative',
+                backgroundColor: '#F9F6F6'
+            }}
+            className={styles.banner2}
+        >
             <Box
                 component="img"
                 sx={{
-
                     width: '48vw',
                     position: 'absolute',
                     left: '10px',
-                    bottom: '0px'
-
+                    bottom: '0px',
                 }}
-                alt="The house from the offer."
-                src={'../assets/images/doctor-with-his-arms-crossed-white-background.png'}
+                alt="Doctor"
+                src="/assets/images/doctor-with-his-arms-crossed-white-background.png"
             />
             <Grid container spacing={2} columns={{ xs: 4, sm: 8, md: 12 }} sx={{ height: '100%' }}>
-                <Grid xs={6}></Grid>
-                <Grid xs={6} sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column', alignItems: 'flex-end' }} >
-
-                    <CardContent className="banner2_c_title">
-                        <Typography variant="h5" component="span">
+                <Grid item xs={6}></Grid>
+                <Grid
+                    item xs={6}
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-end',
+                        position: 'relative',
+                    }}
+                >
+                    <CardContent
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'flex-end',
+                            marginTop: '-66px',
+                            marginRight: '-16px',
+                            background: '#F9F6F6',
+                            borderRadius: '0 0 0 25px',
+                            padding: '15px',
+                        }}
+                    >
+                        <Typography variant="h5" component="span" sx={{
+                            background: '#F9F6F6',
+                            padding: '10px',
+                            fontSize: '2.5rem',
+                            fontWeight: 'bold',
+                            lineHeight: '1.5rem',
+                            borderRadius: '1px 25px 5px 0px',
+                            color: 'black'
+                        }}>
                             Make your health a priority
                         </Typography>
-                        <Typography variant="h4" component="h4">
+                        <Typography variant="h4" component="h4" sx={{
+                            background: '#F9F6F6',
+                            padding: '6px',
+                            borderRadius: '1px 25px 5px 0px',
+                            fontSize: '2.5rem',
+                            fontWeight: 'bold',
+                            lineHeight: '2.5rem',
+                            color: 'black'
+                        }}>
                             Don&apos;t Overlook it
                         </Typography>
-
                     </CardContent>
-                    <Button variant="contained" sx={{
-                        position: 'absolute',
-                        right: '374px',
-                        top: '86px',
-                        width: 'auto', color: '#20ADA0', background: '#fff', ':hover': {
-                            bgcolor: '#20ADA0', // theme.palette.primary.main
-                            color: 'white',
-                        },
-                    }} endIcon={<ArrowCircleRightIcon />}>Book online</Button>
-                    <Banner2Card>
-                        <h1>Request a Call</h1>
-                        {/* <h2> Restoring Your Health</h2> */}
-                        <p>You can simplyfy order a call and we will help you make an appointment with right specialist.</p>
+
+                    <Button
+                        variant="contained"
+                        sx={{
+                            position: 'absolute',
+                            right: '580px',
+                            top: '40px',
+                            width: '23%',
+                            color: '#20ADA0',
+                            backgroundColor: '#fff',
+                            ':hover': {
+                                bgcolor: '#20ADA0',
+                                color: 'white',
+                            },
+                        }}
+                        endIcon={<ArrowCircleRightIcon />}
+                    >
+                        Book online
+                    </Button>
+
+                    <Box
+                        sx={{
+                            backgroundColor: 'rgba(255, 255, 255, 0.53)',
+                            padding: '40px',
+                            borderRadius: '10px',
+                            textAlign: 'left',
+                            maxWidth: '400px',
+                            marginRight: '40px',
+                        }}
+                    >
+                        <h1 style={{
+                            fontSize: '32px',
+                            lineHeight: '48px',
+                            color: '#000',
+                            marginBottom: '10px',
+                        }}>Request a Call</h1>
+                        <p style={{
+                            fontSize: '14px',
+                            color: '#000',
+                            fontWeight: '400',
+                            lineHeight: '20px'
+                        }}
+                        >
+                            You can simply order a call and we will help you make an appointment with the right specialist.
+                        </p>
                         <Paper
                             component="form"
-                            sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: '100%', marginTop: 3 }}
+                            sx={{
+                                p: '2px 4px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                width: '100%',
+                                marginTop: 3,
+                            }}
                         >
-
                             <InputBase
                                 sx={{ ml: 1, flex: 1 }}
                                 placeholder="Name"
-                                inputProps={{ 'aria-label': 'search google maps' }}
+                                inputProps={{ 'aria-label': 'Name' }}
                             />
                         </Paper>
                         <Paper
                             component="form"
-                            sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: '100%', marginTop: 3 }}
+                            sx={{
+                                p: '2px 4px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                width: '100%',
+                                marginTop: 3,
+                            }}
                         >
-
                             <InputBase
                                 sx={{ ml: 1, flex: 1 }}
                                 placeholder="Phone Number"
-                                inputProps={{ 'aria-label': 'search google maps' }}
+                                inputProps={{ 'aria-label': 'Phone Number' }}
                             />
                         </Paper>
-
                         <Box sx={{ flex: 1, marginTop: '20px' }}>
-
-                            <Button variant="contained" sx={{
-                                width: '100%', color: '#20ADA0', background: '#fff', ':hover': {
-                                    bgcolor: '#20ADA0', // theme.palette.primary.main
-                                    color: 'white',
-                                },
-                            }} endIcon={<ArrowCircleRightIcon />}>Send Request</Button>
+                            <Button
+                                variant="contained"
+                                sx={{
+                                    width: '100%',
+                                    color: '#20ADA0',
+                                    backgroundColor: '#fff',
+                                    ':hover': {
+                                        bgcolor: '#20ADA0',
+                                        color: 'white',
+                                    },
+                                }}
+                                endIcon={<ArrowCircleRightIcon />}
+                            >
+                                Send Request
+                            </Button>
                         </Box>
-
-
-                    </Banner2Card>
-
+                    </Box>
                 </Grid>
-
-
             </Grid>
-
-
-        </HealthPriority>
+        </Box >
     );
 };
 
