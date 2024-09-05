@@ -2,9 +2,9 @@
 
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import ReduxProvider from "@/redux/provider";
-import SnackbarComponent from "./snackbar/page";
-import "./globals.css";
+
+import './globals.css';
+import ReduxProvider from '@/redux/provider';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,7 +18,6 @@ const RootLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
     <html lang="en">
       <body className={inter.className}>
         <ReduxProvider>
-          <SnackbarComponent />
           {children}
         </ReduxProvider>
       </body>

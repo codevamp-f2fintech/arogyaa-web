@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import { Select, MenuItem, FormControl, InputLabel, Grid, Paper, Typography, Button, AppBar } from '@mui/material';
 import styled from 'styled-components';
-import Header from '../../common/appbar';
-import Footer from '../../common/footer';
+import Header from '../../components/common/Topbar';
+import Footer from '../../components/common/Footer';
 export default function BasicSelect() {
   const [selectedValue, setSelectedValue] = useState('');
 
