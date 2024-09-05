@@ -2,6 +2,8 @@ import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 
 import { Box, Button, CardMedia, CardContent, Grid, Paper, Typography } from '@mui/material';
 
+import en from '@/locales/en.json';
+
 import { symptomsList } from "@/data";
 
 interface Symptom {
@@ -29,9 +31,9 @@ const SymptomCards: React.FC = () => {
             }}>
                 <span style={{
                     fontSize: '1rem', color: '#20ADA0'
-                }}>Common</span>
+                }}>{en.homepage.symptomCards.title1}</span>
                 <br />
-                Health Concerns </Typography>
+                {en.homepage.symptomCards.title2} </Typography>
 
             <Grid container columns={{ xs: 4, sm: 8, md: 12 }}>
                 {symptomsList.map((item: Symptom, index: number) => (
@@ -87,7 +89,7 @@ const SymptomCards: React.FC = () => {
                             bgcolor: '#20ADA0',
                             color: 'white',
                         },
-                    }} endIcon={<ArrowCircleRightIcon />}>See All Symptoms</Button>
+                    }} endIcon={<ArrowCircleRightIcon />}>{en.homepage.symptomCards.buttonText}</Button>
                 </Grid>
             </Grid>
         </Box >

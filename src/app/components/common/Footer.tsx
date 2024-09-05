@@ -10,6 +10,8 @@ import XIcon from '@mui/icons-material/X';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import { InputBase, Paper } from '@mui/material';
 
+import en from '@/locales/en.json';
+
 const Footer = () => {
     return (
         <>
@@ -19,7 +21,6 @@ const Footer = () => {
                 borderTop: '1px solid #dbdbdb',
                 borderBottom: '1px solid #dbdbdb'
             }}>
-
                 <Grid container spacing={2} columns={{ xs: 4, sm: 8, md: 12 }}>
                     <Grid xs={5} sx={{ textAlign: 'left', marginTop: '20px' }}>
                         <Box sx={{
@@ -49,50 +50,14 @@ const Footer = () => {
                                         textDecoration: 'none',
                                     }}
                                 >
-                                    AROGYA
+                                    {en.footer.title}
                                 </Typography>
                             </Box>
                             <Typography variant="h4" component="h4" sx={{ marginTop: '10px', marginBottom: '10px', color: 'black' }}>
-                                The Best Medical
-                                and Treatment Center For You
+                                {en.footer.the_best_medical}
                             </Typography>
                             <Typography variant="h6" component="h6">
-                                Arogya 2024
-                            </Typography>
-                        </Box>
-                    </Grid>
-
-                    <Grid xs={2} sx={{ textAlign: 'left', marginTop: '20px' }}>
-                        <h4 style={{
-                            fontSize: '18px',
-                            color: '#000',
-                            lineHeight: '24px',
-                            fontWeight: 700,
-                            marginBottom: '10px',
-                        }}>
-                            Contact Us
-                        </h4>
-                        <Box sx={{
-                            '& h6': {
-                                fontSize: '13px',
-                                color: '#000',
-                                lineHeight: '28px',
-                                fontWeight: 300,
-                                marginBottom: 0,
-                                cursor: 'pointer',
-                            }
-                        }}>
-                            <Typography variant="h6" component="h6">
-                                Opening hours: 09:00 - 20:00
-                            </Typography>
-                            <Typography variant="h6" component="h6">
-                                Search for clinics
-                            </Typography>
-                            <Typography variant="h6" component="h6">
-                                Search for hospitals
-                            </Typography>
-                            <Typography variant="h6" component="h6">
-                                Read about medicines
+                                {en.footer.dated}
                             </Typography>
                         </Box>
                     </Grid>
@@ -105,7 +70,7 @@ const Footer = () => {
                             fontWeight: 700,
                             marginBottom: '10px',
                         }}>
-                            Pages
+                            {en.footer.contact_section.title}
                         </h4>
                         <Box sx={{
                             '& h6': {
@@ -118,16 +83,51 @@ const Footer = () => {
                             }
                         }}>
                             <Typography variant="h6" component="h6">
-                                Search for doctors
+                                {en.footer.contact_section.opening_hours}
                             </Typography>
                             <Typography variant="h6" component="h6">
-                                Search for clinics
+                                {en.footer.contact_section.clinics}
                             </Typography>
                             <Typography variant="h6" component="h6">
-                                Search for hospitals
+                                {en.footer.contact_section.hospitals}
                             </Typography>
                             <Typography variant="h6" component="h6">
-                                Read about medicines
+                                {en.footer.contact_section.medicines}
+                            </Typography>
+                        </Box>
+                    </Grid>
+
+                    <Grid xs={2} sx={{ textAlign: 'left', marginTop: '20px' }}>
+                        <h4 style={{
+                            fontSize: '18px',
+                            color: '#000',
+                            lineHeight: '24px',
+                            fontWeight: 700,
+                            marginBottom: '10px',
+                        }}>
+                            {en.footer.pages_section.title}
+                        </h4>
+                        <Box sx={{
+                            '& h6': {
+                                fontSize: '13px',
+                                color: '#000',
+                                lineHeight: '28px',
+                                fontWeight: 300,
+                                marginBottom: 0,
+                                cursor: 'pointer',
+                            }
+                        }}>
+                            <Typography variant="h6" component="h6">
+                                {en.footer.pages_section.doctors}
+                            </Typography>
+                            <Typography variant="h6" component="h6">
+                                {en.footer.contact_section.clinics}
+                            </Typography>
+                            <Typography variant="h6" component="h6">
+                                {en.footer.contact_section.hospitals}
+                            </Typography>
+                            <Typography variant="h6" component="h6">
+                                {en.footer.contact_section.medicines}
                             </Typography>
                         </Box>
                     </Grid>
@@ -139,7 +139,7 @@ const Footer = () => {
                             fontWeight: 700,
                             marginBottom: '10px',
                         }}>
-                            Social
+                            {en.footer.social}
                         </h4>
                         <Box color={'white'}>
                             <InstagramIcon sx={{ marginRight: '15px', cursor: 'pointer', color: '#20ADA0' }} />
@@ -150,21 +150,18 @@ const Footer = () => {
                                 component="form"
                                 sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: '100%', marginTop: 3 }}
                             >
-
                                 <InputBase
                                     sx={{ ml: 1, flex: 1 }}
                                     placeholder="Enter Email"
                                     inputProps={{ 'aria-label': 'search google maps' }}
                                 />
-
-
                             </Paper>
-                            <Button variant="contained" sx={{ color: 'white', background: '#20ADA0', width: '100%', marginTop: '10px' }} >Subscribe</Button>
+                            <Button variant="contained" sx={{ color: 'white', background: '#20ADA0', width: '100%', marginTop: '10px' }} >
+                                {en.footer.button}
+                            </Button>
                         </Box>
                     </Grid>
                 </Grid>
-
-
             </Box>
             <Box sx={{
                 padding: '20px 0px',
@@ -181,7 +178,7 @@ const Footer = () => {
                             marginBottom: '10px',
                             cursor: 'pointer'
                         }}>
-                            © Copyright 2024, All rights reserved with Arogya HealtCare
+                            {en.footer.copyright}
                         </Typography>
                     </Grid>
                     <Grid xs={7} sx={{ textAlign: 'right', display: 'flex', justifyContent: 'flex-end' }}>
@@ -194,7 +191,7 @@ const Footer = () => {
                             marginBottom: '10px',
                             cursor: 'pointer',
                         }}>
-                            Privacy Policy
+                            {en.footer.pages_section.privacy}
                         </Typography>
                         <Typography variant="body2" component="p" sx={{
                             marginRight: 3,
@@ -205,7 +202,7 @@ const Footer = () => {
                             marginBottom: '10px',
                             cursor: 'pointer',
                         }}>
-                            Terms & Conditions
+                            {en.footer.pages_section.terms}
                         </Typography>
                         <Typography variant="body2" component="p" sx={{
                             fontSize: '14px',
@@ -215,7 +212,7 @@ const Footer = () => {
                             marginBottom: '10px',
                             cursor: 'pointer',
                         }}>
-                            FAQ
+                            {en.footer.pages_section.faq}
                         </Typography>
                     </Grid>
                 </Grid>

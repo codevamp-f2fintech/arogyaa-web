@@ -2,6 +2,8 @@ import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 
 import { Box, Button, InputBase, CardContent, Grid, Paper, Typography } from '@mui/material';
 
+import en from '@/locales/en.json';
+
 import styles from '../page.module.css';
 
 const BannerBottom = () => {
@@ -61,7 +63,7 @@ const BannerBottom = () => {
                             borderRadius: '1px 25px 5px 0px',
                             color: 'black'
                         }}>
-                            Make your health a priority
+                            {en.homepage.bannerBottom.make_your_health}
                         </Typography>
                         <Typography variant="h4" component="h4" sx={{
                             background: '#F9F6F6',
@@ -72,7 +74,7 @@ const BannerBottom = () => {
                             lineHeight: '2.5rem',
                             color: 'black'
                         }}>
-                            Don&apos;t Overlook it
+                            {en.homepage.bannerBottom.overlook}
                         </Typography>
                     </CardContent>
 
@@ -92,7 +94,7 @@ const BannerBottom = () => {
                         }}
                         endIcon={<ArrowCircleRightIcon />}
                     >
-                        Book online
+                        {en.homepage.bannerBottom.buttonText}
                     </Button>
 
                     <Box
@@ -110,7 +112,9 @@ const BannerBottom = () => {
                             lineHeight: '48px',
                             color: '#000',
                             marginBottom: '10px',
-                        }}>Request a Call</h1>
+                        }}>
+                            {en.homepage.bannerComponent.request}
+                        </h1>
                         <p style={{
                             fontSize: '14px',
                             color: '#000',
@@ -118,7 +122,7 @@ const BannerBottom = () => {
                             lineHeight: '20px'
                         }}
                         >
-                            You can simply order a call and we will help you make an appointment with the right specialist.
+                            {en.homepage.bannerComponent.description}
                         </p>
                         <Paper
                             component="form"
@@ -166,13 +170,13 @@ const BannerBottom = () => {
                                 }}
                                 endIcon={<ArrowCircleRightIcon />}
                             >
-                                Send Request
+                                {en.homepage.bannerComponent.buttonText}
                             </Button>
                         </Box>
                     </Box>
                 </Grid>
             </Grid>
-        </Box >
+        </Box>
     );
 };
 

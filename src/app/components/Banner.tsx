@@ -2,6 +2,8 @@ import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 
 import { Box, Button, CardContent, Grid, Paper, InputBase, Typography } from '@mui/material';
 
+import en from '@/locales/en.json';
+
 import styles from '../page.module.css';
 
 const BannerComponent: React.FC = () => {
@@ -39,7 +41,7 @@ const BannerComponent: React.FC = () => {
                                 lineHeight: '48px',
                                 color: '#000',
                                 marginBottom: '10px',
-                            }}>Request a Call</h1>
+                            }}>{en.homepage.bannerComponent.request}</h1>
                             {/* <h2 style={{
                               fontSize: '24px',
                                 lineHeight: '26px',
@@ -52,7 +54,7 @@ const BannerComponent: React.FC = () => {
                                 color: '#000',
                                 fontWeight: '400',
                                 lineHeight: '20px'
-                            }}>You can simplyfy order a call and we will help you make an appointment with right specialist.</p>
+                            }}>{en.homepage.bannerComponent.description}</p>
                             <Paper
                                 component="form"
                                 sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: '100%', marginTop: 3 }}
@@ -80,7 +82,7 @@ const BannerComponent: React.FC = () => {
                                         bgcolor: '#20ADA0', // theme.palette.primary.main
                                         color: 'white',
                                     },
-                                }} endIcon={<ArrowCircleRightIcon />}>Send Request</Button>
+                                }} endIcon={<ArrowCircleRightIcon />}>{en.homepage.bannerComponent.buttonText}</Button>
                             </Box>
                         </div>
                     </Grid>
@@ -102,7 +104,7 @@ const BannerComponent: React.FC = () => {
                         borderRadius: '1px 25px 5px 0px',
                         color: 'black'
                     }}>
-                        The Best Medical
+                        {en.homepage.bannerComponent.the_best_medical}
                     </Typography>
                     <Typography variant="h4" component="h4" sx={{
                         background: '#F9F6F6',
@@ -113,7 +115,7 @@ const BannerComponent: React.FC = () => {
                         lineHeight: '2.5rem',
                         color: 'black'
                     }}>
-                        and Treatment Center For You
+                        {en.homepage.bannerComponent.treatment}
                     </Typography>
                 </CardContent>
             </div>

@@ -1,14 +1,17 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-import styles from '../page.module.css';
 
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 import Slider from 'react-slick';
 
 import { Box, Button, Grid, ImageListItem } from '@mui/material';
+
+import en from '@/locales/en.json';
+import styles from '../page.module.css';
 
 import { specialistData } from "@/data";
 
@@ -76,7 +79,7 @@ const SpecialitySlider: React.FC = () => {
                     marginTop: '20px',
                     marginBottom: '20px',
                     textAlign: 'center',
-                }}>We Serve In Different Areas For Our Patients</h1>
+                }}>{en.homepage.specialitySlider.title}</h1>
 
                 <Slider {...settings}>
                     {specialistData.map((item: Specialist, index: number) => (
@@ -150,7 +153,7 @@ const SpecialitySlider: React.FC = () => {
                                 bgcolor: '#20ADA0', // theme.palette.primary.main
                                 color: 'white',
                             },
-                        }} endIcon={<ArrowCircleRightIcon />}>More Specialty</Button>
+                        }} endIcon={<ArrowCircleRightIcon />}>{en.homepage.specialitySlider.buttonText}</Button>
                     </Grid>
                 </Grid>
             </div>

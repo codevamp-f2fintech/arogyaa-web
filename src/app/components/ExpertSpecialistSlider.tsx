@@ -2,9 +2,10 @@ import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 
 import { Box, Button, Grid, Paper, Typography } from '@mui/material';
 
+import en from '@/locales/en.json';
+
 const ExpertSpecialistSlider: React.FC = () => {
     return (
-
         <Box sx={{
             paddingTop: '50px', paddingBottom: '50px'
         }}>
@@ -17,7 +18,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                     fontWeight: '700',
                     textAlign: 'center'
                 }}>
-                    Meet Our
+                    {en.homepage.expertSpecialistSlider.title1}
                 </Typography>
                 <Typography variant="h2" component="h2" sx={{
                     fontSize: '2.5rem',
@@ -25,7 +26,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                     fontWeight: '700',
                     textAlign: 'center'
                 }}>
-                    Expert Specialist
+                    {en.homepage.expertSpecialistSlider.title2}
                 </Typography>
             </Box>
 
@@ -54,21 +55,21 @@ const ExpertSpecialistSlider: React.FC = () => {
                             fontWeight: 'bold',
                             marginTop: '5px',
                             marginBottom: '5px',
-                        }}>Dr. Nidhi</Typography>
+                        }}>{en.homepage.expertSpecialistSlider.drName}</Typography>
                         <Typography variant="h6" component="h6" sx={{
                             fontSize: '0.9rem',
                             color: '#000',
                             fontWeight: '600',
                             marginTop: '10px',
                             marginBottom: '10px',
-                        }}>Physician</Typography>
+                        }}>{en.homepage.expertSpecialistSlider.field}</Typography>
                         <Typography variant="h6" component="p" sx={{
                             fontSize: '0.8rem',
                             color: '#000',
                             fontWeight: '300',
                             marginTop: '10px',
                             marginBottom: '10px',
-                        }}>15 years of experiance</Typography>
+                        }}>{en.homepage.expertSpecialistSlider.experiance}</Typography>
                     </Paper>
 
                     <Box sx={{ display: 'flex', justifyContent: 'center' }}>
@@ -78,7 +79,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                                 bgcolor: '#20ADA0', // theme.palette.primary.main
                                 color: 'white',
                             },
-                        }} endIcon={<ArrowCircleRightIcon />}>See All Doctors</Button>
+                        }} endIcon={<ArrowCircleRightIcon />}>{en.homepage.expertSpecialistSlider.buttonText}</Button>
                     </Box>
                 </Grid>
 
@@ -106,7 +107,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                             marginTop: '5px',
                             marginBottom: '5px',
                         }}>
-                            Dr. Nidhi
+                            {en.homepage.expertSpecialistSlider.drName}
                         </Typography>
                         <Typography variant="h6" component="h6" sx={{
                             fontSize: '0.9rem',
@@ -115,7 +116,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                             marginTop: '10px',
                             marginBottom: '10px',
                         }}>
-                            Physician
+                            {en.homepage.expertSpecialistSlider.field}
                         </Typography>
                         <Typography variant="h6" component="p" sx={{
                             fontSize: '0.8rem',
@@ -124,9 +125,9 @@ const ExpertSpecialistSlider: React.FC = () => {
                             marginTop: '10px',
                             marginBottom: '10px',
                         }}>
-                            15 years of experience<br />
-                            Lorem Ipsum <br />
-                            Lorem Ipsum
+                            {en.homepage.expertSpecialistSlider.experiance}<br />
+                            {en.homepage.expertSpecialistSlider.randomText}  <br />
+                            {en.homepage.expertSpecialistSlider.randomText}
                         </Typography>
                     </Paper>
                 </Grid>
@@ -155,7 +156,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                             marginTop: '5px',
                             marginBottom: '5px',
                         }}>
-                            Dr. Nidhi
+                            {en.homepage.expertSpecialistSlider.drName}
                         </Typography>
                         <Typography variant="h6" component="h6" sx={{
                             fontSize: '0.9rem',
@@ -164,7 +165,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                             marginTop: '10px',
                             marginBottom: '10px',
                         }}>
-                            Physician
+                            {en.homepage.expertSpecialistSlider.field}
                         </Typography>
                         <Typography variant="h6" component="p" sx={{
                             fontSize: '0.8rem',
@@ -173,9 +174,9 @@ const ExpertSpecialistSlider: React.FC = () => {
                             marginTop: '10px',
                             marginBottom: '10px',
                         }}>
-                            15 years of experience<br />
-                            Lorem Ipsum <br />
-                            Lorem Ipsum
+                            {en.homepage.expertSpecialistSlider.experiance}<br />
+                            {en.homepage.expertSpecialistSlider.randomText} <br />
+                            {en.homepage.expertSpecialistSlider.randomText}
                         </Typography>
                     </Paper>
                 </Grid>
@@ -204,7 +205,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                             marginTop: '5px',
                             marginBottom: '5px',
                         }}>
-                            Dr. Nidhi
+                            {en.homepage.expertSpecialistSlider.drName}
                         </Typography>
                         <Typography variant="h6" component="h6" sx={{
                             fontSize: '0.9rem',
@@ -213,7 +214,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                             marginTop: '10px',
                             marginBottom: '10px',
                         }}>
-                            Physician
+                            {en.homepage.expertSpecialistSlider.field}
                         </Typography>
                         <Typography variant="h6" component="p" sx={{
                             fontSize: '0.8rem',
@@ -222,9 +223,9 @@ const ExpertSpecialistSlider: React.FC = () => {
                             marginTop: '20px',
                             marginBottom: '10px',
                         }}>
-                            15 years of experience<br />
-                            Lorem Ipsum <br />
-                            Lorem Ipsum
+                            {en.homepage.expertSpecialistSlider.experiance}<br />
+                            {en.homepage.expertSpecialistSlider.randomText} <br />
+                            {en.homepage.expertSpecialistSlider.randomText}
                         </Typography>
                     </Paper>
                 </Grid>

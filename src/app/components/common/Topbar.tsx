@@ -15,6 +15,7 @@ import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 
+import en from '@/locales/en.json';
 
 const pages = ['Products', 'Pricing', 'Blog'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
@@ -58,7 +59,7 @@ const Topbar = () => {
             textDecoration: 'none',
           }}
         >
-          AROGYA
+          {en.topbar.title}
         </Typography>
 
         <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none', } }}>
@@ -134,7 +135,7 @@ const Topbar = () => {
               bgcolor: '#20ADA0', // theme.palette.primary.main
               color: 'white',
             },
-          }} endIcon={<ArrowCircleRightIcon />}>Book Appointment</Button>
+          }} endIcon={<ArrowCircleRightIcon />}>{en.topbar.appointment}</Button>
         </Box>
         <Box sx={{ flexGrow: 0 }}>
           <Tooltip title="Open settings">
@@ -169,5 +170,6 @@ const Topbar = () => {
 
     </AppBar>
   );
-}
+};
+
 export default Topbar;

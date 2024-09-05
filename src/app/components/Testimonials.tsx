@@ -2,6 +2,8 @@ import { Box, Typography } from '@mui/material';
 
 import SliderComponent from './common/SliderComponent';
 
+import en from '@/locales/en.json';
+
 import { images } from "@/data";
 
 const Testimonials: React.FC = () => {
@@ -18,13 +20,12 @@ const Testimonials: React.FC = () => {
         >
             <Box sx={{ marginBottom: '30px', textAlign: 'center' }}>
                 <Typography variant="h5" sx={{ fontSize: '1rem', color: '#20ADA0', fontWeight: 700 }}>
-                    Testimonials
+                    {en.homepage.testimonials.title1}
                 </Typography>
                 <Typography variant="h2" sx={{ fontSize: '2.5rem', color: 'black', fontWeight: 700 }}>
-                    What Our Patients Say
+                    {en.homepage.testimonials.title2}
                 </Typography>
             </Box>
-
             <SliderComponent images={images} />
         </Box>
     );

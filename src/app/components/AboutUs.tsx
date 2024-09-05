@@ -1,5 +1,7 @@
 import { Box, Grid, Paper, Typography } from '@mui/material';
 
+import en from '@/locales/en.json';
+
 const AboutUs: React.FC = () => {
     return (
         <Box sx={{
@@ -12,12 +14,7 @@ const AboutUs: React.FC = () => {
                 <Grid xs={4} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', }}>
                     <Box
                         component="img"
-                        sx={{
-
-                            width: '100%',
-
-
-                        }}
+                        sx={{ width: '100%' }}
                         alt="The house from the offer."
                         src={'../assets/images/online-doctor-with-white-coat.png'}
                     />
@@ -29,7 +26,7 @@ const AboutUs: React.FC = () => {
                         lineHeight: '4rem',
                         fontWeight: 600,
                     }}>
-                        About <span style={{ color: '#20ADA0' }}>Arogya</span>
+                        {en.homepage.aboutUs.title1}  <span style={{ color: '#20ADA0' }}>{en.homepage.aboutUs.title2}</span>
                     </Typography>
                     <Typography variant="h6" component="p" sx={{
                         fontSize: '1rem',
@@ -37,8 +34,7 @@ const AboutUs: React.FC = () => {
                         lineHeight: '2rem',
                         fontWeight: 300,
                         marginTop: '10px',
-                    }}>
-                        Arogya is the largest multi-channel digital healthcare platform in India, created with a vision of eliminating flexibility blockages from the healthcare industry. We believe in making healthcare affordable to everyone by combining analytic excellence, affordable cost, and extensive research with advanced technology.
+                    }}>{en.homepage.aboutUs.description}
                     </Typography>
 
                     <Grid container spacing={3} columns={{ xs: 4, sm: 8, md: 12 }} sx={{ marginTop: '50px' }}>
@@ -52,10 +48,10 @@ const AboutUs: React.FC = () => {
                                 textAlign: 'center'
                             }}>
                                 <Typography variant="h4" component="h4" sx={{ color: 'white', marginTop: '10px', marginBottom: '15px' }}>
-                                    15 +
+                                    {en.homepage.aboutUs.cardTitle1}
                                 </Typography>
                                 <Typography variant="h6" component="p" sx={{ color: 'white', marginTop: '15px', marginBottom: '10px' }}>
-                                    years of experienced Doctors
+                                    {en.homepage.aboutUs.cardDescription1}
                                 </Typography>
                             </Paper>
                         </Grid>
@@ -69,10 +65,10 @@ const AboutUs: React.FC = () => {
                                 textAlign: 'center'
                             }}>
                                 <Typography variant="h4" component="h4" sx={{ color: 'black', marginTop: '10px', marginBottom: '15px' }}>
-                                    50 +
+                                    {en.homepage.aboutUs.cardTitle2}
                                 </Typography>
                                 <Typography variant="h6" component="p" sx={{ color: 'black', marginTop: '15px', marginBottom: '10px' }}>
-                                    Specialities
+                                    {en.homepage.aboutUs.cardDescription2}
                                 </Typography>
                             </Paper>
                         </Grid>
@@ -86,10 +82,10 @@ const AboutUs: React.FC = () => {
                                 textAlign: 'center'
                             }}>
                                 <Typography variant="h4" component="h4" sx={{ color: 'black', marginTop: '10px', marginBottom: '15px' }}>
-                                    24x7
+                                    {en.homepage.aboutUs.cardTitle3}
                                 </Typography>
                                 <Typography variant="h6" component="p" sx={{ color: 'black', marginTop: '15px', marginBottom: '10px' }}>
-                                    Availability
+                                    {en.homepage.aboutUs.cardDescription3}
                                 </Typography>
                             </Paper>
                         </Grid>
