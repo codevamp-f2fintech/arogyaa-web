@@ -1,3 +1,10 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+body{
+  box-sizing: border-box;
+  overflow-x: unset!important;
+}
 :root {
   --max-width: 1100px;
   --border-radius: 12px;
