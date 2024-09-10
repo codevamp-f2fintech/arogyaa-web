@@ -4,7 +4,6 @@ import FacebookIcon from "@mui/icons-material/Facebook";
 import XIcon from "@mui/icons-material/X";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import GoogleIcon from "@mui/icons-material/Google";
-import SignUp from "../login";
 
 const Signup = () => {
   return (
@@ -170,7 +169,7 @@ const Signup = () => {
           </Box>
 
           <Button sx={{ mt: 3 }} fullWidth variant="contained">
-            <SignUp />
+            SignUp
           </Button>
 
           <Typography variant="subtitle1">or sign in with </Typography>
