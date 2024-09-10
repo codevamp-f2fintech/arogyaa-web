@@ -1,9 +1,9 @@
 .appBar {
-  background-color: #1D869D;
+  background-color: #1d869d;
 }
 
 .container_main {
-  background-color: #F9F6F6;
+  background-color: #f9f6f6;
 }
 
 .page_title h4 {
@@ -15,15 +15,14 @@
 }
 
 .page_title h4 span {
-  color: #20ADA0;
+  color: #20ada0;
 }
 
 .homebanner {
   width: 100%;
   height: 100vh;
   background:
-    /* linear-gradient(to left, #95E1D0 , #40BA9D), */
-    url('/assets/images/Gemini_Generated_Image_o9ery1o9ery1o9er.jpg');
+    /* linear-gradient(to left, #95E1D0 , #40BA9D), */ url("/assets/images/Gemini_Generated_Image_o9ery1o9ery1o9er.jpg");
   /* Path to the image in the public folder */
   background-size: cover;
   /* Ensure the image covers the container */
@@ -31,7 +30,6 @@
   /* Center the image */
   background-repeat: no-repeat;
   /* Prevent image repetition */
-
 }
 
 .slick-initialized .slick-slide {
@@ -44,8 +42,7 @@
   width: 100%;
   height: 100vh;
   background:
-    /* linear-gradient(to left, #95E1D0 , #40BA9D), */
-    url('/assets/images/Gemini_Generated_Image_o9ery1o9ery1o9er.jpg');
+    /* linear-gradient(to left, #95E1D0 , #40BA9D), */ url("/assets/images/Gemini_Generated_Image_o9ery1o9ery1o9er.jpg");
   /* Path to the image in the public folder */
   background-size: cover;
   /* Ensure the image covers the container */
@@ -53,7 +50,6 @@
   /* Center the image */
   background-repeat: no-repeat;
   /* Prevent image repetition */
-
 }
 
 .slider_src_place {
@@ -102,4 +98,1010 @@
 .sliderImage {
   width: 100%;
   height: auto;
+}
+
+/* Footer styles added */
+.footer {
+  margin-top: 50px;
+  padding: 50px 0;
+  border-top: 1px solid #dbdbdb;
+  border-bottom: 1px solid #dbdbdb;
+}
+
+.footer-grid-item {
+  text-align: left;
+}
+
+.logoBox {
+  display: flex;
+  align-items: center;
+}
+
+.arogyaIcon {
+  color: #20ada0;
+  display: none;
+  margin-right: 10px;
+}
+
+@media (min-width: 960px) {
+  .arogyaIcon {
+    display: flex;
+  }
+}
+
+.logoText {
+  font-family: monospace;
+  font-weight: 700;
+  letter-spacing: 0.3rem;
+  color: #20ada0;
+  text-decoration: none;
+}
+
+.mainTitle {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: black;
+}
+
+.arogya2024 {
+  margin-bottom: 20px;
+  font-weight: 400;
+  color: gray;
+}
+
+.footer-title {
+  font-size: 18px;
+  color: #000;
+  line-height: 24px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.footer-typography-h6 {
+  font-size: 13px;
+  color: #000;
+  line-height: 28px;
+  font-weight: 300;
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+.footer-subscription {
+  margin-top: 15px;
+}
+
+.social-icons {
+  margin-right: 15px;
+  cursor: pointer;
+  color: #20ada0;
+}
+
+.email-input {
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-top: 15px;
+}
+
+.emailInput {
+  margin-left: 1px;
+  flex: 1;
+}
+
+.subscribe-button {
+  color: white;
+  background: #20ada0;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.footer-bottom {
+  padding: 20px 0;
+  background: inherit;
+}
+
+.footer-copyright {
+  font-size: 14px;
+  color: gray;
+  line-height: 20px;
+  font-weight: 300;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.footer-right {
+  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.footer-pages {
+  margin-right: 15px;
+  font-size: 14px;
+  color: gray;
+  line-height: 20px;
+  font-weight: 300;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+/* sliderComponent styles added */
+
+.sliderContainer {
+  text-align: center;
+}
+
+.sliderForBox {
+  width: 30vw;
+  margin: 0 auto;
+  margin-bottom: 40px;
+}
+
+.sliderForPaper {
+  max-width: 30vw;
+  margin-bottom: 20px;
+  padding: 20px;
+  min-height: 380px;
+  text-align: left;
+}
+
+.sliderForQuoteImage {
+  width: 50px;
+  height: 50px;
+  margin-right: 20px;
+}
+
+.sliderForDescription {
+  text-align: left;
+  margin-top: 15px;
+  font-size: 0.9rem;
+  font-weight: normal;
+  padding-bottom: 20px;
+  color: #252525;
+  line-height: 1.5rem;
+}
+
+.sliderForStarsBox {
+  display: flex;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.sliderForStarImage {
+  width: 40px;
+}
+
+.sliderNavBox {
+  display: flex;
+  align-items: center;
+  border-radius: 30px;
+  padding: 16px; 
+}
+
+.sliderNavPaper {
+  display: flex;
+  padding: 16px; 
+  border-radius: 30px;
+  align-items: center;
+}
+
+.sliderNavUserImage {
+  width: 65px;
+  height: 65px;
+  margin-right: 20px;
+  border-radius: 100px;
+  background: #20ada0;
+}
+
+.sliderNavName {
+  color: #20ada0;
+  font-size: 1.2rem;
+}
+
+.sliderNavAge {
+  color: gray;
+  font-size: 0.9rem;
+  margin-top: 10px;
+  text-align: left;
+}
+
+
+/* aboutUs css */
+
+.aboutUsContainer {
+  text-align: center;
+  background: #f9f6f6;
+  padding-bottom: 40px;
+  padding-top: 80px;
+}
+
+.imageGrid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.image {
+  width: 100%;
+}
+
+.textGrid {
+  text-align: left;
+}
+
+.title {
+  font-size: 2.5rem;
+  color: black;
+  line-height: 4rem;
+  font-weight: 600;
+}
+
+.titleHighlight {
+  color: #20ada0;
+  margin-left: 0.5rem;
+}
+
+.description {
+  font-size: 1rem;
+  color: black;
+  line-height: 2rem;
+  font-weight: 300;
+  margin-top: 10px;
+}
+
+.cardsGrid {
+  margin-top: 50px;
+}
+
+.cardGreen {
+  background: #20ada0;
+  padding: 20px;
+  border-radius: 20px;
+  color: white;
+  box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+  text-align: center;
+}
+
+.cardWhite {
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+  color: black;
+  box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+  text-align: center;
+}
+
+.cardTitle {
+  color: inherit;
+  margin-top: 10px;
+  margin-bottom: 15px;
+}
+
+.cardDescription {
+  color: inherit;
+  margin-top: 15px;
+  margin-bottom: 10px;
+}
+
+
+/*topbar css  */
+
+.appBar {
+  background-color: #fff;
+  padding: 0px 50px;
+}
+
+.adbIcon {
+  display: none;
+  color: #000;
+  margin-right: 1rem;
+}
+
+.logoText {
+  margin-right: 2rem;
+  display: flex;
+  font-family: monospace;
+  font-weight: 700;
+  letter-spacing: 0.3rem;
+  color: #000;
+  text-decoration: none;
+}
+
+.menuIconContainer {
+  flex-grow: 1;
+  display: flex;
+}
+
+.menuButton {
+  color: inherit;
+}
+
+.menuAppBar {
+  display: block;
+}
+
+.menuItem {
+  color: #000;
+}
+
+.mobileLogo {
+  display: none;
+}
+
+.mobileLogoText {
+  margin-right: 2rem;
+  flex-grow: 1;
+  font-family: monospace;
+  font-weight: 700;
+  letter-spacing: 0.3rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.menuItems {
+  flex-grow: 1;
+  display: flex;
+  justify-content:center;
+}
+
+.menuItemButton {
+  color: black;
+  margin: 2px 0;
+  display: block;
+}
+
+.appointmentButtonContainer {
+  flex-grow: 0;
+  margin-right: 10px;
+}
+
+.appointmentButton {
+  color: #000;
+  background-color: #fafafa;
+  width: 100%;
+  border-radius: 100px;
+}
+
+.appointmentButton:hover {
+  background-color: #20ada0;
+  color: white;
+}
+
+.avatarContainer {
+  flex-grow: 0;
+}
+
+.avatarButton {
+  padding: 0;
+}
+
+.userMenu {
+  margin-top: 45px;
+}
+
+@media (min-width: 900px) {
+  .adbIcon {
+    display: flex;
+  }
+
+  .mobileLogo {
+    display: none;
+  }
+
+  .menuItems {
+    display: flex;
+    justify-content: center;
+  }
+
+  .menuIconContainer {
+    display: none;
+  }
+}
+
+/* banner css */
+.homebanner {
+  margin-top: 65px;
+  height: 90vh;
+  padding: 50px;
+  position: relative;
+  border-radius: 30px 30px 30px 0;
+  padding-top: 90px;
+}
+
+.bannerContent {
+  width: 850px;
+  height: 300px;
+}
+
+.bannerImage {
+  width: 48vw;
+  position: absolute;
+  right: 10px;
+  bottom: 0px;
+}
+
+.bannerTextWrapper {
+  background-color: rgba(255, 255, 255, 0.53);
+  padding: 40px;
+  border-radius: 10px;
+  text-align: left;
+}
+
+.bannerHeading {
+  font-size: 32px;
+  line-height: 48px;
+  color: #000;
+  margin-bottom: 10px;
+}
+
+.bannerDescription {
+  font-size: 14px;
+  color: #000;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.inputPaper {
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-top: 24px;
+}
+
+.inputBase {
+  margin-left: 8px;
+  flex: 1;
+}
+
+.submitButtonWrapper {
+  flex: 1;
+  margin-top: 20px;
+}
+
+.submitButton {
+  width: 100%;
+  color: #20ada0;
+  background: #fff;
+}
+
+.submitButton:hover {
+  background-color: #20ada0;
+  color: white;
+}
+
+.bannerCardContent {
+  position: absolute;
+  bottom: -28px;
+  left: 0;
+  z-index: 1;
+  padding: initial;
+}
+
+.bannerBestMedical {
+  background: #f9f6f6;
+  padding: 15px;
+  font-size: 2.5rem;
+  font-weight: bold;
+  line-height: 2.5rem;
+  border-radius: 1px 25px 5px 0px;
+  color: black;
+}
+
+.bannerTreatment {
+  background: #f9f6f6;
+  padding: 15px;
+  border-radius: 1px 25px 5px 0px;
+  font-size: 2.5rem;
+  font-weight: bold;
+  line-height: 2.5rem;
+  color: black;
+}
+
+/* ExpertSpecialistSlider css */
+
+.expertSpecialistSlider {
+  padding-top: 50px;
+  padding-bottom: 50px;
+}
+
+.sliderHeading {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.title1 {
+  font-size: 1rem;
+  color: #20ada0;
+  font-weight: 700;
+}
+
+.title2 {
+  font-size: 2.5rem;
+  color: black;
+  font-weight: 700;
+}
+
+.specialistCard {
+  height: 315px;
+  text-align: center;
+  padding: 30px;
+  border-radius: 30px;
+}
+
+.doctorImage {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: #20ada0;
+  margin: 0 auto;
+}
+
+.drName {
+  font-size: 1.2rem;
+  color: #20ada0;
+  font-weight: bold;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.field {
+  font-size: 0.9rem;
+  color: #000;
+  font-weight: 600;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.experience {
+  font-size: 0.8rem;
+  color: #000;
+  font-weight: 300;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.buttonWrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.learnMoreButton {
+  margin-top: 20px;
+  width: auto;
+  color: #fff;
+  background: #20ada0;
+  border-radius: 100px;
+}
+
+.learnMoreButton:hover {
+  background-color: #20ada0;
+  color: white;
+}
+
+/* ExpertSpecialistSlider css  */
+
+.expertSpecialistSlider {
+  padding-top: 50px;
+  padding-bottom: 50px;
+}
+
+.sliderHeading {
+  margin-bottom: 30px;
+}
+
+.title1 {
+  font-size: 1rem;
+  color: #20ada0;
+  font-weight: 700;
+  text-align: center;
+}
+
+.title2 {
+  font-size: 2.5rem;
+  color: black;
+  font-weight: 700;
+  text-align: center;
+}
+
+.specialistCardShort {
+  height: 245px;
+  text-align: center;
+  padding: 30px;
+  border-radius: 30px;
+}
+
+.specialistCard {
+  height: 315px;
+  text-align: center;
+  padding: 30px;
+  border-radius: 30px;
+}
+
+.doctorImage {
+  width: 100px;
+  height: 100px;
+  border-radius: 100%;
+  background: #20ada0;
+  margin: 0 auto;
+}
+
+.drName {
+  font-size: 1.2rem;
+  color: #20ada0;
+  font-weight: bold;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.field {
+  font-size: 0.9rem;
+  color: #000;
+  font-weight: 600;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.experience {
+  font-size: 0.8rem;
+  color: #000;
+  font-weight: 300;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.buttonWrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.learnMoreButton {
+  margin-top: 20px;
+  width: auto;
+  color: #fff;
+  background: #20ada0;
+  border-radius: 100px;
+}
+
+.learnMoreButton:hover {
+  background-color: #20ada0;
+  color: white;
+}
+
+/* bottombanner css */
+
+.banner2 {
+  padding-top: 50px;
+  padding-bottom: 50px;
+  margin-top: 100px;
+  border-radius: 30px;
+  position: relative;
+  background-color: #f9f6f6;
+}
+
+.bannerImage3 {
+  width: 48vw;
+  position: absolute;
+  left: 10px;
+  bottom: 0;
+}
+
+.gridContainer {
+  height: 100%;
+}
+
+.gridItem {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  position: relative;
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-top: -66px;
+  margin-right: -16px;
+  background: #f9f6f6;
+  border-radius: 0 0 0 25px;
+  padding: 15px;
+}
+
+.cardTitle2 {
+  background: #f9f6f6;
+  padding: 10px;
+  font-size: 2.5rem;
+  font-weight: bold;
+  line-height: 1.5rem;
+  border-radius: 1px 25px 5px 0px;
+  color: black;
+}
+
+.cardSubtitle2 {
+  background: #f9f6f6;
+  padding: 6px;
+  border-radius: 1px 25px 5px 0px;
+  font-size: 2.5rem;
+  font-weight: bold;
+  line-height: 2.5rem;
+  color: black;
+}
+
+.callToActionButton {
+  position: absolute;
+  right: 580px;
+  top: 40px;
+  width: 23%;
+  color: #20ada0;
+  background-color: #fff;
+}
+
+.callToActionButton:hover {
+  background-color: #20ada0;
+  color: white;
+}
+
+.formContainer {
+  background-color: rgba(255, 255, 255, 0.53);
+  padding: 40px;
+  border-radius: 10px;
+  text-align: left;
+  max-width: 400px;
+  margin-right: 40px;
+}
+
+.formHeading {
+  font-size: 32px;
+  line-height: 48px;
+  color: #000;
+  margin-bottom: 10px;
+}
+
+.formDescription {
+  font-size: 14px;
+  color: #000;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.inputPaper {
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-top: 24px;
+}
+
+.inputBase {
+  margin-left: 8px;
+  flex: 1;
+}
+
+.submitButtonContainer {
+  flex: 1;
+  margin-top: 20px;
+}
+
+.submitButton {
+  width: 100%;
+  color: #20ada0;
+  background-color: #fff;
+}
+
+.submitButton:hover {
+  background-color: #20ada0;
+  color: white;
+}
+
+/* speciality slider css */
+
+.specialityTitle {
+  font-size: 32px;
+  color: #000;
+  line-height: 40px;
+  font-weight: 700;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.specialistBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: white;
+  height: 100%;
+  border: 4px solid white;
+  border-radius: 30px;
+  padding: 20px;
+  position: relative;
+  box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+  text-align: center;
+}
+
+.specialistIcon {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+.specialistImage {
+  height: 100px;
+  width: 100px;
+  background: #f9f6f6;
+  border-radius: 100px;
+  padding: 20px;
+}
+
+.specialistTitle {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 26px;
+  color: #000;
+  margin-top: 20px;
+}
+
+.specialistCaption {
+  font-size: 14px;
+  color: #000;
+  line-height: 18px;
+  font-weight: 400;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.readMoreButton {
+  margin-top: 2px;
+  width: auto;
+  color: #fff;
+  background: #20ada0;
+  border-radius: 100px;
+}
+
+.readMoreButton:hover {
+  background-color: #20ada0;
+  color: white;
+}
+
+.outerBox {
+  background: #f9f6f6;
+  padding: 50px;
+  height: 50px;
+  width: 100%;
+}
+
+.gridButton {
+  margin-top: 4px;
+  margin-left: 2px;
+  width: auto;
+  color: #fff;
+  background: #20ada0;
+  border-radius: 100px;
+}
+
+.gridButton:hover {
+  background-color: #20ada0;
+  color: white;
+}
+
+/* symptomCards css */
+
+
+.symptomBox {
+  text-align: center;
+  background-color: #f9f6f6;
+  border-radius: 0 0 50% 50%;
+  padding: 50px 20px;
+}
+
+.symptomTitle {
+  font-size: 2.5rem;
+  color: #000;
+  line-height: 40px;
+  font-weight: 700;
+  margin-top: 20px;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.symptomTitleSpan {
+  font-size: 1rem;
+  color: #20ada0;
+}
+
+.symptomGrid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.symptomPaper {
+  padding: 16px;
+  border-radius: 30px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: white;
+  box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+}
+
+.symptomCardMedia {
+  border-radius: 100px;
+  overflow: hidden;
+  width: 100px;
+  height: 100px;
+  border: 3px solid white;
+}
+
+.symptomCardTitle {
+  font-size: 16px;
+  color: #000;
+  line-height: 20px;
+  font-weight: 700;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.symptomButton {
+  margin-top: 8px;
+  width: auto;
+  color: #fff;
+  background: #20ada0;
+  border-radius: 100px;
+}
+
+.symptomButton:hover {
+  background-color: #20ada0;
+  color: white;
+}
+
+.gridButton {
+  color: white;
+  background-color: #20ada0;
+}
+
+.gridButton:hover {
+  background-color: #20ada0;
+  color: white;
+}
+
+/* testimonial css */
+
+
+.testimonialsSection {
+  background-color: #f6f6f6;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100%;
+  padding: 20px 0;
+}
+
+.testimonialsTitleBox {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.testimonialsTitle1 {
+  font-size: 1rem;
+  color: #20ADA0;
+  font-weight: 700;
+}
+
+.testimonialsTitle2 {
+  font-size: 2.5rem;
+  color: black;
+  font-weight: 700;
+}
+
+.testimonialsBackground {
+  background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="1" d="M0,160L30,160C60,160,120,160,180,160C240,160,300,160,360,170.7C420,181,480,203,540,202.7C600,203,660,181,720,186.7C780,192,840,224,900,240C960,256,1020,256,1080,240C1140,224,1200,192,1260,160C1320,128,1380,96,1410,80L1440,64L1440,320L1410,320C1380,320,1320,320,1260,320C1200,320,1140,320,1080,320C1020,320,960,320,900,320C840,320,780,320,720,320C660,320,600,320,540,320C480,320,420,320,360,320C300,320,240,320,180,320C120,320,60,320,30,320L0,320Z"></path></svg>');
 }
