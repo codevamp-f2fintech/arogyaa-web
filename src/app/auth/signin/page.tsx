@@ -1,7 +1,6 @@
 "use client";
 
 import { signIn, signOut, useSession } from "next-auth/react";
-import PhoneAuth from "@/components/PhoneAuth";
 import { FC } from "react";
 import { Session } from "next-auth";
 
@@ -20,7 +19,8 @@ const SignInPage: FC = () => {
   return (
     <div>
       <button onClick={() => signIn("google")}>Sign in with Google</button>
-      <PhoneAuth />
+      <button onClick={() => signIn("twitter")}>Sign in with Twitter</button>
+      <button onClick={() => signIn("facebook")}>Sign in with Facebook</button>
     </div>
   );
 };

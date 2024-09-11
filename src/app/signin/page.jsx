@@ -1,43 +1,12 @@
 "use client";
-import {
-  Box,
-  TextField,
-  Button,
-  Typography,
-  Link,
-  Checkbox,
-  FormControlLabel,
-  Divider,
-  Grid,
-  IconButton,
-} from "@mui/material";
+import { Box, Button, Typography, Grid } from "@mui/material";
 import React from "react";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import TwitterIcon from "@mui/icons-material/Twitter";
-import GitHubIcon from "@mui/icons-material/GitHub";
 import GoogleIcon from "@mui/icons-material/Google";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 
 export default function Login() {
-  const { data: session } = useSession();
-
-  if (session) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="100vh"
-        bgcolor="#5B99C2"
-      >
-        <Typography variant="h6">Welcome, {session.user?.name}!</Typography>
-        <Button variant="contained" onClick={() => signOut()}>
-          Sign Out
-        </Button>
-      </Box>
-    );
-  }
-
   return (
     <Box
       display="flex"
@@ -100,19 +69,6 @@ export default function Login() {
               <Typography
                 variant="h4"
                 gutterBottom
-                style={{
-                  color: "#1976d2",
-                  textAlign: "center",
-                  fontWeight: 900,
-                  marginBottom: "10px",
-                }}
-              >
-                Sign in
-              </Typography>
-
-              <Typography
-                variant="h4"
-                gutterBottom
                 style={{ color: "#1976d2", textAlign: "center" }}
               >
                 Welcome to Arogya!
@@ -122,102 +78,44 @@ export default function Login() {
                 Please sign in to your account.
               </Typography>
 
-              <form style={{ width: "100%" }}>
-                <TextField
-                  label="Email"
-                  type="email"
-                  fullWidth
-                  margin="normal"
-                  variant="outlined"
-                  required
-                  autoComplete="email"
-                />
-                <TextField
-                  label="Password"
-                  type="password"
-                  fullWidth
-                  margin="normal"
-                  variant="outlined"
-                  required
-                  autoComplete="current-password"
-                />
-                <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  mt={1}
-                >
-                  <FormControlLabel
-                    control={<Checkbox name="rememberMe" />}
-                    label="Remember Me"
-                  />
-                  <Link href="#" underline="none">
-                    Forgot Password?
-                  </Link>
-                </Box>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  style={{ marginTop: "16px" }}
-                >
-                  SIGN IN
-                </Button>
-              </form>
-              <Box mt={2} textAlign="center">
-                <Typography variant="body2">
-                  New on our platform?{" "}
-                  <Link href="#" underline="none">
-                    Create an account
-                  </Link>
-                </Typography>
-              </Box>
-            </Box>
+              <Grid container spacing={2} justifyContent="center">
+                <Grid item xs={12}>
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    startIcon={<FacebookIcon />}
+                    onClick={() => signIn("facebook")}
+                    style={{ backgroundColor: "#3b5998", color: "#fff" }}
+                  >
+                    Sign in with Facebook
+                  </Button>
+                </Grid>
 
-            <Box
-              my={3}
-              display="flex"
-              alignItems="center"
-              width="100%"
-              maxWidth="400px"
-            >
-              <Divider style={{ flexGrow: 1 }} />
-              <Typography variant="body2" style={{ margin: "0 16px" }}>
-                or
-              </Typography>
-              <Divider style={{ flexGrow: 1 }} />
-            </Box>
+                <Grid item xs={12}>
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    startIcon={<GoogleIcon />}
+                    onClick={() => signIn("google")}
+                    style={{ backgroundColor: "#db4437", color: "#fff" }}
+                  >
+                    Sign in with Google
+                  </Button>
+                </Grid>
 
-            <Grid container justifyContent="center" spacing={2}>
-              <Grid item>
-                <IconButton color="primary" aria-label="Login with Facebook">
-                  <FacebookIcon />
-                </IconButton>
+                <Grid item xs={12}>
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    startIcon={<TwitterIcon />}
+                    onClick={() => signIn("twitter")}
+                    style={{ backgroundColor: "#1da1f2", color: "#fff" }}
+                  >
+                    Sign in with Twitter
+                  </Button>
+                </Grid>
               </Grid>
-              <Grid item>
-                <IconButton color="primary" aria-label="Login with Twitter">
-                  <TwitterIcon />
-                </IconButton>
-              </Grid>
-              <Grid item>
-                <IconButton
-                  color="primary"
-                  aria-label="Login with GitHub"
-                  onClick={() => signIn("github")}
-                >
-                  <GitHubIcon />
-                </IconButton>
-              </Grid>
-              <Grid item>
-                <IconButton
-                  color="primary"
-                  aria-label="Login with Google"
-                  onClick={() => signIn("google")}
-                >
-                  <GoogleIcon />
-                </IconButton>
-              </Grid>
-            </Grid>
+            </Box>
           </Box>
         </Box>
       </Box>
