@@ -276,4 +276,30 @@ const images = [
     },
 ];
 
-export { specialistData, items, symptomsList, testimonialList, whyChoose, images };
+interface Icon {
+    title: string;
+    path: string;
+  }
+  
+  const icons: Icon[] = [
+    {
+      title: 'depression',
+      path: '/assets/images/symptems/depression.png',
+    },
+    {
+      title: 'fever',
+      path: '/assets/images/symptems/fever.png',
+    },
+    {
+      title: 'cancer',
+      path: '/assets/images/symptems/child.png',
+    },
+    {
+      title: 'pregnancy',
+      path: '/assets/images/symptems/pregnancy.png',
+    },
+  ];
+  
+  
+
+export { specialistData, items, symptomsList, testimonialList, whyChoose, images ,icons};

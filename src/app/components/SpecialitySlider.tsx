@@ -30,7 +30,7 @@ const settings = {
     slidesToScroll: 2,
     autoplay: false,
     autoplaySpeed: 3000,
-    customPaging: i => (
+    customPaging: (i: number) => (
         <div className={styles.customDot}>
             {/* You can add custom content here */}
             {i + 1}

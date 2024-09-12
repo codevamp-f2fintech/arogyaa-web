@@ -1,5 +1,6 @@
 
 import dynamic from 'next/dynamic';
+import DemoSymptoms from '../symptoms/DemoSymptoms';
 
 const BannerComponent = dynamic(() => import('./Banner'));
 const SpecialitySlider = dynamic(() => import('./SpecialitySlider'));
@@ -13,6 +14,7 @@ const Home = () => {
     return (
         <>
             <BannerComponent />
+            {/* <DemoSymptoms initialData={[]}/> */}
             <SpecialitySlider />
             <ExpertSpecialistSlider />
             <SymptomCards />

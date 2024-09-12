@@ -8,10 +8,10 @@ import Footer from '../../components/common/Footer';
 export default function BasicSelect() {
   const [selectedValue, setSelectedValue] = useState('');
 
-  const handleChange = (event) => {
+  const handleChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
     setSelectedValue(event.target.value);
   };
-  const handleChange1 = (event) => {
+  const handleChange1 = (event: { target: { value: React.SetStateAction<string>; }; }) => {
     setSelectedValue(event.target.value);
   };
   const DoctorList = styled.div`
