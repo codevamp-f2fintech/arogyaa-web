@@ -284,19 +284,19 @@ interface Icon {
   const icons: Icon[] = [
     {
       title: 'depression',
-      path: '/assets/images/symptems/depression.png',
+      path: '/assets/images/symptoms/depression.png',
     },
     {
       title: 'fever',
-      path: '/assets/images/symptems/fever.png',
+      path: '/assets/images/symptoms/fever.png',
     },
     {
       title: 'cancer',
-      path: '/assets/images/symptems/child.png',
+      path: '/assets/images/symptoms/child.png',
     },
     {
       title: 'pregnancy',
-      path: '/assets/images/symptems/pregnancy.png',
+      path: '/assets/images/symptoms/pregnancy.png',
     },
   ];
   

@@ -9,7 +9,7 @@ import { Symptoms } from '@/types/symptoms';
  * 
  * @param initialData - The initial data to be used before SWR fetches fresh data.
  * @param pathKey - The API path key used by SWR to fetch symptoms data.
- * @returns An object containing the fetched symptomss, loading state, and error state.
+ * @returns An object contFaining the fetched symptomss, loading state, and error state.
  */
 export const useGetSymptoms = (initialData: Symptoms[], pathKey: string) => {
     const { data: swrData, error } = useSWR<Symptoms[]>(pathKey, fetcher, {

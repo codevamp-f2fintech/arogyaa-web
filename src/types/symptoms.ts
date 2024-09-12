@@ -1,5 +1,5 @@
 export interface Symptoms {
-    id:string
+    id: string
     name: string
-    imageURL:string
+    imageURL: string
 };

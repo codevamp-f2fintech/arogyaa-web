@@ -57,12 +57,12 @@ const SymptomCards: React.FC = () => {
                                 justifyContent: 'center',
                                 alignItems: 'center'
                             }}>
-                                    <Image
-                                        src={`${icon}`} // Assuming 'icon' is the correct field for the image path
-                                        width={100}
-                                        height={100}
-                                        alt={`${icon}`} 
-                                    />
+                                <Image
+                                    src={`${icon}`} // Assuming 'icon' is the correct field for the image path
+                                    width={100}
+                                    height={100}
+                                    alt={`${icon}`}
+                                />
                                 <CardContent sx={{ textAlign: 'center' }}> {/* Centering the text */}
                                     <Typography variant="h5" component="h5" sx={{
                                         fontSize: '16px',
