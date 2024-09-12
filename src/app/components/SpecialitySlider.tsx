@@ -1,19 +1,17 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-
-
-import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 import Slider from 'react-slick';
 
+import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 import { Box, Button, Grid, ImageListItem } from '@mui/material';
 
 import en from '@/locales/en.json';
 import styles from '../page.module.css';
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
-import { specialistData } from "@/data";
+import { specialistData } from "@/static-data";
 
 interface Specialist {
     img: string;
