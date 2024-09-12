@@ -2,6 +2,12 @@
   background-color: #1D869D;
 }
 
+.root {
+  padding: 0px 50px;
+  background: #F9F6F6;
+  padding-top: 50px;
+}
+
 .container_main {
   background-color: #F9F6F6;
 }
@@ -18,9 +24,14 @@
   color: #20ADA0;
 }
 
-.homebanner {
+.homeBanner {
   width: 100%;
-  height: 100vh;
+  height: 90vh;
+  margin-top: 65px;
+  padding: 50px;
+  position: relative;
+  border-radius: 30px 30px 30px 0;
+  padding-top: 90px;
   background:
     /* linear-gradient(to left, #95E1D0 , #40BA9D), */
     url('/assets/images/Gemini_Generated_Image_o9ery1o9ery1o9er.jpg');
@@ -39,10 +50,15 @@
   padding: 10px !important;
 }
 
-.banner2 {
+.bannerBottom {
   position: relative;
   width: 100%;
   height: 100vh;
+  padding-top: 50px;
+  padding-bottom: 50px;
+  margin-top: 100px;
+  border-radius: 30px;
+  background-color: #F9F6F6;
   background:
     /* linear-gradient(to left, #95E1D0 , #40BA9D), */
     url('/assets/images/Gemini_Generated_Image_o9ery1o9ery1o9er.jpg');
