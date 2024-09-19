@@ -1,5 +1,3 @@
-
-
 import dynamic from 'next/dynamic';
 import Box from '@mui/material/Box';
 import styles from './page.module.css';
