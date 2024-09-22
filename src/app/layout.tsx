@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Arogyaa Web App",
-  description: "Online Doctor Consulation",
+  description: "Online Doctor Consulation"
 };
 
 const RootLayout = ({ children }: Readonly<{ children: React.ReactNode; }>) => {
@@ -17,10 +17,10 @@ const RootLayout = ({ children }: Readonly<{ children: React.ReactNode; }>) => {
     <html lang="en">
       <body className={inter.className}>
         <SessionProviderWrapper>
-        <ReduxProvider>
-          {children}
-        </ReduxProvider>
-      </SessionProviderWrapper>
+          <ReduxProvider>
+            {children}
+          </ReduxProvider>
+        </SessionProviderWrapper>
       </body>
     </html>
   );
