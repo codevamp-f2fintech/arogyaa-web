@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Arogyaa Web App",
-  description: "Online Doctor Consulation"
+  description: "Online Doctor Consultation"
 };
 
 const RootLayout = ({ children }: Readonly<{ children: React.ReactNode; }>) => {
