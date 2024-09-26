@@ -1,15 +1,19 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Slider from "react-slick";
 import { Box, Button, Grid, ImageListItem } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchSpecialities } from "@/redux/features/specialitiesSlice"; // import the async action
 import { AppDispatch, RootState } from "@/redux/store";
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 import en from "@/locales/en.json";
 import styles from "../page.module.css";
 import { icons } from "@/data";
+import { useGetSpecialities } from "@/hooks/specialities";
+import {
+  setLoading,
+  setSpecialities,
+} from "@/redux/features/specialitiesSlice";
 
 const settings = {
   dots: true,
@@ -50,20 +54,38 @@ const settings = {
 };
 
 const SpecialitySlider: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-
-  // Access Redux state
-  const { specialities, reduxLoading, error } = useSelector(
+  const dispatch: AppDispatch = useDispatch();
+  const { specialities } = useSelector(
     (state: RootState) => state.specialities
   );
 
-  // Fetch specialities when the component mounts
-  useEffect(() => {
-    dispatch(fetchSpecialities());
-  }, [dispatch]);
+  const [pageSize, setPageSize] = useState({
+    page: 1,
+    size: 4,
+  });
 
-  if (reduxLoading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
+  const { data } = useGetSpecialities(
+    [],
+    `http://localhost:3001/api/speciality/get-specialization?page=${pageSize.page}&limit=${pageSize.size}`
+  );
+  console.log("data",data);
+
+  useEffect(() => {
+    if (data && data.length > 0) {
+      dispatch(setSpecialities(data));
+    }
+  }, [data]);
+
+  const handleFetchNext = () => {
+    setPageSize((prevSize) => ({
+      ...prevSize,
+      size: prevSize.size + 5,
+    }));
+    dispatch(setLoading(true));
+  };
+
+  // Display data logic
+  const displayData = specialities.length > 0 ? specialities : [];
 
   return (
     <>
@@ -170,7 +192,7 @@ const SpecialitySlider: React.FC = () => {
                   }}
                   endIcon={<ArrowCircleRightIcon />}
                 >
-                  Consult Now
+                  Consult now
                 </Button>
               </Box>
             );
@@ -180,6 +202,7 @@ const SpecialitySlider: React.FC = () => {
         <Grid container spacing={2} columns={{ xs: 4, sm: 8, md: 12 }}>
           <Grid xs={12} sx={{ textAlign: "center", marginTop: "20px" }}>
             <Button
+            onClick={handleFetchNext}
               variant="contained"
               sx={{
                 marginTop: 4,
@@ -196,6 +219,7 @@ const SpecialitySlider: React.FC = () => {
               endIcon={<ArrowCircleRightIcon />}
             >
               {en.homepage.specialitySlider.buttonText}
+              
             </Button>
           </Grid>
         </Grid>
