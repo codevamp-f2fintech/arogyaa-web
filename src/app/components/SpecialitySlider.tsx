@@ -68,7 +68,7 @@ const SpecialitySlider: React.FC = () => {
     [],
     `http://localhost:3001/api/speciality/get-specialization?page=${pageSize.page}&limit=${pageSize.size}`
   );
-  console.log("data",data);
+  console.log("data", data);
 
   useEffect(() => {
     if (data && data.length > 0) {
@@ -202,7 +202,7 @@ const SpecialitySlider: React.FC = () => {
         <Grid container spacing={2} columns={{ xs: 4, sm: 8, md: 12 }}>
           <Grid xs={12} sx={{ textAlign: "center", marginTop: "20px" }}>
             <Button
-            onClick={handleFetchNext}
+              onClick={handleFetchNext}
               variant="contained"
               sx={{
                 marginTop: 4,
@@ -219,7 +219,6 @@ const SpecialitySlider: React.FC = () => {
               endIcon={<ArrowCircleRightIcon />}
             >
               {en.homepage.specialitySlider.buttonText}
-              
             </Button>
           </Grid>
         </Grid>
