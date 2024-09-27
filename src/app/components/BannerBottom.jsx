@@ -1,24 +1,12 @@
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
-
 import { Box, Button, InputBase, CardContent, Grid, Paper, Typography } from '@mui/material';
 
 import en from '@/locales/en.json';
-
 import styles from '../page.module.css';
 
 const BannerBottom = () => {
     return (
-        <Box
-            sx={{
-                paddingTop: '50px',
-                paddingBottom: '50px',
-                marginTop: '100px',
-                borderRadius: '30px',
-                position: 'relative',
-                backgroundColor: '#F9F6F6'
-            }}
-            className={styles.banner2}
-        >
+        <Box className={styles.bannerBottom}>
             <Box
                 component="img"
                 sx={{

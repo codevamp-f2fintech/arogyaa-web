@@ -1,21 +1,12 @@
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
-
 import { Box, Button, CardContent, Grid, Paper, InputBase, Typography } from '@mui/material';
 
 import en from '@/locales/en.json';
-
 import styles from '../page.module.css';
 
 const BannerComponent: React.FC = () => {
     return (
-        <div className={styles.homebanner} style={{
-            marginTop: '65px',
-            height: '90vh',
-            padding: '50px',
-            position: 'relative',
-            borderRadius: '30px 30px 30px 0',
-            paddingTop: '90px'
-        }}>
+        <div className={styles.homeBanner}>
             <div style={{ width: '850px', height: '300px' }}>
                 <Box
                     component="img"
