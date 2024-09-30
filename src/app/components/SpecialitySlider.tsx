@@ -1,18 +1,22 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-
-import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
+import React, { useEffect, useState } from "react";
 import Slider from "react-slick";
-
+import { useDispatch, useSelector } from "react-redux";
 import { Box, Button, Grid, ImageListItem } from "@mui/material";
+import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 
+import { AppDispatch, RootState } from "@/redux/store";
 import en from "@/locales/en.json";
-import styles from "../page.module.css";
+import { icons } from "@/data";
+import { useGetSpecialities } from "@/hooks/specialities";
+import {
+  setLoading,
+  setSpecialities,
+} from "@/redux/features/specialitiesSlice";
 
-import { specialistData } from "@/data";
+import styles from "../page.module.css";
 
 interface Specialist {
   img: string;
@@ -29,7 +33,7 @@ const settings = {
   slidesToScroll: 2,
   autoplay: false,
   autoplaySpeed: 3000,
-  customPaging: (i) => <div className={styles.customDot}>{i + 1}</div>,
+  customPaging: (i: number) => <div className={styles.customDot}>{i + 1}</div>,
   dotsClass: `slick-dots ${styles.customDots}`,
   responsive: [
     {
@@ -60,6 +64,39 @@ const settings = {
 };
 
 const SpecialitySlider: React.FC = () => {
+  const dispatch: AppDispatch = useDispatch();
+  const { specialities } = useSelector(
+    (state: RootState) => state.specialities
+  );
+
+  const [pageSize, setPageSize] = useState({
+    page: 1,
+    size: 4,
+  });
+
+  const { data } = useGetSpecialities(
+    [],
+    `http://localhost:3001/api/speciality/get-specialization?page=${pageSize.page}&limit=${pageSize.size}`
+  );
+  console.log("data", data);
+
+  useEffect(() => {
+    if (data && data.length > 0) {
+      dispatch(setSpecialities(data));
+    }
+  }, [data]);
+
+  const handleFetchNext = () => {
+    setPageSize((prevSize) => ({
+      ...prevSize,
+      size: prevSize.size + 5,
+    }));
+    dispatch(setLoading(true));
+  };
+
+  // Display data logic
+  const displayData = specialities.length > 0 ? specialities : [];
+
   return (
     <>
       <Box className={styles.outerBox}></Box>
@@ -69,49 +106,43 @@ const SpecialitySlider: React.FC = () => {
         </h1>
 
         <Slider {...settings}>
-          {specialistData.map((item: Specialist, index: number) => (
-            <Box className={styles.specialistBox} key={index}>
-              <img
-                src="/assets/images/speciality-icons/vector_plus.png"
-                alt="Icon"
-                className={styles.specialistIcon}
-              />
-              <ImageListItem className={styles.specialistImage}>
+          {specialities?.map((item, index: number) => {
+            const icon = icons.find((icon) => icon.title === item.name)?.path;
+            return (
+              <Box className={styles.specialistBox} key={index}>
                 <img
-                  srcSet={`${item.img}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
-                  src={`${item.img}?w=164&h=164&fit=crop&auto=format`}
-                  alt={item.title}
-                  loading="lazy"
+                  src="/assets/images/speciality-icons/vector_plus.png"
+                  alt="Icon"
+                  className={styles.specialistIcon}
                 />
-              </ImageListItem>
+                <ImageListItem className={styles.specialistImage}>
+                  <img src={icon} alt={item.name} loading="lazy" />
+                </ImageListItem>
 
-              <h2 className={styles.specialistTitle}>{item.title}</h2>
-              <h4 className={styles.specialistCaption}>{item.caption}</h4>
-              <Button
-                variant="contained"
-                className={styles.readMoreButton}
-                endIcon={<ArrowCircleRightIcon />}
-              >
-                {item.readmore}
-              </Button>
-            </Box>
-          ))}
+                <h2 className={styles.specialistTitle}>{item.name}</h2>
+                <h4 className={styles.specialistCaption}>{item.description}</h4>
+                <Button
+                  variant="contained"
+                  className={styles.readMoreButton}
+                  endIcon={<ArrowCircleRightIcon />}
+                > Consult Now</Button>
+              </Box>
+            );
+          })}
         </Slider>
 
         <Grid container spacing={2} columns={{ xs: 4, sm: 8, md: 12 }}>
-          <Grid xs={12} sx={{ textAlign: "center", marginTop: "20px" }}>
-            <Button
+          <Grid xs={12} sx={{ textAlign: 'center', marginTop: '20px' }}>
+          <Button
               variant="contained"
               className={styles.gridButton}
               endIcon={<ArrowCircleRightIcon />}
-            >
-              {en.homepage.specialitySlider.buttonText}
-            </Button>
+            >{en.homepage.specialitySlider.buttonText}</Button>
           </Grid>
         </Grid>
       </div>
     </>
-  );
+  )
 };
 
 export default SpecialitySlider;

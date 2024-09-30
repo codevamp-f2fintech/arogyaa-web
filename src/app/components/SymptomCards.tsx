@@ -1,10 +1,8 @@
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
-
 import { Box, Button, CardMedia, CardContent, Grid, Paper, Typography } from '@mui/material';
 
 import en from '@/locales/en.json';
-
-import { symptomsList } from "@/data";
+import { symptomsList } from "@/static-data";
 
 import styles from '../page.module.css';
 

@@ -8,12 +8,13 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
+
 import en from "@/locales/en.json";
 import styles from "../page.module.css";
 
 const BannerBottom = () => {
   return (
-    <Box className={styles.banner2}>
+    <Box className={styles.bannerBottom}>
       <Box
         component="img"
         className={styles.bannerImage3}

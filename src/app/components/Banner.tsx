@@ -10,12 +10,11 @@ import {
 } from "@mui/material";
 
 import en from "@/locales/en.json";
-
 import styles from "../page.module.css";
 
 const BannerComponent: React.FC = () => {
   return (
-    <div className={styles.homebanner}>
+    <div className={styles.homeBanner}>
       <div className={styles.bannerContent}>
         <Box
           component="img"

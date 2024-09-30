@@ -1,19 +1,20 @@
 "use client";
 
-import * as React from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import Menu from "@mui/material/Menu";
-import MenuIcon from "@mui/icons-material/Menu";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import Tooltip from "@mui/material/Tooltip";
-import MenuItem from "@mui/material/MenuItem";
-import AdbIcon from "@mui/icons-material/Adb";
-import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
+import { useState } from 'react';
+
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import Menu from '@mui/material/Menu';
+import MenuIcon from '@mui/icons-material/Menu';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
+import MenuItem from '@mui/material/MenuItem';
+import AdbIcon from '@mui/icons-material/Adb';
+import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 
 import en from "@/locales/en.json";
 import styles from "../../page.module.css";
@@ -22,10 +23,10 @@ const pages = ["Products", "Pricing", "Blog"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 const Topbar = () => {
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
+  const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(
     null
   );
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
+  const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(
     null
   );
 
@@ -47,18 +48,26 @@ const Topbar = () => {
   return (
     <AppBar className={styles.appBar}>
       <Toolbar disableGutters>
-        <AdbIcon className={styles.adbIcon} />
+        <AdbIcon sx={{ display: { xs: 'none', md: 'flex', color: '#000' }, mr: 1 }} />
         <Typography
           variant="h6"
           noWrap
           component="a"
           href="#app-bar-with-responsive-menu"
-          className={styles.logoText}
+          sx={{
+            mr: 2,
+            display: { xs: 'none', md: 'flex' },
+            fontFamily: 'monospace',
+            fontWeight: 700,
+            letterSpacing: '.3rem',
+            color: '#000',
+            textDecoration: 'none',
+          }}
         >
           {en.topbar.title}
         </Typography>
 
-        <Box className={styles.menuIconContainer}>
+        <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none', } }}>
           <IconButton
             size="large"
             aria-label="account of current user"
@@ -83,29 +92,40 @@ const Topbar = () => {
             }}
             open={Boolean(anchorElNav)}
             onClose={handleCloseNavMenu}
-            className={styles.menuAppBar}
+            sx={{
+              display: { xs: 'block', md: 'none', justifyContent: 'center' },
+            }}
           >
             {pages.map((page) => (
               <MenuItem key={page} onClick={handleCloseNavMenu}>
-                <Typography textAlign="center" className={styles.menuItem}>
+                <Typography className={styles.menuItem}>
                   {page}
                 </Typography>
               </MenuItem>
             ))}
           </Menu>
         </Box>
-        <AdbIcon className={styles.mobileLogo} />
+        <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
         <Typography
           variant="h5"
           noWrap
           component="a"
           href="#app-bar-with-responsive-menu"
-          className={styles.mobileLogoText}
+          sx={{
+            mr: 2,
+            display: { xs: 'flex', md: 'none' },
+            flexGrow: 1,
+            fontFamily: 'monospace',
+            fontWeight: 700,
+            letterSpacing: '.3rem',
+            color: 'inherit',
+            textDecoration: 'none',
+          }}
         >
           LOGO
         </Typography>
 
-        <Box className={styles.menuItems}>
+        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex', justifyContent: 'center' } }}>
           {pages.map((page) => (
             <Button
               key={page}
