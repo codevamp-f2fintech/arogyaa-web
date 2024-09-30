@@ -1,19 +1,29 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useEffect, useState } from "react";
 import Slider from "react-slick";
-import { Box, Button, Grid, ImageListItem } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/redux/store";
+import { Box, Button, Grid, ImageListItem } from "@mui/material";
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
+
+import { AppDispatch, RootState } from "@/redux/store";
 import en from "@/locales/en.json";
-import styles from "../page.module.css";
 import { icons } from "@/data";
 import { useGetSpecialities } from "@/hooks/specialities";
 import {
   setLoading,
   setSpecialities,
 } from "@/redux/features/specialitiesSlice";
+
+import styles from "../page.module.css";
+
+interface Specialist {
+  img: string;
+  title: string;
+  caption: string;
+  readmore: string;
+}
 
 const settings = {
   dots: true,
@@ -89,142 +99,50 @@ const SpecialitySlider: React.FC = () => {
 
   return (
     <>
-      <Box
-        sx={{
-          background: "#F9F6F6",
-          padding: "50px",
-          height: 50,
-          width: "100%",
-        }}
-      ></Box>
+      <Box className={styles.outerBox}></Box>
       <div>
-        <h1
-          style={{
-            fontSize: "32px",
-            color: "#000",
-            lineHeight: "40px",
-            fontWeight: 700,
-            marginTop: "20px",
-            marginBottom: "20px",
-            textAlign: "center",
-          }}
-        >
+        <h1 className={styles.specialityTitle}>
           {en.homepage.specialitySlider.title}
         </h1>
 
         <Slider {...settings}>
-          {specialities?.map((item, index) => {
+          {specialities?.map((item, index: number) => {
             const icon = icons.find((icon) => icon.title === item.name)?.path;
             return (
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  background: "white",
-                  height: "100%",
-                  border: "4px solid white",
-                  borderRadius: "30px",
-                  padding: "20px",
-                  position: "relative",
-                  boxShadow:
-                    "0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12)",
-                  textAlign: "center",
-                }}
-                key={index}
-              >
+              <Box className={styles.specialistBox} key={index}>
                 <img
-                  src={"assets/images/speciality-icons/vector_plus.png"}
+                  src="/assets/images/speciality-icons/vector_plus.png"
                   alt="Icon"
-                  style={{
-                    position: "absolute",
-                    right: "10px",
-                    top: "10px",
-                  }}
+                  className={styles.specialistIcon}
                 />
-                <ImageListItem
-                  sx={{
-                    height: 100,
-                    width: 100,
-                    background: "#f9f6f6",
-                    borderRadius: "100px",
-                    padding: "20px",
-                  }}
-                >
+                <ImageListItem className={styles.specialistImage}>
                   <img src={icon} alt={item.name} loading="lazy" />
                 </ImageListItem>
 
-                <h2
-                  style={{
-                    fontSize: "18px",
-                    fontWeight: 700,
-                    lineHeight: "26px",
-                    color: "#000",
-                    marginTop: "20px",
-                  }}
-                >
-                  {item.name}
-                </h2>
-                <h4
-                  style={{
-                    fontSize: "14px",
-                    color: "#000",
-                    lineHeight: "18px",
-                    fontWeight: "400",
-                    marginTop: "20px",
-                    marginBottom: "20px",
-                  }}
-                >
-                  {item.description}
-                </h4>
+                <h2 className={styles.specialistTitle}>{item.name}</h2>
+                <h4 className={styles.specialistCaption}>{item.description}</h4>
                 <Button
                   variant="contained"
-                  sx={{
-                    marginTop: 2,
-                    width: "auto",
-                    color: "#fff",
-                    background: "#20ADA0",
-                    borderRadius: "100px",
-                    ":hover": {
-                      bgcolor: "#20ADA0",
-                      color: "white",
-                    },
-                  }}
+                  className={styles.readMoreButton}
                   endIcon={<ArrowCircleRightIcon />}
-                >
-                  Consult now
-                </Button>
+                > Consult Now</Button>
               </Box>
             );
           })}
         </Slider>
 
         <Grid container spacing={2} columns={{ xs: 4, sm: 8, md: 12 }}>
-          <Grid xs={12} sx={{ textAlign: "center", marginTop: "20px" }}>
-            <Button
-              onClick={handleFetchNext}
+          <Grid xs={12} sx={{ textAlign: 'center', marginTop: '20px' }}>
+          <Button
               variant="contained"
-              sx={{
-                marginTop: 4,
-                marginLeft: 2,
-                width: "auto",
-                color: "#fff",
-                background: "#20ADA0",
-                borderRadius: "100px",
-                ":hover": {
-                  bgcolor: "#20ADA0",
-                  color: "white",
-                },
-              }}
+              className={styles.gridButton}
               endIcon={<ArrowCircleRightIcon />}
-            >
-              {en.homepage.specialitySlider.buttonText}
-            </Button>
+            >{en.homepage.specialitySlider.buttonText}</Button>
           </Grid>
         </Grid>
       </div>
     </>
-  );
+  )
 };
 
 export default SpecialitySlider;
