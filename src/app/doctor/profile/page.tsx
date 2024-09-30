@@ -3,13 +3,15 @@ import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import { Select, MenuItem, FormControl, InputLabel, Grid, Paper, Typography, Button, AppBar, TextField, InputAdornment, OutlinedInput, Tabs, Tab } from '@mui/material';
 import styled from 'styled-components';
-import Header from '../../common/appbar';
-import Footer from '../../common/footer';
 import DoneIcon from '@mui/icons-material/Done';
 import PaymentIcon from '@mui/icons-material/Payment';
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import VerifiedIcon from '@mui/icons-material/Verified';
-import ModalOne from '../../common/modal/bookappointment';
+
+import Header from '../../components/common/Topbar';
+import Footer from '../../components/common/Footer';
+import ModalOne from '../../components/common/BookAppointmentModal';
+
 const Drprofwrapper = styled.div`
 padding:40px;
 padding-top:90px;
@@ -259,16 +261,16 @@ export default function DrProfile() {
 
     // Function to open the modal
     const openModal = () => {
-      console.log('Open Modal button clicked');
-      setModalOpen(true);
+        console.log('Open Modal button clicked');
+        setModalOpen(true);
     };
-  
+
     // Function to close the modal
     const closeModal = () => {
-      console.log('Close Modal button clicked');
-      setModalOpen(false);
+        console.log('Close Modal button clicked');
+        setModalOpen(false);
     };
-  
+
     const [value, setValue] = useState(0);
     const [value1, setValue1] = useState(0);
 
@@ -281,10 +283,10 @@ export default function DrProfile() {
 
     return (
         <Drprofwrapper>
-            <Header/>
-           
-    
-      <ModalOne isOpen={isModalOpen} onClose={closeModal} />
+            <Header />
+
+
+            <ModalOne isOpen={isModalOpen} onClose={closeModal} />
             <Box sx={{ padding: '10px', }}>
                 <Grid container spacing={3}>
                     <Grid item xs={12} sm={12} md={12}>
@@ -298,9 +300,9 @@ export default function DrProfile() {
                             <Box className="dr_cat_action_wrp">
                                 <Box className="dr_cap">
 
-                                    <Typography variant="h4" component="h4" className='t1'>Dr. Ranjana Sharma<span className="verified"><VerifiedIcon/> Verified profile</span></Typography>
+                                    <Typography variant="h4" component="h4" className='t1'>Dr. Ranjana Sharma<span className="verified"><VerifiedIcon /> Verified profile</span></Typography>
                                     <Typography variant="h6" component="h6" className='t2'>General Physician</Typography>
-                                    <Typography variant="h6" component="h6" className='t3'>M.B.B.S, DCh, DHA, RPSGT (USA)<br/>
+                                    <Typography variant="h6" component="h6" className='t3'>M.B.B.S, DCh, DHA, RPSGT (USA)<br />
 
 
                                         General physician, Paediatrician Health Checkup (General), Chickenpox Treatment, Sleep medicine, Pediatric gastroenterology, Pediatric infectious diseases, Allergy Treatment, Diabetes Management, Immunity Therapy, Migraine Treatment, Hypertension Treatment, Thyroid Disease in Children, Fever Treatment, Dermatology, Respiratory illness treatment (40 Years Experience Overall)</Typography>
@@ -311,7 +313,7 @@ export default function DrProfile() {
                                         <Typography variant="h6" component="span" className='t3'>Speaks English, Kannada,Telugu, Tamil, Hind</Typography>
                                     </Box>
                                     <Box>
-                                        <Button onClick={openModal}  variant="contained" sx={{
+                                        <Button onClick={openModal} variant="contained" sx={{
                                             marginTop: 2, width: 'auto', color: '#fff', background: '#20ADA0', borderRadius: '4px', ':hover': {
                                                 bgcolor: '#20ADA0', // theme.palette.primary.main
                                                 color: 'white',
@@ -358,34 +360,34 @@ export default function DrProfile() {
                         </Paper>
                     </Grid>
                     <Grid item xs={12} sm={8} md={8}>
-                        <Box sx={{ width: '100%', background:'white' }}>
+                        <Box sx={{ width: '100%', background: 'white' }}>
                             <Tabs
-                            
+
                                 value={value}
                                 onChange={handleChange}
                                 variant="fullWidth"
                                 aria-label="Pill Tabs Example"
                                 sx={{
-                                     background:'#e8e8e8',
+                                    background: '#e8e8e8',
                                     '& .MuiTabs-indicator': {
                                         display: 'none', // Hide default indicator
                                     },
                                     '& .MuiTab-root': {
-                                        
+
                                         textTransform: 'none', // Avoid uppercase text transformation
                                         borderRadius: '0px', // Make the tabs pill-shaped
                                         margin: '0 0px', // Add some spacing between the tabs
                                         minHeight: '48px', // Minimum height for the tab
-                                        backgroundColor: '#f0f0f5', 
-                                        borderBottom:'0px solid #20ada0',
-                                        color:'#000',
+                                        backgroundColor: '#f0f0f5',
+                                        borderBottom: '0px solid #20ada0',
+                                        color: '#000',
                                         // Default background color
                                         '&.Mui-selected': {
                                             backgroundColor: '#fff', // Background color for the selected tab
                                             color: '#20ada0', // Text color for the selected tab
-                                            borderLeft:'1px solid #20ada0',
-                                            borderRight:'1px solid #20ada0',
-                                            borderTop:'1px solid #20ada0',
+                                            borderLeft: '1px solid #20ada0',
+                                            borderRight: '1px solid #20ada0',
+                                            borderTop: '1px solid #20ada0',
                                         },
                                     },
                                 }}
@@ -398,100 +400,100 @@ export default function DrProfile() {
                             <Box sx={{ p: 3 }}>
                                 {value === 0 && <div>
                                     <Box>
-                                    <Typography variant="h6" component="p" className='para_info1'>
-                                    Dr. Ranjana Sharma is a passionate and enthusiastic mental
-                                     health professional. He completed his MBBS from prestigious
-                                      Manipal University, and post graduated in the field of psychiatry
-                                       from St John’s Medical College Bangalore. Worked in one of the
-                                        premier mental health institutes of the country National Institute
-                                         of Mental Health and Neuro Sciences (NIMHANS), Bangalore after which 
-                                         he went overseas to further hone his clinical skills.</Typography>
+                                        <Typography variant="h6" component="p" className='para_info1'>
+                                            Dr. Ranjana Sharma is a passionate and enthusiastic mental
+                                            health professional. He completed his MBBS from prestigious
+                                            Manipal University, and post graduated in the field of psychiatry
+                                            from St John’s Medical College Bangalore. Worked in one of the
+                                            premier mental health institutes of the country National Institute
+                                            of Mental Health and Neuro Sciences (NIMHANS), Bangalore after which
+                                            he went overseas to further hone his clinical skills.</Typography>
 
 
                                     </Box>
                                     <Box>
-                                    <Typography variant="h4" component="h4" className='treat_list_title'>Conditions treated</Typography>
+                                        <Typography variant="h4" component="h4" className='treat_list_title'>Conditions treated</Typography>
                                         <ul className="trat_list">
-                                            <li> <DoneIcon sx={{marginRight:'5px'}}/>Stress and anger management</li>
-                                            <li> <DoneIcon sx={{marginRight:'5px'}}/>Sleep problems</li>
-                                            <li> <DoneIcon sx={{marginRight:'5px'}}/> Communication and relationship problems</li>
-                                            <li> <DoneIcon sx={{marginRight:'5px'}}/>Anxiety and Depressive disorders</li>
-                                            <li> <DoneIcon sx={{marginRight:'5px'}}/>Schizophrenia and psychotic disorders, OCD, Bipolar disorders</li>
-                                            <li> <DoneIcon sx={{marginRight:'5px'}}/>ADHD, Autism</li>
-                                            <li> <DoneIcon sx={{marginRight:'5px'}}/>Childhood motor disorders</li>
-                                            <li> <DoneIcon sx={{marginRight:'5px'}}/>Childhood emotional and mental wellbeing</li>
-                                            <li> <DoneIcon sx={{marginRight:'5px'}}/>Career guidance</li>
+                                            <li> <DoneIcon sx={{ marginRight: '5px' }} />Stress and anger management</li>
+                                            <li> <DoneIcon sx={{ marginRight: '5px' }} />Sleep problems</li>
+                                            <li> <DoneIcon sx={{ marginRight: '5px' }} /> Communication and relationship problems</li>
+                                            <li> <DoneIcon sx={{ marginRight: '5px' }} />Anxiety and Depressive disorders</li>
+                                            <li> <DoneIcon sx={{ marginRight: '5px' }} />Schizophrenia and psychotic disorders, OCD, Bipolar disorders</li>
+                                            <li> <DoneIcon sx={{ marginRight: '5px' }} />ADHD, Autism</li>
+                                            <li> <DoneIcon sx={{ marginRight: '5px' }} />Childhood motor disorders</li>
+                                            <li> <DoneIcon sx={{ marginRight: '5px' }} />Childhood emotional and mental wellbeing</li>
+                                            <li> <DoneIcon sx={{ marginRight: '5px' }} />Career guidance</li>
                                         </ul>
-                                        </Box>  
-                                    </div>}
+                                    </Box>
+                                </div>}
                                 {value === 1 && <div>
                                     <Box className="locat_inf">
-                                    <Grid container spacing={3}>
-                                    <Grid item xs={12} sm={6} md={4}>
-                                    <Box className="loc_1">
-                                    <Typography variant="h6" component="h6" className='tx1'>Location</Typography>
-                                    <Typography variant="h6" component="h6" className='tx2'>Gulmohar Park, New Delhi (Evening consultation available. Call us to fix an appointment at 011-4118 3001, +91 98 1809 3267 )</Typography>
-                                    <Typography variant="h6" component="h6" className='tx3'>Chanakyapuri, New Delhi</Typography>
-                                    
-                                    </Box>
-                                    </Grid>
-                                   <Grid item xs={12} sm={6} md={4} className="dates">
-                                   <Typography variant="h6" component="h6" className='tx1'>Days to Open</Typography>
-                                   <Typography variant="h6" component="h6" className='tx2'>Monday - Saterday</Typography>
-                                   <Typography variant="h6" component="h6" className='tx3'>09:00 AM - 02:00 PM</Typography>
-                                   <Typography variant="h6" component="h6" className='tx2'>Sunday</Typography>
-                                   <Typography variant="h6" component="h6" className='tx3'>06:00 PM - 09:00 PM</Typography>
-                                    
-                                   </Grid>
-                                   <Grid item xs={12} sm={6} md={4} className="dates">
-                                   <Typography variant="h6" component="h6" className='tx1'>In-Clinic Visit</Typography>
-                                   <Typography variant="h6" component="h6" className='tx3'sx={{display:'flex'}}><CurrencyRupeeIcon sx={{marginRight:'5px'}}/>Fee : ₹ 1000 per consultation</Typography>
-                                  <Typography variant="h6" component="h6" className='tx3' sx={{display:'flex', marginTop:'15px'}}> <PaymentIcon sx={{marginRight:'5px'}}/>Online Payment Available</Typography>
-                                  <Typography variant="h6" component="h6" className='tx4'>Online Audio and Video Consultation</Typography>
-                                   <Typography variant="h6" component="h6" className='tx3'sx={{display:'flex',marginTop:'10px'}}><CurrencyRupeeIcon sx={{marginRight:'5px'}}/>Fee : ₹ 1000 per consultation</Typography>
-                                    
-                                   </Grid>
-                                   </Grid>
+                                        <Grid container spacing={3}>
+                                            <Grid item xs={12} sm={6} md={4}>
+                                                <Box className="loc_1">
+                                                    <Typography variant="h6" component="h6" className='tx1'>Location</Typography>
+                                                    <Typography variant="h6" component="h6" className='tx2'>Gulmohar Park, New Delhi (Evening consultation available. Call us to fix an appointment at 011-4118 3001, +91 98 1809 3267 )</Typography>
+                                                    <Typography variant="h6" component="h6" className='tx3'>Chanakyapuri, New Delhi</Typography>
+
+                                                </Box>
+                                            </Grid>
+                                            <Grid item xs={12} sm={6} md={4} className="dates">
+                                                <Typography variant="h6" component="h6" className='tx1'>Days to Open</Typography>
+                                                <Typography variant="h6" component="h6" className='tx2'>Monday - Saterday</Typography>
+                                                <Typography variant="h6" component="h6" className='tx3'>09:00 AM - 02:00 PM</Typography>
+                                                <Typography variant="h6" component="h6" className='tx2'>Sunday</Typography>
+                                                <Typography variant="h6" component="h6" className='tx3'>06:00 PM - 09:00 PM</Typography>
+
+                                            </Grid>
+                                            <Grid item xs={12} sm={6} md={4} className="dates">
+                                                <Typography variant="h6" component="h6" className='tx1'>In-Clinic Visit</Typography>
+                                                <Typography variant="h6" component="h6" className='tx3' sx={{ display: 'flex' }}><CurrencyRupeeIcon sx={{ marginRight: '5px' }} />Fee : ₹ 1000 per consultation</Typography>
+                                                <Typography variant="h6" component="h6" className='tx3' sx={{ display: 'flex', marginTop: '15px' }}> <PaymentIcon sx={{ marginRight: '5px' }} />Online Payment Available</Typography>
+                                                <Typography variant="h6" component="h6" className='tx4'>Online Audio and Video Consultation</Typography>
+                                                <Typography variant="h6" component="h6" className='tx3' sx={{ display: 'flex', marginTop: '10px' }}><CurrencyRupeeIcon sx={{ marginRight: '5px' }} />Fee : ₹ 1000 per consultation</Typography>
+
+                                            </Grid>
+                                        </Grid>
                                     </Box></div>}
                                 {value === 2 && <div>
-                                        <Box className="blog_content">
+                                    <Box className="blog_content">
                                         <Typography variant="h6" component="h6" className='tx1'>Home Consultation</Typography>
-                                   <Typography variant="h6" component="h6" className='tx2'sx={{display:'flex',marginTop:'10px'}}>Home visits available in New Delhi and Gurgaon only subject to doctor availability. To schedule home visit, please call 011-4118 3001.</Typography>
-                                   
-                                        </Box>
-                                    </div>}
+                                        <Typography variant="h6" component="h6" className='tx2' sx={{ display: 'flex', marginTop: '10px' }}>Home visits available in New Delhi and Gurgaon only subject to doctor availability. To schedule home visit, please call 011-4118 3001.</Typography>
+
+                                    </Box>
+                                </div>}
                             </Box>
                         </Box>
                     </Grid>
                     <Grid item xs={12} sm={4} md={4}>
-                        <Box sx={{ width: '100%',background:'white' }}>
+                        <Box sx={{ width: '100%', background: 'white' }}>
                             <Tabs
-                            
+
                                 value={value1}
                                 onChange={handleChangeAppoint}
                                 variant="fullWidth"
                                 aria-label="appoint"
                                 sx={{
-                                     background:'#e8e8e8',
+                                    background: '#e8e8e8',
                                     '& .MuiTabs-indicator': {
                                         display: 'none', // Hide default indicator
                                     },
                                     '& .MuiTab-root': {
-                                        
+
                                         textTransform: 'none', // Avoid uppercase text transformation
                                         borderRadius: '0px', // Make the tabs pill-shaped
                                         margin: '0 0px', // Add some spacing between the tabs
                                         minHeight: '48px', // Minimum height for the tab
-                                        backgroundColor: '#f0f0f5', 
-                                        borderBottom:'0px solid #20ada0',
-                                        color:'#000',
+                                        backgroundColor: '#f0f0f5',
+                                        borderBottom: '0px solid #20ada0',
+                                        color: '#000',
                                         // Default background color
                                         '&.Mui-selected': {
                                             backgroundColor: '#fff', // Background color for the selected tab
                                             color: '#20ada0', // Text color for the selected tab
-                                            borderLeft:'1px solid #20ada0',
-                                            borderRight:'1px solid #20ada0',
-                                            borderTop:'1px solid #20ada0',
+                                            borderLeft: '1px solid #20ada0',
+                                            borderRight: '1px solid #20ada0',
+                                            borderTop: '1px solid #20ada0',
                                         },
                                     },
                                 }}
@@ -502,39 +504,39 @@ export default function DrProfile() {
 
                             <Box sx={{ p: 3 }}>
                                 {value1 === 0 &&
-                                 <div>
-                                
-                                    <Box className="availble">
-                                    <Typography variant="h6" component="h6" className='tx1'>Available Tomorrow</Typography>
+                                    <div>
 
-                                    <ul className="time_box">
-                                        <li>03:00 PM</li>
-                                        <li>06:00 PM</li>
-                                        <li>09:00 PM</li>
-                                    </ul>
-                                    </Box>
+                                        <Box className="availble">
+                                            <Typography variant="h6" component="h6" className='tx1'>Available Tomorrow</Typography>
+
+                                            <ul className="time_box">
+                                                <li>03:00 PM</li>
+                                                <li>06:00 PM</li>
+                                                <li>09:00 PM</li>
+                                            </ul>
+                                        </Box>
                                     </div>}
-                                {value1 === 1 && 
-                                <div>
-                                 <Box className="availble">
-                                    <Typography variant="h6" component="h6" className='tx1'>Available Tomorrow</Typography>
-                                    <Typography variant="h6" component="h6" className='tx2'>Delhi, Gurugram</Typography>
+                                {value1 === 1 &&
+                                    <div>
+                                        <Box className="availble">
+                                            <Typography variant="h6" component="h6" className='tx1'>Available Tomorrow</Typography>
+                                            <Typography variant="h6" component="h6" className='tx2'>Delhi, Gurugram</Typography>
 
-                                    <ul className="time_box">
-                                        <li>03:00 PM</li>
-                                        <li>06:00 PM</li>
-                                        <li>09:00 PM</li>
-                                    </ul>
-                                    </Box>
-                                 </div>}
-                              
+                                            <ul className="time_box">
+                                                <li>03:00 PM</li>
+                                                <li>06:00 PM</li>
+                                                <li>09:00 PM</li>
+                                            </ul>
+                                        </Box>
+                                    </div>}
+
                             </Box>
                         </Box>
                     </Grid>
 
                 </Grid>
             </Box>
-            <Footer/>
+            <Footer />
         </Drprofwrapper>
     );
 }
