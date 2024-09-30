@@ -2,7 +2,7 @@ import { useState } from "react";
 import useSWR from "swr";
 
 import { creator, fetcher, modifier } from "@/apis/apiClient";
-import { User } from "@/types/user";
+import { Specialities } from "@/types/specialities";
 
 /**
  * Hook for fetching users with SWR (stale-while-revalidate) strategy.
@@ -11,8 +11,11 @@ import { User } from "@/types/user";
  * @param pathKey - The API path key used by SWR to fetch user data.
  * @returns An object containing the fetched users, loading state, and error state.
  */
-export const useGetUsers = (initialData: User[], pathKey: string) => {
-  const { data: swrData, error } = useSWR<User[]>(pathKey, fetcher, {
+export const useGetSpecialities = (
+  initialData: Specialities[],
+  pathKey: string
+) => {
+  const { data: swrData, error } = useSWR<Specialities[]>(pathKey, fetcher, {
     fallbackData: initialData,
     refreshInterval: initialData ? 3600000 : 0, // 1 hour refresh if initialData exists
     revalidateOnFocus: false, // Disable revalidation on window focus
@@ -27,18 +30,22 @@ export const useGetUsers = (initialData: User[], pathKey: string) => {
  * @param pathKey - The API path key used to create a new user.
  * @returns An object containing the created user, loading state, error state, and the createUser function.
  */
-export const useCreateUser = (pathKey: string) => {
+export const useCreateSpecialities = (pathKey: string) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const [createdUser, setCreatedUser] = useState<User | null>(null);
+  const [createdSpecialities, setCreatedSpecialities] =
+    useState<Specialities | null>(null);
 
-  const createUser = async (newUserData: User) => {
+  const createSpecialities = async (newSpecialitiesData: Specialities) => {
     setLoading(true);
     setError(null);
 
     try {
-      const user = await creator<User, User>(pathKey, newUserData);
-      setCreatedUser(user);
+      const specialities = await creator<Specialities, Specialities>(
+        pathKey,
+        newSpecialitiesData
+      );
+      setCreatedSpecialities(specialities);
     } catch (err) {
       setError(err as Error);
     } finally {
@@ -46,7 +53,7 @@ export const useCreateUser = (pathKey: string) => {
     }
   };
 
-  return { createdUser, loading, error, createUser };
+  return { createdSpecialities, loading, error, createSpecialities };
 };
 
 /**
@@ -55,18 +62,22 @@ export const useCreateUser = (pathKey: string) => {
  * @param pathKey - The API path key used to modify a user.
  * @returns An object containing the updated user, loading state, error state, and the modifyUser function.
  */
-export const useModifyUser = (pathKey: string) => {
+export const useModifySpecialities = (pathKey: string) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const [updatedUser, setUpdatedUser] = useState<User | null>(null);
+  const [updatedSpecialities, setUpdatedSpecialities] =
+    useState<Specialities | null>(null);
 
-  const modifyUser = async (updatedUserData: User) => {
+  const modifySpecialities = async (updatedSpecialitiesData: Specialities) => {
     setLoading(true);
     setError(null);
 
     try {
-      const user = await modifier<User, User>(pathKey, updatedUserData);
-      setUpdatedUser(user);
+      const specialities = await modifier<Specialities, Specialities>(
+        pathKey,
+        updatedSpecialitiesData
+      );
+      setUpdatedSpecialities(specialities);
     } catch (err) {
       setError(err as Error);
     } finally {
@@ -74,5 +85,5 @@ export const useModifyUser = (pathKey: string) => {
     }
   };
 
-  return { updatedUser, loading, error, modifyUser };
+  return { updatedSpecialities, loading, error, modifySpecialities };
 };
