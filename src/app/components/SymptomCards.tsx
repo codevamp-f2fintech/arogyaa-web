@@ -5,13 +5,15 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
-import { Box, Button, CardContent, Grid, Paper, Typography } from '@mui/material';
-import Image from 'next/image';
+import { Box, Button, CardMedia, CardContent, Grid, Paper, Typography } from '@mui/material';
 
-import { setSymptoms, setLoading } from '@/redux/features/symptomsSlice';
+import en from '@/locales/en.json';
+import styles from '../page.module.css';
+
 import type { AppDispatch, RootState } from '@/redux/store';
+import { icons } from "@/static-data";
+import { setSymptoms, setLoading } from '@/redux/features/symptomsSlice';
 import { useGetSymptoms } from '@/hooks/symptoms';
-import { icons } from "@/data";
 
 const SymptomCards: React.FC = () => {
     const dispatch: AppDispatch = useDispatch();
@@ -41,51 +43,40 @@ const SymptomCards: React.FC = () => {
 
     // Display data logic
     const displayData = symptoms.length > 0 ? symptoms : [];
+
     return (
-        <Box sx={{ flexGrow: 1 }}>
-            <Grid container spacing={2} columns={{ xs: 12, sm: 12, md: 12 }}>
+        <Box className={styles.symptomBox}>
+            <Typography variant="h2" component="h2" className={styles.symptomTitle}>
+                <span className={styles.symptomTitleSpan}>{en.homepage.symptomCards.title1}</span>
+                <br />
+                {en.homepage.symptomCards.title2}
+            </Typography>
+
+            <Grid container spacing={2} columns={{ xs: 4, sm: 8, md: 12 }}>
                 {displayData.slice(0, pageSize.size).map((item) => {
                     const icon = icons.find((icon) => icon.title === item.name)?.path;
 
                     return (
-                        <Grid item xs={3} sm={3} md={3} key={item.id}> {/* Updated to xs={3} for 4 in a row */}
-                            <Paper elevation={3} sx={{
-                                padding: '20px',
-                                height: '100%',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'center',
-                                alignItems: 'center'
-                            }}>
-                                <Image
-                                    src={`${icon}`} // Assuming 'icon' is the correct field for the image path
-                                    width={100}
-                                    height={100}
-                                    alt={`${icon}`}
+                        <Grid item xs={3} className={styles.symptomGrid} key={item.id}>
+                            <Paper elevation={3} className={styles.symptomPaper}>
+                                <CardMedia
+                                    component="img"
+                                    className={styles.symptomCardMedia}
+                                    image={icon}
+                                    alt={icon}
                                 />
-                                <CardContent sx={{ textAlign: 'center' }}> {/* Centering the text */}
-                                    <Typography variant="h5" component="h5" sx={{
-                                        fontSize: '16px',
-                                        color: '#000',
-                                        lineHeight: '20px',
-                                        fontWeight: '700',
-                                        marginTop: '10px',
-                                        marginBottom: '10px'
-                                    }}>
+                                <CardContent sx={{ textAlign: 'center' }}>
+                                    <Typography variant="h5" component="h5" className={styles.symptomCardTitle}>
                                         {item.name}
                                     </Typography>
 
-                                    <Button variant="contained" sx={{
-                                        marginTop: 2,
-                                        width: 'auto',
-                                        color: '#fff',
-                                        background: '#20ADA0',
-                                        borderRadius: '100px',
-                                        ':hover': {
-                                            bgcolor: '#20ADA0',
-                                            color: 'white',
-                                        },
-                                    }} endIcon={<ArrowCircleRightIcon />}>Consult Now</Button>
+                                    <Button
+                                        variant="contained"
+                                        className={styles.symptomButton}
+                                        endIcon={<ArrowCircleRightIcon />}
+                                    >
+                                        Consult Now
+                                    </Button>
                                 </CardContent>
                             </Paper>
                         </Grid>
@@ -95,15 +86,13 @@ const SymptomCards: React.FC = () => {
 
             <Grid container spacing={2} columns={{ xs: 12, sm: 12, md: 12 }}>
                 <Grid xs={12} sx={{ textAlign: 'center', marginTop: '20px' }}>
-                    <Button variant="contained" sx={{
-                        color: 'white',
-                        background: '#20ADA0',
-                        ':hover': {
-                            bgcolor: '#20ADA0',
-                            color: 'white',
-                        },
-                    }} endIcon={<ArrowCircleRightIcon />} onClick={handleFetchNext}>
-                        Load More
+                    <Button
+                        variant="contained"
+                        className={styles.gridButton}
+                        endIcon={<ArrowCircleRightIcon />}
+                        onClick={handleFetchNext}
+                    >
+                        {en.homepage.symptomCards.buttonText}
                     </Button>
                 </Grid>
             </Grid>

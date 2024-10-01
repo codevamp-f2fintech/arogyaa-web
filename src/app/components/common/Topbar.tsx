@@ -1,6 +1,8 @@
 "use client";
 
-import * as React from 'react';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -13,75 +15,97 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
+import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import Popover from '@mui/material/Popover';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 
-import en from '@/locales/en.json';
+import en from "@/locales/en.json";
+import styles from "../../page.module.css";
 
-const pages = ['Products', 'Pricing', 'Blog'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+import { AppDispatch, RootState } from '@/redux/store';
+import { useGetNotifications } from '@/hooks/notification';
+import { setNotifications } from '@/redux/features/notificationsSlice';
+
+const pages = ["Products", "Pricing", "Blog"];
+const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 const Topbar = () => {
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-  const [tabValue, setTabValue] = React.useState(0); // State for tab selection
-  const [unreadNotification, setUnreadNotification] = React.useState([
-    'Notification 1',
-    'Notification 2',
-    'Notification 3',
-    'Notification 4',
-    'Notification 5',
-    'Notification 6',
-    'Notification 7',
-  ]);
-  const [readNotification, setReadNotification] = React.useState<string[]>([]);
-  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+  const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
+  const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
+  const [tabValue, setTabValue] = useState(0); // State for tab selection
+  const [readNotification, setReadNotification] = useState<string[]>([]);
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+
+  const dispatch: AppDispatch = useDispatch();
+  const { notifications } = useSelector((state: RootState) => state.notifications);
+
+  //fetch api
+  const { data } = useGetNotifications([], `http://localhost:3001/api/notifications/get-notifications/60d9caed6f70c40b7cdcb867`);
+
+  console.log('data:', data); // Inspect the structure of the response
+  let dataArray = Array.isArray(data) ? data : [data];
+
+  useEffect(() => {
+    if (dataArray && dataArray.length > 0) {
+      dispatch(setNotifications(dataArray));
+      console.log('working')
+    }
+  }, [data, dispatch]);
+  console.log(notifications);
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
   };
+
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
   };
+
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
   };
+
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
+
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
-  const [visibleNotifications, setVisibleNotifications] = React.useState(5);
+
+  const [visibleNotifications, setVisibleNotifications] = useState(5);
 
   const markAsRead = (index: number) => {
-    const notificationToMove = unreadNotification[index];  
-    setReadNotification((prev) => [...prev, notificationToMove]);  
-  
-    const newUnreadNotifications = [...unreadNotification]; 
-    newUnreadNotifications.splice(index, 1);  
-  
-    setUnreadNotification(newUnreadNotifications);
+    const notificationToMove = notifications[index];
+    setReadNotification((prev) => [...prev, notificationToMove.message]);
+
+    const newUnreadNotifications = notifications.filter((_, i) => i !== index);
+    dispatch(setNotifications(newUnreadNotifications));
   };
   const handleViewMore = () => {
     setVisibleNotifications(prev => prev + 5);
   };
-  
+
+  function setPageSize(arg0: (prevSize: any) => any) {
+    throw new Error('Function not implemented.');
+  }
 
   const open = Boolean(anchorEl);
   const id = open ? 'simple-popover' : undefined;
 
   return (
-    <AppBar sx={{ bgcolor: "#fff", padding: '0px 50px' }}>
+    <AppBar className={styles.appBar}>
       <Toolbar disableGutters>
         <AdbIcon sx={{ display: { xs: 'none', md: 'flex', color: '#000' }, mr: 1 }} />
         <Typography
@@ -109,7 +133,7 @@ const Topbar = () => {
             aria-controls="menu-appbar"
             aria-haspopup="true"
             onClick={handleOpenNavMenu}
-            color="inherit"
+            className={styles.menuButton}
           >
             <MenuIcon />
           </IconButton>
@@ -117,13 +141,13 @@ const Topbar = () => {
             id="menu-appbar"
             anchorEl={anchorElNav}
             anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'left',
+              vertical: "bottom",
+              horizontal: "left",
             }}
             keepMounted
             transformOrigin={{
-              vertical: 'top',
-              horizontal: 'left',
+              vertical: "top",
+              horizontal: "left",
             }}
             open={Boolean(anchorElNav)}
             onClose={handleCloseNavMenu}
@@ -133,7 +157,9 @@ const Topbar = () => {
           >
             {pages.map((page) => (
               <MenuItem key={page} onClick={handleCloseNavMenu}>
-                <Typography textAlign="center" sx={{ color: '#000' }}>{page}</Typography>
+                <Typography className={styles.menuItem}>
+                  {page}
+                </Typography>
               </MenuItem>
             ))}
           </Menu>
@@ -157,25 +183,27 @@ const Topbar = () => {
         >
           LOGO
         </Typography>
+
         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex', justifyContent: 'center' } }}>
           {pages.map((page) => (
             <Button
               key={page}
               onClick={handleCloseNavMenu}
-              sx={{ my: 2, color: 'black', display: 'block' }}
+              className={styles.menuItemButton}
             >
               {page}
             </Button>
           ))}
         </Box>
 
-        <Box sx={{ flexGrow: 0, marginRight: '10px' }}>
-          <Button variant="contained" sx={{
-            color: '#000', backgroundColor: '#FAFAFA', width: '100%', borderRadius: 100, ':hover': {
-              bgcolor: '#20ADA0', // theme.palette.primary.main
-              color: 'white',
-            },
-          }} endIcon={<ArrowCircleRightIcon />}>{en.topbar.appointment}</Button>
+        <Box className={styles.appointmentButtonContainer}>
+          <Button
+            variant="contained"
+            className={styles.appointmentButton}
+            endIcon={<ArrowCircleRightIcon />}
+          >
+            {en.topbar.appointment}
+          </Button>
         </Box>
         <Box>
           <IconButton aria-describedby={id} onClick={handleClick} sx={{
@@ -197,25 +225,32 @@ const Topbar = () => {
             }}
           >
             <Box sx={{ width: 300 }}>
-              <Tabs value={tabValue} onChange={handleTabChange} variant="fullWidth">
-                <Tab label="Unread" />
-                <Tab label="Read" />
+              <Tabs value={tabValue} onChange={handleTabChange} variant="fullWidth" textColor="#20ADA0" indicatorColor="black">
+                <Tab label="Unread" sx={{ color: "#20ADA0" }} />
+                <Tab label="Read" sx={{ color: "#20ADA0" }} />
               </Tabs>
               <Box sx={{ p: 2 }}>
                 {tabValue === 0 ? (
                   <Box>
-                    {unreadNotification.length === 0 ? (
+                    {notifications.length === 0 ? (
                       <Typography>No unread Notifications</Typography>
                     ) : (
-                      unreadNotification.slice(0,visibleNotifications).map((notification, index) => (
+                      notifications.slice(0, visibleNotifications).map((notification, index) => (
                         <Typography key={index}>
-                          {notification}
-                          <Button onClick={() => markAsRead(index)}>Mark Read</Button>
+                          {notification.message}
+                          <IconButton onClick={() => markAsRead(index)}>
+                            <MarkEmailReadIcon sx={{ color: "#20ADA0" }} />
+                          </IconButton>
                         </Typography>
                       ))
-                      )}
-                      {unreadNotification.length > visibleNotifications && (
-                      <Button onClick={handleViewMore}>View More</Button>
+                    )}
+                    {notifications.length > visibleNotifications && (
+                      <Button onClick={handleViewMore} sx={{
+                        color: "black",
+                        ":hover": {
+                          bgcolor: "#20ADA0"
+                        }
+                      }}>View More</Button>
                     )}
                   </Box>
                 ) : (
@@ -223,7 +258,7 @@ const Topbar = () => {
                     {readNotification.length === 0 ? (
                       <Typography>No read notifications.</Typography>
                     ) : (
-                      readNotification.slice(0,visibleNotifications).map((notification, index) => (
+                      readNotification.slice(0, visibleNotifications).map((notification, index) => (
                         <Typography key={index}>
                           {notification}
                         </Typography>
@@ -239,28 +274,31 @@ const Topbar = () => {
           </Popover>
         </Box>
 
-        <Box sx={{ flexGrow: 0 }}>
+        <Box className={styles.avatarContainer}>
           <Tooltip title="Open settings">
-            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+            <IconButton
+              onClick={handleOpenUserMenu}
+              className={styles.avatarButton}
+            >
               <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
             </IconButton>
           </Tooltip>
 
           <Menu
-            sx={{ mt: '45px' }}
             id="menu-appbar"
             anchorEl={anchorElUser}
             anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
+              vertical: "top",
+              horizontal: "right",
             }}
             keepMounted
             transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
+              vertical: "top",
+              horizontal: "right",
             }}
             open={Boolean(anchorElUser)}
             onClose={handleCloseUserMenu}
+            className={styles.userMenu}
           >
             {settings.map((setting) => (
               <MenuItem key={setting} onClick={handleCloseUserMenu}>
