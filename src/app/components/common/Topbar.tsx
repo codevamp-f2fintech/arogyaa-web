@@ -93,6 +93,7 @@ const Topbar = () => {
     const newUnreadNotifications = notifications.filter((_, i) => i !== index);
     dispatch(setNotifications(newUnreadNotifications));
   };
+
   const handleViewMore = () => {
     setVisibleNotifications(prev => prev + 5);
   };
@@ -205,6 +206,7 @@ const Topbar = () => {
             {en.topbar.appointment}
           </Button>
         </Box>
+
         <Box>
           <IconButton aria-describedby={id} onClick={handleClick} sx={{
             color: '#000', backgroundColor: '#FAFAFA', padding: '10px', borderRadius: '500px', margin: '0 10px 0 5px', ':hover': {
@@ -215,6 +217,8 @@ const Topbar = () => {
             <NotificationsIcon sx={{ color: 'black' }} />
           </IconButton>
           <Popover
+            anchorReference="anchorPosition"
+            anchorPosition={{ top: 0, left: 700 }}
             id={id}
             open={open}
             anchorEl={anchorEl}
@@ -223,8 +227,9 @@ const Topbar = () => {
               vertical: 'bottom',
               horizontal: 'left',
             }}
+            sx={{ borderRadius: 'px' }}
           >
-            <Box sx={{ width: 300 }}>
+            <Box sx={{ width: 400 }}>
               <Tabs value={tabValue} onChange={handleTabChange} variant="fullWidth" textColor="#20ADA0" indicatorColor="black">
                 <Tab label="Unread" sx={{ color: "#20ADA0" }} />
                 <Tab label="Read" sx={{ color: "#20ADA0" }} />
@@ -237,6 +242,10 @@ const Topbar = () => {
                     ) : (
                       notifications.slice(0, visibleNotifications).map((notification, index) => (
                         <Typography key={index}>
+                          {notification.message}
+                          <IconButton onClick={() => markAsRead(index)}>
+                            <MarkEmailReadIcon sx={{ color: "#20ADA0" }} />
+                          </IconButton>
                           {notification.message}
                           <IconButton onClick={() => markAsRead(index)}>
                             <MarkEmailReadIcon sx={{ color: "#20ADA0" }} />
