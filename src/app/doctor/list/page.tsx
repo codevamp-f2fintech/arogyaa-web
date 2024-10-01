@@ -3,8 +3,10 @@ import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import { Select, MenuItem, FormControl, InputLabel, Grid, Paper, Typography, Button, AppBar,TextField ,InputAdornment,OutlinedInput} from '@mui/material';
 import styled from 'styled-components';
+
 import Header from '../../components/common/Topbar';
 import Footer from '../../components/common/Footer';
+
 export default function BasicSelect() {
   const [selectedValue, setSelectedValue] = useState('');
 
@@ -401,7 +403,7 @@ const drlist = [
     rating: 'Rating 4.5',
     button1: 'View Profile',
     button2: 'Book Appointment',
-    onsultationfee: 'onsultation Fees',
+    onsultationfee: 'Consultation Fees',
     rs: '500'
   },
   {
@@ -414,7 +416,7 @@ const drlist = [
     rating: 'Rating 4.5',
     button1: 'View Profile',
     button2: 'Book Appointment',
-    onsultationfee: 'onsultation Fees',
+    onsultationfee: 'Consultation Fees',
     rs: '700'
   },
   {
@@ -427,7 +429,7 @@ const drlist = [
     rating: 'Rating 4.5',
     button1: 'View Profile',
     button2: 'Book Appointment',
-    onsultationfee: 'onsultation Fees',
+    onsultationfee: 'Consultation Fees',
     rs: '1000'
   },
 ]

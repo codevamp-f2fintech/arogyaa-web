@@ -1,14 +1,18 @@
 import { configureStore } from "@reduxjs/toolkit";
 
+import notificationsReducer from './features/notificationsSlice';
 import snackbarReducer from "./features/snackbarSlice";
 import specialitiesReducer from "./features/specialitiesSlice";
+import symptomsReducer from './features/symptomsSlice';
 import userReducer from "./features/userSlice";
 
 export const store = configureStore({
   reducer: {
-    user: userReducer,
+    notifications: notificationsReducer,
     specialities: specialitiesReducer,
     snackbar: snackbarReducer,
+    symptoms: symptomsReducer,
+    user: userReducer
   }
 });
 

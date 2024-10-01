@@ -1,5 +1,6 @@
-import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 import { Box, Button, Grid, Paper, Typography } from "@mui/material";
+import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
+
 import en from "@/locales/en.json";
 import styles from "../page.module.css";
 

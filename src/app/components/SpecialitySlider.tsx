@@ -7,9 +7,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { Box, Button, Grid, ImageListItem } from "@mui/material";
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 
-import { AppDispatch, RootState } from "@/redux/store";
 import en from "@/locales/en.json";
-import { icons } from "@/data";
+import { AppDispatch, RootState } from "@/redux/store";
+import { icons } from "@/static-data";
 import { useGetSpecialities } from "@/hooks/specialities";
 import {
   setLoading,
@@ -33,7 +33,12 @@ const settings = {
   slidesToScroll: 2,
   autoplay: false,
   autoplaySpeed: 3000,
-  customPaging: (i: number) => <div className={styles.customDot}>{i + 1}</div>,
+  customPaging: (i: number) => (
+    <div className={styles.customDot}>
+      {/* You can add custom content here */}
+      {i + 1}
+    </div>
+  ),
   dotsClass: `slick-dots ${styles.customDots}`,
   responsive: [
     {
@@ -42,25 +47,25 @@ const settings = {
         slidesToShow: 3,
         slidesToScroll: 3,
         infinite: true,
-        dots: true,
-      },
+        dots: true
+      }
     },
     {
       breakpoint: 600,
       settings: {
         slidesToShow: 1,
         slidesToScroll: 1,
-        initialSlide: 1,
-      },
+        initialSlide: 1
+      }
     },
     {
       breakpoint: 480,
       settings: {
         slidesToShow: 1,
-        slidesToScroll: 1,
-      },
-    },
-  ],
+        slidesToScroll: 1
+      }
+    }
+  ]
 };
 
 const SpecialitySlider: React.FC = () => {
@@ -133,7 +138,7 @@ const SpecialitySlider: React.FC = () => {
 
         <Grid container spacing={2} columns={{ xs: 4, sm: 8, md: 12 }}>
           <Grid xs={12} sx={{ textAlign: 'center', marginTop: '20px' }}>
-          <Button
+            <Button
               variant="contained"
               className={styles.gridButton}
               endIcon={<ArrowCircleRightIcon />}

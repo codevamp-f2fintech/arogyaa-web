@@ -552,7 +552,7 @@ const drlist = [
         rating: 'Rating 4.5',
         button1: 'View Profile',
         button2: 'Book Appointment',
-        onsultationfee: 'onsultation Fees',
+        onsultationfee: 'Consultation Fees',
         rs: '500'
     },
     {
@@ -565,7 +565,7 @@ const drlist = [
         rating: 'Rating 4.5',
         button1: 'View Profile',
         button2: 'Book Appointment',
-        onsultationfee: 'onsultation Fees',
+        onsultationfee: 'Consultation Fees',
         rs: '700'
     },
     {
@@ -578,7 +578,7 @@ const drlist = [
         rating: 'Rating 4.5',
         button1: 'View Profile',
         button2: 'Book Appointment',
-        onsultationfee: 'onsultation Fees',
+        onsultationfee: 'Consultation Fees',
         rs: '1000'
     },
 ]

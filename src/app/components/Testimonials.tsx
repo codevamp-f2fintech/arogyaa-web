@@ -1,12 +1,10 @@
 import { Box, Typography } from "@mui/material";
 
 import SliderComponent from "./common/SliderComponent";
-
 import en from "@/locales/en.json";
-
-import { images } from "@/data";
-
 import styles from "../page.module.css";
+
+import { images } from "@/static-data";
 
 const Testimonials: React.FC = () => {
   return (

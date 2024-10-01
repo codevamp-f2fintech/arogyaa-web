@@ -1,4 +1,5 @@
 import { Box, Grid, Paper, Typography } from "@mui/material";
+
 import en from "@/locales/en.json";
 import styles from "../page.module.css"; 
 
