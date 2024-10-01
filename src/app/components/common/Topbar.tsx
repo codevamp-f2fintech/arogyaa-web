@@ -1,10 +1,13 @@
 "use client";
 
 import * as React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
+import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -20,6 +23,9 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 
 import en from '@/locales/en.json';
+import { AppDispatch, RootState } from '@/redux/store';
+import { useGetNotifications } from '@/hooks/notification';
+import { setNotifications } from '@/redux/features/notificationsSlice';
 
 const pages = ['Products', 'Pricing', 'Blog'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
@@ -28,17 +34,27 @@ const Topbar = () => {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
   const [tabValue, setTabValue] = React.useState(0); // State for tab selection
-  const [unreadNotification, setUnreadNotification] = React.useState([
-    'Notification 1',
-    'Notification 2',
-    'Notification 3',
-    'Notification 4',
-    'Notification 5',
-    'Notification 6',
-    'Notification 7',
-  ]);
   const [readNotification, setReadNotification] = React.useState<string[]>([]);
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+
+  const dispatch: AppDispatch = useDispatch();
+  const { notifications } = useSelector((state: RootState) => state.notifications);
+
+  //fetch api
+  const { data } = useGetNotifications([], `http://localhost:3001/api/notifications/get-notifications/60d9caed6f70c40b7cdcb867`);
+
+  console.log('data:', data); // Inspect the structure of the response
+  let dataArray = Array.isArray(data) ? data : [data];
+
+  React.useEffect(() => {
+    if (dataArray && dataArray.length > 0) {
+      dispatch(setNotifications(dataArray));
+      console.log('working')
+    }
+  }, [data, dispatch]);
+  console.log(notifications);
+
+
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -64,18 +80,16 @@ const Topbar = () => {
   const [visibleNotifications, setVisibleNotifications] = React.useState(5);
 
   const markAsRead = (index: number) => {
-    const notificationToMove = unreadNotification[index];  
-    setReadNotification((prev) => [...prev, notificationToMove]);  
-  
-    const newUnreadNotifications = [...unreadNotification]; 
-    newUnreadNotifications.splice(index, 1);  
-  
-    setUnreadNotification(newUnreadNotifications);
+    const notificationToMove = notifications[index];
+    setReadNotification((prev) => [...prev, notificationToMove.message]);
+
+    const newUnreadNotifications = notifications.filter((_, i) => i !== index);
+    dispatch(setNotifications(newUnreadNotifications));
   };
   const handleViewMore = () => {
     setVisibleNotifications(prev => prev + 5);
   };
-  
+
 
   const open = Boolean(anchorEl);
   const id = open ? 'simple-popover' : undefined;
@@ -177,6 +191,7 @@ const Topbar = () => {
             },
           }} endIcon={<ArrowCircleRightIcon />}>{en.topbar.appointment}</Button>
         </Box>
+
         <Box>
           <IconButton aria-describedby={id} onClick={handleClick} sx={{
             color: '#000', backgroundColor: '#FAFAFA', padding: '10px', borderRadius: '500px', margin: '0 10px 0 5px', ':hover': {
@@ -187,6 +202,8 @@ const Topbar = () => {
             <NotificationsIcon sx={{ color: 'black' }} />
           </IconButton>
           <Popover
+            anchorReference="anchorPosition"
+            anchorPosition={{ top: 0, left: 700 }}
             id={id}
             open={open}
             anchorEl={anchorEl}
@@ -195,27 +212,36 @@ const Topbar = () => {
               vertical: 'bottom',
               horizontal: 'left',
             }}
+            sx={{ borderRadius: 'px' }}
           >
-            <Box sx={{ width: 300 }}>
-              <Tabs value={tabValue} onChange={handleTabChange} variant="fullWidth">
-                <Tab label="Unread" />
-                <Tab label="Read" />
+            <Box sx={{ width: 400, }}>
+              <Tabs value={tabValue} onChange={handleTabChange} variant="fullWidth" textColor="#20ADA0" indicatorColor="black">
+                <Tab label="Unread" sx={{ color: "#20ADA0" }} />
+                <Tab label="Read" sx={{ color: "#20ADA0" }} />
               </Tabs>
               <Box sx={{ p: 2 }}>
                 {tabValue === 0 ? (
                   <Box>
-                    {unreadNotification.length === 0 ? (
+                    {notifications.length === 0 ? (
                       <Typography>No unread Notifications</Typography>
                     ) : (
-                      unreadNotification.slice(0,visibleNotifications).map((notification, index) => (
+                      notifications.slice(0, visibleNotifications).map((notification, index) => (
                         <Typography key={index}>
-                          {notification}
-                          <Button onClick={() => markAsRead(index)}>Mark Read</Button>
+                          {notification.message}
+                          <IconButton onClick={() => markAsRead(index)}>
+                            <MarkEmailReadIcon sx={{ color: "#20ADA0" }} />
+                          </IconButton>
                         </Typography>
                       ))
-                      )}
-                      {unreadNotification.length > visibleNotifications && (
-                      <Button onClick={handleViewMore}>View More</Button>
+                    )}
+
+                    {notifications.length > visibleNotifications && (
+                      <Button onClick={handleViewMore} sx={{
+                        color: "black",
+                        ":hover": {
+                          bgcolor: "#20ADA0"
+                        }
+                      }}>View More</Button>
                     )}
                   </Box>
                 ) : (
@@ -223,7 +249,7 @@ const Topbar = () => {
                     {readNotification.length === 0 ? (
                       <Typography>No read notifications.</Typography>
                     ) : (
-                      readNotification.slice(0,visibleNotifications).map((notification, index) => (
+                      readNotification.slice(0, visibleNotifications).map((notification, index) => (
                         <Typography key={index}>
                           {notification}
                         </Typography>
@@ -275,3 +301,7 @@ const Topbar = () => {
 };
 
 export default Topbar;
+function setPageSize(arg0: (prevSize: any) => any) {
+  throw new Error('Function not implemented.');
+}
+
