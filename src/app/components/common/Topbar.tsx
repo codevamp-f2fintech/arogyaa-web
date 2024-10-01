@@ -1,6 +1,7 @@
 "use client";
 
-import * as React from 'react';
+import { useState } from 'react';
+
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -15,14 +16,19 @@ import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 
-import en from '@/locales/en.json';
+import en from "@/locales/en.json";
+import styles from "../../page.module.css";
 
-const pages = ['Products', 'Pricing', 'Blog'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+const pages = ["Products", "Pricing", "Blog"];
+const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 const Topbar = () => {
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+  const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(
+    null
+  );
+  const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(
+    null
+  );
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -40,8 +46,7 @@ const Topbar = () => {
   };
 
   return (
-    <AppBar sx={{ bgcolor: "#fff", padding: '0px 50px' }}>
-
+    <AppBar className={styles.appBar}>
       <Toolbar disableGutters>
         <AdbIcon sx={{ display: { xs: 'none', md: 'flex', color: '#000' }, mr: 1 }} />
         <Typography
@@ -69,7 +74,7 @@ const Topbar = () => {
             aria-controls="menu-appbar"
             aria-haspopup="true"
             onClick={handleOpenNavMenu}
-            color="inherit"
+            className={styles.menuButton}
           >
             <MenuIcon />
           </IconButton>
@@ -77,13 +82,13 @@ const Topbar = () => {
             id="menu-appbar"
             anchorEl={anchorElNav}
             anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'left',
+              vertical: "bottom",
+              horizontal: "left",
             }}
             keepMounted
             transformOrigin={{
-              vertical: 'top',
-              horizontal: 'left',
+              vertical: "top",
+              horizontal: "left",
             }}
             open={Boolean(anchorElNav)}
             onClose={handleCloseNavMenu}
@@ -93,7 +98,9 @@ const Topbar = () => {
           >
             {pages.map((page) => (
               <MenuItem key={page} onClick={handleCloseNavMenu}>
-                <Typography textAlign="center" sx={{ color: '#000' }}>{page}</Typography>
+                <Typography className={styles.menuItem}>
+                  {page}
+                </Typography>
               </MenuItem>
             ))}
           </Menu>
@@ -117,47 +124,53 @@ const Topbar = () => {
         >
           LOGO
         </Typography>
+
         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex', justifyContent: 'center' } }}>
           {pages.map((page) => (
             <Button
               key={page}
               onClick={handleCloseNavMenu}
-              sx={{ my: 2, color: 'black', display: 'block' }}
+              className={styles.menuItemButton}
             >
               {page}
             </Button>
           ))}
         </Box>
 
-        <Box sx={{ flexGrow: 0, marginRight: '10px' }}>
-          <Button variant="contained" sx={{
-            color: '#000', backgroundColor: '#FAFAFA', width: '100%', borderRadius: 100, ':hover': {
-              bgcolor: '#20ADA0', // theme.palette.primary.main
-              color: 'white',
-            },
-          }} endIcon={<ArrowCircleRightIcon />}>{en.topbar.appointment}</Button>
+        <Box className={styles.appointmentButtonContainer}>
+          <Button
+            variant="contained"
+            className={styles.appointmentButton}
+            endIcon={<ArrowCircleRightIcon />}
+          >
+            {en.topbar.appointment}
+          </Button>
         </Box>
-        <Box sx={{ flexGrow: 0 }}>
+
+        <Box className={styles.avatarContainer}>
           <Tooltip title="Open settings">
-            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+            <IconButton
+              onClick={handleOpenUserMenu}
+              className={styles.avatarButton}
+            >
               <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
             </IconButton>
           </Tooltip>
           <Menu
-            sx={{ mt: '45px' }}
             id="menu-appbar"
             anchorEl={anchorElUser}
             anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
+              vertical: "top",
+              horizontal: "right",
             }}
             keepMounted
             transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
+              vertical: "top",
+              horizontal: "right",
             }}
             open={Boolean(anchorElUser)}
             onClose={handleCloseUserMenu}
+            className={styles.userMenu}
           >
             {settings.map((setting) => (
               <MenuItem key={setting} onClick={handleCloseUserMenu}>
@@ -167,7 +180,6 @@ const Topbar = () => {
           </Menu>
         </Box>
       </Toolbar>
-
     </AppBar>
   );
 };

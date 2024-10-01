@@ -1,13 +1,14 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
-
-import React, { useRef } from 'react';
-import Slider from 'react-slick';
+import React, { useRef } from "react";
+import Slider from "react-slick";
 
 import { Box, Paper, Typography } from '@mui/material';
+
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+import styles from "../../page.module.css";
 
 interface ImageData {
   src: string;
@@ -43,39 +44,24 @@ const SliderComponent: React.FC<SliderComponentProps> = ({ images }) => {
   };
 
   return (
-    <Box sx={{ textAlign: 'center' }}>
-      <Box sx={{ width: '30vw', margin: '0 auto', marginBottom: '40px' }}>
+    <Box className={styles.sliderContainer}>
+      <Box className={styles.sliderForBox}>
         <Slider {...settingsFor} ref={sliderForRef}>
           {images.map((image, index) => (
-            <Paper
-              key={index}
-              sx={{
-                maxWidth: '30vw',
-                marginBottom: '20px',
-                padding: '20px',
-                minHeight: '380px',
-                textAlign: 'left',
-              }}
-            >
+            <Paper key={index} className={styles.sliderForPaper}>
               <img
                 src={image.srcquote}
                 alt={`Quote ${index}`}
-                style={{ width: '50px', height: '50px', marginRight: '20px' }}
+                className={styles.sliderForQuoteImage}
               />
-              <p style={{
-                textAlign: 'left', marginTop: '15px', fontSize: '.9rem',
-                fontWeight: 'normal', paddingBottom: '20px',
-                color: '#252525',
-                lineHeight: '1.5rem'
-              }}> {image.description}</p>
-
-              <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '15px' }}>
+              <p className={styles.sliderForDescription}>{image.description}</p>
+              <Box className={styles.sliderForStarsBox}>
                 {[...Array(5)].map((_, i) => (
                   <img
                     key={i}
                     src="/assets/images/filled_star.png"
                     alt={`Star ${i}`}
-                    style={{ width: '40px' }}
+                    className={styles.sliderForStarImage}
                   />
                 ))}
               </Box>
@@ -87,39 +73,26 @@ const SliderComponent: React.FC<SliderComponentProps> = ({ images }) => {
       <Box>
         <Slider {...settingsNav} ref={sliderNavRef}>
           {images.map((image, index) => (
-            <Box
-              key={index}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                borderRadius: '30px',
-                padding: 2,
-              }}
-            >
-              <Paper
-                sx={{
-                  display: 'flex',
-                  padding: 2,
-                  borderRadius: '30px',
-                  alignItems: 'center',
-                }}
-              >
+            <Box key={index} className={styles.sliderNavBox}>
+              <Paper className={styles.sliderNavPaper}>
                 <img
                   src={image.src}
                   alt={`User ${index}`}
-                  style={{
-                    width: '65px',
-                    height: '65px',
-                    marginRight: '20px',
-                    borderRadius: '100px',
-                    background: '#20ADA0',
-                  }}
+                  className={styles.sliderNavUserImage}
                 />
                 <Box>
-                  <Typography variant="h4" component="h4" sx={{ color: '#20ADA0', fontSize: '1.2rem' }}>
+                  <Typography
+                    variant="h4"
+                    component="h4"
+                    className={styles.sliderNavName}
+                  >
                     {image.name}
                   </Typography>
-                  <Typography variant="h4" component="h4" sx={{ color: 'gray', fontSize: '.9rem', marginTop: '10px', textAlign: 'left' }}>
+                  <Typography
+                    variant="h4"
+                    component="h4"
+                    className={styles.sliderNavAge}
+                  >
                     {image.age}
                   </Typography>
                 </Box>

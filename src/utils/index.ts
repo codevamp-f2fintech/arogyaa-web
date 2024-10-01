@@ -3,7 +3,6 @@ import { AlertColor } from "@mui/material/Alert";
 import { User } from "@/types/user";
 import { setSnackbar } from "@/redux/features/snackbarSlice";
 
-
 export const Utility = () => {
   /**
    * Fetches data from a given API endpoint.

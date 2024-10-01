@@ -1,10 +1,9 @@
-"user client";
-
-import type { Metadata } from "next";
+import { Metadata } from "next";
 import { Inter } from "next/font/google";
 
 import './globals.css';
 import ReduxProvider from '@/redux/provider';
+import SessionProviderWrapper from "./SessionProviderWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,9 +16,11 @@ const RootLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <ReduxProvider>
-          {children}
-        </ReduxProvider>
+        <SessionProviderWrapper>
+          <ReduxProvider>
+            {children}
+          </ReduxProvider>
+        </SessionProviderWrapper>
       </body>
     </html>
   );
