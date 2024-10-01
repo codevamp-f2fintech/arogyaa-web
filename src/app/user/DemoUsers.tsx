@@ -4,10 +4,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+import Snackbar from "../components/common/Snackbar";
+
 import type { AppDispatch, RootState } from "@/redux/store";
 import { setDemoUsers, setLoading } from "@/redux/features/userSlice";
 import { User } from "@/types/user";
 import { useGetUsers } from "@/hooks/user";
+import { Utility } from "@/utils";
 
 interface DemoUsersProps {
   initialData: User[];
@@ -20,6 +23,9 @@ const DemoUsers: React.FC<DemoUsersProps> = ({ initialData }) => {
   });
   const dispatch: AppDispatch = useDispatch();
   const { user, reduxLoading } = useSelector((state: RootState) => state.user);
+  const { snackbar } = useSelector((state: RootState) => state.snackbar);
+
+  const { snackbarAndNavigate } = Utility();
 
   const validInitialData = useMemo(() => {
     return initialData
@@ -60,8 +66,12 @@ const DemoUsers: React.FC<DemoUsersProps> = ({ initialData }) => {
     user.length > 0
       ? user
       : validInitialData.length > 0
-      ? validInitialData
-      : [];
+        ? validInitialData
+        : [];
+
+  useEffect(() => {
+    snackbarAndNavigate(dispatch, true, "warning", "Successfully got");
+  }, [data])
 
   return (
     <div>
@@ -70,8 +80,13 @@ const DemoUsers: React.FC<DemoUsersProps> = ({ initialData }) => {
           <li key={val.id}>{val.title}</li>
         ))}
       </ul>
-      {!reduxLoading && !swrLoading ? null : <h3>LOADING...</h3>}
+      {!reduxLoading && !swrLoading ? null : <h1>Loading...</h1>}
       <button onClick={handleFetchNext}>Fetch Next</button>
+      <Snackbar
+        alerting={snackbar.snackbarAlert}
+        severity={snackbar.snackbarSeverity}
+        message={snackbar.snackbarMessage}
+      />
     </div>
   );
 };

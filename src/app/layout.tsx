@@ -1,18 +1,18 @@
+import { Metadata } from "next";
 import { Inter } from "next/font/google";
-import SessionProviderWrapper from "./SessionProviderWrapper";
 
 import './globals.css';
 import ReduxProvider from '@/redux/provider';
-import { Metadata } from "next";
+import SessionProviderWrapper from "./SessionProviderWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Arogyaa Web App",
-  description: "Online Doctor Consultation"
+  description: "Online Doctor Consultation",
 };
 
-const RootLayout = ({ children }: Readonly<{ children: React.ReactNode; }>) => {
+const RootLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   return (
     <html lang="en">
       <body className={inter.className}>
