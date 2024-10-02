@@ -1,6 +1,6 @@
 "use client";
-import React, { useEffect, useState } from "react";
 
+import React, { useEffect, useState } from "react";
 import Countdown from "react-countdown";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -12,7 +12,7 @@ const Timer: React.FC = () => {
     setMounted(true);
   }, []);
 
-  const countdownTime = Number(process.env.NEXT_PUBLIC_COUNTDOWN_TIME);
+  const countdownTime = 172800000;    // 2 days in milliseconds
 
   const renderer = ({ days, hours, minutes, seconds }: any) => {
     return (

@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography';
 import { Box } from '@mui/material';
 import Button from '@mui/material/Button';
 
-const Error404 :React.FC = () => {
+const Error404: React.FC = () => {
   return (
     <React.Fragment>
       <CssBaseline />
@@ -54,7 +54,7 @@ const Error404 :React.FC = () => {
             We’re sorry,<br /> the page you have looked for does not exist in our website!
           </Typography>
           <img style={{ maxHeight: '20vh', marginLeft: '-25vh', marginTop: '50vh' }} src='./img/soket.png' />
-          <Button href='/' style={{marginLeft:'-459px',marginTop:'70vh',height:'7vh'}} variant="outlined">Go back to home</Button>
+          <Button href='/' style={{ marginLeft: '-459px', marginTop: '70vh', height: '7vh' }} variant="outlined">Go back to home</Button>
         </Box>
       </Container>
     </React.Fragment>

@@ -7,7 +7,7 @@ import { Typography } from '@mui/material';
 
 import FAQs from '../components/FAQ';
 
-const SimpleContainer: React.FC= ()=> {
+const SimpleContainer: React.FC = () => {
   return (
     <React.Fragment>
       <CssBaseline />

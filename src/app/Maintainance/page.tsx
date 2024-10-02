@@ -40,10 +40,11 @@ const Maintenance: React.FC = () => {
             <Timer />
             <img style={{ marginLeft: '70vh', height: '50vh', marginTop: '-20vh', marginRight: '-10vh' }} src='./img/maintainance.png'></img>
           </Card>
-          
+
         </Box>
       </Container>
     </React.Fragment>
   );
 }
+
 export default Maintenance;
