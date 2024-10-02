@@ -16,6 +16,5 @@ const pageSkeleton: React.FC = () => {
     </Stack>
   );
 }
+
 export default pageSkeleton;
-
-
