@@ -28,6 +28,7 @@ export const fetcher = async <T>(url: string): Promise<T> => {
  */
 export const creator = async <T, D>(url: string, data: D): Promise<T> => {
     const res = await axiosInstance.post<T>(url, data);
+    console.log('res issss',res)
     if (!res.data) {
         throw new Error('Failed to create data');
     }
