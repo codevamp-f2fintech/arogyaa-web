@@ -1,22 +1,13 @@
-/* eslint-disable @next/next/no-img-element */
-'use client';
+"use client";
 
 import React, { useRef } from "react";
 import Slider from "react-slick";
 
-import { Box, Paper, Typography } from '@mui/material';
-
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
+import { Box, Paper, Typography } from "@mui/material";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 import styles from "../../page.module.css";
-
-interface ImageData {
-  src: string;
-  srcquote: string;
-  description: string;
-  name: string;
-  age: string;
-}
+import { ImageData } from "@/types/testimonial";
 
 interface SliderComponentProps {
   images: ImageData[];
@@ -56,7 +47,7 @@ const SliderComponent: React.FC<SliderComponentProps> = ({ images }) => {
               />
               <p className={styles.sliderForDescription}>{image.description}</p>
               <Box className={styles.sliderForStarsBox}>
-                {[...Array(5)].map((_, i) => (
+                {[...Array(4)].map((_, i) => (
                   <img
                     key={i}
                     src="/assets/images/filled_star.png"
