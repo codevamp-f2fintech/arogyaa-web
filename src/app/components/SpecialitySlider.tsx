@@ -47,25 +47,25 @@ const settings = {
         slidesToShow: 3,
         slidesToScroll: 3,
         infinite: true,
-        dots: true
-      }
+        dots: true,
+      },
     },
     {
       breakpoint: 600,
       settings: {
         slidesToShow: 1,
         slidesToScroll: 1,
-        initialSlide: 1
-      }
+        initialSlide: 1,
+      },
     },
     {
       breakpoint: 480,
       settings: {
         slidesToShow: 1,
-        slidesToScroll: 1
-      }
-    }
-  ]
+        slidesToScroll: 1,
+      },
+    },
+  ],
 };
 
 const SpecialitySlider: React.FC = () => {
@@ -76,7 +76,7 @@ const SpecialitySlider: React.FC = () => {
 
   const [pageSize, setPageSize] = useState({
     page: 1,
-    size: 4,
+    size: 2,
   });
 
   const { data } = useGetSpecialities(
@@ -130,24 +130,30 @@ const SpecialitySlider: React.FC = () => {
                   variant="contained"
                   className={styles.readMoreButton}
                   endIcon={<ArrowCircleRightIcon />}
-                > Consult Now</Button>
+                >
+                  {" "}
+                  Consult Now
+                </Button>
               </Box>
             );
           })}
         </Slider>
 
         <Grid container spacing={2} columns={{ xs: 4, sm: 8, md: 12 }}>
-          <Grid xs={12} sx={{ textAlign: 'center', marginTop: '20px' }}>
+          <Grid xs={12} sx={{ textAlign: "center", marginTop: "20px" }}>
             <Button
               variant="contained"
               className={styles.gridButton}
               endIcon={<ArrowCircleRightIcon />}
-            >{en.homepage.specialitySlider.buttonText}</Button>
+              onClick={handleFetchNext}
+            >
+              {en.homepage.specialitySlider.buttonText}
+            </Button>
           </Grid>
         </Grid>
       </div>
     </>
-  )
+  );
 };
 
 export default SpecialitySlider;

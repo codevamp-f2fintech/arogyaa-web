@@ -11,6 +11,7 @@ import { setDemoUsers, setLoading } from "@/redux/features/userSlice";
 import { User } from "@/types/user";
 import { useGetUsers } from "@/hooks/user";
 import { Utility } from "@/utils";
+import { Button, Box } from "@mui/material";
 
 interface DemoUsersProps {
   initialData: User[];
@@ -66,12 +67,12 @@ const DemoUsers: React.FC<DemoUsersProps> = ({ initialData }) => {
     user.length > 0
       ? user
       : validInitialData.length > 0
-        ? validInitialData
-        : [];
+      ? validInitialData
+      : [];
 
   useEffect(() => {
     snackbarAndNavigate(dispatch, true, "warning", "Successfully got");
-  }, [data])
+  }, [data]);
 
   return (
     <div>
@@ -81,7 +82,49 @@ const DemoUsers: React.FC<DemoUsersProps> = ({ initialData }) => {
         ))}
       </ul>
       {!reduxLoading && !swrLoading ? null : <h1>Loading...</h1>}
-      <button onClick={handleFetchNext}>Fetch Next</button>
+
+      Different approaches to applying the margin to the button
+
+      Option 1: Direct sx prop with 7px margin
+      <Button
+        variant="contained"
+        sx={{ marginTop: "7px" }} // Exact 7px margin from top
+        onClick={handleFetchNext}
+      >
+        Fetch Next
+      </Button>
+
+      Option 2: Adding !important to force margin
+      <Button
+        variant="contained"
+        sx={{ marginTop: "7px !important" }} // Force 7px margin
+        onClick={handleFetchNext}
+      >
+        Fetch Next
+      </Button>
+
+      Option 3: Wrapping button in Box for additional layout control
+      <Box sx={{ mt: 7 }}>
+        <Button
+          variant="contained"
+          onClick={handleFetchNext}
+        >
+          Fetch Next
+        </Button>
+      </Box>
+
+      Option 4: Debugging styles to check if margin is being applied
+      <Button
+        variant="contained"
+        sx={{ 
+          marginTop: "20px",
+          border: "2px solid red" // Visual debugging style
+        }}
+        onClick={handleFetchNext}
+      >
+        Fetch Next
+      </Button>
+
       <Snackbar
         alerting={snackbar.snackbarAlert}
         severity={snackbar.snackbarSeverity}
