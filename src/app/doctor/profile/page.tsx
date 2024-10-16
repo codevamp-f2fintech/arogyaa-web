@@ -1,4 +1,7 @@
 "use client";
+
+import { useSearchParams } from "next/navigation";
+        
 import React, { useState } from "react";
 import Box from "@mui/material/Box";
 import {
@@ -22,6 +25,10 @@ import DoneIcon from "@mui/icons-material/Done";
 import PaymentIcon from "@mui/icons-material/Payment";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import VerifiedIcon from "@mui/icons-material/Verified";
+import Header from "../../components/common/Topbar";
+import Footer from "../../components/common/Footer";
+import ModalOne from "../../components/common/BookAppointmentModal";
+import { useGetdoctorprofile } from "@/hooks/doctorprofile";
 import { useRouter } from "next/navigation";
 
 import Header from "../../components/common/Topbar";
@@ -32,11 +39,19 @@ const Drprofwrapper = styled.div`
   padding: 40px;
   padding-top: 90px;
 
+  .rating_wrp {
+    margin-right: 20px;
+  }
+
   .box_wrp {
     display: flex;
     padding: 20px;
   }
 
+  .box_wrp {
+    display: flex;
+    padding: 20px;
+  }
   .dr_cir_canv {
     width: 200px;
     margin-right: 10px;
@@ -268,6 +283,49 @@ const Drprofwrapper = styled.div`
     cursor: pointer;
   }
 `;
+
+export default function DrProfile() {
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [value, setValue] = useState(0);
+  const [value1, setValue1] = useState(0);
+  const searchParams = useSearchParams();
+  const id = "6707b2b474d820f1ad625603"; //testing code, remove this code and uncomment just below line.
+  //const id = searchParams.get("id");
+
+  const { data: doctorData, swrLoading } = useGetdoctorprofile(
+    [],
+    `http://localhost:5050/api/v1/doctor/get/${id}`
+  );
+
+  const openModal = () => {
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+  };
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
+
+  const handleChangeAppoint = (event, newValue) => {
+    setValue1(newValue);
+  };
+
+  const handleClinicTabClick = (event, newValue) => {
+    setValue1(newValue);
+    setValue(1);
+  };
+
+  if (swrLoading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <Drprofwrapper>
+      <Header />
+=======
 export default function DrProfile() {
   const [isModalOpen, setModalOpen] = useState(false);
   const [token, setToken] = useState(true);
@@ -313,12 +371,16 @@ export default function DrProfile() {
                 <Box
                   component="img"
                   className="dr_cir_canv"
+                  alt="The doctor from the offer."
                   alt="The house from the offer."
                   src="../assets/images/drRanjanaSharma.jpg"
                 />
               </Box>
               <Box className="dr_cat_action_wrp">
                 <Box className="dr_cap">
+                  {/* Display fetched doctor data */}
+                  <Typography variant="h4" component="h4" className="t1">
+                    {doctorData ? doctorData.username : "Dr. Ranjana Sharma"}
                   <Typography variant="h4" component="h4" className="t1">
                     Dr. Ranjana Sharma
                     <span className="verified">
@@ -329,6 +391,9 @@ export default function DrProfile() {
                     General Physician
                   </Typography>
                   <Typography variant="h6" component="h6" className="t3">
+                    {doctorData
+                      ? doctorData.bio
+                      : "M.B.B.S, DCh, DHA, RPSGT (USA)\nGeneral physician, Paediatrician Health Checkup (General), Sleep medicine, Pediatric gastroenterology, Pediatric infectious diseases, Allergy Treatment, Diabetes Management, Immunity Therapy, Hypertension Treatment, etc."}
                     M.B.B.S, DCh, DHA, RPSGT (USA)
                     <br />
                     General physician, Paediatrician Health Checkup (General),
@@ -342,6 +407,13 @@ export default function DrProfile() {
 
                   <Box className="expr">
                     <Typography variant="h6" component="span" className="t3">
+                      {doctorData
+                        ? `${doctorData.experienceYears} years of experience`
+                        : "42+ years of experience"}
+                    </Typography>
+                    <span className="exp_hrlne">|</span>
+                    <Typography variant="h6" component="span" className="t3">
+                      Speaks English, Hindi, Kannada, Telugu{" "}
                       10+ years of experience{" "}
                     </Typography>
                     <span className="exp_hrlne">|</span>
@@ -360,6 +432,7 @@ export default function DrProfile() {
                         background: "#20ADA0",
                         borderRadius: "4px",
                         ":hover": {
+                          bgcolor: "#20ADA0",
                           bgcolor: "#20ADA0", // theme.palette.primary.main
                           color: "white",
                         },
@@ -378,6 +451,7 @@ export default function DrProfile() {
                         borderRadius: "4px",
                         marginLeft: "20px",
                         ":hover": {
+                          bgcolor: "#20ADA0",
                           bgcolor: "#20ADA0", // theme.palette.primary.main
                           color: "white",
                         },
@@ -387,6 +461,46 @@ export default function DrProfile() {
                     </Button>
                   </Box>
                 </Box>
+              </Box>
+
+              <Box className="rating_wrp">
+                <Typography variant="h6" component="span" className="tx1">
+                  Rating
+                </Typography>
+                <Typography variant="h6" component="span" className="tx2">
+                  <span>5/5</span>
+                </Typography>
+                <Box className="star_wrp">
+                  <Box
+                    component="img"
+                    className="star_ico"
+                    alt="Star"
+                    src={"../assets/images/star-fill.png"}
+                  />
+                  <Box
+                    component="img"
+                    className="star_ico"
+                    alt="Star"
+                    src={"../assets/images/star-fill.png"}
+                  />
+                  <Box
+                    component="img"
+                    className="star_ico"
+                    alt="Star"
+                    src={"../assets/images/star-fill.png"}
+                  />
+                  <Box
+                    component="img"
+                    className="star_ico"
+                    alt="Star"
+                    src={"../assets/images/star-fill.png"}
+                  />
+                  <Box
+                    component="img"
+                    className="star_ico"
+                    alt="Star"
+                    src={"../assets/images/star-fill.png"}
+                  />
                 <Box className="rating_wrp">
                   <Typography variant="h6" component="span" className="tx1">
                     Rating
@@ -440,6 +554,13 @@ export default function DrProfile() {
                 aria-label="Pill Tabs Example"
                 sx={{
                   background: "#e8e8e8",
+                  "& .MuiTabs-indicator": { display: "none" },
+                  "& .MuiTab-root": {
+                    textTransform: "none",
+                    backgroundColor: "#f0f0f5",
+                    "&.Mui-selected": {
+                      backgroundColor: "#fff",
+                      color: "#20ada0",
                   "& .MuiTabs-indicator": {
                     display: "none", // Hide default indicator
                   },
@@ -476,6 +597,10 @@ export default function DrProfile() {
                         component="p"
                         className="para_info1"
                       >
+                        Dr. Ranjana Sharma is a passionate and experienced
+                        mental health professional. Completed MBBS from Manipal
+                        University and post-graduation in psychiatry from St
+                        John’s Medical College Bangalore.
                         Dr. Ranjana Sharma is a passionate and enthusiastic
                         mental health professional. He completed his MBBS from
                         prestigious Manipal University, and post graduated in
@@ -493,6 +618,18 @@ export default function DrProfile() {
                         component="h4"
                         className="treat_list_title"
                       >
+                        Conditions Treated
+                      </Typography>
+                      <ul className="trat_list">
+                        <li>
+                          <DoneIcon sx={{ marginRight: "5px" }} /> Stress and
+                          anger management
+                        </li>
+                        <li>
+                          <DoneIcon sx={{ marginRight: "5px" }} /> Sleep
+                          problems
+                        </li>
+                        <li>
                         Conditions treated
                       </Typography>
                       <ul className="trat_list">
@@ -512,6 +649,12 @@ export default function DrProfile() {
                           and relationship problems
                         </li>
                         <li>
+                          <DoneIcon sx={{ marginRight: "5px" }} /> Anxiety and
+                          depressive disorders
+                        </li>
+                        <li>
+                          <DoneIcon sx={{ marginRight: "5px" }} /> Childhood
+                          emotional and mental wellbeing
                           {" "}
                           <DoneIcon sx={{ marginRight: "5px" }} />
                           Anxiety and Depressive disorders
@@ -577,12 +720,35 @@ export default function DrProfile() {
                             </Typography>
                           </Box>
                         </Grid>
+                        {/* Availability from API */}
                         <Grid item xs={12} sm={6} md={4} className="dates">
                           <Typography
                             variant="h6"
                             component="h6"
                             className="tx1"
                           >
+                            Availability
+                          </Typography>
+                          {doctorData && doctorData.availability
+                            ? doctorData.availability.map((slot, index) => (
+                                <div key={index}>
+                                  <Typography
+                                    variant="h6"
+                                    component="h6"
+                                    className="tx2"
+                                  >
+                                    {slot.day}
+                                  </Typography>
+                                  <Typography
+                                    variant="h6"
+                                    component="h6"
+                                    className="tx3"
+                                  >
+                                    {slot.startTime} - {slot.endTime}
+                                  </Typography>
+                                </div>
+                              ))
+                            : "No Availability"}
                             Days to Open
                           </Typography>
                           <Typography
@@ -674,6 +840,9 @@ export default function DrProfile() {
                         className="tx2"
                         sx={{ display: "flex", marginTop: "10px" }}
                       >
+                        Home visits available in New Delhi and Gurgaon only,
+                        subject to doctor availability.
+                      </Typography>
                         Home visits available in New Delhi and Gurgaon only
                         subject to doctor availability. To schedule home visit,
                         please call 011-4118 3001.
@@ -745,6 +914,71 @@ export default function DrProfile() {
                         Delhi, Gurugram
                       </Typography>
 
+                      <ul className="time_box">
+                        <li>03:00 PM</li>
+                        <li>06:00 PM</li>
+                        <li>09:00 PM</li>
+                      </ul>
+                    </Box>
+                  </div>
+                )}
+              </Box>
+            </Box>
+          </Grid>
+          <Grid item xs={12} sm={4} md={4}>
+            <Box sx={{ width: "100%", background: "white" }}>
+              <Tabs
+                value={value1}
+                onChange={handleChangeAppoint}
+                variant="fullWidth"
+                aria-label="appoint"
+                sx={{
+                  background: "#e8e8e8",
+                  "& .MuiTabs-indicator": { display: "none" },
+                  "& .MuiTab-root": {
+                    textTransform: "none",
+                    backgroundColor: "#f0f0f5",
+                    "&.Mui-selected": {
+                      backgroundColor: "#fff",
+                      color: "#20ada0",
+                      borderLeft: "1px solid #20ada0",
+                      borderRight: "1px solid #20ada0",
+                      borderTop: "1px solid #20ada0",
+                    },
+                  },
+                }}
+              >
+                <Tab label="Video" />
+                <Tab
+                  label="Clinic"
+                  onClick={(e) => handleClinicTabClick(e, 1)}
+                />
+              </Tabs>
+
+              <Box sx={{ p: 3 }}>
+                {value1 === 0 && (
+                  <div>
+                    <Box className="availble">
+                      <Typography variant="h6" component="h6" className="tx1">
+                        Available Tomorrow
+                      </Typography>
+                      <ul className="time_box">
+                        <li>03:00 PM</li>
+                        <li>06:00 PM</li>
+                        <li>09:00 PM</li>
+                      </ul>
+                    </Box>
+                  </div>
+                )}
+                {value1 === 1 && (
+                  <div>
+                    <Box className="availble">
+                      <Typography variant="h6" component="h6" className="tx1">
+                        Available Tomorrow
+                      </Typography>
+                      <Typography variant="h6" component="h6" className="tx2">
+                        Delhi, Gurugram
+                      </Typography>
                       <ul className="time_box">
                         <li>03:00 PM</li>
                         <li>06:00 PM</li>
