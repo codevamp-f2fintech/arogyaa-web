@@ -1,7 +1,6 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-        
 import React, { useState } from "react";
 import Box from "@mui/material/Box";
 import {
@@ -29,11 +28,6 @@ import Header from "../../components/common/Topbar";
 import Footer from "../../components/common/Footer";
 import ModalOne from "../../components/common/BookAppointmentModal";
 import { useGetdoctorprofile } from "@/hooks/doctorprofile";
-import { useRouter } from "next/navigation";
-
-import Header from "../../components/common/Topbar";
-import Footer from "../../components/common/Footer";
-import ModalOne from "../../components/common/BookAppointmentModal";
 
 const Drprofwrapper = styled.div`
   padding: 40px;
@@ -48,10 +42,6 @@ const Drprofwrapper = styled.div`
     padding: 20px;
   }
 
-  .box_wrp {
-    display: flex;
-    padding: 20px;
-  }
   .dr_cir_canv {
     width: 200px;
     margin-right: 10px;
@@ -289,8 +279,8 @@ export default function DrProfile() {
   const [value, setValue] = useState(0);
   const [value1, setValue1] = useState(0);
   const searchParams = useSearchParams();
-  const id = "6707b2b474d820f1ad625603"; //testing code, remove this code and uncomment just below line.
-  //const id = searchParams.get("id");
+  // const id = "6707b2b474d820f1ad625603"; //testing code, remove this code and uncomment just below line.
+  const id = searchParams.get("id");
 
   const { data: doctorData, swrLoading } = useGetdoctorprofile(
     [],
@@ -325,43 +315,6 @@ export default function DrProfile() {
   return (
     <Drprofwrapper>
       <Header />
-=======
-export default function DrProfile() {
-  const [isModalOpen, setModalOpen] = useState(false);
-  const [token, setToken] = useState(true);
-  const router = useRouter();
-
-  // Function to open the modal
-  const openModal = () => {
-    if (token) {
-      console.log("Open Modal button clicked");
-      setModalOpen(true);
-    } else {
-      console.log("Token not found, redirecting to login");
-      router.push("/signin"); // Redirect to the login page
-    }
-  };
-
-  // Function to close the modal
-  const closeModal = () => {
-    console.log("Close Modal button clicked");
-    setModalOpen(false);
-  };
-
-  const [value, setValue] = useState(0);
-  const [value1, setValue1] = useState(0);
-
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
-  const handleChangeAppoint = (event, newValue) => {
-    setValue(newValue);
-  };
-
-  return (
-    <Drprofwrapper>
-      <Header />
-
       <ModalOne isOpen={isModalOpen} onClose={closeModal} />
       <Box sx={{ padding: "10px" }}>
         <Grid container spacing={3}>
@@ -372,7 +325,6 @@ export default function DrProfile() {
                   component="img"
                   className="dr_cir_canv"
                   alt="The doctor from the offer."
-                  alt="The house from the offer."
                   src="../assets/images/drRanjanaSharma.jpg"
                 />
               </Box>
@@ -381,8 +333,6 @@ export default function DrProfile() {
                   {/* Display fetched doctor data */}
                   <Typography variant="h4" component="h4" className="t1">
                     {doctorData ? doctorData.username : "Dr. Ranjana Sharma"}
-                  <Typography variant="h4" component="h4" className="t1">
-                    Dr. Ranjana Sharma
                     <span className="verified">
                       <VerifiedIcon /> Verified profile
                     </span>
@@ -394,15 +344,6 @@ export default function DrProfile() {
                     {doctorData
                       ? doctorData.bio
                       : "M.B.B.S, DCh, DHA, RPSGT (USA)\nGeneral physician, Paediatrician Health Checkup (General), Sleep medicine, Pediatric gastroenterology, Pediatric infectious diseases, Allergy Treatment, Diabetes Management, Immunity Therapy, Hypertension Treatment, etc."}
-                    M.B.B.S, DCh, DHA, RPSGT (USA)
-                    <br />
-                    General physician, Paediatrician Health Checkup (General),
-                    Chickenpox Treatment, Sleep medicine, Pediatric
-                    gastroenterology, Pediatric infectious diseases, Allergy
-                    Treatment, Diabetes Management, Immunity Therapy, Migraine
-                    Treatment, Hypertension Treatment, Thyroid Disease in
-                    Children, Fever Treatment, Dermatology, Respiratory illness
-                    treatment (40 Years Experience Overall)
                   </Typography>
 
                   <Box className="expr">
@@ -414,11 +355,6 @@ export default function DrProfile() {
                     <span className="exp_hrlne">|</span>
                     <Typography variant="h6" component="span" className="t3">
                       Speaks English, Hindi, Kannada, Telugu{" "}
-                      10+ years of experience{" "}
-                    </Typography>
-                    <span className="exp_hrlne">|</span>
-                    <Typography variant="h6" component="span" className="t3">
-                      Speaks English, Kannada,Telugu, Tamil, Hind
                     </Typography>
                   </Box>
                   <Box>
@@ -433,7 +369,6 @@ export default function DrProfile() {
                         borderRadius: "4px",
                         ":hover": {
                           bgcolor: "#20ADA0",
-                          bgcolor: "#20ADA0", // theme.palette.primary.main
                           color: "white",
                         },
                       }}
@@ -452,7 +387,6 @@ export default function DrProfile() {
                         marginLeft: "20px",
                         ":hover": {
                           bgcolor: "#20ADA0",
-                          bgcolor: "#20ADA0", // theme.palette.primary.main
                           color: "white",
                         },
                       }}
@@ -501,46 +435,6 @@ export default function DrProfile() {
                     alt="Star"
                     src={"../assets/images/star-fill.png"}
                   />
-                <Box className="rating_wrp">
-                  <Typography variant="h6" component="span" className="tx1">
-                    Rating
-                  </Typography>
-                  <Typography variant="h6" component="span" className="tx2">
-                    <span>5/5</span>
-                  </Typography>
-
-                  <Box className="star_wrp">
-                    <Box
-                      component="img"
-                      className="star_ico"
-                      alt="The house from the offer."
-                      src={"../assets/images/star-fill.png"}
-                    />
-                    <Box
-                      component="img"
-                      className="star_ico"
-                      alt="The house from the offer."
-                      src={"../assets/images/star-fill.png"}
-                    />
-                    <Box
-                      component="img"
-                      className="star_ico"
-                      alt="The house from the offer."
-                      src={"../assets/images/star-fill.png"}
-                    />
-                    <Box
-                      component="img"
-                      className="star_ico"
-                      alt="The house from the offer."
-                      src={"../assets/images/star-fill.png"}
-                    />
-                    <Box
-                      component="img"
-                      className="star_ico"
-                      alt="The house from the offer."
-                      src={"../assets/images/star-fill.png"}
-                    />
-                  </Box>
                 </Box>
               </Box>
             </Paper>
@@ -561,21 +455,6 @@ export default function DrProfile() {
                     "&.Mui-selected": {
                       backgroundColor: "#fff",
                       color: "#20ada0",
-                  "& .MuiTabs-indicator": {
-                    display: "none", // Hide default indicator
-                  },
-                  "& .MuiTab-root": {
-                    textTransform: "none", // Avoid uppercase text transformation
-                    borderRadius: "0px", // Make the tabs pill-shaped
-                    margin: "0 0px", // Add some spacing between the tabs
-                    minHeight: "48px", // Minimum height for the tab
-                    backgroundColor: "#f0f0f5",
-                    borderBottom: "0px solid #20ada0",
-                    color: "#000",
-                    // Default background color
-                    "&.Mui-selected": {
-                      backgroundColor: "#fff", // Background color for the selected tab
-                      color: "#20ada0", // Text color for the selected tab
                       borderLeft: "1px solid #20ada0",
                       borderRight: "1px solid #20ada0",
                       borderTop: "1px solid #20ada0",
@@ -601,15 +480,6 @@ export default function DrProfile() {
                         mental health professional. Completed MBBS from Manipal
                         University and post-graduation in psychiatry from St
                         John’s Medical College Bangalore.
-                        Dr. Ranjana Sharma is a passionate and enthusiastic
-                        mental health professional. He completed his MBBS from
-                        prestigious Manipal University, and post graduated in
-                        the field of psychiatry from St John’s Medical College
-                        Bangalore. Worked in one of the premier mental health
-                        institutes of the country National Institute of Mental
-                        Health and Neuro Sciences (NIMHANS), Bangalore after
-                        which he went overseas to further hone his clinical
-                        skills.
                       </Typography>
                     </Box>
                     <Box>
@@ -630,31 +500,10 @@ export default function DrProfile() {
                           problems
                         </li>
                         <li>
-                        Conditions treated
-                      </Typography>
-                      <ul className="trat_list">
-                        <li>
-                          {" "}
-                          <DoneIcon sx={{ marginRight: "5px" }} />
-                          Stress and anger management
-                        </li>
-                        <li>
-                          {" "}
-                          <DoneIcon sx={{ marginRight: "5px" }} />
-                          Sleep problems
-                        </li>
-                        <li>
-                          {" "}
                           <DoneIcon sx={{ marginRight: "5px" }} /> Communication
                           and relationship problems
                         </li>
                         <li>
-                          <DoneIcon sx={{ marginRight: "5px" }} /> Anxiety and
-                          depressive disorders
-                        </li>
-                        <li>
-                          <DoneIcon sx={{ marginRight: "5px" }} /> Childhood
-                          emotional and mental wellbeing
                           {" "}
                           <DoneIcon sx={{ marginRight: "5px" }} />
                           Anxiety and Depressive disorders
@@ -749,36 +598,6 @@ export default function DrProfile() {
                                 </div>
                               ))
                             : "No Availability"}
-                            Days to Open
-                          </Typography>
-                          <Typography
-                            variant="h6"
-                            component="h6"
-                            className="tx2"
-                          >
-                            Monday - Saterday
-                          </Typography>
-                          <Typography
-                            variant="h6"
-                            component="h6"
-                            className="tx3"
-                          >
-                            09:00 AM - 02:00 PM
-                          </Typography>
-                          <Typography
-                            variant="h6"
-                            component="h6"
-                            className="tx2"
-                          >
-                            Sunday
-                          </Typography>
-                          <Typography
-                            variant="h6"
-                            component="h6"
-                            className="tx3"
-                          >
-                            06:00 PM - 09:00 PM
-                          </Typography>
                         </Grid>
                         <Grid item xs={12} sm={6} md={4} className="dates">
                           <Typography
@@ -843,82 +662,6 @@ export default function DrProfile() {
                         Home visits available in New Delhi and Gurgaon only,
                         subject to doctor availability.
                       </Typography>
-                        Home visits available in New Delhi and Gurgaon only
-                        subject to doctor availability. To schedule home visit,
-                        please call 011-4118 3001.
-                      </Typography>
-                    </Box>
-                  </div>
-                )}
-              </Box>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={4} md={4}>
-            <Box sx={{ width: "100%", background: "white" }}>
-              <Tabs
-                value={value1}
-                onChange={handleChangeAppoint}
-                variant="fullWidth"
-                aria-label="appoint"
-                sx={{
-                  background: "#e8e8e8",
-                  "& .MuiTabs-indicator": {
-                    display: "none", // Hide default indicator
-                  },
-                  "& .MuiTab-root": {
-                    textTransform: "none", // Avoid uppercase text transformation
-                    borderRadius: "0px", // Make the tabs pill-shaped
-                    margin: "0 0px", // Add some spacing between the tabs
-                    minHeight: "48px", // Minimum height for the tab
-                    backgroundColor: "#f0f0f5",
-                    borderBottom: "0px solid #20ada0",
-                    color: "#000",
-                    // Default background color
-                    "&.Mui-selected": {
-                      backgroundColor: "#fff", // Background color for the selected tab
-                      color: "#20ada0", // Text color for the selected tab
-                      borderLeft: "1px solid #20ada0",
-                      borderRight: "1px solid #20ada0",
-                      borderTop: "1px solid #20ada0",
-                    },
-                  },
-                }}
-              >
-                <Tab label="Video" />
-                <Tab label="Clinic" />
-              </Tabs>
-
-              <Box sx={{ p: 3 }}>
-                {value1 === 0 && (
-                  <div>
-                    <Box className="availble">
-                      <Typography variant="h6" component="h6" className="tx1">
-                        Available Tomorrow
-                      </Typography>
-
-                      <ul className="time_box">
-                        <li>03:00 PM</li>
-                        <li>06:00 PM</li>
-                        <li>09:00 PM</li>
-                      </ul>
-                    </Box>
-                  </div>
-                )}
-                {value1 === 1 && (
-                  <div>
-                    <Box className="availble">
-                      <Typography variant="h6" component="h6" className="tx1">
-                        Available Tomorrow
-                      </Typography>
-                      <Typography variant="h6" component="h6" className="tx2">
-                        Delhi, Gurugram
-                      </Typography>
-
-                      <ul className="time_box">
-                        <li>03:00 PM</li>
-                        <li>06:00 PM</li>
-                        <li>09:00 PM</li>
-                      </ul>
                     </Box>
                   </div>
                 )}
@@ -996,54 +739,3 @@ export default function DrProfile() {
     </Drprofwrapper>
   );
 }
-
-const drlist = [
-  {
-    drsrc: "../assets/images/drRanjanaSharma.jpg",
-    name: "Dr. Ranjana Sharma",
-    type: "General Physician",
-    work: "MS GR Medical College, Gwalior",
-    exep: "42+ years of experience",
-    lang: "Hindi, English, Bit of Arabic",
-    rating: "Rating 4.5",
-    button1: "View Profile",
-    button2: "Book Appointment",
-    onsultationfee: "Consultation Fees",
-    rs: "500",
-  },
-  {
-    drsrc: "../assets/images/drNidhiSharma.jpg",
-    name: "Dr. Nidhi Sharma",
-    type: "General Physician",
-    work: "MS (Obgyn) PGIMS, Rohtak",
-    exep: "13+ years of experience",
-    lang: "Speaks Hindi, English, French, Punjabi, Marathi",
-    rating: "Rating 4.5",
-    button1: "View Profile",
-    button2: "Book Appointment",
-    onsultationfee: "Consultation Fees",
-    rs: "700",
-  },
-  {
-    drsrc: "../assets/images/niranjanaDr.jpg",
-    name: "Dr.Niranjana Jayakrishnan",
-    type: "General Physician",
-    work: "MD Amrita Vishwa Vidyapeetham University, Kochi",
-    exep: "13+ years of experience",
-    lang: "Speaks Hindi, English, French, Punjabi, Marathi",
-    rating: "Rating 4.5",
-    button1: "View Profile",
-    button2: "Book Appointment",
-    onsultationfee: "Consultation Fees",
-    rs: "1000",
-  },
-];
-
-const currencies = [
-  {
-    location: "Haldwani",
-  },
-  {
-    location: "Dehradun",
-  },
-];
