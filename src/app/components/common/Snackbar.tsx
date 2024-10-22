@@ -17,12 +17,14 @@ interface SnackbarProps {
   alerting: boolean;
   message: string;
   severity: AlertColor;
+  onClose: (event?: React.SyntheticEvent | Event, reason?: string) => void;
 }
 
 const SnackbarComponent: React.FC<SnackbarProps> = ({
   alerting,
   message,
   severity,
+  onClose,
 }) => {
   const [state, setState] = React.useState({
     open: alerting,
@@ -64,11 +66,12 @@ const SnackbarComponent: React.FC<SnackbarProps> = ({
     <Snackbar
       anchorOrigin={{ vertical: "top", horizontal: "center" }}
       open={state.open}
-      onClose={handleClose}
+      onClose={onClose}
       autoHideDuration={2000}
       TransitionComponent={state.Transition}
       key={state.Transition.name}
       action={action}
+      sx={{ top: "50px" }}
     >
       <Alert severity={severity} sx={{ width: "100%" }} onClose={handleClose}>
         {message}

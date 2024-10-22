@@ -1,287 +1,426 @@
 // components/Modal.tsx
-import React from 'react';
-import styled from 'styled-components';
-import { TextField, Button, Stack, Box, Modal, Typography, Grid, FormControl,Select, MenuItem, InputLabel, Autocomplete } from '@mui/material';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import Link from 'next/link';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
-import ScheduleIcon from '@mui/icons-material/Schedule';
-import BookOnlineIcon from '@mui/icons-material/BookOnline';
-import ChecklistRtlIcon from '@mui/icons-material/ChecklistRtl';
-import CloseIcon from '@mui/icons-material/Close';
+import React, { useState } from "react";
+import axios from "axios";
+import styled from "styled-components";
+import {
+  TextField,
+  Button,
+  Stack,
+  Box,
+  Modal,
+  Typography,
+  Grid,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel,
+  Autocomplete,
+  SelectChangeEvent,
+} from "@mui/material";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import Link from "next/link";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import ScheduleIcon from "@mui/icons-material/Schedule";
+import BookOnlineIcon from "@mui/icons-material/BookOnline";
+import ChecklistRtlIcon from "@mui/icons-material/ChecklistRtl";
+import CloseIcon from "@mui/icons-material/Close";
+import { log, time } from "console";
+import SnackbarComponent from "./Snackbar";
 
 interface ModalProps {
-    isOpen: boolean;
-    onClose: () => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 const ModalHeader = styled.div`
-    padding:15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #ababab;
-.tx1{
-    font-size:1.25rem;
-    font-weight:600;
-    color:#20ADA0;
-}
-.tx2{
-  font-size:1.1rem;
-    font-weight:300;
-    color:#000;
-}
-    .tx2 span{
-  font-size:1.1rem;
-    font-weight:600;
-    color:#20ADA0;
-}
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ababab;
+  .tx1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #20ada0;
+  }
+  .tx2 {
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: #000;
+  }
+  .tx2 span {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #20ada0;
+  }
 `;
 const ModalBody = styled.div`
-    overflow-x: auto;
-    max-height: 72vh;
-   padding:10px 20px;
-   margin-top:15px;
-   .locat{
-   font-size: 1rem;
+  overflow-x: auto;
+  max-height: 72vh;
+  padding: 10px 20px;
+  margin-top: 15px;
+  .locat {
+    font-size: 1rem;
     font-weight: 300;
     color: #000;
     margin-bottom: 20px;
-    display:flex;
-    align-items:center;
-   }
-    .time_box{
+    display: flex;
+    align-items: center;
+  }
+  .time_box {
     display: flex;
     flex-wrap: wrap;
     width: 100%;
-}
-.time_box li{
-margin-top:10px;
-font-size:.8rem;
-font-weight:300;
-color:#20ADA0;
-    line-height: 1.20rem;
+  }
+  .time_box li {
+    margin-top: 10px;
+    font-size: 0.8rem;
+    font-weight: 300;
+    color: #20ada0;
+    line-height: 1.2rem;
     padding: 8px 10px;
-    border: 1px solid #20ADA0;
+    border: 1px solid #20ada0;
     border-radius: 4px;
     list-style: none;
     color: black;
-    margin-right:10px;
-    cursor:pointer;
-}
-    .time_box li:hover{
-    cursor:pointer;
-    background:#20ADA0;
-    color:white;
-    }
-    .tx2date{
+    margin-right: 10px;
+    cursor: pointer;
+  }
+  .time_box li:hover {
+    cursor: pointer;
+    background: #20ada0;
+    color: white;
+  }
+  .tx2date {
     font-size: 1rem;
     font-weight: 300;
     color: #000;
     margin-bottom: 16px;
-    display:flex;
-    align-items:center;
-    }
-    .tx2date svg{
-    margin-right:7px;
-    } 
-    input.Mui-disabled {
+    display: flex;
+    align-items: center;
+  }
+  .tx2date svg {
+    margin-right: 7px;
+  }
+  input.Mui-disabled {
     opacity: 1;
     -webkit-text-fill-color: rgb(0 0 0 / 100%);
-}
-    .MuiFormLabel-filled.Mui-disabled{
-        color: rgba(0, 0, 0, .6);
-    }
-        .fldset_lgend{
-            background: white;
+  }
+  .MuiFormLabel-filled.Mui-disabled {
+    color: rgba(0, 0, 0, 0.6);
+  }
+  .fldset_lgend {
+    background: white;
     margin-left: 15px;
-    font-size: .7rem;
+    font-size: 0.7rem;
     font-weight: 500;
     color: #20ada0;
     padding: 0px 5px;
-    }
-    .fieldset_wrap{
-    padding:20px;
-    padding-bottom:20px;
-    padding-top:10px;
-       border-color: #efefef;
-    margin-bottom:10px;
-    }
-    .MuiPickersTextField{
-    width:100%;
-    }
-    .pric_tw{border: 1px solid #b1b1b1;}
+  }
+  .fieldset_wrap {
+    padding: 20px;
+    padding-bottom: 20px;
+    padding-top: 10px;
+    border-color: #efefef;
+    margin-bottom: 10px;
+  }
+  .MuiPickersTextField {
+    width: 100%;
+  }
+  .pric_tw {
+    border: 1px solid #b1b1b1;
+  }
 `;
 const ModalFooter = styled.div`
-  padding:15px 20px;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #ababab;
+  display: flex;
+  justify-content: center;
+  .footer_btn_wrp {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-top: 1px solid #ababab;
-      display:flex;
-    justify-content:center;
-    .footer_btn_wrp{
-    display:flex;
-    justify-content:center;
-    }
+    justify-content: center;
+  }
 `;
 const Pricewrap = styled.div`
-
-.price_header_txt{
-font-size: 1.1rem;
+  .price_header_txt {
+    font-size: 1.1rem;
     font-weight: 600;
     color: #000;
-    line-height: 1.20rem;
+    line-height: 1.2rem;
     padding: 15px 10px;
     background: #efefef;
-}
-    .tx1{
-font-size: 1.1rem;
+  }
+  .tx1 {
+    font-size: 1.1rem;
     font-weight: 500;
     color: #000000;
     margin-top: 10px;
-}
-    .tx2{
+  }
+  .tx2 {
     font-size: 1rem;
     font-weight: normal;
     color: #1f1f1f;
     margin-top: 5px;
     padding-bottom: 10px;
-    }
-    .tx3{
+  }
+  .tx3 {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 10px 0px;
     border-top: 1px solid #bababa;
-    }
-    .tx3 .spntx1{
-   font-size: .90rem;
+  }
+  .tx3 .spntx1 {
+    font-size: 0.9rem;
     font-weight: normal;
     color: #000;
-    }
-    .tx3 .spntx2{
-   font-size: .90rem;
+  }
+  .tx3 .spntx2 {
+    font-size: 0.9rem;
     font-weight: normal;
     color: #000;
-    }
-       .tx4{
+  }
+  .tx4 {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 10px 0px;
     border-top: 1px solid #bababa;
-    }
-    .tx4 .spntx1{
-   font-size: 1rem;
+  }
+  .tx4 .spntx1 {
+    font-size: 1rem;
     font-weight: 500;
     color: #20ada0;
-    }
-    .tx4 .spntx2{
-   font-size: 1rem;
+  }
+  .tx4 .spntx2 {
+    font-size: 1rem;
     font-weight: 500;
     color: #20ada0;
-    }
-    .prc_contnt{
-    padding:10px;
-    padding-bottom:0px;
-    }
+  }
+  .prc_contnt {
+    padding: 10px;
+    padding-bottom: 0px;
+  }
 `;
-function ModalOne({ isOpen, onClose }: ModalProps) {
-    const [Gender, setGender] = React.useState('');
 
-    const handleChange = (event: SelectChangeEvent) => {
-      setGender(event.target.value as string);
+async function createAppointment(appointmentTime) {
+  const doctorId = "67064426c3f5d295a53132bf";
+  const patientId = "6706303eda4bfa3afd2962dd";
+
+  const API_URL = process.env.NEXT_PUBLIC_APP_URL;
+  console.log("API URL", API_URL);
+
+  try {
+    const appointmentData = {
+      patientId,
+      doctorId,
+      appointmentTime,
+      status: "scheduled",
     };
-    if (!isOpen) return null;
 
-    return (
-        <Modal
-            open={isOpen}
-            onClose={onClose}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-        >
-            <Box sx={style}>
-                <ModalHeader>
-                    <Typography id="" variant="h6" component="h2" className='tx1'>
-                        Book Appointment
-                    </Typography>
-                   <CloseIcon sx={{cursor:'pointer'}} onClick={onClose}/>
-                </ModalHeader>
-                <ModalBody>
-                    <Grid container spacing={3}>
-                        <Grid item xs={12} sm={4} md={4}>
-                            {/* <Typography className='locat'>
+    const response = await axios.post(
+      `${API_URL}/appointments/create-appointments`,
+      appointmentData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log("response", response);
+
+    if (response.status === 201) {
+      console.log("Appointment created successfully");
+      return true;
+    } else {
+      console.error("Failed to create appointment");
+      return false; // Return false if appointment creation failed
+    }
+  } catch (error) {
+    console.error("Error creating appointment:", error);
+    return false; // Return false in case of error
+  }
+}
+
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+function ModalOne({ isOpen, onClose }: ModalProps) {
+  const [Gender, setGender] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [age, setAge] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [symptoms, setSymptoms] = useState([]);
+  const [appointmentDate, setAppointmentDate] = useState<Date | null>(
+    null
+  );
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false); // Snackbar state
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
+    "success"
+  );
+
+  // Define the snackbar close handler
+  const handleSnackbarClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbarOpen(false); // This will close the Snackbar
+  };
+
+  const handleChange = (event: SelectChangeEvent) => {
+    setGender(event.target.value as string);
+  };
+
+  const handleTimeSlotClick = (time: string) => {
+    setSelectedTimeSlot(time);
+  };
+
+  const handleBookNowClick = async () => {
+    if (!appointmentDate) {
+      setSnackbarMessage("Please select an appointment date.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (!selectedTimeSlot) {
+      setSnackbarMessage("Please select a time slot.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (
+      !Gender ||
+      !firstName ||
+      !age ||
+      !phoneNumber ||
+      symptoms.length === 0
+    ) {
+      setSnackbarMessage("Please fill out all required fields.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      return;
+    }
+
+    const success = await createAppointment(appointmentDate);
+    if (success) {
+      setSnackbarMessage("Appointment created successfully!");
+      setSnackbarSeverity("success");
+    } else {
+      setSnackbarMessage("Failed to create appointment.");
+      setSnackbarSeverity("error");
+    }
+    setSnackbarOpen(true);
+  };
+
+  if (!isOpen) return null;
+
+  console.log("appointmentDate", appointmentDate);
+
+  return (
+    <>
+      <Modal
+        open={isOpen}
+        onClose={onClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <ModalHeader>
+            <Typography id="" variant="h6" component="h2" className="tx1">
+              Book Appointment
+            </Typography>
+            <CloseIcon sx={{ cursor: "pointer" }} onClick={onClose} />
+          </ModalHeader>
+          <ModalBody>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={4} md={4}>
+                {/* <Typography className='locat'>
                                 <LocationOnIcon /> St John’s Medical College Bangalore
                             </Typography> */}
-                            <form>
-                                <Stack spacing={2} direction="row" sx={{ marginBottom: 2 }}>
-                                    <TextField
-                                        type="text"
-                                        variant='outlined'
-                                        color='primary'
-                                        label="First Name"
+                <form>
+                  <Stack spacing={2} direction="row" sx={{ marginBottom: 2 }}>
+                    <TextField
+                      type="text"
+                      variant="outlined"
+                      color="primary"
+                      label="Name"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      fullWidth
+                      required
+                    />
+                  </Stack>
+                  <Stack spacing={2} direction="row" sx={{ marginBottom: 2 }}>
+                    <TextField
+                      type="text"
+                      variant="outlined"
+                      color="primary"
+                      label="Age"
+                      value={age}
+                      onChange={(e) => setAge(e.target.value)}
+                      fullWidth
+                      required
+                      sx={{ mb: 2 }}
+                    />
+                    <FormControl fullWidth>
+                      <InputLabel id="demo-simple-select-label">
+                        Gender
+                      </InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={Gender}
+                        label="Gender"
+                        onChange={handleChange}
+                      >
+                        <MenuItem value={10}>Male</MenuItem>
+                        <MenuItem value={20}>Female</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Stack>
 
-                                        value={''}
-                                        fullWidth
-                                        required
-                                    />
-
-                                </Stack>
-                                <Stack spacing={2} direction="row" sx={{ marginBottom: 2 }}>
-                                <TextField
-                                    type="text"
-                                    variant='outlined'
-                                    color='primary'
-                                    label="Age"
-
-                                    value={''}
-                                  
-                                    fullWidth
-                                    sx={{ mb: 2 }}
-                                />
-                                    <FormControl fullWidth>
-                                        <InputLabel id="demo-simple-select-label">Gender</InputLabel>
-                                        <Select
-                                            labelId="demo-simple-select-label"
-                                            id="demo-simple-select"
-                                            value={Gender}
-                                            label="Gender"
-                                            onChange={handleChange}
-                                        >
-                                            <MenuItem value={10}>Male</MenuItem>
-                                            <MenuItem value={20}>Female</MenuItem>
-                                        </Select>
-                                    </FormControl>
-
-
-                                </Stack>
-
-                                <TextField
-                                    type="number"
-                                    variant='outlined'
-                                    color='primary'
-                                    label="Phone Number"
-
-                                    value={'Phone'}
-                                    required
-                                    fullWidth
-                                    sx={{ mb: 1 }}
-                                />
-                                <FormControl fullWidth>
-                                <LocalizationProvider dateAdapter={AdapterDayjs} sx={{ width: '100%' }} >
-                                    <DemoContainer components={['DatePicker']} sx={{ width: '100%' }}>
-                                        <DatePicker label="Choose Date of Appointment" sx={{ width: '100%' }} />
-                                    </DemoContainer>
-                                </LocalizationProvider>
-                                </FormControl>
-                                <FormControl fullWidth sx={{marginTop:'15px'}}>
-                                <MultiSelect />
-                                </FormControl>
-                                {/* <TextField sx={{ mt: 2, color: '#000' }}
+                  <TextField
+                    type="number"
+                    variant="outlined"
+                    color="primary"
+                    label="Phone Number"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    required
+                    fullWidth
+                    sx={{ mb: 1 }}
+                  />
+                  <FormControl fullWidth>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        label="Choose Date of Appointment"
+                        value={appointmentDate}
+                        onChange={(newValue) => setAppointmentDate(newValue)}
+                        sx={{ width: "100%" }}
+                      />
+                    </LocalizationProvider>
+                  </FormControl>
+                  <FormControl fullWidth sx={{ marginTop: "15px" }}>
+                    <MultiSelect
+                      symptoms={symptoms}
+                      setSymptoms={setSymptoms}
+                    />
+                  </FormControl>
+                  {/* <TextField sx={{ mt: 2, color: '#000' }}
                                     disabled
                                     type="text"
                                     variant='outlined'
@@ -292,161 +431,239 @@ function ModalOne({ isOpen, onClose }: ModalProps) {
                                     fullWidth
 
                                 /> */}
-                                {/* <Button variant="outlined" color="primary" type="submit">Register</Button> */}
-                            </form>
-                        </Grid>
-                        <Grid item xs={12} sm={5} md={5}>
-                        <Pricewrap >
-                            {/* <Typography className='tx2date'>
+                  {/* <Button variant="outlined" color="primary" type="submit">Register</Button> */}
+                </form>
+              </Grid>
+              <Grid item xs={12} sm={5} md={5}>
+                <Pricewrap>
+                  {/* <Typography className='tx2date'>
                                 <ChecklistRtlIcon />40 Slots Available
                             </Typography> */}
-                            <Box component="fieldset" className='fieldset_wrap' sx={{marginTop:'-5px'}}>
-                                <legend className='fldset_lgend'>Morning Slots</legend>
-                                <ul className="time_box">
-                                    <li>03:00 PM</li>
-                                    <li>06:00 PM</li>
-                                    <li>09:00 PM</li>
-                                    <li>09:00 PM</li>
-                                    <li>09:00 PM</li>
-                                    <li>09:00 PM</li>
-
-                                </ul>
-                            </Box>
-                            <Box component="fieldset" className='fieldset_wrap'>
-                                <legend className='fldset_lgend'>Afternoon Slots</legend>
-                                <ul className="time_box">
-                                    <li>03:00 PM</li>
-                                    <li>06:00 PM</li>
-                                    <li>09:00 PM</li>
-                                    <li>09:00 PM</li>
-                                    <li>09:00 PM</li>
-                                    <li>09:00 PM</li>
-
-                                </ul>
-                            </Box>
-                            <Box component="fieldset" className='fieldset_wrap'>
-                                <legend className='fldset_lgend'>Evening Slots</legend>
-                                <ul className="time_box">
-                                    <li>03:00 PM</li>
-                                    <li>06:00 PM</li>
-                                    <li>09:00 PM</li>
-                                    <li>09:00 PM</li>
-                                    <li>09:00 PM</li>
-
-                                </ul>
-                            </Box>
-                            <Box component="fieldset" className='fieldset_wrap'>
-                                <legend className='fldset_lgend'>Night Slots</legend>
-                                <ul className="time_box">
-                                    <li>03:00 PM</li>
-                                    <li>06:00 PM</li>
-                                    <li>09:00 PM</li>
-
-                                </ul>
-                            </Box>
-                            </Pricewrap>
-                        </Grid>
-                        <Grid item xs={12} sm={3} md={3}>
-                            <Pricewrap className="pric_tw">
-                                <Typography className="price_header_txt">Consultation Details</Typography>
-                                <Box className="prc_contnt">
-                                <Typography className="tx1">Dr. Ranjana Sharma</Typography>
-                                <Typography className="tx2">Fever</Typography>
-                                <Typography className="tx3"><span className="spntx1">Price</span><span className="spntx2">$ 500</span></Typography>
-                                <Typography className="tx4"><span className="spntx1">Total</span><span className="spntx2">$ 500</span></Typography>
-                                </Box>
-                            </Pricewrap>
-
-                        </Grid>
-                      
-                    </Grid>
-                </ModalBody>
-                <ModalFooter>
-                    <Box className="footer_btn_wrp">
-                        <Button variant="contained" sx={{
-                            width: 'auto', minWidth: '150px', color: '#fff', background: '#20ADA0', borderRadius: '4px', marginLeft: '20px', ':hover': {
-                                bgcolor: '#20ADA0', // theme.palette.primary.main
-                                color: 'white',
-                            },
-                        }}><BookOnlineIcon sx={{ marginRight: 1 }} />Book Now
-                        </Button>
-                        <Button onClick={onClose} variant="contained" sx={{
-                            width: 'auto', minWidth: '150px', color: '#fff', background: '#20ADA0', borderRadius: '4px', marginLeft: '20px', ':hover': {
-                                bgcolor: '#20ADA0', // theme.palette.primary.main
-                                color: 'white',
-                            },
-                        }}>Cancel
-                        </Button>
-                    </Box>
-
-                </ModalFooter>
+                  <Box
+                    component="fieldset"
+                    className="fieldset_wrap"
+                    sx={{ marginTop: "-5px" }}
+                  >
+                    <legend className="fldset_lgend">Morning Slots</legend>
+                    <ul className="time_box">
+                      {["03:00 AM", "06:00 AM", "09:00 AM"].map((time) => (
+                        <li
+                          key={time}
+                          onClick={() => handleTimeSlotClick(time)}
+                          style={{
+                            background:
+                              selectedTimeSlot === time ? "#20ada0" : "",
+                            color:
+                              selectedTimeSlot === time ? "white" : "black",
+                          }}
+                        >
+                          {time}
+                        </li>
+                      ))}
+                    </ul>
+                  </Box>
+                  <Box component="fieldset" className="fieldset_wrap">
+                    <legend className="fldset_lgend">Afternoon Slots</legend>
+                    <ul className="time_box">
+                      {["12:00 PM", "03:00 PM", "05:00 PM"].map((time) => (
+                        <li
+                          key={time}
+                          onClick={() => handleTimeSlotClick(time)}
+                          style={{
+                            background:
+                              selectedTimeSlot === time ? "#20ada0" : "",
+                            color:
+                              selectedTimeSlot === time ? "white" : "black",
+                          }}
+                        >
+                          {time}
+                        </li>
+                      ))}
+                    </ul>
+                  </Box>
+                  <Box component="fieldset" className="fieldset_wrap">
+                    <legend className="fldset_lgend">Evening Slots</legend>
+                    <ul className="time_box">
+                      {["06:00 PM", "07:00 PM", "08:00 PM"].map((time) => (
+                        <li
+                          key={time}
+                          onClick={() => handleTimeSlotClick(time)}
+                          style={{
+                            background:
+                              selectedTimeSlot === time ? "#20ada0" : "",
+                            color:
+                              selectedTimeSlot === time ? "white" : "black",
+                          }}
+                        >
+                          {time}
+                        </li>
+                      ))}
+                    </ul>
+                  </Box>
+                  <Box component="fieldset" className="fieldset_wrap">
+                    <legend className="fldset_lgend">Night Slots</legend>
+                    <ul className="time_box">
+                      {["09:00 PM", "10:00 PM", "11:00 PM"].map((time) => (
+                        <li
+                          key={time}
+                          onClick={() => handleTimeSlotClick(time)}
+                          style={{
+                            background:
+                              selectedTimeSlot === time ? "#20ada0" : "",
+                            color:
+                              selectedTimeSlot === time ? "white" : "black",
+                          }}
+                        >
+                          {time}
+                        </li>
+                      ))}
+                    </ul>
+                  </Box>
+                </Pricewrap>
+              </Grid>
+              <Grid item xs={12} sm={3} md={3}>
+                <Pricewrap className="pric_tw">
+                  <Typography className="price_header_txt">
+                    Consultation Details
+                  </Typography>
+                  <Box className="prc_contnt">
+                    <Typography className="tx1">Dr. Ranjana Sharma</Typography>
+                    <Typography className="tx2">Fever</Typography>
+                    <Typography className="tx3">
+                      <span className="spntx1">Price</span>
+                      <span className="spntx2">$ 500</span>
+                    </Typography>
+                    <Typography className="tx4">
+                      <span className="spntx1">Total</span>
+                      <span className="spntx2">$ 500</span>
+                    </Typography>
+                  </Box>
+                </Pricewrap>
+              </Grid>
+            </Grid>
+          </ModalBody>
+          <ModalFooter>
+            <Box className="footer_btn_wrp">
+              <Button
+                variant="contained"
+                sx={{
+                  width: "auto",
+                  minWidth: "150px",
+                  color: "#fff",
+                  background: "#20ADA0",
+                  borderRadius: "4px",
+                  marginLeft: "20px",
+                  ":hover": {
+                    bgcolor: "#20ADA0", // theme.palette.primary.main
+                    color: "white",
+                  },
+                }}
+                onClick={handleBookNowClick}
+              >
+                <BookOnlineIcon sx={{ marginRight: 1 }} />
+                Book Now
+              </Button>
+              <Button
+                onClick={onClose}
+                variant="contained"
+                sx={{
+                  width: "auto",
+                  minWidth: "150px",
+                  color: "#fff",
+                  background: "#20ADA0",
+                  borderRadius: "4px",
+                  marginLeft: "20px",
+                  ":hover": {
+                    bgcolor: "#20ADA0", // theme.palette.primary.main
+                    color: "white",
+                  },
+                }}
+              >
+                Cancel
+              </Button>
             </Box>
-        </Modal>
-
-    );
+          </ModalFooter>
+        </Box>
+      </Modal>
+      <SnackbarComponent
+        alerting={snackbarOpen}
+        message={snackbarMessage}
+        severity={snackbarSeverity}
+        onClose={handleSnackbarClose}
+      />
+    </>
+  );
 }
 const style = {
-    position: 'absolute' as 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '90%',
-    maxWidth: '1200px',
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
-    boxShadow: 24,
-
+  position: "absolute" as "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: "90%",
+  maxWidth: "1200px",
+  bgcolor: "background.paper",
+  border: "2px solid #000",
+  boxShadow: 24,
 };
 
 const styles = {
-    modalOverlay: {
-        position: 'fixed' as 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-    },
-    modalContent: {
-        backgroundColor: '#fff',
-        padding: '20px',
-        borderRadius: '10px',
-        maxWidth: '1000px',
-        width: '100%',
-        textAlign: 'center' as 'center',
-    },
-    closeButton: {
-        marginTop: '20px',
-    },
+  modalOverlay: {
+    position: "fixed" as "fixed",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 1000,
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    padding: "20px",
+    borderRadius: "10px",
+    maxWidth: "1000px",
+    width: "100%",
+    textAlign: "center" as "center",
+  },
+  closeButton: {
+    marginTop: "20px",
+  },
 };
 
 export default ModalOne;
 
+interface MultiSelectProps {
+  symptoms: string[];
+  setSymptoms: React.Dispatch<React.SetStateAction<string[]>>;
+}
 
+const MultiSelect = ({ symptoms, setSymptoms }: MultiSelectProps) => {
+  const options = [
+    { title: "Fever" },
+    { title: "Cold" },
+    { title: "Cough" },
+    { title: "Headache" },
+  ];
 
-const MultiSelect = () => {
-    // Define the options you want to display in the dropdown
-    const options = [
-      { title: 'Fever' },
-      { title: 'Cold' },
-      { title: 'Cough' },
-      { title: 'Headach' },
-    ];
-  
-    return (
-      <Autocomplete
-        multiple
-        options={options}
-        getOptionLabel={(option) => option.title}
-        renderInput={(params) => (
-          <TextField {...params} variant="outlined" label="Select Symptoms" placeholder="Options" />
-        )}
-      />
-    );
-  };
-  
- 
+  return (
+    <Autocomplete
+      multiple
+      options={options}
+      getOptionLabel={(option) => option.title}
+      value={options.filter((option) => symptoms.includes(option.title))} // Ensure the selected values are shown
+      onChange={(event, newValue) => {
+        setSymptoms(newValue.map((option) => option.title)); // Map the selected options to their titles
+      }}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          variant="outlined"
+          label="Select Symptoms"
+          placeholder="Options"
+        />
+      )}
+    />
+  );
+};
