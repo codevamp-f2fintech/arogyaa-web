@@ -8,6 +8,7 @@ import userReducer from "./features/userSlice";
 import testimonialReducer from "./features/testimonialSlice";
 import doctorprofileReducer  from './features/doctorprofileSlice';
 import doctorlistReducer from './features/doctorlistSlice';
+import expert_specialist_doctorReducer from './features/expert_specialist_doctorSlice';
 
 export const store = configureStore({
   reducer: {
@@ -19,6 +20,7 @@ export const store = configureStore({
     testimonial: testimonialReducer,
     doctorprofile: doctorprofileReducer,
     doctorlist:doctorlistReducer,
+    expert_specialist_doctor:expert_specialist_doctorReducer,
   },
 });
 
