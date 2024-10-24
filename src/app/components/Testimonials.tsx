@@ -9,23 +9,25 @@ import { useGetTestimonial } from "@/hooks/testimonial";
 import { Testimonial } from "@/types/testimonial";
 
 const Testimonials: React.FC = () => {
-
   const {
     data: testimonials,
     swrLoading,
     error,
-  } = useGetTestimonial([], "http://localhost:3000/api/v1/get-testimonials");
+  } = useGetTestimonial([], "http://localhost:3001/api/v1/get-testimonials");
 
   if (swrLoading) return <p>Loading testimonials...</p>;
   if (error) return <p>Failed to load testimonials. Please try again later.</p>;
 
- 
   const mappedTestimonials = testimonials.map((testimonial: Testimonial) => ({
-    src: testimonial.src || "/assets/images/portrait-young-woman-doctor-with-stethoscope-uniform (1).png", 
-    srcquote: testimonial.srcquote || "/assets/images/icons8-quote-left-100.png",
+    src:
+      testimonial.src ||
+      "/assets/images/portrait-young-woman-doctor-with-stethoscope-uniform (1).png",
+    srcquote:
+      testimonial.srcquote || "/assets/images/icons8-quote-left-100.png",
     description: testimonial.description,
-    name: testimonial.patientName, 
-    age: testimonial.age || "Unknown", 
+    name: testimonial.patientName,
+    age: testimonial.age || "Unknown",
+    rating: testimonial.rating || 0,
   }));
 
   return (
@@ -40,6 +42,7 @@ const Testimonials: React.FC = () => {
           {en.homepage.testimonials.title2}
         </Typography>
       </Box>
+
       <SliderComponent images={mappedTestimonials} />
     </Box>
   );
