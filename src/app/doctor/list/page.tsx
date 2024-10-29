@@ -30,7 +30,7 @@ export default function BasicSelect() {
     data: doctorList,
     swrLoading,
     error,
-  } = useGetdoctorlist([], "http://localhost:5050/api/v1/doctor/get");
+  } = useGetdoctorlist([], "http://localhost:5050/api/doctor/get");
 
   const DoctorList = styled.div`
     padding: 50px;
