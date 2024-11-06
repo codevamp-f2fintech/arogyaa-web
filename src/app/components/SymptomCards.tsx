@@ -35,7 +35,7 @@ const SymptomCards: React.FC = () => {
   // Fetch data from the API
   const { data } = useGetSymptoms(
     [],
-    `http://localhost:3001/api/symptoms/get-symptoms`
+    `http://localhost:3002/api/symptoms/get-symptoms`
   );
 
   useEffect(() => {

@@ -9,7 +9,7 @@ import axios, { AxiosInstance, AxiosError, AxiosResponse } from "axios";
  * @type {AxiosInstance}
  */
 export const axiosInstance: AxiosInstance = axios.create({
-  baseURL: `https://jsonplaceholder.typicode.com/`,
+  baseURL: `http://localhost:3500/api`,
   timeout: 40000,
   headers: {
     Accept: "application/json, text/plain, */*",
