@@ -1,6 +1,6 @@
 // components/Modal.tsx
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import {
   TextField,
@@ -17,18 +17,44 @@ import {
   Autocomplete,
   SelectChangeEvent,
 } from "@mui/material";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import Link from "next/link";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import BookOnlineIcon from "@mui/icons-material/BookOnline";
 import ChecklistRtlIcon from "@mui/icons-material/ChecklistRtl";
 import CloseIcon from "@mui/icons-material/Close";
-import { log, time } from "console";
+
 import SnackbarComponent from "./Snackbar";
+import type { AppDispatch, RootState } from "@/redux/store";
+import { useCreateAppointment } from "@/hooks/appointment";
+import { useRouter } from "next/navigation";
+import { Utility } from "@/utils";
+import { Formik } from "formik";
+import * as Yup from "yup";
+
+const ModalOneSchema = Yup.object().shape({
+  name: Yup.string()
+
+    .min(2, "name is too short!")
+    .max(20, "name is too long!")
+    .required("name is required"),
+  age: Yup.number()
+    .typeError("Age must be a number")
+    .min(0, "Age must be at least 0")
+    .max(120, "Age must be at most 120")
+    .required("Age is required"),
+  phoneNumber: Yup.string()
+    .typeError("Phone Number must be a number")
+    .min(10, "Phone Number must be at least 10")
+    .max(10, "Phone Number must be at most 10")
+    .required("Phone Number is requred"),
+  gender: Yup.string(),
+  appointmentDate: Yup.date()
+    .required("Date of Appointment is required")
+    .nullable(),
+});
 
 interface ModalProps {
   isOpen: boolean;
@@ -208,45 +234,6 @@ const Pricewrap = styled.div`
   }
 `;
 
-async function createAppointment(appointmentTime) {
-  const doctorId = "67064426c3f5d295a53132bf";
-  const patientId = "6706303eda4bfa3afd2962dd";
-
-  const API_URL = process.env.NEXT_PUBLIC_APP_URL;
-  console.log("API URL", API_URL);
-
-  try {
-    const appointmentData = {
-      patientId,
-      doctorId,
-      appointmentTime,
-      status: "scheduled",
-    };
-
-    const response = await axios.post(
-      `${API_URL}/appointments/create-appointments`,
-      appointmentData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    console.log("response", response);
-
-    if (response.status === 201) {
-      console.log("Appointment created successfully");
-      return true;
-    } else {
-      console.error("Failed to create appointment");
-      return false; // Return false if appointment creation failed
-    }
-  } catch (error) {
-    console.error("Error creating appointment:", error);
-    return false; // Return false in case of error
-  }
-}
-
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -254,18 +241,20 @@ interface ModalProps {
 
 function ModalOne({ isOpen, onClose }: ModalProps) {
   const [Gender, setGender] = useState("");
-  const [firstName, setFirstName] = useState("");
+  const [name, setFirstName] = useState("");
   const [age, setAge] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [symptoms, setSymptoms] = useState([]);
-  const [appointmentDate, setAppointmentDate] = useState<Date | null>(
-    null
-  );
+  const [appointmentDate, setAppointmentDate] = useState<Date | null>(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
-  const [snackbarOpen, setSnackbarOpen] = useState(false); // Snackbar state
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
-    "success"
+  const { snackbar } = useSelector((state: RootState) => state.snackbar);
+
+  const dispatch: AppDispatch = useDispatch();
+  const router = useRouter();
+  const { snackbarAndNavigate } = Utility();
+
+  const { createdAppointment, createAppointment } = useCreateAppointment(
+    `${process.env.NEXT_PUBLIC_APPOINTMENT_URL}/appointments/create-appointments`
   );
 
   // Define the snackbar close handler
@@ -276,7 +265,6 @@ function ModalOne({ isOpen, onClose }: ModalProps) {
     if (reason === "clickaway") {
       return;
     }
-    setSnackbarOpen(false); // This will close the Snackbar
   };
 
   const handleChange = (event: SelectChangeEvent) => {
@@ -289,46 +277,73 @@ function ModalOne({ isOpen, onClose }: ModalProps) {
 
   const handleBookNowClick = async () => {
     if (!appointmentDate) {
-      setSnackbarMessage("Please select an appointment date.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
+      snackbarAndNavigate(
+        dispatch,
+        true,
+        "error",
+        "Please select an appointment date."
+      );
       return;
     }
 
     if (!selectedTimeSlot) {
-      setSnackbarMessage("Please select a time slot.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
+      snackbarAndNavigate(
+        dispatch,
+        true,
+        "error",
+        "Please select a time slot."
+      );
+
       return;
     }
 
-    if (
-      !Gender ||
-      !firstName ||
-      !age ||
-      !phoneNumber ||
-      symptoms.length === 0
-    ) {
-      setSnackbarMessage("Please fill out all required fields.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
-      return;
-    }
-
-    const success = await createAppointment(appointmentDate);
-    if (success) {
-      setSnackbarMessage("Appointment created successfully!");
-      setSnackbarSeverity("success");
-    } else {
-      setSnackbarMessage("Failed to create appointment.");
-      setSnackbarSeverity("error");
-    }
-    setSnackbarOpen(true);
+    await createNewAppointment(appointmentDate);
+    snackbarAndNavigate(dispatch, true, "success", "Successfully got");
   };
+
+  async function createNewAppointment(appointmentTime) {
+    const doctorId = "67064426c3f5d295a53132bf";
+    const patientId = "6706303eda4bfa3afd2962dd";
+
+    try {
+      const appointmentData = {
+        patientId,
+        doctorId,
+        appointmentTime,
+        status: "scheduled",
+      };
+      await createAppointment(appointmentData);
+    } catch (error) {
+      console.error("Error creating appointment:", error);
+      return false; // Return false in case of error
+    }
+  }
+
+  useEffect(() => {
+    if (createdAppointment) {
+      console.log("createdAppointment", createdAppointment);
+      if (createdAppointment.status === "scheduled") {
+        snackbarAndNavigate(dispatch, true, "warning", "Successfully got");
+
+        router.push("/"); // Redirect to the homepage
+      } else {
+        snackbarAndNavigate(dispatch, true, "warning", "Successfully got");
+      }
+    }
+  }, [createdAppointment]);
 
   if (!isOpen) return null;
 
   console.log("appointmentDate", appointmentDate);
+
+  function handleSignup(values: {
+    name: string;
+    age: string;
+    gender: string;
+    phoneNumber: string;
+  }) {
+    throw new Error("Function not implemented.");
+  }
 
   return (
     <>
@@ -351,88 +366,146 @@ function ModalOne({ isOpen, onClose }: ModalProps) {
                 {/* <Typography className='locat'>
                                 <LocationOnIcon /> St John’s Medical College Bangalore
                             </Typography> */}
-                <form>
-                  <Stack spacing={2} direction="row" sx={{ marginBottom: 2 }}>
-                    <TextField
-                      type="text"
-                      variant="outlined"
-                      color="primary"
-                      label="Name"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      fullWidth
-                      required
-                    />
-                  </Stack>
-                  <Stack spacing={2} direction="row" sx={{ marginBottom: 2 }}>
-                    <TextField
-                      type="text"
-                      variant="outlined"
-                      color="primary"
-                      label="Age"
-                      value={age}
-                      onChange={(e) => setAge(e.target.value)}
-                      fullWidth
-                      required
-                      sx={{ mb: 2 }}
-                    />
-                    <FormControl fullWidth>
-                      <InputLabel id="demo-simple-select-label">
-                        Gender
-                      </InputLabel>
-                      <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={Gender}
-                        label="Gender"
-                        onChange={handleChange}
+                <Formik
+                  initialValues={{
+                    name: "",
+                    age: "",
+                    gender: "",
+                    phoneNumber: "",
+                    appointmentDate: null,
+                    // role: "sales",
+                  }}
+                  validationSchema={ModalOneSchema}
+                  onSubmit={async (values, { setSubmitting, resetForm }) => {
+                    setSubmitting(true);
+                    await handleSignup(values);
+                    setSubmitting(false);
+                    resetForm();
+                  }}
+                >
+                  {({
+                    values,
+                    errors,
+                    touched,
+                    handleChange,
+                    handleBlur,
+                    isSubmitting,
+                    dirty,
+                  }) => (
+                    <form>
+                      <Stack
+                        spacing={2}
+                        direction="row"
+                        sx={{ marginBottom: 2 }}
                       >
-                        <MenuItem value={10}>Male</MenuItem>
-                        <MenuItem value={20}>Female</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Stack>
+                        <TextField
+                          type="text"
+                          variant="outlined"
+                          color="primary"
+                          label="Name"
+                          name="name" // Formik field name
+                          value={values.name} // Set value from Formik's values
+                          onChange={handleChange} // Use Formik's handleChange
+                          onBlur={handleBlur} // Use Formik's handleBlur for touch handling
+                          fullWidth
+                          required
+                          error={touched.name && Boolean(errors.name)} // Show error based on touched and errors
+                          helperText={touched.name && errors.name} // Display error message
+                        />
+                      </Stack>
+                      <Stack
+                        spacing={2}
+                        direction="row"
+                        sx={{ marginBottom: 2 }}
+                      >
+                        <TextField
+                          type="text"
+                          variant="outlined"
+                          color="primary"
+                          label="Age"
+                          name="age"
+                          value={values.age}
+                          onChange={handleChange} // Use Formik's handleChange
+                          onBlur={handleBlur} // Use Formik's handleBlur for touch handling
+                          fullWidth
+                          required
+                          error={touched.age && Boolean(errors.age)} // Show error based on touched and errors
+                          helperText={touched.age && errors.age}
+                        />
+                        <FormControl fullWidth>
+                          <InputLabel id="demo-simple-select-label">
+                            Gender
+                          </InputLabel>
+                          <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            name="gender"
+                            value={values.gender}
+                            label="Gender"
+                            onChange={handleChange}
+                            onBlur={handleBlur} // Use Formik's handleBlur for touch handling
+                            fullWidth
+                            required
+                            error={touched.gender && Boolean(errors.gender)} // Show error based on touched and errors
+                            // helperText={touched.gender && errors.gender}
+                          >
+                            <MenuItem value="male">Male</MenuItem>
+                            <MenuItem value="female">Female</MenuItem>
+                            <MenuItem value="other">Other</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Stack>
 
-                  <TextField
-                    type="number"
-                    variant="outlined"
-                    color="primary"
-                    label="Phone Number"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    required
-                    fullWidth
-                    sx={{ mb: 1 }}
-                  />
-                  <FormControl fullWidth>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DatePicker
-                        label="Choose Date of Appointment"
-                        value={appointmentDate}
-                        onChange={(newValue) => setAppointmentDate(newValue)}
-                        sx={{ width: "100%" }}
+                      <TextField
+                        type="number"
+                        variant="outlined"
+                        color="primary"
+                        label="Phone Number"
+                        name="phoneNumber"
+                        value={values.phoneNumber}
+                        onChange={handleChange} // Use Formik's handleChange
+                        onBlur={handleBlur} // Use Formik's handleBlur for touch handling
+                        fullWidth
+                        required
+                        error={
+                          touched.phoneNumber && Boolean(errors.phoneNumber)
+                        } // Show error based on touched and errors
+                        helperText={touched.phoneNumber && errors.phoneNumber}
                       />
-                    </LocalizationProvider>
-                  </FormControl>
-                  <FormControl fullWidth sx={{ marginTop: "15px" }}>
-                    <MultiSelect
-                      symptoms={symptoms}
-                      setSymptoms={setSymptoms}
-                    />
-                  </FormControl>
-                  {/* <TextField sx={{ mt: 2, color: '#000' }}
-                                    disabled
-                                    type="text"
-                                    variant='outlined'
-                                    color='primary'
-                                    label="Slots available"
-
-                                    value={'20 Slots Available'}
-                                    fullWidth
-
-                                /> */}
-                  {/* <Button variant="outlined" color="primary" type="submit">Register</Button> */}
-                </form>
+                      <FormControl fullWidth>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            label="Choose Date of Appointment"
+                            value={values.appointmentDate}
+                            onChange={(newValue) => {
+                              setFieldValue("appointmentDate", newValue);
+                            }}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                fullWidth
+                                error={
+                                  touched.appointmentDate &&
+                                  Boolean(errors.appointmentDate)
+                                }
+                                helperText={
+                                  touched.appointmentDate &&
+                                  errors.appointmentDate
+                                }
+                              />
+                            )}
+                          />
+                        </LocalizationProvider>
+                      </FormControl>
+                      <FormControl fullWidth sx={{ marginTop: "15px" }}>
+                        <MultiSelect
+                          symptoms={symptoms}
+                          setSymptoms={setSymptoms}
+                        />
+                      </FormControl>
+                    </form>
+                  )}
+                </Formik>
               </Grid>
               <Grid item xs={12} sm={5} md={5}>
                 <Pricewrap>
@@ -586,9 +659,9 @@ function ModalOne({ isOpen, onClose }: ModalProps) {
         </Box>
       </Modal>
       <SnackbarComponent
-        alerting={snackbarOpen}
-        message={snackbarMessage}
-        severity={snackbarSeverity}
+        alerting={snackbar.snackbarAlert}
+        severity={snackbar.snackbarSeverity}
+        message={snackbar.snackbarMessage}
         onClose={handleSnackbarClose}
       />
     </>
