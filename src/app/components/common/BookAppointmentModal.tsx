@@ -345,6 +345,10 @@ function ModalOne({ isOpen, onClose }: ModalProps) {
     throw new Error("Function not implemented.");
   }
 
+  function setFieldValue(arg0: string, newValue: import("dayjs").Dayjs | null) {
+    throw new Error("Function not implemented.");
+  }
+
   return (
     <>
       <Modal
@@ -368,10 +372,6 @@ function ModalOne({ isOpen, onClose }: ModalProps) {
                             </Typography> */}
                 <Formik
                   initialValues={{
-                    name: "",
-                    age: "",
-                    gender: "",
-                    phoneNumber: "",
                     appointmentDate: null,
                     // role: "sales",
                   }}
@@ -393,85 +393,7 @@ function ModalOne({ isOpen, onClose }: ModalProps) {
                     dirty,
                   }) => (
                     <form>
-                      <Stack
-                        spacing={2}
-                        direction="row"
-                        sx={{ marginBottom: 2 }}
-                      >
-                        <TextField
-                          type="text"
-                          variant="outlined"
-                          color="primary"
-                          label="Name"
-                          name="name" // Formik field name
-                          value={values.name} // Set value from Formik's values
-                          onChange={handleChange} // Use Formik's handleChange
-                          onBlur={handleBlur} // Use Formik's handleBlur for touch handling
-                          fullWidth
-                          required
-                          error={touched.name && Boolean(errors.name)} // Show error based on touched and errors
-                          helperText={touched.name && errors.name} // Display error message
-                        />
-                      </Stack>
-                      <Stack
-                        spacing={2}
-                        direction="row"
-                        sx={{ marginBottom: 2 }}
-                      >
-                        <TextField
-                          type="text"
-                          variant="outlined"
-                          color="primary"
-                          label="Age"
-                          name="age"
-                          value={values.age}
-                          onChange={handleChange} // Use Formik's handleChange
-                          onBlur={handleBlur} // Use Formik's handleBlur for touch handling
-                          fullWidth
-                          required
-                          error={touched.age && Boolean(errors.age)} // Show error based on touched and errors
-                          helperText={touched.age && errors.age}
-                        />
-                        <FormControl fullWidth>
-                          <InputLabel id="demo-simple-select-label">
-                            Gender
-                          </InputLabel>
-                          <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            name="gender"
-                            value={values.gender}
-                            label="Gender"
-                            onChange={handleChange}
-                            onBlur={handleBlur} // Use Formik's handleBlur for touch handling
-                            fullWidth
-                            required
-                            error={touched.gender && Boolean(errors.gender)} // Show error based on touched and errors
-                            // helperText={touched.gender && errors.gender}
-                          >
-                            <MenuItem value="male">Male</MenuItem>
-                            <MenuItem value="female">Female</MenuItem>
-                            <MenuItem value="other">Other</MenuItem>
-                          </Select>
-                        </FormControl>
-                      </Stack>
 
-                      <TextField
-                        type="number"
-                        variant="outlined"
-                        color="primary"
-                        label="Phone Number"
-                        name="phoneNumber"
-                        value={values.phoneNumber}
-                        onChange={handleChange} // Use Formik's handleChange
-                        onBlur={handleBlur} // Use Formik's handleBlur for touch handling
-                        fullWidth
-                        required
-                        error={
-                          touched.phoneNumber && Boolean(errors.phoneNumber)
-                        } // Show error based on touched and errors
-                        helperText={touched.phoneNumber && errors.phoneNumber}
-                      />
                       <FormControl fullWidth>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker

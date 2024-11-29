@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+import { signOut } from "next-auth/react";
+import { useRouter } from 'next/navigation'
+
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -28,9 +31,11 @@ import styles from "../../page.module.css";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useGetNotifications } from "@/hooks/notification";
 import { setNotifications } from "@/redux/features/notificationsSlice";
+import { useSession } from "next-auth/react";
+import { Utility } from "@/utils";
+import { Link } from "@mui/material";
 
 const pages = ["Products", "Pricing", "Blog"];
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 const Topbar = () => {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
@@ -40,14 +45,28 @@ const Topbar = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const dispatch: AppDispatch = useDispatch();
+  const { data: session } = useSession();
+  const { setLocalStorage, remLocalStorage } = Utility();
+  const router = useRouter();
+
   const { notifications } = useSelector(
     (state: RootState) => state.notifications
   );
 
+  useEffect(() => {
+    if (session) {
+      // Store the session token in local storage
+      const token = session?.user;
+      if (token) {
+        setLocalStorage('authToken', token);
+      }
+    }
+  }, [session]);
+
   //fetch api
   const { data } = useGetNotifications(
     [],
-    `http://localhost:3001/api/notifications/get-notifications/60d9caed6f70c40b7cdcb867`
+    `http://localhost:3004/api/notifications/get-notifications/60d9caed6f70c40b7cdcb867`
   );
 
   let dataArray = Array.isArray(data) ? data : [data];
@@ -100,12 +119,27 @@ const Topbar = () => {
     setVisibleNotifications((prev) => prev + 5);
   };
 
+  // const handleLogout = () => {
+  //   remLocalStorage("authToken");
+  // }
+
+  const handleLogout = async () => {
+    // Remove the auth token from local storage
+    remLocalStorage("authToken");
+    // signOut();
+    const result = await signOut({ redirect: false, callbackUrl: "/" })
+    router.push(result.url)
+
+  };
+
   function setPageSize(arg0: (prevSize: any) => any) {
     throw new Error("Function not implemented.");
   }
 
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
+
+  console.log("session?.user", session?.user)
 
   return (
     <AppBar className={styles.appBar}>
@@ -131,7 +165,7 @@ const Topbar = () => {
           {en.topbar.title}
         </Typography>
 
-        <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+        {/* <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
           <IconButton
             size="large"
             aria-label="account of current user"
@@ -185,7 +219,7 @@ const Topbar = () => {
           }}
         >
           LOGO
-        </Typography>
+        </Typography> */}
 
         <Box
           sx={{
@@ -312,41 +346,53 @@ const Topbar = () => {
           </Popover>
         </Box>
 
-        <Box className={styles.avatarContainer}>
-          <Tooltip title="Open settings">
-            <IconButton
-              onClick={handleOpenUserMenu}
-              className={styles.avatarButton}
-            >
-              <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-            </IconButton>
-          </Tooltip>
+        {session &&
+          <Box className={styles.avatarContainer}>
+            <Tooltip title="Open settings">
+              <IconButton
+                onClick={handleOpenUserMenu}
+                className={styles.avatarButton}
+              >
+                <Avatar alt={session?.user.name} src="/static/images/avatar/2.jpg" />
+              </IconButton>
+            </Tooltip>
 
-          <Menu
-            id="menu-appbar"
-            anchorEl={anchorElUser}
-            anchorOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            open={Boolean(anchorElUser)}
-            onClose={handleCloseUserMenu}
-            className={styles.userMenu}
-          >
-            {settings.map((setting) => (
-              <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                <Typography textAlign="center">{setting}</Typography>
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorElUser}
+              anchorOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+              open={Boolean(anchorElUser)}
+              onClose={handleCloseUserMenu}
+              className={styles.userMenu}
+            >
+              <MenuItem onClick={handleCloseUserMenu}>
+                <Button onClick={() => {
+                  handleLogout()
+                }}
+                >
+                  Logout
+                </Button>
               </MenuItem>
-            ))}
-          </Menu>
-        </Box>
+            </Menu>
+          </Box>
+        }
+        {!session &&
+          < Button >
+            <Link href="/signin" underline="none">
+              SignUp / SignIn
+            </Link>
+          </Button>
+        }
       </Toolbar>
-    </AppBar>
+    </AppBar >
   );
 };
 

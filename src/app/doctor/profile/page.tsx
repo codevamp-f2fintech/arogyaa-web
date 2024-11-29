@@ -1,4 +1,6 @@
 "use client";
+
+import { useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 import Box from "@mui/material/Box";
 import {
@@ -22,15 +24,18 @@ import DoneIcon from "@mui/icons-material/Done";
 import PaymentIcon from "@mui/icons-material/Payment";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import VerifiedIcon from "@mui/icons-material/Verified";
-import { useRouter } from "next/navigation";
-
 import Header from "../../components/common/Topbar";
 import Footer from "../../components/common/Footer";
 import ModalOne from "../../components/common/BookAppointmentModal";
+import { useGetdoctorprofile } from "@/hooks/doctorprofile";
 
 const Drprofwrapper = styled.div`
   padding: 40px;
   padding-top: 90px;
+
+  .rating_wrp {
+    margin-right: 20px;
+  }
 
   .box_wrp {
     display: flex;
@@ -268,42 +273,48 @@ const Drprofwrapper = styled.div`
     cursor: pointer;
   }
 `;
+
 export default function DrProfile() {
   const [isModalOpen, setModalOpen] = useState(false);
-  const [token, setToken] = useState(true);
-  const router = useRouter();
-
-  // Function to open the modal
-  const openModal = () => {
-    if (token) {
-      console.log("Open Modal button clicked");
-      setModalOpen(true);
-    } else {
-      console.log("Token not found, redirecting to login");
-      router.push("/signin"); // Redirect to the login page
-    }
-  };
-
-  // Function to close the modal
-  const closeModal = () => {
-    console.log("Close Modal button clicked");
-    setModalOpen(false);
-  };
-
   const [value, setValue] = useState(0);
   const [value1, setValue1] = useState(0);
+  const searchParams = useSearchParams();
+  // const id = "6707b2b474d820f1ad625603"; //testing code, remove this code and uncomment just below line.
+  const id = searchParams.get("id");
+
+  const { data: doctorData, swrLoading } = useGetdoctorprofile(
+    [],
+    `http://localhost:5050/api/doctor/get/${id}`
+  );
+
+  const openModal = () => {
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+  };
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
+
   const handleChangeAppoint = (event, newValue) => {
-    setValue(newValue);
+    setValue1(newValue);
   };
+
+  const handleClinicTabClick = (event, newValue) => {
+    setValue1(newValue);
+    setValue(1);
+  };
+
+  if (swrLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Drprofwrapper>
       <Header />
-
       <ModalOne isOpen={isModalOpen} onClose={closeModal} />
       <Box sx={{ padding: "10px" }}>
         <Grid container spacing={3}>
@@ -313,14 +324,15 @@ export default function DrProfile() {
                 <Box
                   component="img"
                   className="dr_cir_canv"
-                  alt="The house from the offer."
+                  alt="The doctor from the offer."
                   src="../assets/images/drRanjanaSharma.jpg"
                 />
               </Box>
               <Box className="dr_cat_action_wrp">
                 <Box className="dr_cap">
+                  {/* Display fetched doctor data */}
                   <Typography variant="h4" component="h4" className="t1">
-                    Dr. Ranjana Sharma
+                    {doctorData ? doctorData.username : "Dr. Ranjana Sharma"}
                     <span className="verified">
                       <VerifiedIcon /> Verified profile
                     </span>
@@ -329,24 +341,20 @@ export default function DrProfile() {
                     General Physician
                   </Typography>
                   <Typography variant="h6" component="h6" className="t3">
-                    M.B.B.S, DCh, DHA, RPSGT (USA)
-                    <br />
-                    General physician, Paediatrician Health Checkup (General),
-                    Chickenpox Treatment, Sleep medicine, Pediatric
-                    gastroenterology, Pediatric infectious diseases, Allergy
-                    Treatment, Diabetes Management, Immunity Therapy, Migraine
-                    Treatment, Hypertension Treatment, Thyroid Disease in
-                    Children, Fever Treatment, Dermatology, Respiratory illness
-                    treatment (40 Years Experience Overall)
+                    {doctorData
+                      ? doctorData.bio
+                      : "M.B.B.S, DCh, DHA, RPSGT (USA)\nGeneral physician, Paediatrician Health Checkup (General), Sleep medicine, Pediatric gastroenterology, Pediatric infectious diseases, Allergy Treatment, Diabetes Management, Immunity Therapy, Hypertension Treatment, etc."}
                   </Typography>
 
                   <Box className="expr">
                     <Typography variant="h6" component="span" className="t3">
-                      10+ years of experience{" "}
+                      {doctorData
+                        ? `${doctorData.experienceYears} years of experience`
+                        : "42+ years of experience"}
                     </Typography>
                     <span className="exp_hrlne">|</span>
                     <Typography variant="h6" component="span" className="t3">
-                      Speaks English, Kannada,Telugu, Tamil, Hind
+                      Speaks English, Hindi, Kannada, Telugu{" "}
                     </Typography>
                   </Box>
                   <Box>
@@ -360,7 +368,7 @@ export default function DrProfile() {
                         background: "#20ADA0",
                         borderRadius: "4px",
                         ":hover": {
-                          bgcolor: "#20ADA0", // theme.palette.primary.main
+                          bgcolor: "#20ADA0",
                           color: "white",
                         },
                       }}
@@ -378,7 +386,7 @@ export default function DrProfile() {
                         borderRadius: "4px",
                         marginLeft: "20px",
                         ":hover": {
-                          bgcolor: "#20ADA0", // theme.palette.primary.main
+                          bgcolor: "#20ADA0",
                           color: "white",
                         },
                       }}
@@ -387,46 +395,46 @@ export default function DrProfile() {
                     </Button>
                   </Box>
                 </Box>
-                <Box className="rating_wrp">
-                  <Typography variant="h6" component="span" className="tx1">
-                    Rating
-                  </Typography>
-                  <Typography variant="h6" component="span" className="tx2">
-                    <span>5/5</span>
-                  </Typography>
+              </Box>
 
-                  <Box className="star_wrp">
-                    <Box
-                      component="img"
-                      className="star_ico"
-                      alt="The house from the offer."
-                      src={"../assets/images/star-fill.png"}
-                    />
-                    <Box
-                      component="img"
-                      className="star_ico"
-                      alt="The house from the offer."
-                      src={"../assets/images/star-fill.png"}
-                    />
-                    <Box
-                      component="img"
-                      className="star_ico"
-                      alt="The house from the offer."
-                      src={"../assets/images/star-fill.png"}
-                    />
-                    <Box
-                      component="img"
-                      className="star_ico"
-                      alt="The house from the offer."
-                      src={"../assets/images/star-fill.png"}
-                    />
-                    <Box
-                      component="img"
-                      className="star_ico"
-                      alt="The house from the offer."
-                      src={"../assets/images/star-fill.png"}
-                    />
-                  </Box>
+              <Box className="rating_wrp">
+                <Typography variant="h6" component="span" className="tx1">
+                  Rating
+                </Typography>
+                <Typography variant="h6" component="span" className="tx2">
+                  <span>5/5</span>
+                </Typography>
+                <Box className="star_wrp">
+                  <Box
+                    component="img"
+                    className="star_ico"
+                    alt="Star"
+                    src={"../assets/images/star-fill.png"}
+                  />
+                  <Box
+                    component="img"
+                    className="star_ico"
+                    alt="Star"
+                    src={"../assets/images/star-fill.png"}
+                  />
+                  <Box
+                    component="img"
+                    className="star_ico"
+                    alt="Star"
+                    src={"../assets/images/star-fill.png"}
+                  />
+                  <Box
+                    component="img"
+                    className="star_ico"
+                    alt="Star"
+                    src={"../assets/images/star-fill.png"}
+                  />
+                  <Box
+                    component="img"
+                    className="star_ico"
+                    alt="Star"
+                    src={"../assets/images/star-fill.png"}
+                  />
                 </Box>
               </Box>
             </Paper>
@@ -440,21 +448,13 @@ export default function DrProfile() {
                 aria-label="Pill Tabs Example"
                 sx={{
                   background: "#e8e8e8",
-                  "& .MuiTabs-indicator": {
-                    display: "none", // Hide default indicator
-                  },
+                  "& .MuiTabs-indicator": { display: "none" },
                   "& .MuiTab-root": {
-                    textTransform: "none", // Avoid uppercase text transformation
-                    borderRadius: "0px", // Make the tabs pill-shaped
-                    margin: "0 0px", // Add some spacing between the tabs
-                    minHeight: "48px", // Minimum height for the tab
+                    textTransform: "none",
                     backgroundColor: "#f0f0f5",
-                    borderBottom: "0px solid #20ada0",
-                    color: "#000",
-                    // Default background color
                     "&.Mui-selected": {
-                      backgroundColor: "#fff", // Background color for the selected tab
-                      color: "#20ada0", // Text color for the selected tab
+                      backgroundColor: "#fff",
+                      color: "#20ada0",
                       borderLeft: "1px solid #20ada0",
                       borderRight: "1px solid #20ada0",
                       borderTop: "1px solid #20ada0",
@@ -476,15 +476,10 @@ export default function DrProfile() {
                         component="p"
                         className="para_info1"
                       >
-                        Dr. Ranjana Sharma is a passionate and enthusiastic
-                        mental health professional. He completed his MBBS from
-                        prestigious Manipal University, and post graduated in
-                        the field of psychiatry from St John’s Medical College
-                        Bangalore. Worked in one of the premier mental health
-                        institutes of the country National Institute of Mental
-                        Health and Neuro Sciences (NIMHANS), Bangalore after
-                        which he went overseas to further hone his clinical
-                        skills.
+                        Dr. Ranjana Sharma is a passionate and experienced
+                        mental health professional. Completed MBBS from Manipal
+                        University and post-graduation in psychiatry from St
+                        John’s Medical College Bangalore.
                       </Typography>
                     </Box>
                     <Box>
@@ -493,21 +488,18 @@ export default function DrProfile() {
                         component="h4"
                         className="treat_list_title"
                       >
-                        Conditions treated
+                        Conditions Treated
                       </Typography>
                       <ul className="trat_list">
                         <li>
-                          {" "}
-                          <DoneIcon sx={{ marginRight: "5px" }} />
-                          Stress and anger management
+                          <DoneIcon sx={{ marginRight: "5px" }} /> Stress and
+                          anger management
                         </li>
                         <li>
-                          {" "}
-                          <DoneIcon sx={{ marginRight: "5px" }} />
-                          Sleep problems
+                          <DoneIcon sx={{ marginRight: "5px" }} /> Sleep
+                          problems
                         </li>
                         <li>
-                          {" "}
                           <DoneIcon sx={{ marginRight: "5px" }} /> Communication
                           and relationship problems
                         </li>
@@ -577,42 +569,35 @@ export default function DrProfile() {
                             </Typography>
                           </Box>
                         </Grid>
+                        {/* Availability from API */}
                         <Grid item xs={12} sm={6} md={4} className="dates">
                           <Typography
                             variant="h6"
                             component="h6"
                             className="tx1"
                           >
-                            Days to Open
+                            Availability
                           </Typography>
-                          <Typography
-                            variant="h6"
-                            component="h6"
-                            className="tx2"
-                          >
-                            Monday - Saterday
-                          </Typography>
-                          <Typography
-                            variant="h6"
-                            component="h6"
-                            className="tx3"
-                          >
-                            09:00 AM - 02:00 PM
-                          </Typography>
-                          <Typography
-                            variant="h6"
-                            component="h6"
-                            className="tx2"
-                          >
-                            Sunday
-                          </Typography>
-                          <Typography
-                            variant="h6"
-                            component="h6"
-                            className="tx3"
-                          >
-                            06:00 PM - 09:00 PM
-                          </Typography>
+                          {doctorData && doctorData.availability
+                            ? doctorData.availability.map((slot, index) => (
+                                <div key={index}>
+                                  <Typography
+                                    variant="h6"
+                                    component="h6"
+                                    className="tx2"
+                                  >
+                                    {slot.day}
+                                  </Typography>
+                                  <Typography
+                                    variant="h6"
+                                    component="h6"
+                                    className="tx3"
+                                  >
+                                    {slot.startTime} - {slot.endTime}
+                                  </Typography>
+                                </div>
+                              ))
+                            : "No Availability"}
                         </Grid>
                         <Grid item xs={12} sm={6} md={4} className="dates">
                           <Typography
@@ -674,9 +659,8 @@ export default function DrProfile() {
                         className="tx2"
                         sx={{ display: "flex", marginTop: "10px" }}
                       >
-                        Home visits available in New Delhi and Gurgaon only
-                        subject to doctor availability. To schedule home visit,
-                        please call 011-4118 3001.
+                        Home visits available in New Delhi and Gurgaon only,
+                        subject to doctor availability.
                       </Typography>
                     </Box>
                   </div>
@@ -693,21 +677,13 @@ export default function DrProfile() {
                 aria-label="appoint"
                 sx={{
                   background: "#e8e8e8",
-                  "& .MuiTabs-indicator": {
-                    display: "none", // Hide default indicator
-                  },
+                  "& .MuiTabs-indicator": { display: "none" },
                   "& .MuiTab-root": {
-                    textTransform: "none", // Avoid uppercase text transformation
-                    borderRadius: "0px", // Make the tabs pill-shaped
-                    margin: "0 0px", // Add some spacing between the tabs
-                    minHeight: "48px", // Minimum height for the tab
+                    textTransform: "none",
                     backgroundColor: "#f0f0f5",
-                    borderBottom: "0px solid #20ada0",
-                    color: "#000",
-                    // Default background color
                     "&.Mui-selected": {
-                      backgroundColor: "#fff", // Background color for the selected tab
-                      color: "#20ada0", // Text color for the selected tab
+                      backgroundColor: "#fff",
+                      color: "#20ada0",
                       borderLeft: "1px solid #20ada0",
                       borderRight: "1px solid #20ada0",
                       borderTop: "1px solid #20ada0",
@@ -716,7 +692,10 @@ export default function DrProfile() {
                 }}
               >
                 <Tab label="Video" />
-                <Tab label="Clinic" />
+                <Tab
+                  label="Clinic"
+                  onClick={(e) => handleClinicTabClick(e, 1)}
+                />
               </Tabs>
 
               <Box sx={{ p: 3 }}>
@@ -726,7 +705,6 @@ export default function DrProfile() {
                       <Typography variant="h6" component="h6" className="tx1">
                         Available Tomorrow
                       </Typography>
-
                       <ul className="time_box">
                         <li>03:00 PM</li>
                         <li>06:00 PM</li>
@@ -744,7 +722,6 @@ export default function DrProfile() {
                       <Typography variant="h6" component="h6" className="tx2">
                         Delhi, Gurugram
                       </Typography>
-
                       <ul className="time_box">
                         <li>03:00 PM</li>
                         <li>06:00 PM</li>
@@ -762,54 +739,3 @@ export default function DrProfile() {
     </Drprofwrapper>
   );
 }
-
-const drlist = [
-  {
-    drsrc: "../assets/images/drRanjanaSharma.jpg",
-    name: "Dr. Ranjana Sharma",
-    type: "General Physician",
-    work: "MS GR Medical College, Gwalior",
-    exep: "42+ years of experience",
-    lang: "Hindi, English, Bit of Arabic",
-    rating: "Rating 4.5",
-    button1: "View Profile",
-    button2: "Book Appointment",
-    onsultationfee: "Consultation Fees",
-    rs: "500",
-  },
-  {
-    drsrc: "../assets/images/drNidhiSharma.jpg",
-    name: "Dr. Nidhi Sharma",
-    type: "General Physician",
-    work: "MS (Obgyn) PGIMS, Rohtak",
-    exep: "13+ years of experience",
-    lang: "Speaks Hindi, English, French, Punjabi, Marathi",
-    rating: "Rating 4.5",
-    button1: "View Profile",
-    button2: "Book Appointment",
-    onsultationfee: "Consultation Fees",
-    rs: "700",
-  },
-  {
-    drsrc: "../assets/images/niranjanaDr.jpg",
-    name: "Dr.Niranjana Jayakrishnan",
-    type: "General Physician",
-    work: "MD Amrita Vishwa Vidyapeetham University, Kochi",
-    exep: "13+ years of experience",
-    lang: "Speaks Hindi, English, French, Punjabi, Marathi",
-    rating: "Rating 4.5",
-    button1: "View Profile",
-    button2: "Book Appointment",
-    onsultationfee: "Consultation Fees",
-    rs: "1000",
-  },
-];
-
-const currencies = [
-  {
-    location: "Haldwani",
-  },
-  {
-    location: "Dehradun",
-  },
-];

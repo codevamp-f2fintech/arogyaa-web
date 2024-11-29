@@ -1,12 +1,35 @@
-import { Box, Typography } from "@mui/material";
+"use client";
 
+import { Box, Typography } from "@mui/material";
 import SliderComponent from "./common/SliderComponent";
+
 import en from "@/locales/en.json";
 import styles from "../page.module.css";
-
-import { images } from "@/static-data";
+import { useGetTestimonial } from "@/hooks/testimonial";
+import { Testimonial } from "@/types/testimonial";
 
 const Testimonials: React.FC = () => {
+  const {
+    data: testimonials,
+    swrLoading,
+    error,
+  } = useGetTestimonial([], "http://localhost:3001/api/v1/get-testimonials");
+
+  if (swrLoading) return <p>Loading testimonials...</p>;
+  if (error) return <p>Failed to load testimonials. Please try again later.</p>;
+
+  const mappedTestimonials = testimonials.map((testimonial: Testimonial) => ({
+    src:
+      testimonial.src ||
+      "/assets/images/portrait-young-woman-doctor-with-stethoscope-uniform (1).png",
+    srcquote:
+      testimonial.srcquote || "/assets/images/icons8-quote-left-100.png",
+    description: testimonial.description,
+    name: testimonial.patientName,
+    age: testimonial.age || "Unknown",
+    rating: testimonial.rating || 0,
+  }));
+
   return (
     <Box
       className={`${styles.testimonialsSection} ${styles.testimonialsBackground}`}
@@ -19,7 +42,8 @@ const Testimonials: React.FC = () => {
           {en.homepage.testimonials.title2}
         </Typography>
       </Box>
-      <SliderComponent images={images} />
+
+      <SliderComponent images={mappedTestimonials} />
     </Box>
   );
 };

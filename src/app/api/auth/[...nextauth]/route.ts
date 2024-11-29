@@ -4,9 +4,9 @@ import TwitterProvider from "next-auth/providers/twitter";
 import FacebookProvider from "next-auth/providers/facebook";
 import { Session } from "next-auth";
 import { JWT } from "next-auth/jwt";
-import { creator } from "@/apis/apiClient";
+import { creator, fetcher } from "@/apis/apiClient";
 
-const url = "/v1/create-patient";
+const url = "/v1/patient-service/create-patient";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -29,34 +29,57 @@ export const authOptions: NextAuthOptions = {
         username: user.name,
         email: user.email,
         phone: "",
-        gender: "",
+        gender: "male",
         dob: "",
         city: "",
       };
 
+      console.log("user",user);
+      const checkResponse = await fetcher(`/v1/patient-service/get-patient-by-email/${user.email}`);
+      console.log("checkResponse", checkResponse);
       try {
-        // Call the creator method to send data to the API
-        await creator(url, patientData);
-      } catch (error) {}
+        if (checkResponse.message !== 'No patient data found') {
+          user.user_id = checkResponse._id;
+        } else {
+          console.log("this runs at ease");
+          const createResponse: any = await creator(url, patientData);
+          user.user_id = createResponse._id;
+        }
+      } catch (error) {
+        console.error("Error during sign-in:", error);
+        return false;
+      }
 
-      // Return true to allow the sign-in to proceed
       return true;
     },
 
     async redirect({ url, baseUrl }) {
-      // Redirect to homepage after sign-in
       return baseUrl;
+    },
+
+    async jwt({ token, user }) {
+      if (user) {
+        token.userId = user.user_id;
+      }
+      return token;
     },
 
     async session({ session, token }: { session: Session; token: JWT }) {
       // Add user ID or any other custom info to the session
       session.user.id = token.sub;
+      session.user.user_id = token.userId;
       return session;
     },
-  },
 
+  },
+  events: {
+    async signOut({ session, token }) {
+      // You can add custom logic here that runs when a user signs out
+      console.log("User signed out")
+    }
+  }
   // pages: {
-  //   error: '/', // Redirect to the home page on error
+  //   error: '/',
   // },
 };
 
