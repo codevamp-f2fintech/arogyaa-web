@@ -5,6 +5,7 @@ import FacebookProvider from "next-auth/providers/facebook";
 import { Session } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import { creator, fetcher } from "@/apis/apiClient";
+import { Password } from "@mui/icons-material";
 
 const url = "/v1/patient-service/create-patient";
 
@@ -31,14 +32,17 @@ export const authOptions: NextAuthOptions = {
         phone: "",
         gender: "male",
         dob: "",
+        password: "Monis@123",
         city: "",
       };
 
-      console.log("user",user);
-      const checkResponse = await fetcher(`/v1/patient-service/get-patient-by-email/${user.email}`);
+      console.log("patientData", patientData);
+      const checkResponse = await fetcher(
+        `/v1/patient-service/get-patient-by-email/${user.email}`
+      );
       console.log("checkResponse", checkResponse);
       try {
-        if (checkResponse.message !== 'No patient data found') {
+        if (checkResponse.message !== "No patient data found") {
           user.user_id = checkResponse._id;
         } else {
           console.log("this runs at ease");
@@ -70,14 +74,13 @@ export const authOptions: NextAuthOptions = {
       session.user.user_id = token.userId;
       return session;
     },
-
   },
   events: {
     async signOut({ session, token }) {
       // You can add custom logic here that runs when a user signs out
-      console.log("User signed out")
-    }
-  }
+      console.log("User signed out");
+    },
+  },
   // pages: {
   //   error: '/',
   // },
