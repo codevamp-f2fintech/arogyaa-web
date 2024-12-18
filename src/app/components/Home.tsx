@@ -9,12 +9,8 @@ const SymptomCards = dynamic(() => import("./SymptomCards"));
 const AboutUs = dynamic(() => import("./AboutUs"));
 const Testimonials = dynamic(() => import("./Testimonials"));
 const BannerBottom = dynamic(() => import("./BannerBottom"));
-import { authOptions } from "../api/auth/[...nextauth]/route";
-import { getServerSession } from "next-auth";
 
 const Home = async() => {
-  const session = await getServerSession(authOptions);
-  console.log("session is", session);
   return (
     <>
       <BannerComponent />

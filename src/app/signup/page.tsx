@@ -14,6 +14,12 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
+import PersonIcon from "@mui/icons-material/Person";
+import LooksOneIcon from "@mui/icons-material/LooksOne";
+import EmailIcon from "@mui/icons-material/Email";
+import PhoneIcon from "@mui/icons-material/Phone";
+import WcIcon from "@mui/icons-material/Wc";
+import LockIcon from "@mui/icons-material/Lock";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import SnackbarComponent from "../Components/common/Snackbar";
 import { useDispatch, useSelector } from "react-redux";
@@ -23,6 +29,7 @@ import { Utility } from "@/utils";
 const Signup = () => {
   const [formData, setFormData] = useState({
     username: "",
+    age: "",
     email: "",
     phone: "",
     gender: "",
@@ -32,6 +39,7 @@ const Signup = () => {
 
   const [errors, setErrors] = useState({
     username: "",
+    age: "",
     email: "",
     phone: "",
     gender: "",
@@ -54,6 +62,18 @@ const Signup = () => {
     // Username validation
     if (!formData.username) {
       newErrors.username = "Full name is required.";
+      isValid = false;
+    }
+
+    // Age validation
+    if (!formData.age) {
+      newErrors.age = "Age is required.";
+      isValid = false;
+    } else if (!/^\d+$/.test(formData.age)) {
+      newErrors.age = "Age must be a valid number.";
+      isValid = false;
+    } else if (parseInt(formData.age) < 18 || parseInt(formData.age) > 100) {
+      newErrors.age = "Age must be between 18 and 100.";
       isValid = false;
     }
 
@@ -220,9 +240,9 @@ const Signup = () => {
             color: "#449AC8",
           }}
         >
-          Welcome To Arogyaa
+          Please Fill Patient Details
         </Typography>
-        <Typography
+        {/* <Typography
           variant="subtitle1"
           sx={{
             mb: 1,
@@ -230,7 +250,7 @@ const Signup = () => {
           }}
         >
           Please Sign-Up To Your Account For Consult With Our Doctors
-        </Typography>
+        </Typography> */}
         <form onSubmit={handleSubmit}>
           <Box
             display="grid"
@@ -241,34 +261,84 @@ const Signup = () => {
               style={{ marginTop: 10 }}
               fullWidth
               name="username"
-              label="Full Name"
+              label="Name"
               variant="outlined"
+              autoComplete="off" // Turn off autofill
               onChange={handleChange}
               value={formData.username}
               error={!!errors.username}
               helperText={errors.username}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PersonIcon />
+                  </InputAdornment>
+                ),
+              }}
             />
+
+            {/* Age Field */}
+            <TextField
+              style={{ marginTop: 10 }}
+              fullWidth
+              name="age"
+              label="Age"
+              variant="outlined"
+              autoComplete="off" // Turn off autofill
+              onChange={handleChange}
+              value={formData.age}
+              error={!!errors.age}
+              helperText={errors.age}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LooksOneIcon /> {/* Number icon */}
+                  </InputAdornment>
+                ),
+              }}
+            />
+
             <TextField
               style={{ marginTop: 10 }}
               fullWidth
               name="email"
-              label="Email Address"
+              label="Email"
               variant="outlined"
+              autoComplete="off" // Turn off autofill
               onChange={handleChange}
               value={formData.email}
               error={!!errors.email}
               helperText={errors.email}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <EmailIcon />
+                  </InputAdornment>
+                ),
+                style: { overflow: "visible", textOverflow: "ellipsis" }, // Show full text
+              }}
+              inputProps={{
+                style: { whiteSpace: "nowrap", overflow: "visible" }, // Ensure no clipping
+              }}
             />
             <TextField
               style={{ marginTop: 10 }}
               fullWidth
               name="phone"
-              label="Phone Number"
+              label="Contact"
               variant="outlined"
+              autoComplete="off" // Turn off autofill
               onChange={handleChange}
               value={formData.phone}
               error={!!errors.phone}
               helperText={errors.phone}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PhoneIcon />
+                  </InputAdornment>
+                ),
+              }}
             />
             <FormControl
               fullWidth
@@ -281,6 +351,11 @@ const Signup = () => {
                 value={formData.gender}
                 onChange={handleChange}
                 label="Gender"
+                startAdornment={
+                  <InputAdornment position="start">
+                    <WcIcon />
+                  </InputAdornment>
+                }
                 sx={{
                   textAlign: "left", // Align the select box label and selected value to the left
                 }}
@@ -318,6 +393,11 @@ const Signup = () => {
               error={!!errors.password}
               helperText={errors.password}
               InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockIcon /> {/* Password icon */}
+                  </InputAdornment>
+                ),
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
@@ -342,6 +422,24 @@ const Signup = () => {
               value={formData.confirmPassword}
               error={!!errors.confirmPassword}
               helperText={errors.confirmPassword}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockIcon /> {/* Lock icon */}
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={toggleShowConfirmPassword}
+                      edge="end"
+                      aria-label="toggle password visibility"
+                    >
+                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
             <Button
               type="submit"

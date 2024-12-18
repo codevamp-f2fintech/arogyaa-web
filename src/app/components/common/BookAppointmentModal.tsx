@@ -358,7 +358,7 @@ function ModalOne({ isOpen, onClose }: ModalProps) {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <ModalHeader>
+          <ModalHeader >
             <Typography id="" variant="h6" component="h2" className="tx1">
               Book Appointment
             </Typography>
