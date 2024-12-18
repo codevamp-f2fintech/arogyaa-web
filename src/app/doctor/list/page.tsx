@@ -17,7 +17,7 @@ import {
 import styled from "styled-components";
 import Header from "../../components/common/Topbar";
 import Footer from "../../components/common/Footer";
-import { useGetdoctorlist } from "@/hooks/doctorlist";
+import { useGetdoctorlist } from "@/hooks/doctor";
 
 export default function BasicSelect() {
   const [selectedValue, setSelectedValue] = useState("");
@@ -393,7 +393,7 @@ export default function BasicSelect() {
                         },
                       }}
                     >
-                      Book Appointment
+                      Book Appointment11 
                     </Button>
                   </Box>
                 </Box>
@@ -495,7 +495,7 @@ const drlist = [
     lang: "Hindi, English, Bit of Arabic",
     rating: "Rating 4.5",
     button1: "View Profile",
-    button2: "Book Appointment",
+    button2: "Book Appointment2",
     onsultationfee: "Consultation Fees",
     rs: "500",
   },
@@ -508,7 +508,7 @@ const drlist = [
     lang: "Speaks Hindi, English, French, Punjabi, Marathi",
     rating: "Rating 4.5",
     button1: "View Profile",
-    button2: "Book Appointment",
+    button2: "Book Appointment3",
     onsultationfee: "Consultation Fees",
     rs: "700",
   },
@@ -521,7 +521,7 @@ const drlist = [
     lang: "Speaks Hindi, English, French, Punjabi, Marathi",
     rating: "Rating 4.5",
     button1: "View Profile",
-    button2: "Book Appointment",
+    button2: "Book Appointment4",
     onsultationfee: "Consultation Fees",
     rs: "1000",
   },
