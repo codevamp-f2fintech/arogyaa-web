@@ -14,10 +14,11 @@ import {
   Button,
   TextField,
 } from "@mui/material";
+import ChatIcon from "@mui/icons-material/Chat";
 import styled from "styled-components";
 import Header from "../../components/common/Topbar";
 import Footer from "../../components/common/Footer";
-import { useGetdoctorlist } from "@/hooks/doctor";
+import { useGetDoctor } from "@/hooks/doctor";
 
 export default function BasicSelect() {
   const [selectedValue, setSelectedValue] = useState("");
@@ -27,10 +28,14 @@ export default function BasicSelect() {
   };
 
   const {
-    data: doctorList,
+    value: doctorList,
     swrLoading,
     error,
-  } = useGetdoctorlist([], "http://localhost:5050/api/doctor/get");
+    refetch,
+  } = useGetDoctor(
+    [],
+    "http://localhost:4004/api/v1/doctor-service/get-doctors?page=1&limit=6"
+  );
 
   const DoctorList = styled.div`
     padding: 50px;
@@ -294,111 +299,70 @@ export default function BasicSelect() {
       <DocListItem>
         <Grid container spacing={3}>
           <Grid item xs={12} sm={8} md={8}>
-            {doctorList.map((doctor) => (
-              <Paper className="box_wrp" key={doctor._id}>
-                <Box className="dr_cir_canv_wrp">
-                  <Box
-                    component="img"
-                    className="dr_cir_canv"
-                    alt={doctor.username}
-                    // You can use a placeholder image if no image URL is provided in the API
-                    src={"../assets/images/drRanjanaSharma.jpg"}
-                  />
-                </Box>
-                <Box className="dr_cat_action_wrp">
-                  <Box className="dr_cap">
-                    <Typography variant="h4" component="h4" className="t1">
-                      {doctor.username || "Unknown Doctor"}
-                    </Typography>
-                    {/* Replace bio with specializationId and qualificationIds */}
-                    <Typography variant="h6" component="h6" className="t2">
-                      Specialization:{" "}
-                      {doctor.specializationId?.join(", ") || "Not available"}
-                    </Typography>
-                    <Typography variant="h6" component="h6" className="t2">
-                      Qualifications:{" "}
-                      {doctor.qualificationIds?.join(", ") || "Not available"}
-                    </Typography>
-                    <Box className="expr">
-                      <Typography variant="h6" component="span" className="t3">
-                        {doctor.experienceYears
-                          ? `${doctor.experienceYears} years of experience`
-                          : "Experience not available"}
+            {Array.isArray(doctorList?.results) ? (
+              doctorList.results.map((doctor: any) => (
+                <Paper className="box_wrp" key={doctor._id}>
+                  <Box className="dr_cir_canv_wrp">
+                    <Box
+                      component="img"
+                      className="dr_cir_canv"
+                      alt={doctor.username}
+                      src={
+                        doctor.profilePicture ||
+                        "../assets/images/defaultDoctor.jpg"
+                      }
+                    />
+                  </Box>
+                  <Box className="dr_cat_action_wrp">
+                    <Box className="dr_cap">
+                      <Typography variant="h4" className="t1">
+                        {doctor.username || "Unknown Doctor"}
                       </Typography>
-                      <span className="exp_hrlne">|</span>
-                      <Typography variant="h6" component="span" className="t3">
-                        {doctor.languages
-                          ? doctor.languages.join(", ")
-                          : "Languages not available"}
+                      <Typography variant="h6" className="t2">
+                        Specialization: {doctor.bio || "Not available"}
                       </Typography>
+                      <Typography variant="h6" className="t2">
+                        Qualifications:{" "}
+                        {doctor.qualificationIds?.join(", ") || "Not available"}
+                      </Typography>
+                      <Box className="expr">
+                        <Typography variant="h6" className="t3">
+                          {doctor.experienceYears != null
+                            ? `${doctor.experienceYears} years of experience`
+                            : "Experience not available"}
+                        </Typography>
+
+                        <span className="exp_hrlne">|</span>
+                        <Typography variant="h6" className="t3">
+                          {doctor.availibility?.length > 0
+                            ? doctor.languagesSpoken.join(", ")
+                            : "Languages not available"}
+                        </Typography>
+                      </Box>
                     </Box>
-                    <Box className="star_ico_wrp">
-                      <Typography variant="h6" component="span" className="t3">
-                        {doctor.rating || "No rating available"}
-                      </Typography>
-                      <span className="exp_hrlne">|</span>
-                      {[...Array(4)].map((_, index) => (
-                        <Box
-                          key={index}
-                          component="img"
-                          className="star_ico"
-                          alt="Rating Star"
-                          src={"../assets/images/star-fill.png"}
-                        />
-                      ))}
-                      <Box
-                        component="img"
-                        className="star_ico"
-                        alt="Half Rating Star"
-                        src={"../assets/images/half-star.png"}
-                      />
+                    <Box sx={{ textAlign: "right", marginTop: "15px" }}>
+                      <Link href={`/appointment/chat`} passHref>
+                        <Button
+                          variant="contained"
+                          startIcon={<ChatIcon />}
+                          sx={{
+                            backgroundColor: "#20ADA0",
+                            color: "#fff",
+                            borderRadius: "20px",
+                            ":hover": { backgroundColor: "#1a8c80" },
+                          }}
+                          onClick={() => console.log("Doctor ID:", doctor._id)}
+                        >
+                          Chat
+                        </Button>
+                      </Link>
                     </Box>
                   </Box>
-                  <Box className="dr_action">
-                    <Typography variant="h6" component="span" className="t1">
-                      Consultation Fee{" "}
-                      <span>₹{doctor.consultationFee || 500}</span>
-                    </Typography>
-                    <Link
-                      href={`/doctor/profile?id=${doctor._id}`}
-                      className="dr_action"
-                      passHref
-                    >
-                      <Button
-                        variant="contained"
-                        sx={{
-                          marginTop: 2,
-                          width: "auto",
-                          color: "#fff",
-                          background: "#20ADA0",
-                          ":hover": {
-                            bgcolor: "#20ADA0",
-                            color: "white",
-                          },
-                        }}
-                      >
-                        view profile
-                      </Button>
-                    </Link>
-                    <Button
-                      variant="contained"
-                      sx={{
-                        marginTop: 2,
-                        width: "auto",
-                        color: "#fff",
-                        background: "#20ADA0",
-                        ":hover": {
-                          bgcolor: "#20ADA0",
-                          color: "white",
-                        },
-                      }}
-                    >
-                      Book Appointment11 
-                    </Button>
-                  </Box>
-                </Box>
-              </Paper>
-            ))}
+                </Paper>
+              ))
+            ) : (
+              <Typography>No doctors available</Typography>
+            )}
           </Grid>
 
           {/* Right Column Content */}

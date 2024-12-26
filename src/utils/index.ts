@@ -1,9 +1,12 @@
 import { AlertColor } from "@mui/material/Alert";
-
 import { User } from "@/types/user";
 import { setSnackbar } from "@/redux/features/snackbarSlice";
+import { io, Socket } from "socket.io-client";
 
 export const Utility = () => {
+  // WebSocket instance
+  let socket: Socket | null = null;
+
   /**
    * Fetches data from a given API endpoint.
    * @param {string} url - The base URL of the API endpoint.
@@ -88,10 +91,10 @@ export const Utility = () => {
     msg: string,
     navigateTo: Function | null = null,
     path: string | null = null,
-    reload = false
+    reload = false,
   ): void => {
     dispatch(
-        setSnackbar({
+      setSnackbar({
         snackbarAlert: display,
         snackbarSeverity: severity,
         snackbarMessage: msg,
@@ -114,12 +117,70 @@ export const Utility = () => {
     }, 2500);
   };
 
+  /**
+   * Initializes a WebSocket connection.
+   * @param {string} url - The WebSocket server URL.
+   * @param {(event: any) => void} onMessage - Callback for handling incoming messages.
+   * @returns {void}
+   */
+  const initSocket = (url: string, onMessage: (event: any) => void): void => {
+    if (socket) {
+      console.warn("WebSocket connection already initialized.");
+      return;
+    }
+
+    socket = io(url);
+
+    socket.on("connect", () => {
+      console.log("WebSocket connected:", socket?.id);
+    });
+
+    socket.on("message", (message) => {
+      console.log("WebSocket message received:", message);
+      onMessage(message);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("WebSocket disconnected.");
+    });
+
+    socket.on("error", (error) => {
+      console.error("WebSocket error:", error);
+    });
+  };
+
+  /**
+   * Sends a message via WebSocket.
+   * @param {string} event - The event name.
+   * @param {any} data - The data to send with the event.
+   */
+  const sendMessage = (event: string, data: any): void => {
+    if (!socket) {
+      console.error("WebSocket is not initialized.");
+      return;
+    }
+
+    socket.emit(event, data);
+  };
+
+  /**
+   * Closes the WebSocket connection.
+   */
+  const closeSocket = (): void => {
+    if (socket) {
+      socket.disconnect();
+      socket = null;
+    }
+  };
+
   return {
     fetchData,
     getLocalStorage,
     remLocalStorage,
     setLocalStorage,
     snackbarAndNavigate,
-
+    initSocket,
+    sendMessage,
+    closeSocket,
   };
 };

@@ -284,7 +284,7 @@ export default function DrProfile() {
 
   const { data: doctorData, swrLoading } = useGetdoctorprofile(
     [],
-    `http://localhost:5050/api/doctor/get/${id}`
+    `http://localhost:4004/api/doctor/get/${id}`
   );
 
   const openModal = () => {
