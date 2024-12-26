@@ -81,7 +81,7 @@ const SpecialitySlider: React.FC = () => {
 
   const { data } = useGetSpecialities(
     [],
-    `http://localhost:3002/api/speciality/get-specialization?page=${pageSize.page}&limit=${pageSize.size}`
+    `http://localhost:4002/api/v1/speciality-service/get-specialities?page=${pageSize.page}&limit=${pageSize.size}`
   );
   console.log("data", data);
 

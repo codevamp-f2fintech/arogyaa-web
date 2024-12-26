@@ -9,7 +9,7 @@ import axios, { AxiosInstance, AxiosError, AxiosResponse } from "axios";
  * @type {AxiosInstance}
  */
 export const axiosInstance: AxiosInstance = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_PATIENT_URL}`,
+  baseURL: `${process.env.NEXT_PUBLIC_DOCTOR_URL}`,
   timeout: 40000,
   headers: {
     Accept: "application/json, text/plain, */*",

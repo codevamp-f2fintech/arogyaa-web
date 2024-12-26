@@ -23,7 +23,7 @@ const ExpertSpecialistSlider: React.FC = () => {
 
   const { data, swrLoading } = useGetexpert_specialist_doctor(
     [],
-    `http://localhost:5050/api/doctor/get`
+    `http://localhost:4004/api/v1/doctor-service/get-doctors`
   );
 
   const { expert_specialist_doctor, reduxLoading } = useSelector(

@@ -1,4 +1,3 @@
-// components/Modal.tsx
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
@@ -17,6 +16,7 @@ import {
   Autocomplete,
   SelectChangeEvent,
 } from "@mui/material";
+
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -358,7 +358,7 @@ function ModalOne({ isOpen, onClose }: ModalProps) {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <ModalHeader >
+          <ModalHeader>
             <Typography id="" variant="h6" component="h2" className="tx1">
               Book Appointment
             </Typography>
@@ -393,7 +393,6 @@ function ModalOne({ isOpen, onClose }: ModalProps) {
                     dirty,
                   }) => (
                     <form>
-
                       <FormControl fullWidth>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker

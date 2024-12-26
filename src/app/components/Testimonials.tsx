@@ -13,7 +13,10 @@ const Testimonials: React.FC = () => {
     data: testimonials,
     swrLoading,
     error,
-  } = useGetTestimonial([], "http://localhost:3001/api/v1/get-testimonials");
+  } = useGetTestimonial(
+    [],
+    "http://localhost:4008/api/v1/testimonial-service/get-testimonials"
+  );
 
   if (swrLoading) return <p>Loading testimonials...</p>;
   if (error) return <p>Failed to load testimonials. Please try again later.</p>;
