@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import useSWR, { mutate } from 'swr';
+import useSWR from 'swr';
 
 import { creator, fetcher, modifier } from '@/apis/apiClient';
 import { Doctor, DoctorData } from '@/types/doctor';
@@ -15,7 +15,7 @@ import { Doctor, DoctorData } from '@/types/doctor';
  * @param limit - The number of items per page.
  * @returns An object containing the fetched doctors, loading, error state, and refetch function.
  */
-export const useGetDoctor = (
+export const useGetDoctors = (
     initialData: Doctor | null,
     pathKey: string,
     page: number = 1,
@@ -23,28 +23,28 @@ export const useGetDoctor = (
 ) => {
     const url = `${pathKey}?page=${page}&limit=${limit}`;
 
-    const { data: swrData, error } = useSWR<Doctor | null>(
+    const { data: swrData, error, isValidating, mutate } = useSWR<Doctor>(
         url,
-        fetcher,
+        () => fetcher<Doctor>('doctor', url),
         {
             fallbackData: initialData,
-            refreshInterval: initialData ? 3600000 : 0, // 1 hour refresh if initialData exists
-            revalidateOnFocus: false,                  // Disable revalidation on window focus
+            refreshInterval: 3600000,
+            revalidateOnFocus: false,
         }
     );
 
-    // Manually re-trigger re-fetch
     const refetch = async (keyword?: string) => {
-        await mutate(`${url}&keyword=${keyword}`);
+        const searchEndpoint = `${url}${keyword ? `&keyword=${keyword}` : ""}`;
+        await mutate(searchEndpoint);
     };
-
     return {
         value: swrData || {
             results: [],
             count: 0,
             pages: 0,
+            errorMessage: null
         },
-        swrLoading: !error && !swrData,
+        swrLoading: !error && !swrData && isValidating,
         error,
         refetch
     };
@@ -65,7 +65,7 @@ export const useCreateDoctor = (pathKey: string) => {
         setError(null);
 
         try {
-            const doctor = await creator<DoctorData, Partial<DoctorData>>(pathKey, newDoctorData);
+            const doctor = await creator<DoctorData, Partial<DoctorData>>('doctor', pathKey, newDoctorData);
             return doctor;
         } catch (err) {
             setError(err as Error);
@@ -73,7 +73,6 @@ export const useCreateDoctor = (pathKey: string) => {
             setLoading(false);
         }
     };
-
     return { loading, error, createDoctor };
 };
 
@@ -92,7 +91,7 @@ export const useModifyDoctor = (pathKey: string) => {
         setError(null);
 
         try {
-            const doctor = await modifier<DoctorData, Partial<DoctorData>>(pathKey, updatedDoctorData);
+            const doctor = await modifier<DoctorData, Partial<DoctorData>>('doctor', pathKey, updatedDoctorData);
             return doctor;
         } catch (err) {
             setError(err as Error);
@@ -100,6 +99,5 @@ export const useModifyDoctor = (pathKey: string) => {
             setLoading(false);
         }
     };
-
     return { loading, error, modifyDoctor };
 };

@@ -79,18 +79,18 @@ const Topbar = () => {
   }, [token]);
 
   //fetch api
-  const { data } = useGetNotifications(
-    [],
-    `http://localhost:3004/api/notifications/get-notifications/60d9caed6f70c40b7cdcb867`
-  );
+  // const { data } = useGetNotifications(
+  //   [],
+  //   `http://localhost:3004/api/notifications/get-notifications/60d9caed6f70c40b7cdcb867`
+  // );
 
-  let dataArray = Array.isArray(data) ? data : [data];
+  let dataArray = [1, 2, 3, 4, 5];
 
-  useEffect(() => {
-    if (dataArray && dataArray.length > 0) {
-      dispatch(setNotifications(dataArray));
-    }
-  }, [data, dispatch]);
+  // useEffect(() => {
+  //   if (dataArray && dataArray.length > 0) {
+  //     dispatch(setNotifications(dataArray));
+  //   }
+  // }, [data, dispatch]);
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);

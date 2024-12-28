@@ -9,29 +9,29 @@ import { useGetTestimonial } from "@/hooks/testimonial";
 import { Testimonial } from "@/types/testimonial";
 
 const Testimonials: React.FC = () => {
-  const {
-    data: testimonials,
-    swrLoading,
-    error,
-  } = useGetTestimonial(
-    [],
-    "http://localhost:4008/api/v1/testimonial-service/get-testimonials"
-  );
+  // const {
+  //   data: testimonials,
+  //   swrLoading,
+  //   error,
+  // } = useGetTestimonial(
+  //   [],
+  //   "http://localhost:4008/api/v1/testimonial-service/get-testimonials"
+  // );
 
-  if (swrLoading) return <p>Loading testimonials...</p>;
-  if (error) return <p>Failed to load testimonials. Please try again later.</p>;
+  // if (swrLoading) return <p>Loading testimonials...</p>;
+  // if (error) return <p>Failed to load testimonials. Please try again later.</p>;
 
-  const mappedTestimonials = testimonials.map((testimonial: Testimonial) => ({
-    src:
-      testimonial.src ||
-      "/assets/images/portrait-young-woman-doctor-with-stethoscope-uniform (1).png",
-    srcquote:
-      testimonial.srcquote || "/assets/images/icons8-quote-left-100.png",
-    description: testimonial.description,
-    name: testimonial.patientName,
-    age: testimonial.age || "Unknown",
-    rating: testimonial.rating || 0,
-  }));
+  // const mappedTestimonials = testimonials.map((testimonial: Testimonial) => ({
+  //   src:
+  //     testimonial.src ||
+  //     "/assets/images/portrait-young-woman-doctor-with-stethoscope-uniform (1).png",
+  //   srcquote:
+  //     testimonial.srcquote || "/assets/images/icons8-quote-left-100.png",
+  //   description: testimonial.description,
+  //   name: testimonial.patientName,
+  //   age: testimonial.age || "Unknown",
+  //   rating: testimonial.rating || 0,
+  // }));
 
   return (
     <Box
@@ -46,7 +46,7 @@ const Testimonials: React.FC = () => {
         </Typography>
       </Box>
 
-      <SliderComponent images={mappedTestimonials} />
+      <SliderComponent images={null} />
     </Box>
   );
 };

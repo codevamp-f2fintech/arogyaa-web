@@ -2,13 +2,12 @@ import { configureStore } from "@reduxjs/toolkit";
 
 import notificationsReducer from "./features/notificationsSlice";
 import snackbarReducer from "./features/snackbarSlice";
-import specialitiesReducer from "./features/specialitiesSlice";
+import specialitiesReducer from "./features/specialitySlice";
 import symptomsReducer from "./features/symptomsSlice";
 import userReducer from "./features/userSlice";
 import testimonialReducer from "./features/testimonialSlice";
 import doctorprofileReducer from "./features/doctorprofileSlice";
-import doctorlistReducer from "./features/doctorSlice";
-import expert_specialist_doctorReducer from "./features/expert_specialist_doctorSlice";
+import doctorReducer from "./features/doctorSlice";
 import chatReducer from "./features/chatSlice";
 import patientReducer from "./features/patientSlice";
 
@@ -21,10 +20,9 @@ export const store = configureStore({
     user: userReducer,
     testimonial: testimonialReducer,
     doctorprofile: doctorprofileReducer,
-    doctorlist: doctorlistReducer,
+    doctors: doctorReducer,
     chatlist: chatReducer,
-    patient: patientReducer,
-    expert_specialist_doctor: expert_specialist_doctorReducer,
+    patient: patientReducer
   },
 });
 

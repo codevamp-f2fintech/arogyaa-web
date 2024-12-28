@@ -136,42 +136,42 @@ const symptomsList = [
   {
     title: "Cough, Cold or Fever",
     Consult: "Consult Now",
-    image: "../assets/images/symtems/fever.png",
+    image: "../assets/images/symptoms/fever.png",
   },
   {
     title: "Period doubts or Pregnancy",
     Consult: "Consult Now",
-    image: "../assets/images/symtems/pregnancy.png",
+    image: "../assets/images/symptoms/pregnancy.png",
   },
   {
     title: "Acne, pimple or skin issues",
     Consult: "Consult Now",
-    image: "../assets/images/symtems/skin.png",
+    image: "../assets/images/symptoms/skin.png",
   },
   {
     title: "Child not feeling well",
     Consult: "Consult Now",
-    image: "../assets/images/symtems/child.png",
+    image: "../assets/images/symptoms/child.png",
   },
   {
     title: "Depression or anxiety",
     Consult: "Consult Now",
-    image: "../assets/images/symtems/depression.png",
+    image: "../assets/images/symptoms/depression.png",
   },
   {
     title: "Weight Lose",
     Consult: "Consult Now",
-    image: "../assets/images/symtems/scale.png",
+    image: "../assets/images/symptoms/scale.png",
   },
   {
     title: "Stomach Issue",
     Consult: "Consult Now",
-    image: "../assets/images/symtems/stomach.png",
+    image: "../assets/images/symptoms/stomach.png",
   },
   {
     title: "Vaginal infections",
     Consult: "Consult Now",
-    image: "../assets/images/symtems/Vaginalinfections.png",
+    image: "../assets/images/symptoms/Vaginalinfections.png",
   },
 ];
 

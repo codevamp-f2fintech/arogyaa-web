@@ -10,36 +10,37 @@ import { RootState } from "@/redux/store";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-import {
-  setexpert_specialist_doctor,
-  setLoading,
-} from "@/redux/features/expert_specialist_doctorSlice";
-import { useGetexpert_specialist_doctor } from "@/hooks/expert_specialist_doctor";
+import { setDoctor } from "@/redux/features/doctorSlice";
+import { useGetDoctors } from "@/hooks/doctor";
 import styles from "../page.module.css";
 import en from "@/locales/en.json";
+import Loader from "./common/Loader";
 
 const ExpertSpecialistSlider: React.FC = () => {
+  const { doctor, reduxLoading } = useSelector(
+    (state: RootState) => state.doctors
+  );
   const dispatch = useDispatch();
 
-  const { data, swrLoading } = useGetexpert_specialist_doctor(
-    [],
-    `http://localhost:4004/api/v1/doctor-service/get-doctors`
-  );
+  const {
+    value: data,
+    swrLoading,
+  } = useGetDoctors(null, "get-doctors", 1, 6);
 
-  const { expert_specialist_doctor, reduxLoading } = useSelector(
-    (state: RootState) => state.expert_specialist_doctor
-  );
+  console.log(data, "api doctor");
+  console.log(doctor, "redux doctor");
 
+  // Update Redux store with fetched data
   useEffect(() => {
-    if (data && data.length > 0) {
-      dispatch(setexpert_specialist_doctor(data));
+    if (data && data.results && data.results.length > 0) {
+      dispatch(setDoctor(data));
     }
-    dispatch(setLoading(swrLoading));
-  }, [data, swrLoading, dispatch]);
+  }, [data, dispatch]);
+
 
   const sliderSettings = {
     dots: true,
-    infinite: true,
+    infinite: false,
     speed: 500,
     slidesToShow: 4,
     slidesToScroll: 1,
@@ -85,11 +86,11 @@ const ExpertSpecialistSlider: React.FC = () => {
       </Box>
 
       {reduxLoading || swrLoading ? (
-        <Typography variant="h6">Loading...</Typography>
+        <Loader />
       ) : (
         <>
           <Slider {...sliderSettings} className={styles.slider}>
-            {expert_specialist_doctor.map((doctor) => (
+            {doctor?.results?.map((doctor) => (
               <div key={doctor._id}>
                 <Paper
                   className={styles.specialistCardShort}
@@ -104,7 +105,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                     className={styles.doctorImage}
                     alt={doctor.username}
                     src={
-                      doctor.imageUrl || // Add image URL from API if available
+                      // Add image URL from API if available
                       "../assets/images/portrait-young-woman-doctor-with-stethoscope-uniform (1).png"
                     }
                   />
@@ -133,7 +134,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                     component="p"
                     className={styles.experience}
                   >
-                    {doctor.experienceYears} years of experience
+                    {doctor.experience} years of experience
                   </Typography>
                   <Typography
                     variant="body2"
@@ -152,7 +153,7 @@ const ExpertSpecialistSlider: React.FC = () => {
             className={styles.buttonWrapper}
             style={{ textAlign: "center", marginTop: "20px" }}
           >
-            <Link href={`/doctor/list`}>
+            <Link href={`/doctor`}>
               <Button
                 variant="contained"
                 className={styles.learnMoreButton}

@@ -1,3 +1,4 @@
+import styles from "../page.module.css";
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 import {
   Box,
@@ -10,11 +11,9 @@ import {
 } from "@mui/material";
 
 import en from "@/locales/en.json";
-import styles from "../page.module.css";
 
 const BannerComponent: React.FC = () => {
 
-  console.log("styles.bannerCardContent", styles.bannerCardContent);
   return (
     <div className={styles.homeBanner}>
       <div className={styles.bannerContent}>

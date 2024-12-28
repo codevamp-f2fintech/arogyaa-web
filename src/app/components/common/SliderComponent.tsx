@@ -36,7 +36,7 @@ const SliderComponent: React.FC<SliderComponentProps> = ({ images }) => {
   return (
     <Box className={styles.sliderContainer}>
       <Box className={styles.sliderForBox}>
-        <Slider {...settingsFor} ref={sliderForRef}>
+        {/* <Slider {...settingsFor} ref={sliderForRef}>
           {images.map((image, index) => (
             <Paper key={index} className={styles.sliderForPaper}>
               <img
@@ -65,11 +65,11 @@ const SliderComponent: React.FC<SliderComponentProps> = ({ images }) => {
               </Box>
             </Paper>
           ))}
-        </Slider>
+        </Slider> */}
       </Box>
 
       <Box>
-        <Slider {...settingsNav} ref={sliderNavRef}>
+        {/* <Slider {...settingsNav} ref={sliderNavRef}>
           {images.map((image, index) => (
             <Box key={index} className={styles.sliderNavBox}>
               <Paper className={styles.sliderNavPaper}>
@@ -97,7 +97,7 @@ const SliderComponent: React.FC<SliderComponentProps> = ({ images }) => {
               </Paper>
             </Box>
           ))}
-        </Slider>
+        </Slider> */}
       </Box>
     </Box>
   );
