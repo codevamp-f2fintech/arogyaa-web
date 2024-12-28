@@ -24,7 +24,7 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SearchIcon from '@mui/icons-material/Search';
-import { useGetDoctor } from "@/hooks/doctor";
+import { useGetDoctors } from "@/hooks/doctor";
 interface Message {
   sender: string;
   message: string;
@@ -35,11 +35,12 @@ const Chat: React.FC = () => {
   const {
     value: doctorList,
     swrLoading,
-    error,
-    refetch,
-  } = useGetDoctor(
-    [],
-    "http://localhost:4004/api/v1/doctor-service/get-doctors?page=1&limit=6"
+    error
+  } = useGetDoctors(
+    null,
+    "get-doctors",
+    1,
+    6
   );
   useEffect(() => {
     if (doctorList && doctorList.results && doctorList.results.length > 0) {

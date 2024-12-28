@@ -24,9 +24,9 @@ import DoneIcon from "@mui/icons-material/Done";
 import PaymentIcon from "@mui/icons-material/Payment";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import VerifiedIcon from "@mui/icons-material/Verified";
-import Header from "../../components/common/Topbar";
-import Footer from "../../components/common/Footer";
-import ModalOne from "../../components/common/BookAppointmentModal";
+// import Header from "../../components/common/Topbar";
+// import Footer from "../../components/common/Footer";
+import ModalOne from "../../../components/common/BookAppointmentModal";
 import { useGetdoctorprofile } from "@/hooks/doctorprofile";
 
 const Drprofwrapper = styled.div`
@@ -280,12 +280,12 @@ export default function DrProfile() {
   const [value1, setValue1] = useState(0);
   const searchParams = useSearchParams();
   // const id = "6707b2b474d820f1ad625603"; //testing code, remove this code and uncomment just below line.
-  const id = searchParams.get("id");
+  // const id = searchParams.get("id");
 
-  const { data: doctorData, swrLoading } = useGetdoctorprofile(
-    [],
-    `http://localhost:4004/api/doctor/get/${id}`
-  );
+  // const { data: doctorData, swrLoading } = useGetdoctorprofile(
+  //   [],
+  //   `http://localhost:4004/api/doctor/get/${id}`
+  // );
 
   const openModal = () => {
     setModalOpen(true);
@@ -308,13 +308,12 @@ export default function DrProfile() {
     setValue(1);
   };
 
-  if (swrLoading) {
-    return <div>Loading...</div>;
-  }
+  // if (swrLoading) {
+  //   return <div>Loading...</div>;
+  // }
 
   return (
     <Drprofwrapper>
-      <Header />
       <ModalOne isOpen={isModalOpen} onClose={closeModal} />
       <Box sx={{ padding: "10px" }}>
         <Grid container spacing={3}>
@@ -332,7 +331,7 @@ export default function DrProfile() {
                 <Box className="dr_cap">
                   {/* Display fetched doctor data */}
                   <Typography variant="h4" component="h4" className="t1">
-                    {doctorData ? doctorData.username : "Dr. Ranjana Sharma"}
+                    {"Dr. Ranjana Sharma"}
                     <span className="verified">
                       <VerifiedIcon /> Verified profile
                     </span>
@@ -341,16 +340,12 @@ export default function DrProfile() {
                     General Physician
                   </Typography>
                   <Typography variant="h6" component="h6" className="t3">
-                    {doctorData
-                      ? doctorData.bio
-                      : "M.B.B.S, DCh, DHA, RPSGT (USA)\nGeneral physician, Paediatrician Health Checkup (General), Sleep medicine, Pediatric gastroenterology, Pediatric infectious diseases, Allergy Treatment, Diabetes Management, Immunity Therapy, Hypertension Treatment, etc."}
+                    {"M.B.B.S, DCh, DHA, RPSGT (USA)\nGeneral physician, Paediatrician Health Checkup (General), Sleep medicine, Pediatric gastroenterology, Pediatric infectious diseases, Allergy Treatment, Diabetes Management, Immunity Therapy, Hypertension Treatment, etc."}
                   </Typography>
 
                   <Box className="expr">
                     <Typography variant="h6" component="span" className="t3">
-                      {doctorData
-                        ? `${doctorData.experienceYears} years of experience`
-                        : "42+ years of experience"}
+                      {"42+ years of experience"}
                     </Typography>
                     <span className="exp_hrlne">|</span>
                     <Typography variant="h6" component="span" className="t3">
@@ -578,7 +573,7 @@ export default function DrProfile() {
                           >
                             Availability
                           </Typography>
-                          {doctorData && doctorData.availability
+                          {/* {doctorData && doctorData.availability
                             ? doctorData.availability.map((slot, index) => (
                                 <div key={index}>
                                   <Typography
@@ -597,7 +592,7 @@ export default function DrProfile() {
                                   </Typography>
                                 </div>
                               ))
-                            : "No Availability"}
+                            : "No Availability"} */}
                         </Grid>
                         <Grid item xs={12} sm={6} md={4} className="dates">
                           <Typography
@@ -735,7 +730,6 @@ export default function DrProfile() {
           </Grid>
         </Grid>
       </Box>
-      <Footer />
     </Drprofwrapper>
   );
 }

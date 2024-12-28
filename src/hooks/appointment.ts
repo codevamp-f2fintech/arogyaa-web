@@ -15,11 +15,13 @@ export const useGetAppointment = (
   initialData: Appointment[],
   pathKey: string
 ) => {
-  const { data: swrData, error } = useSWR<Appointment[]>(pathKey, fetcher, {
-    fallbackData: initialData,
-    refreshInterval: initialData ? 3600000 : 0, // 1 hour refresh if initialData exists
-    revalidateOnFocus: false, // Disable revalidation on window focus
-  });
+  const { data: swrData, error } = useSWR<Appointment[]>(pathKey,
+    () => fetcher('appointment', pathKey),
+    {
+      fallbackData: initialData,
+      refreshInterval: initialData ? 3600000 : 0, // 1 hour refresh if initialData exists
+      revalidateOnFocus: false, // Disable revalidation on window focus
+    });
 
   return { data: swrData || [], swrLoading: !error && !swrData, error };
 };
@@ -42,6 +44,7 @@ export const useCreateAppointment = (pathKey: string) => {
 
     try {
       const appointment = await creator<Appointment, Appointment>(
+        'appointment',
         pathKey,
         newAppointmentData
       );

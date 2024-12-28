@@ -1,106 +1,106 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import Slider from "react-slick";
 import { useDispatch, useSelector } from "react-redux";
-import { Box, Button, Grid, ImageListItem } from "@mui/material";
+import { Box, Button, Grid } from "@mui/material";
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
+import { useRouter } from 'next/navigation';
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 import en from "@/locales/en.json";
 import { AppDispatch, RootState } from "@/redux/store";
 import { icons } from "@/static-data";
-import { useGetSpecialities } from "@/hooks/specialities";
-import {
-  setLoading,
-  setSpecialities,
-} from "@/redux/features/specialitiesSlice";
+import { useGetSpeciality } from "@/hooks/speciality";
+import { setSpeciality } from "@/redux/features/specialitySlice";
 
 import styles from "../page.module.css";
-
-interface Specialist {
-  img: string;
-  title: string;
-  caption: string;
-  readmore: string;
-}
-
-const settings = {
-  dots: true,
-  infinite: false,
-  speed: 500,
-  slidesToShow: 4,
-  slidesToScroll: 2,
-  autoplay: false,
-  autoplaySpeed: 3000,
-  customPaging: (i: number) => (
-    <div className={styles.customDot}>
-      {/* You can add custom content here */}
-      {i + 1}
-    </div>
-  ),
-  dotsClass: `slick-dots ${styles.customDots}`,
-  responsive: [
-    {
-      breakpoint: 1024,
-      settings: {
-        slidesToShow: 3,
-        slidesToScroll: 3,
-        infinite: true,
-        dots: true,
-      },
-    },
-    {
-      breakpoint: 600,
-      settings: {
-        slidesToShow: 1,
-        slidesToScroll: 1,
-        initialSlide: 1,
-      },
-    },
-    {
-      breakpoint: 480,
-      settings: {
-        slidesToShow: 1,
-        slidesToScroll: 1,
-      },
-    },
-  ],
-};
+import Loader from "./common/Loader";
+import SpecialistCard from "./SpecialistCard";
 
 const SpecialitySlider: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
-  const { specialities } = useSelector(
+  const router = useRouter();
+  const { speciality, reduxLoading } = useSelector(
     (state: RootState) => state.specialities
   );
-
   const [pageSize, setPageSize] = useState({
     page: 1,
-    size: 2,
+    size: 6,
   });
 
-  const { data } = useGetSpecialities(
-    [],
-    `http://localhost:4002/api/v1/speciality-service/get-specialities?page=${pageSize.page}&limit=${pageSize.size}`
-  );
-  console.log("data", data);
+  const {
+    value: data,
+    swrLoading,
+    error,
+  } = useGetSpeciality(null, "get-specialities", pageSize.page, pageSize.size);
 
+  // Update Redux store with fetched data
   useEffect(() => {
-    if (data && data.length > 0) {
-      dispatch(setSpecialities(data));
+    if (data && data.results && data.results.length > 0) {
+      dispatch(setSpeciality(data));
     }
-  }, [data]);
+  }, [data, dispatch]);
 
-  const handleFetchNext = () => {
+  // Fetch next set of specialities
+  const handleFetchNext = useCallback(() => {
     setPageSize((prevSize) => ({
       ...prevSize,
+      page: prevSize.page + 1,
       size: prevSize.size + 5,
     }));
-    dispatch(setLoading(true));
-  };
+  }, [dispatch]);
 
-  // Display data logic
-  const displayData = specialities.length > 0 ? specialities : [];
+  const handleConsult = useCallback((id: string) => {
+    // router.push(`/doctor/profile/${encodeURIComponent(id)}`);
+    router.push('/doctor');
+    console.log(id, 'consult click')
+  }, [router]);
+
+  // Slider settings memoization to prevent re-renders
+  const sliderSettings = useMemo(() => ({
+    dots: true,
+    infinite: false,
+    speed: 500,
+    slidesToShow: 4,
+    slidesToScroll: 2,
+    autoplay: false,
+    autoplaySpeed: 3000,
+    lazyLoad: 'ondemand',
+    customPaging: (i: number) => (
+      <div className={styles.customDot}>
+        {i + 1}
+      </div>
+    ),
+    dotsClass: `slick-dots ${styles.customDots}`,
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 3,
+          slidesToScroll: 3,
+          infinite: true,
+          dots: true,
+        },
+      },
+      {
+        breakpoint: 600,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          initialSlide: 1,
+        },
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+        },
+      },
+    ],
+  }), []);
 
   return (
     <>
@@ -110,33 +110,22 @@ const SpecialitySlider: React.FC = () => {
           {en.homepage.specialitySlider.title}
         </h1>
 
-        <Slider {...settings}>
-          {specialities?.map((item, index: number) => {
-            const icon = icons.find((icon) => icon.title === item.name)?.path;
-            return (
-              <Box className={styles.specialistBox} key={index}>
-                <img
-                  src="/assets/images/speciality-icons/vector_plus.png"
-                  alt="Icon"
-                  className={styles.specialistIcon}
+        <Slider {...sliderSettings}>
+          {speciality && speciality?.results?.length > 0 ?
+            speciality.results.map((item) => {
+              const icon = icons.find((icon) => icon.title === item.name.toLowerCase())?.path;
+              return (
+                <SpecialistCard
+                  key={item._id}
+                  icon={icon}
+                  name={item.name}
+                  description={item.description}
+                  onConsult={() => handleConsult(item._id)}
                 />
-                <ImageListItem className={styles.specialistImage}>
-                  <img src={icon} alt={item.name} loading="lazy" />
-                </ImageListItem>
-
-                <h2 className={styles.specialistTitle}>{item.name}</h2>
-                <h4 className={styles.specialistCaption}>{item.description}</h4>
-                <Button
-                  variant="contained"
-                  className={styles.readMoreButton}
-                  endIcon={<ArrowCircleRightIcon />}
-                >
-                  {" "}
-                  Consult Now
-                </Button>
-              </Box>
-            );
-          })}
+              );
+            })
+            : <div>No Specialities Found</div>
+          }
         </Slider>
 
         <Grid container spacing={2} columns={{ xs: 4, sm: 8, md: 12 }}>
@@ -151,6 +140,8 @@ const SpecialitySlider: React.FC = () => {
             </Button>
           </Grid>
         </Grid>
+
+        {swrLoading && <Loader />}
       </div>
     </>
   );

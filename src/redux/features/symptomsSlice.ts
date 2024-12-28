@@ -1,23 +1,23 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
-import { Symptoms } from '@/types/symptoms';
+import type { Symptom } from '@/types/symptom';
 
-interface symptomsInitialState {
-    symptoms: Symptoms[];
+interface SymptomInitialState {
+    symptom: Symptom | null;
     reduxLoading: boolean;
+}
+
+const initialState: SymptomInitialState = {
+    symptom: null,
+    reduxLoading: false,
 };
 
-const initialState: symptomsInitialState = {
-    symptoms: [],
-    reduxLoading: false
-};
-
-export const symptomsSlice = createSlice({
-    name: 'symptoms',
+export const symptomSlice = createSlice({
+    name: 'symptom',
     initialState,
     reducers: {
-        setSymptoms: (state, action: PayloadAction<Symptoms[]>) => {
-            state.symptoms = action.payload;
+        setSymptom: (state, action: PayloadAction<Symptom>) => {
+            state.symptom = action.payload;
             state.reduxLoading = false;
         },
         setLoading: (state, action: PayloadAction<boolean>) => {
@@ -26,7 +26,5 @@ export const symptomsSlice = createSlice({
     },
 });
 
-export const { setSymptoms, setLoading } = symptomsSlice.actions;
-
-// Export the reducer to be used in the store configuration
-export default symptomsSlice.reducer;
+export const { setSymptom, setLoading } = symptomSlice.actions;
+export default symptomSlice.reducer;

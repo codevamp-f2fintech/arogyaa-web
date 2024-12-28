@@ -1,18 +1,19 @@
 import dynamic from "next/dynamic";
+import { Suspense } from 'react';
 
-const BannerComponent = dynamic(() => import("./Banner"));
-const SpecialitySlider = dynamic(() => import("./SpecialitySlider"));
-const ExpertSpecialistSlider = dynamic(
-  () => import("./ExpertSpecialistSlider")
-);
-const SymptomCards = dynamic(() => import("./SymptomCards"));
-const AboutUs = dynamic(() => import("./AboutUs"));
-const Testimonials = dynamic(() => import("./Testimonials"));
-const BannerBottom = dynamic(() => import("./BannerBottom"));
+import Loader from "./common/Loader";
+import BannerComponent from "./Banner";
 
-const Home = async() => {
+const SpecialitySlider = dynamic(() => import("./SpecialitySlider"), { suspense: true });
+const ExpertSpecialistSlider = dynamic(() => import("./ExpertSpecialistSlider"), { suspense: true });
+const SymptomCards = dynamic(() => import("./SymptomCards"), { suspense: true });
+const AboutUs = dynamic(() => import("./AboutUs"), { suspense: true });
+const Testimonials = dynamic(() => import("./Testimonials"), { suspense: true });
+const BannerBottom = dynamic(() => import("./BannerBottom"), { suspense: true });
+
+const Home = () => {
   return (
-    <>
+    <Suspense fallback={<Loader />}>
       <BannerComponent />
       <SpecialitySlider />
       <ExpertSpecialistSlider />
@@ -20,7 +21,7 @@ const Home = async() => {
       <AboutUs />
       <Testimonials />
       <BannerBottom />
-    </>
+    </Suspense>
   );
 };
 
