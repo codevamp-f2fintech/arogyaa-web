@@ -80,7 +80,7 @@ const SpecialitySlider: React.FC = () => {
         settings: {
           slidesToShow: 3,
           slidesToScroll: 3,
-          infinite: true,
+          infinite: false,
           dots: true,
         },
       },

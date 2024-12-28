@@ -51,7 +51,7 @@ const ExpertSpecialistSlider: React.FC = () => {
         settings: {
           slidesToShow: 3,
           slidesToScroll: 1,
-          infinite: true,
+          infinite: false,
           dots: true,
         },
       },
@@ -60,7 +60,7 @@ const ExpertSpecialistSlider: React.FC = () => {
         settings: {
           slidesToShow: 2,
           slidesToScroll: 1,
-          infinite: true,
+          infinite: false,
           dots: true,
         },
       },
