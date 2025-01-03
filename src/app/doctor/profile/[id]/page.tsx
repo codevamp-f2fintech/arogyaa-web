@@ -1,7 +1,7 @@
 "use client";
-
-import { useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { useEffect } from "react";
 import Box from "@mui/material/Box";
 import {
   Select,
@@ -24,17 +24,19 @@ import DoneIcon from "@mui/icons-material/Done";
 import PaymentIcon from "@mui/icons-material/Payment";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import VerifiedIcon from "@mui/icons-material/Verified";
-// import Header from "../../components/common/Topbar";
-// import Footer from "../../components/common/Footer";
+
+import Topbar from "../../../components/common/Topbar";
+import Footer from "../../../components/common/Footer";
 import ModalOne from "../../../components/common/BookAppointmentModal";
-import { useGetdoctorprofile } from "@/hooks/doctorprofile";
+import { useGetDoctors } from "@/hooks/doctor";
+import { fetcher } from "@/apis/apiClient";
 
 const Drprofwrapper = styled.div`
   padding: 40px;
   padding-top: 90px;
 
   .rating_wrp {
-    margin-right: 20px;
+    margin-right: 70px;
   }
 
   .box_wrp {
@@ -45,6 +47,7 @@ const Drprofwrapper = styled.div`
   .dr_cir_canv {
     width: 200px;
     margin-right: 10px;
+    height: auto;
   }
   .dr_cat_action_wrp {
     display: flex;
@@ -81,13 +84,14 @@ const Drprofwrapper = styled.div`
     display: flex;
     width: 200px;
     flex-direction: column;
-    margin-left: 20px;
+    margin-left: 500px;
     padding: 10px;
     border-radius: 10px;
     background-image: url(../assets/images/vector_plus.png);
     background-position: center;
     background-repeat: no-repeat;
     background-size: 102px;
+   
   }
   .rating_wrp .tx1 {
     font-size: 2rem;
@@ -276,16 +280,29 @@ const Drprofwrapper = styled.div`
 
 export default function DrProfile() {
   const [isModalOpen, setModalOpen] = useState(false);
+  const router = useRouter();
   const [value, setValue] = useState(0);
   const [value1, setValue1] = useState(0);
-  const searchParams = useSearchParams();
-  // const id = "6707b2b474d820f1ad625603"; //testing code, remove this code and uncomment just below line.
-  // const id = searchParams.get("id");
+  const params = useParams();
+  const doctorId = params?.id;
 
-  // const { data: doctorData, swrLoading } = useGetdoctorprofile(
-  //   [],
-  //   `http://localhost:4004/api/doctor/get/${id}`
-  // );
+  const [profileData, setProfileData] = useState({});
+  useEffect(() => {
+    if (doctorId) {
+      const fetchProfileData = async () => {
+        try {
+          const response = await fetcher(
+            "doctor",
+            `get-doctor-by-id/${doctorId}`
+          );
+          setProfileData(response || []);
+        } catch (error) {
+          console.error("Error fetching users:", error);
+        }
+      };
+      fetchProfileData();
+    }
+  }, [doctorId]);
 
   const openModal = () => {
     setModalOpen(true);
@@ -314,82 +331,124 @@ export default function DrProfile() {
 
   return (
     <Drprofwrapper>
+      <Topbar />
       <ModalOne isOpen={isModalOpen} onClose={closeModal} />
       <Box sx={{ padding: "10px" }}>
         <Grid container spacing={3}>
           <Grid item xs={12} sm={12} md={12}>
             <Paper className="box_wrp">
-              <Box className="dr_cir_canv_wrp">
-                <Box
-                  component="img"
-                  className="dr_cir_canv"
-                  alt="The doctor from the offer."
-                  src="../assets/images/drRanjanaSharma.jpg"
-                />
-              </Box>
               <Box className="dr_cat_action_wrp">
-                <Box className="dr_cap">
-                  {/* Display fetched doctor data */}
-                  <Typography variant="h4" component="h4" className="t1">
-                    {"Dr. Ranjana Sharma"}
-                    <span className="verified">
-                      <VerifiedIcon /> Verified profile
-                    </span>
-                  </Typography>
-                  <Typography variant="h6" component="h6" className="t2">
-                    General Physician
-                  </Typography>
-                  <Typography variant="h6" component="h6" className="t3">
-                    {"M.B.B.S, DCh, DHA, RPSGT (USA)\nGeneral physician, Paediatrician Health Checkup (General), Sleep medicine, Pediatric gastroenterology, Pediatric infectious diseases, Allergy Treatment, Diabetes Management, Immunity Therapy, Hypertension Treatment, etc."}
-                  </Typography>
+                {profileData && profileData.data ? (
+                  <>
+                 
+                      <Box
+                        component="img"
+                        className="dr_cir_canv"
+                        alt="The doctor from the offer."
+                        src={
+                          profileData.data.profilePicture ||
+                          "../../../assets/images/drRanjanaSharma.jpg"
+                        }
+                      />
+                    
 
-                  <Box className="expr">
-                    <Typography variant="h6" component="span" className="t3">
-                      {"42+ years of experience"}
-                    </Typography>
-                    <span className="exp_hrlne">|</span>
-                    <Typography variant="h6" component="span" className="t3">
-                      Speaks English, Hindi, Kannada, Telugu{" "}
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Button
-                      onClick={openModal}
-                      variant="contained"
-                      sx={{
-                        marginTop: 2,
-                        width: "auto",
-                        color: "#fff",
-                        background: "#20ADA0",
-                        borderRadius: "4px",
-                        ":hover": {
-                          bgcolor: "#20ADA0",
-                          color: "white",
-                        },
-                      }}
-                    >
-                      Book a Video Appointment
-                    </Button>
-                    <Button
-                      onClick={openModal}
-                      variant="contained"
-                      sx={{
-                        marginTop: 2,
-                        width: "auto",
-                        color: "#fff",
-                        background: "#20ADA0",
-                        borderRadius: "4px",
-                        marginLeft: "20px",
-                        ":hover": {
-                          bgcolor: "#20ADA0",
-                          color: "white",
-                        },
-                      }}
-                    >
-                      Book an In-Clinic Appointment
-                    </Button>
-                  </Box>
-                </Box>
+                    <Box className="dr_cap">
+                      <Typography variant="h4" component="h4" className="t1">
+                        {profileData.data.username || "Name not available"}
+                        <span className="verified">
+                          <VerifiedIcon /> Verified profile
+                        </span>
+                      </Typography>
+                      <br />
+
+                      <Box className="availble">
+                        <Typography
+                          variant="h6"
+                          component="span"
+                          className="tx1"
+                        >
+                          {profileData.data.email || "Email not available"}
+                        </Typography>
+                        <span className="exp_hrlne">|</span>
+                        <Typography
+                          variant="h6"
+                          component="span"
+                          className="tx1"
+                        >
+                          {profileData.data.contact || "Contact not available"}
+                        </Typography>
+                      </Box>
+
+                      <Box className="availble">
+                        <Typography variant="h6" component="h6" className="tx1">
+                          {profileData.data.bio || "Bio not available"}
+                        </Typography>
+                      </Box>
+
+                      <Box className="expr">
+                        <Typography
+                          variant="h6"
+                          component="span"
+                          className="t3"
+                        >
+                          {profileData.data.experienceYears || 0} years of
+                          experience
+                        </Typography>
+                        <span className="exp_hrlne">|</span>
+                        <Typography
+                          variant="h6"
+                          component="span"
+                          className="t3"
+                        >
+                          Speaks{" "}
+                          {profileData.data.languagesSpoken?.length > 0
+                            ? profileData.data.languagesSpoken.join(", ")
+                            : "No languages specified"}
+                        </Typography>
+                      </Box>
+
+                      <Box>
+                        <Button
+                          onClick={openModal}
+                          variant="contained"
+                          sx={{
+                            marginTop: 2,
+                            width: "auto",
+                            color: "#fff",
+                            background: "#20ADA0",
+                            borderRadius: "4px",
+                            ":hover": {
+                              bgcolor: "#20ADA0",
+                              color: "white",
+                            },
+                          }}
+                        >
+                          Book a Video Appointment
+                        </Button>
+                        <Button
+                          onClick={openModal}
+                          variant="contained"
+                          sx={{
+                            marginTop: 2,
+                            width: "auto",
+                            color: "#fff",
+                            background: "#20ADA0",
+                            borderRadius: "4px",
+                            marginLeft: "20px",
+                            ":hover": {
+                              bgcolor: "#20ADA0",
+                              color: "white",
+                            },
+                          }}
+                        >
+                          Book an In-Clinic Appointment
+                        </Button>
+                      </Box>
+                    </Box>
+                  </>
+                ) : (
+                  <Typography>No doctor found.</Typography>
+                )}
               </Box>
 
               <Box className="rating_wrp">
@@ -404,31 +463,31 @@ export default function DrProfile() {
                     component="img"
                     className="star_ico"
                     alt="Star"
-                    src={"../assets/images/star-fill.png"}
+                    src={"../../assets/images/star-fill.png"}
                   />
                   <Box
                     component="img"
                     className="star_ico"
                     alt="Star"
-                    src={"../assets/images/star-fill.png"}
+                    src={"../../assets/images/star-fill.png"}
                   />
                   <Box
                     component="img"
                     className="star_ico"
                     alt="Star"
-                    src={"../assets/images/star-fill.png"}
+                    src={"../../assets/images/star-fill.png"}
                   />
                   <Box
                     component="img"
                     className="star_ico"
                     alt="Star"
-                    src={"../assets/images/star-fill.png"}
+                    src={"../../assets/images/star-fill.png"}
                   />
                   <Box
                     component="img"
                     className="star_ico"
                     alt="Star"
-                    src={"../assets/images/star-fill.png"}
+                    src={"../../assets/images/star-fill.png"}
                   />
                 </Box>
               </Box>
@@ -471,15 +530,29 @@ export default function DrProfile() {
                         component="p"
                         className="para_info1"
                       >
-                        Dr. Ranjana Sharma is a passionate and experienced
-                        mental health professional. Completed MBBS from Manipal
-                        University and post-graduation in psychiatry from St
-                        John’s Medical College Bangalore.
+                        {profileData.data?.username || "Doctor"} is a passionate
+                        and experienced mental health professional. Completed
+                        MBBS from Manipal University and post-graduation in
+                        psychiatry from St John’s Medical College Bangalore.
+                      </Typography>
+                      <Typography
+                        variant="h6"
+                        component="p"
+                        className="treat_list_title"
+                      >
+                        Gender: {profileData.data?.gender || "Doctor"}
+                      </Typography>
+                      <Typography
+                        variant="h6"
+                        component="p"
+                        className="treat_list_title"
+                      >
+                        DOB: {profileData.data?.dob || "Doctor"}
                       </Typography>
                     </Box>
                     <Box>
                       <Typography
-                        variant="h4"
+                        variant="p"
                         component="h4"
                         className="treat_list_title"
                       >
@@ -551,16 +624,7 @@ export default function DrProfile() {
                               component="h6"
                               className="tx2"
                             >
-                              Gulmohar Park, New Delhi (Evening consultation
-                              available. Call us to fix an appointment at
-                              011-4118 3001, +91 98 1809 3267 )
-                            </Typography>
-                            <Typography
-                              variant="h6"
-                              component="h6"
-                              className="tx3"
-                            >
-                              Chanakyapuri, New Delhi
+                              {profileData.data.address}
                             </Typography>
                           </Box>
                         </Grid>
@@ -573,27 +637,36 @@ export default function DrProfile() {
                           >
                             Availability
                           </Typography>
-                          {/* {doctorData && doctorData.availability
-                            ? doctorData.availability.map((slot, index) => (
-                                <div key={index}>
-                                  <Typography
-                                    variant="h6"
-                                    component="h6"
-                                    className="tx2"
-                                  >
-                                    {slot.day}
-                                  </Typography>
-                                  <Typography
-                                    variant="h6"
-                                    component="h6"
-                                    className="tx3"
-                                  >
-                                    {slot.startTime} - {slot.endTime}
-                                  </Typography>
-                                </div>
-                              ))
-                            : "No Availability"} */}
+                          {profileData?.data?.availability?.length > 0 ? (
+                            profileData.data.availability.map((slot, index) => (
+                              <div key={index}>
+                                <Typography
+                                  variant="h6"
+                                  component="h6"
+                                  className="tx2"
+                                >
+                                  {slot.day}
+                                </Typography>
+                                <Typography
+                                  variant="h6"
+                                  component="h6"
+                                  className="tx3"
+                                >
+                                  {slot.startTime} - {slot.endTime}
+                                </Typography>
+                              </div>
+                            ))
+                          ) : (
+                            <Typography
+                              variant="h6"
+                              component="h6"
+                              className="tx3"
+                            >
+                              No Availability
+                            </Typography>
+                          )}
                         </Grid>
+
                         <Grid item xs={12} sm={6} md={4} className="dates">
                           <Typography
                             variant="h6"
@@ -609,7 +682,7 @@ export default function DrProfile() {
                             sx={{ display: "flex" }}
                           >
                             <CurrencyRupeeIcon sx={{ marginRight: "5px" }} />
-                            Fee : ₹ 1000 per consultation
+                            Fee : ₹ {profileData.data.consultationFee}
                           </Typography>
                           <Typography
                             variant="h6"
@@ -635,7 +708,7 @@ export default function DrProfile() {
                             sx={{ display: "flex", marginTop: "10px" }}
                           >
                             <CurrencyRupeeIcon sx={{ marginRight: "5px" }} />
-                            Fee : ₹ 1000 per consultation
+                            Fee : ₹ {profileData.data.consultationFee}
                           </Typography>
                         </Grid>
                       </Grid>
@@ -654,8 +727,8 @@ export default function DrProfile() {
                         className="tx2"
                         sx={{ display: "flex", marginTop: "10px" }}
                       >
-                        Home visits available in New Delhi and Gurgaon only,
-                        subject to doctor availability.
+                        Home visits available in {profileData.data.address}{" "}
+                        only, subject to doctor availability.
                       </Typography>
                     </Box>
                   </div>
@@ -700,10 +773,18 @@ export default function DrProfile() {
                       <Typography variant="h6" component="h6" className="tx1">
                         Available Tomorrow
                       </Typography>
-                      <ul className="time_box">
-                        <li>03:00 PM</li>
-                        <li>06:00 PM</li>
-                        <li>09:00 PM</li>
+                      <Typography variant="h6" component="h6" className="tx2">
+                        Delhi, Gurugram
+                      </Typography>
+                      <ul
+                        className="time_box"
+                        style={{ padding: 0, listStyleType: "none" }}
+                      >
+                        {profileData?.data?.availability?.map((slot, index) => (
+                          <li key={index} className="time_box">
+                            {slot.startTime}
+                          </li>
+                        ))}
                       </ul>
                     </Box>
                   </div>
@@ -717,10 +798,15 @@ export default function DrProfile() {
                       <Typography variant="h6" component="h6" className="tx2">
                         Delhi, Gurugram
                       </Typography>
-                      <ul className="time_box">
-                        <li>03:00 PM</li>
-                        <li>06:00 PM</li>
-                        <li>09:00 PM</li>
+                      <ul
+                        className="time_box"
+                        style={{ padding: 0, listStyleType: "none" }}
+                      >
+                        {profileData?.data?.availability?.map((slot, index) => (
+                          <li key={index} className="time_box">
+                            {slot.startTime}
+                          </li>
+                        ))}
                       </ul>
                     </Box>
                   </div>
