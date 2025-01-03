@@ -219,6 +219,7 @@ const Signup = () => {
           style={{
             borderRadius: 8,
             boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
+            height:"485px"
           }}
         />
       </Box>
@@ -299,7 +300,7 @@ const Signup = () => {
             />
 
             <TextField
-              style={{ marginTop: 10 }}
+              style={{ marginTop: 10, width: "100%" }}
               fullWidth
               name="email"
               label="Email"
@@ -315,10 +316,15 @@ const Signup = () => {
                     <EmailIcon />
                   </InputAdornment>
                 ),
-                style: { overflow: "visible", textOverflow: "ellipsis" }, // Show full text
+                style: { overflow: "auto" }, // Allow horizontal scrolling
               }}
               inputProps={{
-                style: { whiteSpace: "nowrap", overflow: "visible" }, // Ensure no clipping
+                maxLength: 50, // Add character limit
+                style: { whiteSpace: "nowrap" }, // Prevent text wrapping
+              }}
+              sx={{
+                gridColumn: "span 2", // Make it span two columns in the grid
+                // overflowX: "scroll", // Allow horizontal scrolling
               }}
             />
             <TextField
@@ -455,6 +461,18 @@ const Signup = () => {
               fullWidth
             >
               Sign Up
+            </Button>
+            <Button
+              variant="outlined"
+              fullWidth
+              sx={{
+                gridColumn: "span 2",
+                borderColor: "#1976d2",
+                color: "#1976d2",
+              }}
+              onClick={() => (window.location.href = "/signin")}
+            >
+              Already have an account? Sign In
             </Button>
           </Box>
         </form>
