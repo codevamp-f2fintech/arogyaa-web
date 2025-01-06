@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import useSWR, { mutate } from 'swr';
+import useSWR from 'swr';
 
 import { creator, fetcher, modifier } from '@/apis/apiClient';
 import { Patient, PatientData } from '../types/patient';
@@ -22,20 +22,19 @@ export const useGetPatient = (
     limit: number = 5
 ) => {
     const url = `${pathKey}?page=${page}&limit=${limit}`;
-
-    const { data: swrData, error } = useSWR<Patient | null>(
+    const { data: swrData, error, isValidating, mutate } = useSWR<Patient | null>(
         url,
-        fetcher,
+        () => fetcher('patient', pathKey),
         {
             fallbackData: initialData,
             refreshInterval: initialData ? 3600000 : 0, // 1 hour refresh if initialData exists
-            revalidateOnFocus: false,                  // Disable revalidation on window focus
+            revalidateOnFocus: false,
         }
     );
-
     // Manually re-trigger re-fetch
     const refetch = async (keyword?: string) => {
-        await mutate(`${url}&keyword=${keyword}`);
+        const searchEndpoint = `${url}${keyword ? `&keyword=${keyword}` : ""}`;
+        await mutate(searchEndpoint);
     };
 
     return {
@@ -43,8 +42,9 @@ export const useGetPatient = (
             results: [],
             count: 0,
             pages: 0,
+            errorMessage: null
         },
-        swrLoading: !error && !swrData,
+        swrLoading: !error && !swrData && isValidating,
         error,
         refetch
     };
@@ -65,7 +65,7 @@ export const useCreatePatient = (pathKey: string) => {
         setError(null);
 
         try {
-            const patient = await creator<PatientData, Partial<PatientData>>(pathKey, newPatientData);
+            const patient = await creator<PatientData, Partial<PatientData>>('patient', pathKey, newPatientData);
             return patient;
         } catch (err) {
             setError(err as Error);
@@ -92,7 +92,7 @@ export const useModifyPatient = (pathKey: string) => {
         setError(null);
 
         try {
-            const patient = await modifier<PatientData, Partial<PatientData>>(pathKey, updatedPatientData);
+            const patient = await modifier<PatientData, Partial<PatientData>>('patient',pathKey, updatedPatientData);
             return patient;
         } catch (err) {
             setError(err as Error);

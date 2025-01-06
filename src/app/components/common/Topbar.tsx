@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation";
 
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -23,8 +23,8 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import Popover from "@mui/material/Popover";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
-import ModalOne from "./BookAppointmentModal";
 
+import { UserPopover } from "./user-popover";
 import en from "@/locales/en.json";
 import styles from "../../page.module.css";
 
@@ -33,50 +33,28 @@ import { useGetNotifications } from "@/hooks/notification";
 import { setNotifications } from "@/redux/features/notificationsSlice";
 import { Utility } from "@/utils";
 import { Link } from "@mui/material";
-import { jwtDecode } from "jwt-decode";
+import { usePopover } from "@/hooks/use-popover";
 
 const pages = ["Products", "Pricing", "Blog"];
 
 const Topbar = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
   const [tabValue, setTabValue] = useState(0); // State for tab selection
   const [readNotification, setReadNotification] = useState<string[]>([]);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const [token, setToken] = useState(null);
   const dispatch: AppDispatch = useDispatch();
-  const { setLocalStorage, remLocalStorage, getLocalStorage } = Utility();
+  const { capitalizeFirstLetter, decodedToken } = Utility();
   const router = useRouter();
 
-  // const customToken = getLocalStorage("authToken");
-
-  // console.log("customToken",customToken)
+  const userPopover = usePopover<HTMLDivElement>();
 
   const { notifications } = useSelector(
     (state: RootState) => state.notifications
   );
   const handleClick2 = () => {
-    setIsModalOpen(true); // Open the modal on button click
+    router.push("/doctor");
   };
-
-
-
-  useEffect(() => {
-    if (token === null) {
-      const storedToken = localStorage.getItem("authToken");
-      if (storedToken) {
-        // Decode the token
-        try {
-          const decodedToken = jwtDecode(storedToken);
-          console.log("Decoded Token:", decodedToken);
-          setToken(decodedToken); // Set the token to state
-        } catch (error) {
-          console.error("Failed to decode token:", error);
-        }
-      }
-    }
-  }, [token]);
 
   //fetch api
   // const { data } = useGetNotifications(
@@ -134,29 +112,8 @@ const Topbar = () => {
     setVisibleNotifications((prev) => prev + 5);
   };
 
-  // const handleLogout = () => {
-  //   remLocalStorage("authToken");
-  // }
-
-  const handleLogout = () => {
-    // Clear any user-related data in localStorage (optional)
-    localStorage.clear();
-
-    // Redirect the user to the home page or login page
-    window.location.href = "/";
-
-    // Or use a reload to reset the app state
-    location.reload();
-  };
-
-
-  function setPageSize(arg0: (prevSize: any) => any) {
-    throw new Error("Function not implemented.");
-  }
-
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
-
 
   return (
     <AppBar className={styles.appBar}>
@@ -257,15 +214,13 @@ const Topbar = () => {
 
         <Box className={styles.appointmentButtonContainer}>
           <Button
-            onClick={handleClick2}  // Handle button click
+            onClick={handleClick2} // Handle button click
             variant="outlined"
             className={styles.appointmentButton}
             endIcon={<ArrowCircleRightIcon />}
           >
-            {en.topbar.appointment}  {/* Button label */}
+            {en.topbar.appointment} {/* Button label */}
           </Button>
-
-          <ModalOne open={isModalOpen} onClose={() => setIsModalOpen(false)} />
         </Box>
 
         <Box>
@@ -366,42 +321,23 @@ const Topbar = () => {
           </Popover>
         </Box>
 
-        {token ? (
+        {/* <Avatar src="/static/images/avatar/2.jpg" /> */}
+        {decodedToken()?.id ? (
           <Box className={styles.avatarContainer}>
-            <Tooltip title="Open settings">
-              <IconButton
-                onClick={handleOpenUserMenu}
-                className={styles.avatarButton}
-              >
-                <Avatar alt={token.patientname} src="/static/images/avatar/2.jpg" />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-              className={styles.userMenu}
-            >
-              <MenuItem onClick={handleCloseUserMenu}>
-                <Button
-                  onClick={() => {
-                    handleLogout();
-                  }}
-                >
-                  Logout
-                </Button>
-              </MenuItem>
-            </Menu>
+            <IconButton className={styles.avatarButton}>
+              <Avatar
+                alt={capitalizeFirstLetter(decodedToken()?.patientName)}
+                src={decodedToken()?.patientName}
+                onClick={userPopover.handleOpen}
+                ref={userPopover.anchorRef}
+                sx={{ cursor: "pointer" }}
+              />
+            </IconButton>
+            <UserPopover
+              anchorEl={userPopover.anchorRef.current}
+              onClose={userPopover.handleClose}
+              open={userPopover.open}
+            />
           </Box>
         ) : (
           <Button>
@@ -410,10 +346,8 @@ const Topbar = () => {
             </Link>
           </Button>
         )}
-
-
       </Toolbar>
-    </AppBar >
+    </AppBar>
   );
 };
 

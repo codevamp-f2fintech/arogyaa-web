@@ -1,23 +1,50 @@
 "use client";
 
-import { Box, Button, Typography, Grid, TextField } from "@mui/material";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import {
+  Box,
+  Button,
+  Typography,
+  Grid,
+  TextField,
+  InputAdornment,
+  IconButton,
+  CircularProgress,
+} from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import { Email, Lock, Visibility, VisibilityOff } from "@mui/icons-material";
+import * as Yup from "yup";
+import { Formik, Form } from "formik";
+
 import SnackbarComponent from "../Components/common/Snackbar";
 import { Utility } from "@/utils";
 import { RootState } from "@/redux/store";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
+import { useCreatePatient } from "@/hooks/patient";
 
-
+const LoginSchema = Yup.object().shape({
+  email: Yup.string().email("Invalid email").required("This Field Is Required"),
+  password: Yup.string().min(8, "Password too short").required("This Field Is Required"),
+});
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { snackbar } = useSelector((state: RootState) => state.snackbar);
+
+  const { createPatient } = useCreatePatient("/login");
   const { snackbarAndNavigate } = Utility();
   const dispatch = useDispatch();
+  const router = useRouter();
 
-
+  const handleClickShowPassword = (): void => {
+    setShowPassword((prev) => !prev);
+  };
+  const handleMouseDownPassword = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    event.preventDefault();
+  };
 
   // Define the snackbar close handler
   const handleSnackbarClose = (
@@ -29,40 +56,63 @@ export default function Login() {
     }
   };
 
-  const handleEmailPasswordLogin = async (e: any) => {
-    e.preventDefault(); // Correct usage of preventDefault
-    console.log("signin")
-
-    const response = await fetch("http://localhost:4006/api/v1/patient-service/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
-
-    const data = await response.json();
-    console.log("response", response)
-
-    if (data.statusCode === 200) {
-      snackbarAndNavigate(dispatch, true, "success", "Login Successful");
-      // Store token in localStorage
-      localStorage.setItem("authToken", data.token);
-      localStorage.setItem("NAME", "MONIS");  // Assuming the token is in data.token
-      console.log(">>>>> data", data)
-
-      console.log('redirect to home')
-      window.location.href = '/'; // Redirect to '/'
-    } else {
-      console.error("Login failed", data);
-      // Handle error, maybe show a message to the user
-    }
-  };
-
-
+  const handleLogin = React.useCallback(
+    async (values: { email: string; password: string }): Promise<void> => {
+      console.log(values, "submitted values");
+      setLoading(true);
+      try {
+        const response = await createPatient({
+          email: values.email,
+          password: values.password,
+        });
+        console.log(response, "this is response from login");
+        if (response?.statusCode === 200) {
+          document.cookie = `token=${response.token}; path=/; max-age=${
+            1 * 24 * 60 * 60
+          }; secure; samesite=strict`;
+          snackbarAndNavigate(
+            dispatch,
+            true,
+            "success",
+            response.message || "Login Successful",
+            () => router.push("/"),
+            "/"
+          );
+        } else if (response?.statusCode === 409) {
+          snackbarAndNavigate(
+            dispatch,
+            true,
+            "error",
+            "Patient Not Found"
+          );
+          setTimeout(() => {
+            setLoading(false);
+          }, 2000);
+        } else if (response?.statusCode === 400) {
+          snackbarAndNavigate(dispatch, true, "error", "Invalid Password");
+          setTimeout(() => {
+            setLoading(false);
+          }, 2000);
+        }
+      } catch (error) {
+        console.error("Login failed", error);
+        snackbarAndNavigate(
+          dispatch,
+          true,
+          "error",
+          "Error Loggin in. Please Try Again"
+        );
+        setTimeout(() => {
+          setLoading(false);
+        }, 2200);
+      } finally {
+        setTimeout(() => {
+          setLoading(false);
+        }, 2200);
+      }
+    },
+    []
+  );
 
   return (
     <>
@@ -124,47 +174,143 @@ export default function Login() {
                 width="100%"
                 maxWidth="400px"
               >
-                <Typography
-                  variant="h4"
-                  gutterBottom
-                  style={{ color: "#1976d2", textAlign: "center" }}
-                >
-                  Welcome to Arogya!
-                </Typography>
-
                 <Typography variant="body1" gutterBottom textAlign="center">
                   Please sign in to your account.
                 </Typography>
 
                 {/* Email and Password Login Form */}
-                <Box component="form" width="100%" noValidate onSubmit={handleEmailPasswordLogin}>
-                  <TextField
-                    label="Email"
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                <Formik
+                  initialValues={{ email: "", password: "" }}
+                  validationSchema={LoginSchema}
+                  onSubmit={async (values, { setSubmitting, resetForm }) => {
+                    setSubmitting(true);
+                    await handleLogin(values);
+                    setSubmitting(false);
+                  }}
+                >
+                  {({
+                    errors,
+                    touched,
+                    values,
+                    handleChange,
+                    handleBlur,
+                    isSubmitting,
+                    dirty,
+                  }) => (
+                    <Form>
+                      {/* Email Field */}
+                      <TextField
+                        margin="normal"
+                        fullWidth
+                        label="*Email Address"
+                        name="email"
+                        autoComplete="off"
+                        autoFocus
+                        value={values.email} // Bind Formik values
+                        onChange={handleChange} // Bind Formik handleChange
+                        onBlur={handleBlur} // Update Formik touched state
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Email sx={{ color: "black" }} />
+                            </InputAdornment>
+                          ),
+                        }}
+                        InputLabelProps={{
+                          style: { color: "black" },
+                        }}
+                        error={touched.email && Boolean(errors.email)}
+                        helperText={touched.email && errors.email}
+                      />
 
-                  />
-                  <TextField
-                    label="Password"
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    fullWidth
-                    style={{ backgroundColor: "#1976d2", color: "#fff", marginTop: "20px" }}
-                  >
-                    Sign in
-                  </Button>
-                </Box>
+                      {/* Password Field */}
+                      <TextField
+                        margin="normal"
+                        fullWidth
+                        name="password"
+                        label="Password"
+                        type={showPassword ? "text" : "password"}
+                        id="password"
+                        value={values.password} // Bind Formik values
+                        onChange={handleChange} // Bind Formik handleChange
+                        onBlur={handleBlur} // Update Formik touched state
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Lock sx={{ color: "black" }} />
+                            </InputAdornment>
+                          ),
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton
+                                sx={{ color: "black" }}
+                                aria-label="toggle password visibility"
+                                onClick={handleClickShowPassword}
+                                onMouseDown={handleMouseDownPassword}
+                                edge="end"
+                              >
+                                {showPassword ? (
+                                  <VisibilityOff />
+                                ) : (
+                                  <Visibility />
+                                )}
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        }}
+                        InputLabelProps={{
+                          style: { color: "black" },
+                        }}
+                        error={touched.password && Boolean(errors.password)}
+                        helperText={touched.password && errors.password}
+                      />
+
+                      {/* Submit Button */}
+                      <Button
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        sx={{
+                          mt: 2,
+                          mb: 2,
+                          borderRadius: "8px",
+                          background:
+                            "linear-gradient(45deg, #2C3CE3, #1976D2)",
+                          color: "#fff",
+                          fontWeight: "bold",
+                          padding: "10px 20px",
+                          boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.2)",
+                          transition: "all 0.3s ease",
+                          "&:hover": {
+                            background:
+                              "linear-gradient(45deg, #1976D2, #6A1B9A)",
+                          },
+                        }}
+                        disabled={!dirty || isSubmitting}
+                      >
+                        {isSubmitting && loading ? (
+                          <CircularProgress size={22} />
+                        ) : (
+                          "Log In"
+                        )}
+                      </Button>
+
+                      <Button
+                        variant="outlined"
+                        fullWidth
+                        style={{
+                          color: "#1976d2",
+                          borderColor: "#1976d2",
+                          marginTop: "10px",
+                          textTransform: "none",
+                        }}
+                        onClick={() => (window.location.href = "/signup")}
+                      >
+                        Don’t have an account? Sign Up
+                      </Button>
+                    </Form>
+                  )}
+                </Formik>
               </Box>
             </Box>
           </Box>
@@ -177,7 +323,5 @@ export default function Login() {
         onClose={handleSnackbarClose}
       />
     </>
-
   );
-
 }

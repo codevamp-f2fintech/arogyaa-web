@@ -7,8 +7,9 @@ export interface PatientData {
     gender: string;
     dob: Date;
     medical_history: string[];
+    address: string;
+    profilePicture: string;
     password: string;
-
 }
 
 export interface Patient {

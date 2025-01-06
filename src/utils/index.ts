@@ -1,7 +1,6 @@
 import { AlertColor } from "@mui/material/Alert";
 import { jwtDecode } from "jwt-decode";
 
-import { User } from "@/types/user";
 import { setSnackbar } from "@/redux/features/snackbarSlice";
 import { io, Socket } from "socket.io-client";
 
@@ -21,7 +20,7 @@ export const Utility = () => {
     url: string,
     page: number,
     size: number
-  ): Promise<User[]> => {
+  ): Promise<any> => {
     const response = await fetch(`${url}?_page=${page}&_limit=${size}`, {
       cache: "no-store",
     });
