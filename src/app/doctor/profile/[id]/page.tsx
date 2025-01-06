@@ -1,505 +1,413 @@
 "use client";
-import { useParams, useRouter } from "next/navigation";
-import React, { useState } from "react";
-import { useEffect } from "react";
-import Box from "@mui/material/Box";
+
+import { useParams } from "next/navigation";
+import React, { useState, useEffect, ChangeEvent, MouseEvent } from "react";
 import {
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
+  Box,
   Grid,
   Paper,
   Typography,
   Button,
-  AppBar,
-  TextField,
-  InputAdornment,
-  OutlinedInput,
   Tabs,
   Tab,
 } from "@mui/material";
-import styled from "styled-components";
 import DoneIcon from "@mui/icons-material/Done";
 import PaymentIcon from "@mui/icons-material/Payment";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import VerifiedIcon from "@mui/icons-material/Verified";
 
-import Topbar from "../../../components/common/Topbar";
-import Footer from "../../../components/common/Footer";
 import ModalOne from "../../../components/common/BookAppointmentModal";
-import { useGetDoctors } from "@/hooks/doctor";
 import { fetcher } from "@/apis/apiClient";
 
-const Drprofwrapper = styled.div`
-  padding: 40px;
-  padding-top: 90px;
+// Define TypeScript interfaces for profile data
+interface AvailabilitySlot {
+  day: string;
+  startTime: string;
+  endTime: string;
+}
 
-  .rating_wrp {
-    margin-right: 70px;
-  }
+interface ProfileData {
+  data?: {
+    id: string;
+    username: string;
+    profilePicture?: string;
+    email: string;
+    contact: string;
+    bio?: string;
+    experienceYears?: number;
+    languagesSpoken?: string[];
+    gender?: string;
+    dob?: string;
+    address?: string;
+    consultationFee?: number;
+    availability?: AvailabilitySlot[];
+  };
+}
 
-  .box_wrp {
-    display: flex;
-    padding: 20px;
-  }
+// Define props for ModalOne if needed
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
-  .dr_cir_canv {
-    width: 200px;
-    margin-right: 10px;
-    height: auto;
-  }
-  .dr_cat_action_wrp {
-    display: flex;
-    justify-content: space-between;
-    margin-left: 20px;
-    align-items: flex-start;
-  }
-  .dr_cat_action_wrp .t1 {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #20ada0;
-    display: flex;
-    align-items: center;
-  }
-  .dr_cat_action_wrp .t2 {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #646464;
-    margin-bottom: 20px;
-    margin-top: 10px;
-  }
-  .dr_cat_action_wrp .t3 {
-    font-size: 0.9rem;
-    font-weight: 300;
-    color: #646464;
-  }
-  .star_ico {
-    width: 30px;
-    height: 30px;
-  }
-  .rating_wrp {
-    background-color: #ededed;
-    height: auto;
-    display: flex;
-    width: 200px;
-    flex-direction: column;
-    margin-left: 500px;
-    padding: 10px;
-    border-radius: 10px;
-    background-image: url(../assets/images/vector_plus.png);
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: 102px;
-   
-  }
-  .rating_wrp .tx1 {
-    font-size: 2rem;
-    text-align: center;
-    color: black;
-    font-weight: normal;
-  }
-  .rating_wrp span {
-    font-size: 3rem;
-    text-align: center;
-    color: #20ada0;
-    font-weight: bold;
-  }
-
-  .star_wrp {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .expr {
-    display: flex;
-    align-items: center;
-    margin-top: 20px;
-  }
-  .expr .t3 {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #354c5c;
-    line-height: 1.2rem;
-  }
-  .para_info1 {
-    font-size: 0.85rem;
-    font-weight: 300;
-    color: #354c5c;
-    line-height: 1.2rem;
-  }
-  .trat_list {
-  }
-  .trat_list li {
-    list-style: none;
-    font-size: 0.8rem;
-    font-weight: 300;
-    color: #354c5c;
-    line-height: 1.2rem;
-    display: flex;
-  }
-  .trat_list li svg {
-    font-size: 15px;
-  }
-  .treat_list_title {
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #20ada0;
-    line-height: 1.2rem;
-    margin-top: 20px;
-    margin-bottom: 10px;
-  }
-  .loc_1 .tx2 {
-    font-size: 0.9rem;
-    font-weight: 300;
-    color: #354c5c;
-    line-height: 1.2rem;
-  }
-  .loc_1 .tx1 {
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #20ada0;
-    line-height: 1.2rem;
-    margin-top: 20px;
-    margin-bottom: 10px;
-  }
-  .loc_1 .tx3 {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #000;
-    line-height: 1.2rem;
-    margin-top: 20px;
-    margin-bottom: 10px;
-  }
-  .loc_1 {
-    border-bottom: 1px solid gray;
-    padding-bottom: 10px;
-  }
-  .dates .tx1 {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #20ada0;
-    line-height: 1.2rem;
-    margin-top: 20px;
-    margin-bottom: 10px;
-  }
-  .dates .tx2 {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #000;
-    line-height: 1.2rem;
-    margin-top: 10px;
-    margin-bottom: 10px;
-  }
-  .dates .tx3 {
-    font-size: 0.8rem;
-    font-weight: 300;
-    color: #354c5c;
-    line-height: 1.2rem;
-  }
-  .dates .tx4 {
-    font-size: 0.8rem;
-    font-weight: bold;
-    color: #354c5c;
-    line-height: 1.2rem;
-    margin-top: 15px;
-  }
-  .visit_t .tx1 {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #20ada0;
-    line-height: 1.2rem;
-    margin-top: 20px;
-    margin-bottom: 10px;
-  }
-  .blog_content .tx1 {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #20ada0;
-    line-height: 1.2rem;
-  }
-  .blog_content .tx2 {
-    font-size: 0.8rem;
-    font-weight: bold;
-    color: #354c5c;
-    line-height: 1.2rem;
-  }
-  .verified {
-    font-size: 0.8rem;
-    font-weight: bold;
-    color: #354c5c;
-    line-height: 1.2rem;
-    display: flex;
-    align-items: center;
-    margin-left: 10px;
-    border: 1px solid #20ada0;
-    border-radius: 4px;
-    padding: 3px;
-  }
-  .verified svg {
-    color: #20ada0;
-    margin-right: 5px;
-  }
-  .Specialization .tx1 {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #20ada0;
-    line-height: 1.2rem;
-  }
-  .availble .tx1 {
-    font-size: 1rem;
-    font-weight: 500;
-    color: #20ada0;
-    line-height: 1.2rem;
-  }
-  .availble .tx2 {
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: #354c5c;
-    line-height: 1.2rem;
-  }
-  .availble .time_box {
-    display: flex;
-  }
-  .availble .time_box li {
-    margin-top: 10px;
-    font-size: 0.8rem;
-    font-weight: 300;
-    color: #20ada0;
-    line-height: 1.2rem;
-    padding: 8px 10px;
-    border: 1px solid #20ada0;
-    border-radius: 4px;
-    list-style: none;
-    color: black;
-    margin-right: 10px;
-    cursor: pointer;
-  }
-`;
-
-export default function DrProfile() {
-  const [isModalOpen, setModalOpen] = useState(false);
-  const router = useRouter();
-  const [value, setValue] = useState(0);
-  const [value1, setValue1] = useState(0);
+const DrProfile: React.FC = () => {
+  const [isModalOpen, setModalOpen] = useState<boolean>(false);
+  const [tabValue, setTabValue] = useState<number>(0);
+  const [appointmentTabValue, setAppointmentTabValue] = useState<number>(0);
   const params = useParams();
   const doctorId = params?.id;
 
-  const [profileData, setProfileData] = useState({});
+  const [profileData, setProfileData] = useState<ProfileData>({});
+
   useEffect(() => {
     if (doctorId) {
       const fetchProfileData = async () => {
         try {
-          const response = await fetcher(
+          const response: ProfileData = await fetcher(
             "doctor",
             `get-doctor-by-id/${doctorId}`
           );
-          setProfileData(response || []);
+          setProfileData(response);
         } catch (error) {
-          console.error("Error fetching users:", error);
+          console.error("Error fetching doctor data:", error);
         }
       };
       fetchProfileData();
     }
   }, [doctorId]);
 
-  const openModal = () => {
+  const openModal = (): void => {
     setModalOpen(true);
   };
 
-  const closeModal = () => {
+  const closeModal = (): void => {
     setModalOpen(false);
   };
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
+  const handleTabChange = (
+    event: React.SyntheticEvent,
+    newValue: number
+  ): void => {
+    setTabValue(newValue);
   };
 
-  const handleChangeAppoint = (event, newValue) => {
-    setValue1(newValue);
+  const handleAppointmentTabChange = (
+    event: React.SyntheticEvent,
+    newValue: number
+  ): void => {
+    setAppointmentTabValue(newValue);
   };
 
-  const handleClinicTabClick = (event, newValue) => {
-    setValue1(newValue);
-    setValue(1);
+  const handleClinicTabClick = (
+    event: MouseEvent<HTMLButtonElement>,
+    newValue: number
+  ): void => {
+    setAppointmentTabValue(newValue);
+    setTabValue(1);
   };
-
-  // if (swrLoading) {
-  //   return <div>Loading...</div>;
-  // }
 
   return (
-    <Drprofwrapper>
-      <Topbar />
+    <Box
+      sx={{
+        padding: "40px",
+        paddingTop: "90px",
+      }}
+    >
       <ModalOne isOpen={isModalOpen} onClose={closeModal} />
       <Box sx={{ padding: "10px" }}>
         <Grid container spacing={3}>
-          <Grid item xs={12} sm={12} md={12}>
-            <Paper className="box_wrp">
-              <Box className="dr_cat_action_wrp">
-                {profileData && profileData.data ? (
-                  <>
-                 
-                      <Box
-                        component="img"
-                        className="dr_cir_canv"
-                        alt="The doctor from the offer."
-                        src={
-                          profileData.data.profilePicture ||
-                          "../../../assets/images/drRanjanaSharma.jpg"
-                        }
-                      />
-                    
+          {/* Doctor Information Section */}
+          <Grid item xs={12}>
+            <Paper
+              sx={{
+                display: "flex",
+                padding: "20px",
+                position: "relative",
+              }}
+            >
+              {/* Doctor Details */}
+              <Box
+                sx={{
+                  display: "flex",
+                  flex: 1,
+                  alignItems: "flex-start",
+                }}
+              >
+                {/* Doctor Image */}
+                <Box
+                  component="img"
+                  alt="Doctor"
+                  src={
+                    profileData.data?.profilePicture ||
+                    "/assets/images/drRanjanaSharma.jpg"
+                  }
+                  sx={{
+                    width: "200px",
+                    height: "auto",
+                    marginRight: "10px",
+                    borderRadius: "50%",
+                  }}
+                />
 
-                    <Box className="dr_cap">
-                      <Typography variant="h4" component="h4" className="t1">
-                        {profileData.data.username || "Name not available"}
-                        <span className="verified">
-                          <VerifiedIcon /> Verified profile
-                        </span>
-                      </Typography>
-                      <br />
-
-                      <Box className="availble">
-                        <Typography
-                          variant="h6"
-                          component="span"
-                          className="tx1"
-                        >
-                          {profileData.data.email || "Email not available"}
-                        </Typography>
-                        <span className="exp_hrlne">|</span>
-                        <Typography
-                          variant="h6"
-                          component="span"
-                          className="tx1"
-                        >
-                          {profileData.data.contact || "Contact not available"}
-                        </Typography>
-                      </Box>
-
-                      <Box className="availble">
-                        <Typography variant="h6" component="h6" className="tx1">
-                          {profileData.data.bio || "Bio not available"}
-                        </Typography>
-                      </Box>
-
-                      <Box className="expr">
-                        <Typography
-                          variant="h6"
-                          component="span"
-                          className="t3"
-                        >
-                          {profileData.data.experienceYears || 0} years of
-                          experience
-                        </Typography>
-                        <span className="exp_hrlne">|</span>
-                        <Typography
-                          variant="h6"
-                          component="span"
-                          className="t3"
-                        >
-                          Speaks{" "}
-                          {profileData.data.languagesSpoken?.length > 0
-                            ? profileData.data.languagesSpoken.join(", ")
-                            : "No languages specified"}
-                        </Typography>
-                      </Box>
-
-                      <Box>
-                        <Button
-                          onClick={openModal}
-                          variant="contained"
-                          sx={{
-                            marginTop: 2,
-                            width: "auto",
-                            color: "#fff",
-                            background: "#20ADA0",
-                            borderRadius: "4px",
-                            ":hover": {
-                              bgcolor: "#20ADA0",
-                              color: "white",
-                            },
-                          }}
-                        >
-                          Book a Video Appointment
-                        </Button>
-                        <Button
-                          onClick={openModal}
-                          variant="contained"
-                          sx={{
-                            marginTop: 2,
-                            width: "auto",
-                            color: "#fff",
-                            background: "#20ADA0",
-                            borderRadius: "4px",
-                            marginLeft: "20px",
-                            ":hover": {
-                              bgcolor: "#20ADA0",
-                              color: "white",
-                            },
-                          }}
-                        >
-                          Book an In-Clinic Appointment
-                        </Button>
-                      </Box>
+                {/* Doctor Information */}
+                <Box sx={{ flex: 1, marginLeft: "20px" }}>
+                  {/* Username and Verified Badge */}
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      fontSize: "2rem",
+                      fontWeight: "bold",
+                      color: "#20ada0",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    {profileData.data?.username || "Name not available"}
+                    <Box
+                      sx={{
+                        fontSize: "0.8rem",
+                        fontWeight: "bold",
+                        color: "#354c5c",
+                        lineHeight: "1.2rem",
+                        display: "flex",
+                        alignItems: "center",
+                        marginLeft: "10px",
+                        border: "1px solid #20ada0",
+                        borderRadius: "4px",
+                        padding: "3px",
+                      }}
+                    >
+                      <VerifiedIcon sx={{ color: "#20ada0", marginRight: "5px" }} />
+                      Verified profile
                     </Box>
-                  </>
-                ) : (
-                  <Typography>No doctor found.</Typography>
-                )}
+                  </Typography>
+
+                  {/* Email and Contact */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginTop: "20px",
+                      marginBottom: "10px",
+                      color: "#20ada0",
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "1rem",
+                        fontWeight: "600",
+                        color: "#20ada0",
+                        lineHeight: "1.2rem",
+                      }}
+                    >
+                      {profileData.data?.email || "Email not available"}
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "1rem",
+                        fontWeight: "600",
+                        color: "#20ada0",
+                        lineHeight: "1.2rem",
+                        marginX: "10px",
+                      }}
+                    >
+                      |
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "1rem",
+                        fontWeight: "600",
+                        color: "#20ada0",
+                        lineHeight: "1.2rem",
+                      }}
+                    >
+                      {profileData.data?.contact || "Contact not available"}
+                    </Typography>
+                  </Box>
+
+                  {/* Bio */}
+                  <Box sx={{ marginBottom: "10px" }}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "1rem",
+                        fontWeight: "500",
+                        color: "#20ada0",
+                        lineHeight: "1.2rem",
+                      }}
+                    >
+                      {profileData.data?.bio || "Bio not available"}
+                    </Typography>
+                  </Box>
+
+                  {/* Experience and Languages */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginTop: "20px",
+                      color: "#354c5c",
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "0.8rem",
+                        fontWeight: "600",
+                        color: "#354c5c",
+                        lineHeight: "1.2rem",
+                        marginRight: "10px",
+                      }}
+                    >
+                      {profileData.data?.experienceYears || 0} years of experience
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "0.8rem",
+                        fontWeight: "600",
+                        color: "#354c5c",
+                        lineHeight: "1.2rem",
+                      }}
+                    >
+                      |
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "0.8rem",
+                        fontWeight: "600",
+                        color: "#354c5c",
+                        lineHeight: "1.2rem",
+                        marginLeft: "10px",
+                      }}
+                    >
+                      Speaks{" "}
+                      {profileData.data?.languagesSpoken?.length
+                        ? profileData.data.languagesSpoken.join(", ")
+                        : "No languages specified"}
+                    </Typography>
+                  </Box>
+
+                  {/* Appointment Buttons */}
+                  <Box sx={{ marginTop: "20px" }}>
+                    <Button
+                      onClick={openModal}
+                      variant="contained"
+                      sx={{
+                        marginRight: "20px",
+                        paddingX: "16px",
+                        paddingY: "8px",
+                        color: "#fff",
+                        background: "#20ADA0",
+                        borderRadius: "4px",
+                        ":hover": {
+                          bgcolor: "#20ADA0",
+                          color: "white",
+                        },
+                      }}
+                    >
+                      Book a Video Appointment
+                    </Button>
+                    <Button
+                      onClick={openModal}
+                      variant="contained"
+                      sx={{
+                        paddingX: "16px",
+                        paddingY: "8px",
+                        color: "#fff",
+                        background: "#20ADA0",
+                        borderRadius: "4px",
+                        ":hover": {
+                          bgcolor: "#20ADA0",
+                          color: "white",
+                        },
+                      }}
+                    >
+                      Book an In-Clinic Appointment
+                    </Button>
+                  </Box>
+                </Box>
               </Box>
 
-              <Box className="rating_wrp">
-                <Typography variant="h6" component="span" className="tx1">
+              {/* Rating Section */}
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "20px",
+                  right: "20px",
+                  backgroundColor: "#ededed",
+                  width: "200px",
+                  padding: "10px",
+                  borderRadius: "10px",
+                  backgroundImage: 'url("/assets/images/vector_plus.png")',
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
+                  backgroundSize: "102px",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontSize: "2rem",
+                    textAlign: "center",
+                    color: "black",
+                    fontWeight: "normal",
+                  }}
+                >
                   Rating
                 </Typography>
-                <Typography variant="h6" component="span" className="tx2">
-                  <span>5/5</span>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontSize: "3rem",
+                    textAlign: "center",
+                    color: "#20ada0",
+                    fontWeight: "bold",
+                  }}
+                >
+                  5/5
                 </Typography>
-                <Box className="star_wrp">
-                  <Box
-                    component="img"
-                    className="star_ico"
-                    alt="Star"
-                    src={"../../assets/images/star-fill.png"}
-                  />
-                  <Box
-                    component="img"
-                    className="star_ico"
-                    alt="Star"
-                    src={"../../assets/images/star-fill.png"}
-                  />
-                  <Box
-                    component="img"
-                    className="star_ico"
-                    alt="Star"
-                    src={"../../assets/images/star-fill.png"}
-                  />
-                  <Box
-                    component="img"
-                    className="star_ico"
-                    alt="Star"
-                    src={"../../assets/images/star-fill.png"}
-                  />
-                  <Box
-                    component="img"
-                    className="star_ico"
-                    alt="Star"
-                    src={"../../assets/images/star-fill.png"}
-                  />
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    marginTop: "10px",
+                  }}
+                >
+                  {[...Array(5)].map((_, index) => (
+                    <Box
+                      key={index}
+                      component="img"
+                      alt="Star"
+                      src="/assets/images/star-fill.png"
+                      sx={{
+                        width: "30px",
+                        height: "30px",
+                        marginX: "2px",
+                      }}
+                    />
+                  ))}
                 </Box>
               </Box>
             </Paper>
           </Grid>
+
+          {/* Main Content */}
           <Grid item xs={12} sm={8} md={8}>
             <Box sx={{ width: "100%", background: "white" }}>
+              {/* Profile Tabs */}
               <Tabs
-                value={value}
-                onChange={handleChange}
+                value={tabValue}
+                onChange={handleTabChange}
                 variant="fullWidth"
-                aria-label="Pill Tabs Example"
+                aria-label="Profile Tabs"
                 sx={{
                   background: "#e8e8e8",
                   "& .MuiTabs-indicator": { display: "none" },
@@ -521,228 +429,322 @@ export default function DrProfile() {
                 <Tab label="Blog Post" />
               </Tabs>
 
+              {/* Tab Content */}
               <Box sx={{ p: 3 }}>
-                {value === 0 && (
-                  <div>
-                    <Box>
-                      <Typography
-                        variant="h6"
-                        component="p"
-                        className="para_info1"
-                      >
-                        {profileData.data?.username || "Doctor"} is a passionate
-                        and experienced mental health professional. Completed
-                        MBBS from Manipal University and post-graduation in
-                        psychiatry from St John’s Medical College Bangalore.
-                      </Typography>
-                      <Typography
-                        variant="h6"
-                        component="p"
-                        className="treat_list_title"
-                      >
-                        Gender: {profileData.data?.gender || "Doctor"}
-                      </Typography>
-                      <Typography
-                        variant="h6"
-                        component="p"
-                        className="treat_list_title"
-                      >
-                        DOB: {profileData.data?.dob || "Doctor"}
-                      </Typography>
+                {tabValue === 0 && (
+                  <Box>
+                    {/* Profile Information */}
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontSize: "0.85rem",
+                        fontWeight: "300",
+                        color: "#354c5c",
+                        lineHeight: "1.2rem",
+                        marginBottom: "20px",
+                      }}
+                    >
+                      {profileData.data?.username || "Doctor"} is a passionate and
+                      experienced mental health professional. Completed MBBS from
+                      Manipal University and post-graduation in psychiatry from St
+                      John’s Medical College Bangalore.
+                    </Typography>
+
+                    {/* Gender and DOB */}
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "1.25rem",
+                        fontWeight: "bold",
+                        color: "#20ada0",
+                        lineHeight: "1.2rem",
+                        marginTop: "20px",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      Gender: {profileData.data?.gender || "Not specified"}
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "1.25rem",
+                        fontWeight: "bold",
+                        color: "#20ada0",
+                        lineHeight: "1.2rem",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      DOB: {profileData.data?.dob || "Not specified"}
+                    </Typography>
+
+                    {/* Conditions Treated */}
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "1.25rem",
+                        fontWeight: "bold",
+                        color: "#20ada0",
+                        lineHeight: "1.2rem",
+                        marginTop: "20px",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      Conditions Treated
+                    </Typography>
+                    <Box component="ul" sx={{ padding: 0, listStyleType: "none" }}>
+                      {[
+                        "Stress and anger management",
+                        "Sleep problems",
+                        "Communication and relationship problems",
+                        "Anxiety and Depressive disorders",
+                        "Schizophrenia and psychotic disorders, OCD, Bipolar disorders",
+                        "ADHD, Autism",
+                        "Childhood motor disorders",
+                        "Childhood emotional and mental wellbeing",
+                        "Career guidance",
+                      ].map((condition, index) => (
+                        <Box
+                          key={index}
+                          component="li"
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            fontSize: "0.8rem",
+                            fontWeight: "300",
+                            color: "#354c5c",
+                            lineHeight: "1.2rem",
+                            marginBottom: "5px",
+                          }}
+                        >
+                          <DoneIcon sx={{ fontSize: "15px", marginRight: "5px" }} />
+                          {condition}
+                        </Box>
+                      ))}
                     </Box>
-                    <Box>
-                      <Typography
-                        variant="p"
-                        component="h4"
-                        className="treat_list_title"
-                      >
-                        Conditions Treated
-                      </Typography>
-                      <ul className="trat_list">
-                        <li>
-                          <DoneIcon sx={{ marginRight: "5px" }} /> Stress and
-                          anger management
-                        </li>
-                        <li>
-                          <DoneIcon sx={{ marginRight: "5px" }} /> Sleep
-                          problems
-                        </li>
-                        <li>
-                          <DoneIcon sx={{ marginRight: "5px" }} /> Communication
-                          and relationship problems
-                        </li>
-                        <li>
-                          {" "}
-                          <DoneIcon sx={{ marginRight: "5px" }} />
-                          Anxiety and Depressive disorders
-                        </li>
-                        <li>
-                          {" "}
-                          <DoneIcon sx={{ marginRight: "5px" }} />
-                          Schizophrenia and psychotic disorders, OCD, Bipolar
-                          disorders
-                        </li>
-                        <li>
-                          {" "}
-                          <DoneIcon sx={{ marginRight: "5px" }} />
-                          ADHD, Autism
-                        </li>
-                        <li>
-                          {" "}
-                          <DoneIcon sx={{ marginRight: "5px" }} />
-                          Childhood motor disorders
-                        </li>
-                        <li>
-                          {" "}
-                          <DoneIcon sx={{ marginRight: "5px" }} />
-                          Childhood emotional and mental wellbeing
-                        </li>
-                        <li>
-                          {" "}
-                          <DoneIcon sx={{ marginRight: "5px" }} />
-                          Career guidance
-                        </li>
-                      </ul>
-                    </Box>
-                  </div>
+                  </Box>
                 )}
-                {value === 1 && (
-                  <div>
-                    <Box className="locat_inf">
-                      <Grid container spacing={3}>
-                        <Grid item xs={12} sm={6} md={4}>
-                          <Box className="loc_1">
-                            <Typography
-                              variant="h6"
-                              component="h6"
-                              className="tx1"
-                            >
-                              Location
-                            </Typography>
-                            <Typography
-                              variant="h6"
-                              component="h6"
-                              className="tx2"
-                            >
-                              {profileData.data.address}
-                            </Typography>
-                          </Box>
-                        </Grid>
-                        {/* Availability from API */}
-                        <Grid item xs={12} sm={6} md={4} className="dates">
+
+                {tabValue === 1 && (
+                  <Box>
+                    {/* Clinic Location */}
+                    <Grid container spacing={3}>
+                      <Grid item xs={12} sm={6} md={4}>
+                        <Box
+                          sx={{
+                            borderBottom: "1px solid gray",
+                            paddingBottom: "10px",
+                            marginBottom: "10px",
+                          }}
+                        >
                           <Typography
                             variant="h6"
-                            component="h6"
-                            className="tx1"
+                            sx={{
+                              fontSize: "1.25rem",
+                              fontWeight: "bold",
+                              color: "#20ada0",
+                              lineHeight: "1.2rem",
+                              marginTop: "20px",
+                              marginBottom: "10px",
+                            }}
+                          >
+                            Location
+                          </Typography>
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              fontSize: "0.9rem",
+                              fontWeight: "300",
+                              color: "#354c5c",
+                              lineHeight: "1.2rem",
+                            }}
+                          >
+                            {profileData.data?.address || "Address not available"}
+                          </Typography>
+                        </Box>
+                      </Grid>
+
+                      {/* Availability */}
+                      <Grid item xs={12} sm={6} md={4}>
+                        <Box sx={{ marginBottom: "10px" }}>
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              fontSize: "1rem",
+                              fontWeight: "600",
+                              color: "#20ada0",
+                              lineHeight: "1.2rem",
+                              marginTop: "20px",
+                              marginBottom: "10px",
+                            }}
                           >
                             Availability
                           </Typography>
-                          {profileData?.data?.availability?.length > 0 ? (
+                          {profileData.data?.availability?.length ? (
                             profileData.data.availability.map((slot, index) => (
-                              <div key={index}>
+                              <Box key={index} sx={{ marginBottom: "10px" }}>
                                 <Typography
                                   variant="h6"
-                                  component="h6"
-                                  className="tx2"
+                                  sx={{
+                                    fontSize: "0.9rem",
+                                    fontWeight: "600",
+                                    color: "#000",
+                                    lineHeight: "1.2rem",
+                                    marginBottom: "5px",
+                                  }}
                                 >
                                   {slot.day}
                                 </Typography>
                                 <Typography
                                   variant="h6"
-                                  component="h6"
-                                  className="tx3"
+                                  sx={{
+                                    fontSize: "0.8rem",
+                                    fontWeight: "300",
+                                    color: "#354c5c",
+                                    lineHeight: "1.2rem",
+                                  }}
                                 >
                                   {slot.startTime} - {slot.endTime}
                                 </Typography>
-                              </div>
+                              </Box>
                             ))
                           ) : (
                             <Typography
                               variant="h6"
-                              component="h6"
-                              className="tx3"
+                              sx={{
+                                fontSize: "0.8rem",
+                                fontWeight: "300",
+                                color: "#354c5c",
+                                lineHeight: "1.2rem",
+                              }}
                             >
                               No Availability
                             </Typography>
                           )}
-                        </Grid>
+                        </Box>
+                      </Grid>
 
-                        <Grid item xs={12} sm={6} md={4} className="dates">
+                      {/* In-Clinic Visit */}
+                      <Grid item xs={12} sm={6} md={4}>
+                        <Box sx={{ marginBottom: "10px" }}>
                           <Typography
                             variant="h6"
-                            component="h6"
-                            className="tx1"
+                            sx={{
+                              fontSize: "1rem",
+                              fontWeight: "600",
+                              color: "#20ada0",
+                              lineHeight: "1.2rem",
+                              marginTop: "20px",
+                              marginBottom: "10px",
+                            }}
                           >
                             In-Clinic Visit
                           </Typography>
                           <Typography
                             variant="h6"
-                            component="h6"
-                            className="tx3"
-                            sx={{ display: "flex" }}
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              fontSize: "0.8rem",
+                              fontWeight: "500",
+                              color: "#354c5c",
+                              lineHeight: "1.2rem",
+                              marginBottom: "10px",
+                            }}
                           >
                             <CurrencyRupeeIcon sx={{ marginRight: "5px" }} />
-                            Fee : ₹ {profileData.data.consultationFee}
+                            Fee : ₹ {profileData.data?.consultationFee || "N/A"}
                           </Typography>
                           <Typography
                             variant="h6"
-                            component="h6"
-                            className="tx3"
-                            sx={{ display: "flex", marginTop: "15px" }}
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              fontSize: "0.8rem",
+                              fontWeight: "500",
+                              color: "#354c5c",
+                              lineHeight: "1.2rem",
+                              marginBottom: "10px",
+                            }}
                           >
-                            {" "}
                             <PaymentIcon sx={{ marginRight: "5px" }} />
                             Online Payment Available
                           </Typography>
                           <Typography
                             variant="h6"
-                            component="h6"
-                            className="tx4"
+                            sx={{
+                              fontSize: "0.8rem",
+                              fontWeight: "bold",
+                              color: "#354c5c",
+                              lineHeight: "1.2rem",
+                              marginTop: "15px",
+                            }}
                           >
                             Online Audio and Video Consultation
                           </Typography>
                           <Typography
                             variant="h6"
-                            component="h6"
-                            className="tx3"
-                            sx={{ display: "flex", marginTop: "10px" }}
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              fontSize: "0.8rem",
+                              fontWeight: "300",
+                              color: "#354c5c",
+                              lineHeight: "1.2rem",
+                              marginTop: "10px",
+                            }}
                           >
                             <CurrencyRupeeIcon sx={{ marginRight: "5px" }} />
-                            Fee : ₹ {profileData.data.consultationFee}
+                            Fee : ₹ {profileData.data?.consultationFee || "N/A"}
                           </Typography>
-                        </Grid>
+                        </Box>
                       </Grid>
-                    </Box>
-                  </div>
+                    </Grid>
+                  </Box>
                 )}
-                {value === 2 && (
-                  <div>
-                    <Box className="blog_content">
-                      <Typography variant="h6" component="h6" className="tx1">
-                        Home Consultation
-                      </Typography>
-                      <Typography
-                        variant="h6"
-                        component="h6"
-                        className="tx2"
-                        sx={{ display: "flex", marginTop: "10px" }}
-                      >
-                        Home visits available in {profileData.data.address}{" "}
-                        only, subject to doctor availability.
-                      </Typography>
-                    </Box>
-                  </div>
+
+                {tabValue === 2 && (
+                  <Box>
+                    {/* Blog Post Content */}
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "1rem",
+                        fontWeight: "600",
+                        color: "#20ada0",
+                        lineHeight: "1.2rem",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      Home Consultation
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        display: "flex",
+                        marginTop: "10px",
+                        fontSize: "0.8rem",
+                        fontWeight: "bold",
+                        color: "#354c5c",
+                        lineHeight: "1.2rem",
+                      }}
+                    >
+                      Home visits available in {profileData.data?.address || "your area"} only,
+                      subject to doctor availability.
+                    </Typography>
+                  </Box>
                 )}
               </Box>
             </Box>
           </Grid>
+
+          {/* Appointment Tabs */}
           <Grid item xs={12} sm={4} md={4}>
             <Box sx={{ width: "100%", background: "white" }}>
               <Tabs
-                value={value1}
-                onChange={handleChangeAppoint}
+                value={appointmentTabValue}
+                onChange={handleAppointmentTabChange}
                 variant="fullWidth"
-                aria-label="appoint"
+                aria-label="Appointment Tabs"
                 sx={{
                   background: "#e8e8e8",
                   "& .MuiTabs-indicator": { display: "none" },
@@ -760,62 +762,137 @@ export default function DrProfile() {
                 }}
               >
                 <Tab label="Video" />
-                <Tab
-                  label="Clinic"
-                  onClick={(e) => handleClinicTabClick(e, 1)}
-                />
+                <Tab label="Clinic" onClick={(e) => handleClinicTabClick(e, 1)} />
               </Tabs>
 
+              {/* Appointment Content */}
               <Box sx={{ p: 3 }}>
-                {value1 === 0 && (
-                  <div>
-                    <Box className="availble">
-                      <Typography variant="h6" component="h6" className="tx1">
-                        Available Tomorrow
-                      </Typography>
-                      <Typography variant="h6" component="h6" className="tx2">
-                        Delhi, Gurugram
-                      </Typography>
-                      <ul
-                        className="time_box"
-                        style={{ padding: 0, listStyleType: "none" }}
-                      >
-                        {profileData?.data?.availability?.map((slot, index) => (
-                          <li key={index} className="time_box">
-                            {slot.startTime}
-                          </li>
-                        ))}
-                      </ul>
+                {appointmentTabValue === 0 && (
+                  <Box>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "1rem",
+                        fontWeight: "500",
+                        color: "#20ada0",
+                        lineHeight: "1.2rem",
+                        marginTop: "20px",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      Available Tomorrow
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "0.9rem",
+                        fontWeight: "500",
+                        color: "#000",
+                        lineHeight: "1.2rem",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      Delhi, Gurugram
+                    </Typography>
+                    <Box
+                      component="ul"
+                      sx={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        padding: 0,
+                        listStyleType: "none",
+                      }}
+                    >
+                      {profileData.data?.availability?.map((slot, index) => (
+                        <Box
+                          key={index}
+                          component="li"
+                          sx={{
+                            marginTop: "10px",
+                            fontSize: "0.8rem",
+                            fontWeight: "300",
+                            color: "black",
+                            padding: "8px 10px",
+                            border: "1px solid #20ada0",
+                            borderRadius: "4px",
+                            marginRight: "10px",
+                            cursor: "pointer",
+                            backgroundColor: "#fff",
+                          }}
+                        >
+                          {slot.startTime}
+                        </Box>
+                      ))}
                     </Box>
-                  </div>
+                  </Box>
                 )}
-                {value1 === 1 && (
-                  <div>
-                    <Box className="availble">
-                      <Typography variant="h6" component="h6" className="tx1">
-                        Available Tomorrow
-                      </Typography>
-                      <Typography variant="h6" component="h6" className="tx2">
-                        Delhi, Gurugram
-                      </Typography>
-                      <ul
-                        className="time_box"
-                        style={{ padding: 0, listStyleType: "none" }}
-                      >
-                        {profileData?.data?.availability?.map((slot, index) => (
-                          <li key={index} className="time_box">
-                            {slot.startTime}
-                          </li>
-                        ))}
-                      </ul>
+
+                {appointmentTabValue === 1 && (
+                  <Box>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "1rem",
+                        fontWeight: "500",
+                        color: "#20ada0",
+                        lineHeight: "1.2rem",
+                        marginTop: "20px",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      Available Tomorrow
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "0.9rem",
+                        fontWeight: "500",
+                        color: "#000",
+                        lineHeight: "1.2rem",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      Delhi, Gurugram
+                    </Typography>
+                    <Box
+                      component="ul"
+                      sx={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        padding: 0,
+                        listStyleType: "none",
+                      }}
+                    >
+                      {profileData.data?.availability?.map((slot, index) => (
+                        <Box
+                          key={index}
+                          component="li"
+                          sx={{
+                            marginTop: "10px",
+                            fontSize: "0.8rem",
+                            fontWeight: "300",
+                            color: "black",
+                            padding: "8px 10px",
+                            border: "1px solid #20ada0",
+                            borderRadius: "4px",
+                            marginRight: "10px",
+                            cursor: "pointer",
+                            backgroundColor: "#fff",
+                          }}
+                        >
+                          {slot.startTime}
+                        </Box>
+                      ))}
                     </Box>
-                  </div>
+                  </Box>
                 )}
               </Box>
             </Box>
           </Grid>
         </Grid>
       </Box>
-    </Drprofwrapper>
+    </Box>
   );
-}
+};
+
+export default DrProfile;

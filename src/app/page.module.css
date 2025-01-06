@@ -1,5 +1,5 @@
 .appBar {
-  background-color: #1d869d;
+  /* background-color: #1d869d; */
 }
 
 .root {
@@ -832,7 +832,7 @@
 
 .submitButton {
   width: 100%;
-  color: #20ada0;
+  /* color: #20ada0; */
   background-color: #fff;
 }
 
