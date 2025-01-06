@@ -1,6 +1,6 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import Topbar from "../Components/common/Topbar";
+import React, { useState } from "react";
+import Topbar from "../components/common/Topbar";
 import { Box, Typography, Grid, Paper, IconButton } from "@mui/material";
 import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
@@ -43,11 +43,11 @@ const UserProfile = () => {
           `get-patient-by-id/${patientId}`
         );
         setUser(response);
-    } catch (error) {
+      } catch (error) {
         console.error("Error fetching patient profile:", error);
+      }
     }
-}
-}, [patientId]);
+  }, [patientId]);
 
 
   React.useEffect(() => {
@@ -197,7 +197,7 @@ const UserProfile = () => {
                         alert("Phone number copied to clipboard!");
                       } else {
                         alert("No phone number available to copy.");
-                      } 
+                      }
                     }}
                     sx={{
                       backgroundColor: "#20ADA0",
@@ -355,9 +355,9 @@ const UserProfile = () => {
             <Grid
               container
               spacing={2}
-              //   sx={{
-              //     border: "2px solid green",
-              //   }}
+            //   sx={{
+            //     border: "2px solid green",
+            //   }}
             >
               {[
                 { icon: CalendarTodayIcon, label: "Appointments" },

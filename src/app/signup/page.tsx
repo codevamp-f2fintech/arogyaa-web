@@ -21,7 +21,8 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import WcIcon from "@mui/icons-material/Wc";
 import LockIcon from "@mui/icons-material/Lock";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import SnackbarComponent from "../Components/common/Snackbar";
+
+import SnackbarComponent from "../components/common/Snackbar";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { Utility } from "@/utils";
@@ -219,7 +220,7 @@ const Signup = () => {
           style={{
             borderRadius: 8,
             boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
-            height:"485px"
+            height: "485px"
           }}
         />
       </Box>

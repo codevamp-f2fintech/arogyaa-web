@@ -17,7 +17,7 @@ import { Email, Lock, Visibility, VisibilityOff } from "@mui/icons-material";
 import * as Yup from "yup";
 import { Formik, Form } from "formik";
 
-import SnackbarComponent from "../Components/common/Snackbar";
+import SnackbarComponent from "../components/common/Snackbar";
 import { Utility } from "@/utils";
 import { RootState } from "@/redux/store";
 import { useCreatePatient } from "@/hooks/patient";
@@ -67,9 +67,8 @@ export default function Login() {
         });
         console.log(response, "this is response from login");
         if (response?.statusCode === 200) {
-          document.cookie = `token=${response.token}; path=/; max-age=${
-            1 * 24 * 60 * 60
-          }; secure; samesite=strict`;
+          document.cookie = `token=${response.token}; path=/; max-age=${1 * 24 * 60 * 60
+            }; secure; samesite=strict`;
           snackbarAndNavigate(
             dispatch,
             true,

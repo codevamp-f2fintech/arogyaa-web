@@ -6,7 +6,6 @@ import specialitiesReducer from "./features/specialitySlice";
 import symptomsReducer from "./features/symptomsSlice";
 import userReducer from "./features/userSlice";
 import testimonialReducer from "./features/testimonialSlice";
-import doctorprofileReducer from "./features/doctorprofileSlice";
 import doctorReducer from "./features/doctorSlice";
 import chatReducer from "./features/chatSlice";
 import patientReducer from "./features/patientSlice";
@@ -19,7 +18,6 @@ export const store = configureStore({
     symptoms: symptomsReducer,
     user: userReducer,
     testimonial: testimonialReducer,
-    doctorprofile: doctorprofileReducer,
     doctors: doctorReducer,
     chatlist: chatReducer,
     patient: patientReducer
