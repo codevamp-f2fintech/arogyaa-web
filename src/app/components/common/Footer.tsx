@@ -43,7 +43,7 @@ const Footer = () => {
                 component="h6"
                 className={styles.arogya2024}
               >
-                Arogya 2024
+                {/* Arogya 2024 */}
               </Typography>
               <Typography variant="h6" component="h6">
                 {en.footer.dated}

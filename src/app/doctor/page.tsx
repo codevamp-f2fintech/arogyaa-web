@@ -16,25 +16,44 @@ import {
   TextField,
 } from "@mui/material";
 import ChatIcon from "@mui/icons-material/Chat";
-import PhoneIcon from '@mui/icons-material/Phone'
-
+import PhoneIcon from "@mui/icons-material/Phone";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import BookOnlineIcon from "@mui/icons-material/BookOnline";
+
+import ModalOne from "../components/common/BookAppointmentModal";
 import { useGetDoctors } from "@/hooks/doctor";
 
 export default function BasicSelect() {
-  const [selectedValue, setSelectedValue] = useState("");
-
-  const router = useRouter();
-
-  const handleChange = (event: any) => {
-    setSelectedValue(event.target.value);
+  const [isModalOpen, setModalOpen] = useState<boolean>(false);
+  const [filters, setFilters] = useState({
+    gender: "",
+    experienceFilter: "",
+    sortBy: "",
+  });
+  const openModal = (): void => {
+    setModalOpen(true);
   };
+  const closeModal = (): void => {
+    setModalOpen(false);
+  };
+  const router = useRouter();
 
   const {
     value: doctors,
     swrLoading,
     error,
-  } = useGetDoctors(null, "get-doctors", 1, 6);
+  } = useGetDoctors(null, "get-doctors", 1, 6, filters);
+
+  const handleFilterChange = (field: string, value: string) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [field]: value,
+    }));
+  };
+
+  const handleFilterSubmit = () => {
+    fetch(filters);
+  };
 
   if (swrLoading) {
     return <div>Loading...</div>;
@@ -47,25 +66,24 @@ export default function BasicSelect() {
   return (
     <Box
       sx={{
-        padding: "50px",
+        padding: "30px",
         marginTop: "40px",
         paddingBottom: 0,
       }}
     >
+      <ModalOne isOpen={isModalOpen} onClose={closeModal} />
       {/* Filters */}
       <Box sx={{ marginBottom: "10px" }}>
         <Paper sx={{ padding: "10px" }}>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6} md={2}>
               <FormControl variant="standard" sx={{ width: "100%" }}>
-                <InputLabel id="demo-simple-select-standard-label">
-                  Gender
-                </InputLabel>
+                <InputLabel id="gender-label">Gender</InputLabel>
                 <Select
-                  labelId="demo-simple-select-standard-label"
-                  id="demo-simple-select-standard"
-                  value={selectedValue}
-                  onChange={handleChange}
+                  labelId="gender-label"
+                  id="gender-select"
+                  value={filters.gender}
+                  onChange={(e) => handleFilterChange("gender", e.target.value)}
                   label="Gender"
                   sx={{
                     fontSize: "0.8rem",
@@ -77,19 +95,22 @@ export default function BasicSelect() {
                   <MenuItem value="">
                     <em>None</em>
                   </MenuItem>
-                  <MenuItem value={10}>Male</MenuItem>
-                  <MenuItem value={20}>Female</MenuItem>
+                  <MenuItem value="male">Male</MenuItem>
+                  <MenuItem value="female">Female</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
+            {/* Experience Filter */}
             <Grid item xs={12} sm={6} md={2}>
               <FormControl variant="standard" sx={{ width: "100%" }}>
-                <InputLabel id="exp">Experience</InputLabel>
+                <InputLabel id="experience-label">Experience</InputLabel>
                 <Select
-                  labelId="exp"
-                  id="demo-simple-select-standard1"
-                  value={selectedValue}
-                  onChange={handleChange}
+                  labelId="experience-label"
+                  id="experience-select"
+                  value={filters.experienceFilter}
+                  onChange={(e) =>
+                    handleFilterChange("experienceFilter", e.target.value)
+                  }
                   label="Experience"
                   sx={{
                     fontSize: "0.8rem",
@@ -101,20 +122,21 @@ export default function BasicSelect() {
                   <MenuItem value="">
                     <em>None</em>
                   </MenuItem>
-                  <MenuItem value={10}>5+ Years of Experience</MenuItem>
-                  <MenuItem value={20}>10+ Years of Experience</MenuItem>
-                  <MenuItem value={30}>15+ Years of Experience</MenuItem>
+                  <MenuItem value="above 5 years">5+ Years</MenuItem>
+                  <MenuItem value="above 10 years">10+ Years</MenuItem>
+                  <MenuItem value="above 15 years">15+ Years</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
+            {/* Fees Filter */}
             <Grid item xs={12} sm={6} md={2}>
               <FormControl variant="standard" sx={{ width: "100%" }}>
-                <InputLabel id="fee">Fees</InputLabel>
+                <InputLabel id="fees-label">Fees</InputLabel>
                 <Select
-                  labelId="fee"
-                  id="demo-simple-select-standard3"
-                  value={selectedValue}
-                  onChange={handleChange}
+                  labelId="fees-label"
+                  id="fees-select"
+                  value={filters.sortBy}
+                  onChange={(e) => handleFilterChange("sortBy", e.target.value)}
                   label="Fees"
                   sx={{
                     fontSize: "0.8rem",
@@ -126,8 +148,8 @@ export default function BasicSelect() {
                   <MenuItem value="">
                     <em>None</em>
                   </MenuItem>
-                  <MenuItem value={10}>High To Low</MenuItem>
-                  <MenuItem value={20}>Low To High</MenuItem>
+                  <MenuItem value="fee_high_to_low">High To Low</MenuItem>
+                  <MenuItem value="fee_low_to_high">Low To High</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
@@ -145,6 +167,7 @@ export default function BasicSelect() {
                     color: "white",
                   },
                 }}
+                onClick={handleFilterSubmit}
               >
                 Filter
               </Button>
@@ -163,14 +186,17 @@ export default function BasicSelect() {
                 sx={{
                   display: "flex",
                   marginTop: "15px",
+                  borderRadius: "10px",
+                  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
                 }}
               >
                 <Box
                   sx={{
-                    padding: "5px",
-                    borderRadius: "20px",
+                    padding: "10px",
+                    borderRadius: "50%", 
                     display: "flex",
                     alignItems: "center",
+                    justifyContent: "center", 
                   }}
                 >
                   <Box
@@ -181,12 +207,15 @@ export default function BasicSelect() {
                       "../../../assets/images/drRanjanaSharma.jpg"
                     }
                     sx={{
-                      width: "160px",
-                      height: "auto",
-                      border: "4px solid #20ada0",
+                      width: "150px",
+                      height: "150px",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                      border: "5px solid white", 
                     }}
                   />
                 </Box>
+
                 <Box
                   sx={{
                     display: "flex",
@@ -204,15 +233,16 @@ export default function BasicSelect() {
                         color: "#20ADA0",
                         lineHeight: "1.5rem",
                         marginBottom: "10px",
-                        display: "flex", // Flex for alignment
-                        alignItems: "center", // Vertically center the icon and text
+                        display: "flex",
+                        alignItems: "center",
                       }}
                     >
                       {doctor.username || "Unknown Doctor"}
                       &nbsp;[
-                      <PhoneIcon sx={{ fontSize: "1rem", marginRight: "4px" }} />
-                      {doctor.contact || "Unknown Doctor"}
-                      ]
+                      <PhoneIcon
+                        sx={{ fontSize: "1rem", marginRight: "4px" }}
+                      />
+                      {doctor.contact || "Unknown Doctor"}]
                     </Typography>
                     <Typography
                       variant="h6"
@@ -226,7 +256,19 @@ export default function BasicSelect() {
                     >
                       Bio: {doctor.bio || "Not available"}
                     </Typography>
-
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "0.9rem",
+                        fontWeight: 400,
+                        color: "gray",
+                        lineHeight: "1.2rem",
+                        marginTop: "5px",
+                      }}
+                    >
+                      Gender: {doctor.gender || "Not available"} | Fees:{" "}
+                      {doctor.consultationFee || "Not available"}
+                    </Typography>
 
                     <Typography
                       variant="h6"
@@ -265,7 +307,7 @@ export default function BasicSelect() {
                         }}
                       >
                         {doctor.availability &&
-                          doctor.availability.length > 0 ? (
+                        doctor.availability.length > 0 ? (
                           doctor.availability.map((slot, index) => (
                             <Typography
                               key={index}
@@ -307,8 +349,8 @@ export default function BasicSelect() {
                           lineHeight: "1.2rem",
                         }}
                       >
-                        {doctor.experienceYears != null
-                          ? `${doctor.experienceYears} years of experience`
+                        {doctor.experience != null
+                          ? `${doctor.experience} years of experience`
                           : "Experience not available"}
                       </Typography>
                       <span
@@ -344,6 +386,7 @@ export default function BasicSelect() {
                       alignItems: "flex-end",
                     }}
                   >
+                    {/* Chat Button */}
                     <Link href={`/appointment/chat`} passHref>
                       <Button
                         variant="contained"
@@ -361,6 +404,7 @@ export default function BasicSelect() {
                       </Button>
                     </Link>
 
+                    {/* View Profile Button */}
                     <Button
                       variant="contained"
                       startIcon={<AccountCircleIcon />}
@@ -370,6 +414,7 @@ export default function BasicSelect() {
                         borderRadius: "20px",
                         ":hover": { backgroundColor: "#1a8c80" },
                         marginRight: 1,
+                        mb: 2, // Add spacing below View Profile button
                       }}
                       onClick={() => {
                         router.push(
@@ -378,6 +423,25 @@ export default function BasicSelect() {
                       }}
                     >
                       View Profile
+                    </Button>
+
+                    <Button
+                      onClick={() => {
+                        openModal();
+                        console.log("Doctor ID:", doctor._id);
+                      }}
+                      variant="contained"
+                      startIcon={<BookOnlineIcon />}
+                      sx={{
+                        backgroundColor: "#20ADA0",
+                        color: "#fff",
+                        borderRadius: "20px",
+                        ":hover": { backgroundColor: "#1a8c80" },
+                        marginRight: 1,
+                        mb: 2,
+                      }}
+                    >
+                      Book Appointment
                     </Button>
                   </Box>
                 </Box>

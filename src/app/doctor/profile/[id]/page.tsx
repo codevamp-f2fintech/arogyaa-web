@@ -2,15 +2,7 @@
 
 import { useParams } from "next/navigation";
 import React, { useState, useEffect, ChangeEvent, MouseEvent } from "react";
-import {
-  Box,
-  Grid,
-  Paper,
-  Typography,
-  Button,
-  Tabs,
-  Tab,
-} from "@mui/material";
+import { Box, Grid, Paper, Typography, Button, Tabs, Tab } from "@mui/material";
 import DoneIcon from "@mui/icons-material/Done";
 import PaymentIcon from "@mui/icons-material/Payment";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
@@ -177,7 +169,9 @@ const DrProfile: React.FC = () => {
                         padding: "3px",
                       }}
                     >
-                      <VerifiedIcon sx={{ color: "#20ada0", marginRight: "5px" }} />
+                      <VerifiedIcon
+                        sx={{ color: "#20ada0", marginRight: "5px" }}
+                      />
                       Verified profile
                     </Box>
                   </Typography>
@@ -262,7 +256,7 @@ const DrProfile: React.FC = () => {
                         marginRight: "10px",
                       }}
                     >
-                      {profileData.data?.experienceYears || 0} years of experience
+                      {profileData.data?.experience || 0} years of experience
                     </Typography>
                     <Typography
                       variant="h6"
@@ -444,10 +438,10 @@ const DrProfile: React.FC = () => {
                         marginBottom: "20px",
                       }}
                     >
-                      {profileData.data?.username || "Doctor"} is a passionate and
-                      experienced mental health professional. Completed MBBS from
-                      Manipal University and post-graduation in psychiatry from St
-                      John’s Medical College Bangalore.
+                      {profileData.data?.username || "Doctor"} is a passionate
+                      and experienced mental health professional. Completed MBBS
+                      from Manipal University and post-graduation in psychiatry
+                      from St John’s Medical College Bangalore.
                     </Typography>
 
                     {/* Gender and DOB */}
@@ -491,7 +485,10 @@ const DrProfile: React.FC = () => {
                     >
                       Conditions Treated
                     </Typography>
-                    <Box component="ul" sx={{ padding: 0, listStyleType: "none" }}>
+                    <Box
+                      component="ul"
+                      sx={{ padding: 0, listStyleType: "none" }}
+                    >
                       {[
                         "Stress and anger management",
                         "Sleep problems",
@@ -516,7 +513,9 @@ const DrProfile: React.FC = () => {
                             marginBottom: "5px",
                           }}
                         >
-                          <DoneIcon sx={{ fontSize: "15px", marginRight: "5px" }} />
+                          <DoneIcon
+                            sx={{ fontSize: "15px", marginRight: "5px" }}
+                          />
                           {condition}
                         </Box>
                       ))}
@@ -558,7 +557,8 @@ const DrProfile: React.FC = () => {
                               lineHeight: "1.2rem",
                             }}
                           >
-                            {profileData.data?.address || "Address not available"}
+                            {profileData.data?.address ||
+                              "Address not available"}
                           </Typography>
                         </Box>
                       </Grid>
@@ -728,8 +728,9 @@ const DrProfile: React.FC = () => {
                         lineHeight: "1.2rem",
                       }}
                     >
-                      Home visits available in {profileData.data?.address || "your area"} only,
-                      subject to doctor availability.
+                      Home visits available in{" "}
+                      {profileData.data?.address || "your area"} only, subject
+                      to doctor availability.
                     </Typography>
                   </Box>
                 )}
@@ -762,7 +763,10 @@ const DrProfile: React.FC = () => {
                 }}
               >
                 <Tab label="Video" />
-                <Tab label="Clinic" onClick={(e) => handleClinicTabClick(e, 1)} />
+                <Tab
+                  label="Clinic"
+                  onClick={(e) => handleClinicTabClick(e, 1)}
+                />
               </Tabs>
 
               {/* Appointment Content */}
