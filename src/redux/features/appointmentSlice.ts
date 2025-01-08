@@ -3,12 +3,12 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Appointment } from "../../types/appointment";
 
 interface appointmentInitialState {
-  appointment: Appointment[];
+  appointment: Appointment | null;
   reduxLoading: boolean;
 }
 
 const initialState: appointmentInitialState = {
-  appointment: [],
+  appointment: null,
   reduxLoading: false,
 };
 
@@ -16,7 +16,7 @@ export const appointmentSlice = createSlice({
   name: "appointment",
   initialState,
   reducers: {
-    setAppointment: (state, action: PayloadAction<Appointment[]>) => {
+    setAppointment: (state, action: PayloadAction<Appointment>) => {
       state.appointment = action.payload;
       state.reduxLoading = false;
     },

@@ -22,7 +22,7 @@ export const useGetSymptom = (
     limit: number = 5
 ) => {
     const url = `${pathKey}?page=${page}&limit=${limit}`;
-    const { data: swrData, error, isValidating, mutate } = useSWR<Symptom>(
+    const { data: swrData, error, isValidating, mutate } = useSWR<Symptom | null>(
         url,
         () => fetcher<Symptom>('symptom', url),
         {

@@ -15,11 +15,13 @@ export const useGetTestimonial = (
   initialData: Testimonial[],
   pathKey: string
 ) => {
-  const { data: swrData, error } = useSWR<Testimonial[]>(pathKey, fetcher, {
-    fallbackData: initialData,
-    refreshInterval: initialData ? 3600000 : 0,
-    revalidateOnFocus: false,
-  });
+  const { data: swrData, error } = useSWR<Testimonial[]>(pathKey,
+    () => fetcher<Testimonial[]>('testimonial', pathKey),
+    {
+      fallbackData: initialData,
+      refreshInterval: initialData ? 3600000 : 0,
+      revalidateOnFocus: false,
+    });
 
   return { data: swrData || [], swrLoading: !error && !swrData, error };
 };
@@ -33,19 +35,17 @@ export const useGetTestimonial = (
 export const useCreateTestimonial = (pathKey: string) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const [createdTestimonial, setCreatedTestimonial] =
-    useState<Testimonial | null>(null);
 
   const createTestimonial = async (newTestimonialData: Testimonial) => {
     setLoading(true);
     setError(null);
-
     try {
       const testimonial = await creator<Testimonial, Testimonial>(
+        'testimonial',
         pathKey,
         newTestimonialData
       );
-      setCreatedTestimonial(testimonial);
+      return testimonial;
     } catch (err) {
       setError(err as Error);
     } finally {
@@ -53,7 +53,7 @@ export const useCreateTestimonial = (pathKey: string) => {
     }
   };
 
-  return { createdTestimonial, loading, error, createTestimonial };
+  return { loading, error, createTestimonial };
 };
 
 /**
@@ -65,19 +65,17 @@ export const useCreateTestimonial = (pathKey: string) => {
 export const useModifyTestimonial = (pathKey: string) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const [updatedTestimonial, setUpdatedTestimonial] =
-    useState<Testimonial | null>(null);
 
   const modifyTestimonial = async (updatedTestimonialData: Testimonial) => {
     setLoading(true);
     setError(null);
-
     try {
       const testimonial = await modifier<Testimonial, Testimonial>(
+        'testimonial',
         pathKey,
         updatedTestimonialData
       );
-      setUpdatedTestimonial(testimonial);
+      return testimonial;
     } catch (err) {
       setError(err as Error);
     } finally {
@@ -85,5 +83,5 @@ export const useModifyTestimonial = (pathKey: string) => {
     }
   };
 
-  return { updatedTestimonial, loading, error, modifyTestimonial };
+  return { loading, error, modifyTestimonial };
 };

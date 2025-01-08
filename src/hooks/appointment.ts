@@ -1,8 +1,8 @@
 import { useState } from "react";
 import useSWR from "swr";
 
-import { creator, fetcher, modifier } from "@/apis/apiClient";
-import { Appointment } from "../types/appointment";
+import { creator, fetcher } from "@/apis/apiClient";
+import { Appointment, AppointmentData } from "../types/appointment";
 
 /**
  * Hook for fetching users with SWR (stale-while-revalidate) strategy.
@@ -12,18 +12,31 @@ import { Appointment } from "../types/appointment";
  * @returns An object containing the fetched users, loading state, and error state.
  */
 export const useGetAppointment = (
-  initialData: Appointment[],
-  pathKey: string
+  initialData: Appointment | null,
+  pathKey: string,
+  page: number = 1,
+  limit: number = 5
 ) => {
-  const { data: swrData, error } = useSWR<Appointment[]>(pathKey,
-    () => fetcher('appointment', pathKey),
+  const url = `${pathKey}?page=${page}&limit=${limit}`;
+  const { data: swrData, error, isValidating } = useSWR<Appointment | null>(
+    url,
+    () => fetcher('appointment', url),
     {
       fallbackData: initialData,
-      refreshInterval: initialData ? 3600000 : 0, // 1 hour refresh if initialData exists
-      revalidateOnFocus: false, // Disable revalidation on window focus
+      refreshInterval: initialData ? 3600000 : 0,
+      revalidateOnFocus: false,
     });
 
-  return { data: swrData || [], swrLoading: !error && !swrData, error };
+  return {
+    value: swrData || {
+      results: [],
+      total: 0,
+      pages: 0,
+      errorMessage: null
+    },
+    swrLoading: !error && !swrData && isValidating,
+    error,
+  };
 };
 
 /**
@@ -35,20 +48,17 @@ export const useGetAppointment = (
 export const useCreateAppointment = (pathKey: string) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const [createdAppointment, setCreatedAppointment] =
-    useState<Appointment | null>(null);
 
-  const createAppointment = async (newAppointmentData: any) => {
+  const createAppointment = async (newAppointmentData: AppointmentData) => {
     setLoading(true);
     setError(null);
-
     try {
-      const appointment = await creator<Appointment, Appointment>(
+      const appointment = await creator<AppointmentData, AppointmentData>(
         'appointment',
         pathKey,
         newAppointmentData
       );
-      setCreatedAppointment(appointment);
+      return appointment;
     } catch (err) {
       setError(err as Error);
     } finally {
@@ -56,5 +66,5 @@ export const useCreateAppointment = (pathKey: string) => {
     }
   };
 
-  return { createdAppointment, loading, error, createAppointment };
+  return { loading, error, createAppointment };
 };

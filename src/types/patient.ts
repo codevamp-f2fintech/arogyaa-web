@@ -10,6 +10,9 @@ export interface PatientData {
     address: string;
     profilePicture: string;
     password: string;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
 }
 
 export interface Patient {

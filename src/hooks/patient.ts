@@ -24,7 +24,7 @@ export const useGetPatient = (
     const url = `${pathKey}?page=${page}&limit=${limit}`;
     const { data: swrData, error, isValidating, mutate } = useSWR<Patient | null>(
         url,
-        () => fetcher('patient', pathKey),
+        () => fetcher('patient', url),
         {
             fallbackData: initialData,
             refreshInterval: initialData ? 3600000 : 0, // 1 hour refresh if initialData exists
@@ -92,7 +92,7 @@ export const useModifyPatient = (pathKey: string) => {
         setError(null);
 
         try {
-            const patient = await modifier<PatientData, Partial<PatientData>>('patient',pathKey, updatedPatientData);
+            const patient = await modifier<PatientData, Partial<PatientData>>('patient', pathKey, updatedPatientData);
             return patient;
         } catch (err) {
             setError(err as Error);

@@ -22,7 +22,7 @@ export const useGetSpeciality = (
   limit: number = 5
 ) => {
   const url = `${pathKey}?page=${page}&limit=${limit}`;
-  const { data: swrData, error, isValidating, mutate } = useSWR<Speciality>(
+  const { data: swrData, error, isValidating, mutate } = useSWR<Speciality | null>(
     url,
     () => fetcher<Speciality>('speciality', url),
     {

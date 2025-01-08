@@ -23,7 +23,7 @@ export const useGetDoctors = (
 ) => {
     const url = `${pathKey}?page=${page}&limit=${limit}`;
 
-    const { data: swrData, error, isValidating, mutate } = useSWR<Doctor>(
+    const { data: swrData, error, isValidating, mutate } = useSWR<Doctor | null>(
         url,
         () => fetcher<Doctor>('doctor', url),
         {
