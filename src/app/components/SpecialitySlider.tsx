@@ -5,7 +5,7 @@ import Slider from "react-slick";
 import { useDispatch, useSelector } from "react-redux";
 import { Box, Button, Grid } from "@mui/material";
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
@@ -18,6 +18,7 @@ import { setSpeciality } from "@/redux/features/specialitySlice";
 import styles from "../page.module.css";
 import Loader from "./common/Loader";
 import SpecialistCard from "./SpecialistCard";
+import { border, display } from "@mui/system";
 
 const SpecialitySlider: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -52,55 +53,59 @@ const SpecialitySlider: React.FC = () => {
     }));
   }, [dispatch]);
 
-  const handleConsult = useCallback((id: string) => {
-    // router.push(`/doctor/profile/${encodeURIComponent(id)}`);
-    router.push('/doctor');
-    console.log(id, 'consult click')
-  }, [router]);
+  const handleConsult = useCallback(
+    (id: string) => {
+      // router.push(`/doctor/profile/${encodeURIComponent(id)}`);
+      router.push("/doctor");
+      console.log(id, "consult click");
+    },
+    [router]
+  );
 
   // Slider settings memoization to prevent re-renders
-  const sliderSettings = useMemo(() => ({
-    dots: true,
-    infinite: false,
-    speed: 500,
-    slidesToShow: 4,
-    slidesToScroll: 2,
-    autoplay: false,
-    autoplaySpeed: 3000,
-    lazyLoad: 'ondemand',
-    customPaging: (i: number) => (
-      <div className={styles.customDot}>
-        {i + 1}
-      </div>
-    ),
-    dotsClass: `slick-dots ${styles.customDots}`,
-    responsive: [
-      {
-        breakpoint: 1024,
-        settings: {
-          slidesToShow: 3,
-          slidesToScroll: 3,
-          infinite: false,
-          dots: true,
+  const sliderSettings = useMemo(
+    () => ({
+      dots: true,
+      infinite: false,
+      speed: 500,
+      slidesToShow: 4,
+      slidesToScroll: 2,
+      autoplay: false,
+      autoplaySpeed: 3000,
+      lazyLoad: "ondemand",
+      customPaging: (i: number) => (
+        <div className={styles.customDot}>{i + 1}</div>
+      ),
+      dotsClass: `slick-dots ${styles.customDots}`,
+      responsive: [
+        {
+          breakpoint: 1024,
+          settings: {
+            slidesToShow: 3,
+            slidesToScroll: 3,
+            infinite: false,
+            dots: true,
+          },
         },
-      },
-      {
-        breakpoint: 600,
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-          initialSlide: 1,
+        {
+          breakpoint: 600,
+          settings: {
+            slidesToShow: 1,
+            slidesToScroll: 1,
+            initialSlide: 1,
+          },
         },
-      },
-      {
-        breakpoint: 480,
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
+        {
+          breakpoint: 480,
+          settings: {
+            slidesToShow: 1,
+            slidesToScroll: 1,
+          },
         },
-      },
-    ],
-  }), []);
+      ],
+    }),
+    []
+  );
 
   return (
     <>
@@ -111,25 +116,48 @@ const SpecialitySlider: React.FC = () => {
         </h1>
 
         <Slider {...sliderSettings}>
-          {speciality && speciality?.results?.length > 0 ?
+          {speciality && speciality?.results?.length > 0 ? (
             speciality.results.map((item) => {
-              const icon = icons.find((icon) => icon.title === item.name.toLowerCase())?.path;
+              const icon = icons.find(
+                (icon) => icon.title === item.name.toLowerCase()
+              )?.path;
               return (
-                <SpecialistCard
+                <Box
                   key={item._id}
-                  icon={icon}
-                  name={item.name}
-                  description={item.description}
-                  onConsult={() => handleConsult(item._id)}
-                />
+                  sx={{
+                    margin: "10px", // Add spacing between cards
+                    padding: "10px", // Optional padding inside each card
+                    borderRadius: "8px", // Optional rounded corners
+                  }}
+                >
+                  <SpecialistCard
+                    key={item._id}
+                    icon={icon}
+                    name={item.name}
+                    description={item.description}
+                    onConsult={() => handleConsult(item._id)}
+                  />
+                </Box>
               );
             })
-            : <div>No Specialities Found</div>
-          }
+          ) : (
+            <div>No Specialities Found</div>
+          )}
         </Slider>
 
-        <Grid container spacing={2} columns={{ xs: 4, sm: 8, md: 12 }}>
-          <Grid xs={12} sx={{ textAlign: "center", marginTop: "20px" }}>
+        <Grid
+          sx={{mt: 8 }}
+          container
+          spacing={2}
+          columns={{ xs: 4, sm: 8, md: 12 }}
+        >
+          <Grid
+            xs={12}
+            sx={{
+              textAlign: "center",
+              marginTop: "10px",
+            }}
+          >
             <Button
               variant="contained"
               className={styles.gridButton}
