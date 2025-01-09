@@ -1,6 +1,6 @@
 "use client";
+
 import React, { useState } from "react";
-import Topbar from "../components/common/Topbar";
 import { Box, Typography, Grid, Paper, IconButton } from "@mui/material";
 import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
@@ -13,6 +13,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+
 import { Utility } from "@/utils";
 import { fetcher } from "@/apis/apiClient";
 
@@ -48,7 +49,6 @@ const UserProfile = () => {
       }
     }
   }, [patientId]);
-
 
   React.useEffect(() => {
     fetchUserProfile();
@@ -355,9 +355,9 @@ const UserProfile = () => {
             <Grid
               container
               spacing={2}
-            //   sx={{
-            //     border: "2px solid green",
-            //   }}
+              //   sx={{
+              //     border: "2px solid green",
+              //   }}
             >
               {[
                 { icon: CalendarTodayIcon, label: "Appointments" },
@@ -375,7 +375,6 @@ const UserProfile = () => {
           </Paper>
         </Grid>
       </Grid>
-      <Topbar />
     </Box>
   );
 };
