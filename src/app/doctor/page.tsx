@@ -113,16 +113,31 @@ const theme = createTheme({
 
 export default function ModernDoctorProfile() {
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
+  const [modalData, setModalData] = useState<{
+    doctorId: string;
+    doctorName: string;
+    consultationFee?: number;
+    address?: string;
+    availability?: { day: string; startTime: string; endTime: string }[];
+  } | null>(null);
   const [filters, setFilters] = useState({
     gender: "",
     experienceFilter: "",
     sortBy: "",
   });
-  const openModal = (): void => {
+  const openModal = (doctor: any): void => {
+    setModalData({
+      doctorId: doctor._id,
+      doctorName: doctor.username,
+      consultationFee: doctor.consultationFee,
+      address: doctor.address,
+      availability: doctor.availability,
+    });
     setModalOpen(true);
   };
   const closeModal = (): void => {
     setModalOpen(false);
+    setModalData(null);
   };
   const router = useRouter();
 
@@ -181,8 +196,8 @@ export default function ModernDoctorProfile() {
         >
           Find Your Perfect Doctor
         </Typography>
-        <ModalOne isOpen={isModalOpen} onClose={closeModal} />
-
+        <ModalOne isOpen={isModalOpen} onClose={closeModal} data={modalData} />
+  
         {/* Filters */}
         <Paper
           elevation={0}
@@ -275,7 +290,7 @@ export default function ModernDoctorProfile() {
             </Grid>
           </Grid>
         </Paper>
-
+  
         {/* Doctor list */}
         <Grid container spacing={3}>
           <Grid item xs={12} sm={8} md={8}>
@@ -315,7 +330,7 @@ export default function ModernDoctorProfile() {
                       }}
                     />
                   </Box>
-
+  
                   <Box
                     sx={{
                       display: "flex",
@@ -369,7 +384,7 @@ export default function ModernDoctorProfile() {
                         Gender: {doctor.gender || "Not available"} | Fees:{" "}
                         {doctor.consultationFee || "Not available"}
                       </Typography>
-
+  
                       <Typography
                         variant="h6"
                         sx={{
@@ -397,163 +412,160 @@ export default function ModernDoctorProfile() {
                         >
                           Availability:
                         </Typography>
+  
                         <Box
-                          sx={{
-                            display: "flex",
-                            flexDirection: "row",
-                            flexWrap: "wrap",
-                            alignItems: "center",
-                            gap: "10px",
-                          }}
-                        >
-                          {doctor.availability &&
-                          doctor.availability.length > 0 ? (
-                            doctor.availability.map((slot, index) => (
-                              <Typography
-                                key={index}
-                                sx={{
-                                  fontSize: "0.8rem",
-                                  color: "#20ada0",
-                                  backgroundColor: "#e0e0e0",
-                                  padding: "2px 8px",
-                                  borderRadius: "4px",
-                                  textDecoration: "bold",
-                                }}
-                              >
-                                {slot.day}: {slot.startTime}-{slot.endTime}
-                              </Typography>
-                            ))
-                          ) : (
-                            <Typography
-                              sx={{ fontSize: "0.8rem", color: "#354c5c" }}
-                            >
-                              No availability information
-                            </Typography>
-                          )}
-                        </Box>
-                      </Box>
-
-                      <Box
                         sx={{
                           display: "flex",
+                          flexDirection: "row",
+                          flexWrap: "wrap",
                           alignItems: "center",
-                          marginTop: "20px",
+                          gap: "10px",
                         }}
                       >
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            fontSize: "0.8rem",
-                            fontWeight: 600,
-                            color: "#354c5c",
-                            lineHeight: "1.2rem",
-                          }}
-                        >
-                          {doctor.experience != null
-                            ? `${doctor.experience} years of experience`
-                            : "Experience not available"}
-                        </Typography>
-                        <span
-                          style={{
-                            color: "gray",
-                            margin: "0px 10px",
-                          }}
-                        >
-                          |
-                        </span>
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            fontSize: "0.8rem",
-                            fontWeight: 600,
-                            color: "#354c5c",
-                            lineHeight: "1.2rem",
-                          }}
-                        >
-                          {doctor.languagesSpoken?.length > 0
-                            ? doctor.languagesSpoken.join(", ")
-                            : "Languages not available"}
-                        </Typography>
+                        {doctor.availability && doctor.availability.length > 0 ? (
+                          doctor.availability.map((slot, index) => (
+                            <Typography
+                              key={index}
+                              sx={{
+                                fontSize: "0.8rem",
+                                color: "#20ada0",
+                                backgroundColor: "#e0e0e0",
+                                padding: "2px 8px",
+                                borderRadius: "4px",
+                                textDecoration: "bold",
+                              }}
+                            >
+                              {slot.day}: {slot.startTime}-{slot.endTime}
+                            </Typography>
+                          ))
+                        ) : (
+                          <Typography
+                            sx={{ fontSize: "0.8rem", color: "#354c5c" }}
+                          >
+                            No availability information
+                          </Typography>
+                        )}
                       </Box>
                     </Box>
 
                     <Box
                       sx={{
-                        textAlign: "right",
-                        marginTop: "15px",
                         display: "flex",
-                        flexDirection: "column",
-                        alignItems: "flex-end",
+                        alignItems: "center",
+                        marginTop: "20px",
                       }}
                     >
-                      {/* Chat Button */}
-                      <Link href={`/appointment/chat`} passHref>
-                        <Button
-                          variant="contained"
-                          startIcon={<ChatIcon />}
-                          sx={{
-                            backgroundColor: "#20ADA0",
-                            color: "#fff",
-                            borderRadius: "20px",
-                            ":hover": { backgroundColor: "#1a8c80" },
-                            marginRight: 1,
-                            mb: 1,
-                          }}
-                        >
-                          Chat
-                        </Button>
-                      </Link>
-
-                      {/* View Profile Button */}
-                      <Button
-                        variant="contained"
-                        startIcon={<AccountCircleIcon />}
+                      <Typography
+                        variant="h6"
                         sx={{
-                          backgroundColor: "#20ADA0",
-                          color: "#fff",
-                          borderRadius: "20px",
-                          ":hover": { backgroundColor: "#1a8c80" },
-                          marginRight: 1,
-                          mb: 2, // Add spacing below View Profile button
-                        }}
-                        onClick={() => {
-                          router.push(
-                            `/doctor/profile/${encodeURIComponent(doctor._id)}`
-                          );
+                          fontSize: "0.8rem",
+                          fontWeight: 600,
+                          color: "#354c5c",
+                          lineHeight: "1.2rem",
                         }}
                       >
-                        View Profile
-                      </Button>
-
-                      <Button
-                        onClick={() => {
-                          openModal();
-                          console.log("Doctor ID:", doctor._id);
-                        }}
-                        variant="contained"
-                        startIcon={<BookOnlineIcon />}
-                        sx={{
-                          backgroundColor: "#20ADA0",
-                          color: "#fff",
-                          borderRadius: "20px",
-                          ":hover": { backgroundColor: "#1a8c80" },
-                          marginRight: 1,
-                          mb: 2,
+                        {doctor.experience != null
+                          ? `${doctor.experience} years of experience`
+                          : "Experience not available"}
+                      </Typography>
+                      <span
+                        style={{
+                          color: "gray",
+                          margin: "0px 10px",
                         }}
                       >
-                        Book Appointment
-                      </Button>
+                        |
+                      </span>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontSize: "0.8rem",
+                          fontWeight: 600,
+                          color: "#354c5c",
+                          lineHeight: "1.2rem",
+                        }}
+                      >
+                        {doctor.languagesSpoken?.length > 0
+                          ? doctor.languagesSpoken.join(", ")
+                          : "Languages not available"}
+                      </Typography>
                     </Box>
                   </Box>
-                </Paper>
-              ))
-            ) : (
-              <Typography>No doctors available</Typography>
-            )}
-          </Grid>
 
-          {/* Right Column Content */}
-          <Grid item xs={12} md={4}>
+                  <Box
+                    sx={{
+                      textAlign: "right",
+                      marginTop: "15px",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-end",
+                    }}
+                  >
+                    {/* Chat Button */}
+                    <Link href="/appointment/chat" passHref>
+                      <Button
+                        variant="contained"
+                        startIcon={<ChatIcon />}
+                        sx={{
+                          backgroundColor: "#20ADA0",
+                          color: "#fff",
+                          borderRadius: "20px",
+                          ":hover": { backgroundColor: "#1a8c80" },
+                          marginRight: 1,
+                          mb: 1,
+                        }}
+                      >
+                        Chat
+                      </Button>
+                    </Link>
+
+                    {/* View Profile Button */}
+                    <Button
+                      variant="contained"
+                      startIcon={<AccountCircleIcon />}
+                      sx={{
+                        backgroundColor: "#20ADA0",
+                        color: "#fff",
+                        borderRadius: "20px",
+                        ":hover": { backgroundColor: "#1a8c80" },
+                        marginRight: 1,
+                        mb: 2, // Add spacing below View Profile button
+                      }}
+                      onClick={() => {
+                        router.push(
+                          `/doctor/profile/${encodeURIComponent(doctor._id)}`
+                        );
+                      }}
+                    >
+                      View Profile
+                    </Button>
+
+                    {/* Book Appointment Button */}
+                    <Button
+                      variant="contained"
+                      startIcon={<BookOnlineIcon />}
+                      sx={{
+                        backgroundColor: "#20ADA0",
+                        color: "#fff",
+                        borderRadius: "20px",
+                        ":hover": { backgroundColor: "#1a8c80" },
+                        marginRight: 1,
+                        mb: 2,
+                      }}
+                      onClick={() => openModal(doctor)}
+                    >
+                      Book Appointment
+                    </Button>
+                  </Box>
+                </Box>
+              </Paper>
+            ))
+          ) : (
+            <Typography>No doctors available</Typography>
+          )}
+        </Grid>
+
+        <Grid item xs={12} md={4}>
             <Card elevation={0} sx={{ mb: 4, overflow: "hidden" }}>
               <CardContent sx={{ bgcolor: "primary.light", color: "white" }}>
                 <Typography variant="h5" gutterBottom>
@@ -629,8 +641,8 @@ export default function ModernDoctorProfile() {
               </CardContent>
             </Card>
           </Grid>
-        </Grid>
-      </Container>
-    </ThemeProvider>
-  );
+      </Grid>
+    </Container>
+  </ThemeProvider>
+);
 }
