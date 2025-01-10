@@ -59,6 +59,13 @@ const ModalOneSchema = Yup.object().shape({
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
+  data?: {
+    doctorId: string;
+    doctorName: string;
+    consultationFee?: number;
+    address?: string;
+    availability?: { day: string; startTime: string; endTime: string }[];
+  };
 }
 const ModalHeader = styled.div`
   padding: 15px 20px;
@@ -239,7 +246,8 @@ interface ModalProps {
   onClose: () => void;
 }
 
-function ModalOne({ isOpen, onClose }: ModalProps) {
+const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
+ 
   const [Gender, setGender] = useState("");
   const [name, setFirstName] = useState("");
   const [age, setAge] = useState("");
@@ -360,7 +368,7 @@ function ModalOne({ isOpen, onClose }: ModalProps) {
         <Box sx={style}>
           <ModalHeader>
             <Typography id="" variant="h6" component="h2" className="tx1">
-              Book Appointment
+            Book Appointment With {data?.doctorName || "Doctor"}
             </Typography>
             <CloseIcon sx={{ cursor: "pointer" }} onClick={onClose} />
           </ModalHeader>
@@ -521,15 +529,17 @@ function ModalOne({ isOpen, onClose }: ModalProps) {
                     Consultation Details
                   </Typography>
                   <Box className="prc_contnt">
-                    <Typography className="tx1">Dr. Ranjana Sharma</Typography>
-                    <Typography className="tx2">Fever</Typography>
+                    <Typography className="tx1">{data?.doctorName || "Doctor"}</Typography>
+                   
                     <Typography className="tx3">
                       <span className="spntx1">Price</span>
-                      <span className="spntx2">$ 500</span>
+                      <span className="spntx2">₹
+                      {data?.consultationFee || "Doctor"}</span>
                     </Typography>
                     <Typography className="tx4">
                       <span className="spntx1">Total</span>
-                      <span className="spntx2">$ 500</span>
+                      <span className="spntx2">₹
+                      {data?.consultationFee || "Doctor"}</span>
                     </Typography>
                   </Box>
                 </Pricewrap>
