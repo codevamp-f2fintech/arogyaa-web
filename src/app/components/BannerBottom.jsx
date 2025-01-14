@@ -1,3 +1,6 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 import {
   Box,
@@ -13,15 +16,22 @@ import en from "@/locales/en.json";
 import styles from "../page.module.css";
 
 const BannerBottom = () => {
+  const router = useRouter();
+
+  const handleClick2 = () => {
+    router.push("/doctor");
+  };
+
   return (
-    <Box sx={{ border: "2px solid pink" }} className={styles.bannerBottom}>
+    <Box sx={{ border: "2px solid white" }} className={styles.bannerBottom}>
       <Box
         component="img"
         className={styles.bannerImage3}
         alt="Doctor"
         src="/assets/images/doctor-with-his-arms-crossed-white-background.png"
       />
-      <Grid sx={{border:"black"}}
+      <Grid
+        sx={{ border: "black" }}
         container
         spacing={2}
         columns={{ xs: 4, sm: 8, md: 12 }}
@@ -46,17 +56,17 @@ const BannerBottom = () => {
             </Typography>
           </CardContent>
 
-          <Button
-            variant="contained"
-            className={styles.callToActionButton}
-            endIcon={<ArrowCircleRightIcon />}
-          >
-            {en.homepage.bannerBottom.buttonText}
-          </Button>
-
-          <Box
-            className={styles.formContainer}
-          >
+          <Box className={styles.appointmentButtonContainer1}>
+            <Button
+              onClick={handleClick2} // Handle button click
+              variant="outlined"
+              className={styles.appointmentButton}
+              endIcon={<ArrowCircleRightIcon />}
+            >
+              {en.topbar.appointment} {/* Button label */}
+            </Button>
+          </Box>
+          <Box className={styles.formContainer}>
             <h1 className={styles.formHeading}>
               {en.homepage.bannerComponent.request}
             </h1>
