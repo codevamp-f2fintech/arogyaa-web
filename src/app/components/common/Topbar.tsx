@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -46,15 +45,12 @@ const Topbar = () => {
   const dispatch: AppDispatch = useDispatch();
   const { capitalizeFirstLetter, decodedToken } = Utility();
   const router = useRouter();
+  const pathname = usePathname();
 
   const userPopover = usePopover<HTMLDivElement>();
-
   const { notifications } = useSelector(
     (state: RootState) => state.notifications
   );
-  const handleClick2 = () => {
-    router.push("/doctor");
-  };
 
   //fetch api
   // const { data } = useGetNotifications(
@@ -213,14 +209,16 @@ const Topbar = () => {
         </Box>
 
         <Box className={styles.appointmentButtonContainer}>
-          <Button
-            onClick={handleClick2} // Handle button click
-            variant="outlined"
-            className={styles.appointmentButton}
-            endIcon={<ArrowCircleRightIcon />}
-          >
-            {en.topbar.appointment} {/* Button label */}
-          </Button>
+          {pathname !== '/doctor' && (
+            <Button
+              onClick={() => router.push('/doctor')}
+              variant="outlined"
+              className={styles.appointmentButton}
+              endIcon={<ArrowCircleRightIcon />}
+            >
+              {en.topbar.appointment} {/* Button label */}
+            </Button>
+          )}
         </Box>
 
         <Box>

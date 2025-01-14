@@ -106,7 +106,8 @@ const ExpertSpecialistSlider: React.FC = () => {
                     alt={doctor.username}
                     src={
                       // Add image URL from API if available
-                      "../assets/images/portrait-young-woman-doctor-with-stethoscope-uniform (1).png"
+                      doctor.profilePicture
+                      // "../assets/images/portrait-young-woman-doctor-with-stethoscope-uniform (1).png"
                     }
                   />
                   <Typography
