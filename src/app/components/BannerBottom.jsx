@@ -14,14 +14,14 @@ import styles from "../page.module.css";
 
 const BannerBottom = () => {
   return (
-    <Box className={styles.bannerBottom}>
+    <Box sx={{ border: "2px solid pink" }} className={styles.bannerBottom}>
       <Box
         component="img"
         className={styles.bannerImage3}
         alt="Doctor"
         src="/assets/images/doctor-with-his-arms-crossed-white-background.png"
       />
-      <Grid
+      <Grid sx={{border:"black"}}
         container
         spacing={2}
         columns={{ xs: 4, sm: 8, md: 12 }}
@@ -54,7 +54,9 @@ const BannerBottom = () => {
             {en.homepage.bannerBottom.buttonText}
           </Button>
 
-          <Box className={styles.formContainer}>
+          <Box
+            className={styles.formContainer}
+          >
             <h1 className={styles.formHeading}>
               {en.homepage.bannerComponent.request}
             </h1>

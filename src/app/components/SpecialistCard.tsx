@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button } from "@mui/material";
+import { Box, Button, Grid } from "@mui/material";
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 
 import styles from "../page.module.css";
@@ -13,7 +13,7 @@ interface SpecialistCardProps {
 
 const SpecialistCard: React.FC<SpecialistCardProps> = React.memo(({ icon, name, description, onConsult }) => {
     return (
-        <Box className={styles.specialistBox}>
+        <Grid sx={{}} container className={styles.specialistBox}>
             <div className={styles.specialistIcon}>
                 <img src="/assets/images/speciality-icons/vector_plus.png" alt="Add Icon" width={24} height={24} />
             </div>
@@ -30,7 +30,7 @@ const SpecialistCard: React.FC<SpecialistCardProps> = React.memo(({ icon, name, 
             >
                 Consult Now
             </Button>
-        </Box>
+        </Grid>
     );
 });
 

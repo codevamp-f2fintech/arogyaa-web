@@ -50,7 +50,13 @@ const DrProfile: React.FC = () => {
   const doctorId = params?.id;
 
   const [profileData, setProfileData] = useState<ProfileData>({});
-
+  const [modalData, setModalData] = useState<{
+    doctorId: string;
+    doctorName: string;
+    consultationFee?: number;
+    address?: string;
+    availability?: AvailabilitySlot[];
+  } | null>(null);
   useEffect(() => {
     if (doctorId) {
       const fetchProfileData = async () => {
@@ -67,13 +73,21 @@ const DrProfile: React.FC = () => {
       fetchProfileData();
     }
   }, [doctorId]);
-
   const openModal = (): void => {
-    setModalOpen(true);
+    if (profileData.data) {
+      setModalData({
+        doctorId: profileData.data.id,
+        doctorName: profileData.data.username,
+        consultationFee: profileData.data.consultationFee,
+        address: profileData.data.address,
+        availability: profileData.data.availability,
+      });
+      setModalOpen(true);
+    }
   };
-
   const closeModal = (): void => {
     setModalOpen(false);
+    setModalData(null);
   };
 
   const handleTabChange = (
@@ -105,7 +119,7 @@ const DrProfile: React.FC = () => {
         paddingTop: "90px",
       }}
     >
-      <ModalOne isOpen={isModalOpen} onClose={closeModal} />
+      <ModalOne isOpen={isModalOpen} onClose={closeModal} data={modalData} />
       <Box sx={{ padding: "10px" }}>
         <Grid container spacing={3}>
           {/* Doctor Information Section */}
@@ -303,6 +317,7 @@ const DrProfile: React.FC = () => {
                           color: "white",
                         },
                       }}
+                      onClick={openModal}
                     >
                       Book a Video Appointment
                     </Button>
