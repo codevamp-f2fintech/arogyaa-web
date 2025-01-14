@@ -1,28 +1,28 @@
 "use client";
 
+import React, { useCallback, useState } from "react";
 import styles from "../page.module.css";
-import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 import SearchIcon from "@mui/icons-material/Search";
-
+import Link from "next/link";
 import {
   Box,
-  Button,
   CardContent,
-  Grid,
   Paper,
   InputBase,
   Typography,
   IconButton,
+  List,
+  ListItem,
+  ListItemText,
 } from "@mui/material";
 
 import en from "@/locales/en.json";
-import { useCallback, useState } from "react";
+import { fetcher } from "@/apis/apiClient";
 
 const BannerComponent: React.FC = () => {
   const [keyword, setKeyword] = useState("");
   const [results, setResults] = useState([]);
 
-  // Debounce function to delay the API call
   const debounce = (func: (...args: any[]) => void, delay: number) => {
     let timer: NodeJS.Timeout;
     return (...args: any[]) => {
@@ -33,33 +33,38 @@ const BannerComponent: React.FC = () => {
     };
   };
 
-  // API call function
-  const fetchResults = async (searchTerm: string) => {
-    if (!searchTerm.trim()) return; // Skip empty searches
-    console.log("Fetching results for:", searchTerm);
+  const fetchDoctorResults = async (searchTerm: string) => {
+    if (!searchTerm.trim()) {
+      setResults([]);
+      return;
+    }
 
     try {
-      const response = await fetch(
-        `http://localhost:4004/api/v1/doctor-service/get-doctors?keyword=${encodeURIComponent(
-          searchTerm
-        )}`
+      const response = await fetcher(
+        "doctor",
+        `get-doctors?keyword=${encodeURIComponent(searchTerm)}`
       );
-      const data = await response.json();
-      console.log("Results:", data);
-      setResults(data); // Update results state
+      if (response && response.results && Array.isArray(response.results)) {
+        setResults(response.results);
+      } else {
+        console.error("Unexpected response structure:", response);
+        setResults([]);
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
+      setResults([]);
     }
   };
 
-  // Debounced version of the fetchResults function
-  const debouncedFetchResults = useCallback(debounce(fetchResults, 500), []);
+  const debouncedFetchResults = useCallback(
+    debounce(fetchDoctorResults, 500),
+    []
+  );
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const keyword = e.target.value;
-    console.log("keyword", keyword);
-    setKeyword(keyword); // Update keyword state
-    debouncedFetchResults(keyword); // Call the debounced API function
+    setKeyword(keyword);
+    debouncedFetchResults(keyword);
   };
 
   return (
@@ -71,7 +76,7 @@ const BannerComponent: React.FC = () => {
           alt="The house from the offer."
           src={"/assets/images/dr1.png"}
         />
- 
+
         <Box
           sx={{
             position: "absolute",
@@ -117,20 +122,20 @@ const BannerComponent: React.FC = () => {
               display: "flex",
               alignItems: "center",
               margin: "1rem auto",
-              marginLeft: "1px",
               padding: "1.9px",
 
               maxWidth: "800px",
               borderRadius: "23px",
-              backgroundColor: "rgba(255, 255, 255, 0.95)",
+              backgroundColor: "rgba(255, 255, 255, 0.90)",
+              marginTop: "180px",
               position: "relative",
-              zIndex: 3,
             }}
           >
             <InputBase
+              value={keyword}
               onChange={handleChange}
               className={styles.searchBarInput}
-              placeholder="Search for Doctors, Specialties, and Hospitals"
+              placeholder="Search for Doctors and Specialties"
               inputProps={{ "aria-label": "search" }}
               sx={{
                 flex: 1,
@@ -156,7 +161,13 @@ const BannerComponent: React.FC = () => {
             </IconButton>
           </Paper>
         </Box>
-        <CardContent className={styles.bannerCardContent}>
+        <CardContent
+          sx={{
+            filter: results.length > 0 ? "blur(4px)" : "none",
+            transition: "filter 0.3s ease",
+          }}
+          className={styles.bannerCardContent}
+        >
           <Typography
             variant="h5"
             component="span"
@@ -172,6 +183,52 @@ const BannerComponent: React.FC = () => {
             {en.homepage.bannerComponent.treatment}
           </Typography>
         </CardContent>
+
+        {/* Display search results */}
+        <Box
+          sx={{
+            marginTop: "0.1rem",
+            backgroundColor: "rgba(255, 255, 255, 0.90)",
+            position: "relative",
+            borderRadius: "8px",
+            zIndex: 10,
+            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          {results.length > 0 ? (
+            <List>
+              {results.map((doctor: any, index: number) => (
+                <ListItem key={doctor._id || index}>
+                  <Link
+                    href={`/doctor/profile/${doctor._id}`}
+                    passHref
+                    style={{
+                      textDecoration: "none",
+                      color: "inherit",
+                      width: "100%",
+                    }}
+                  >
+                    <ListItemText
+                      primary={doctor.username || ""}
+                      sx={{
+                        cursor: "pointer",
+                        ":hover": {
+                          color: "#20ADA0",
+                        },
+                      }}
+                    />
+                  </Link>
+                </ListItem>
+              ))}
+            </List>
+          ) : (
+            keyword && (
+              <Typography variant="body2" sx={{ marginTop: "1rem" }}>
+                No results found for "{keyword}"
+              </Typography>
+            )
+          )}
+        </Box>
       </div>
     </div>
   );
