@@ -19,6 +19,7 @@ import AdbIcon from "@mui/icons-material/Adb";
 import MarkEmailReadIcon from "@mui/icons-material/MarkEmailRead";
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
 import Popover from "@mui/material/Popover";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
@@ -227,7 +228,7 @@ const Topbar = () => {
             onClick={handleClick}
             sx={{
               color: "#000",
-              backgroundColor: "#FAFAFA",
+              backgroundColor: "#20ADA0",
               padding: "10px",
               borderRadius: "500px",
               margin: "0 10px 0 5px",
@@ -237,7 +238,7 @@ const Topbar = () => {
               },
             }}
           >
-            <NotificationsIcon sx={{ color: "black" }} />
+            <NotificationsIcon sx={{ color: "white" }} />
           </IconButton>
           <Popover
             anchorReference="anchorPosition"
@@ -252,31 +253,52 @@ const Topbar = () => {
             }}
             sx={{ borderRadius: "px" }}
           >
-            <Box sx={{ width: 400 }}>
+            <Box
+              sx={{
+                width: 400,
+                position: "fixed",
+                right: "40px",
+                top: "80px",
+                zIndex: 1300,
+                backgroundColor: "white",
+                boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+                borderRadius: "8px",
+                overflow: "hidden",
+              }}
+            >
               <Tabs
                 value={tabValue}
                 onChange={handleTabChange}
                 variant="fullWidth"
-                textColor="#20ADA0"
-                indicatorColor="black"
+                textColor="inherit"
+                indicatorColor="primary"
+                sx={{
+                  backgroundColor: "#20ADA0",
+                  color: "white",
+                }}
               >
-                <Tab label="Unread" sx={{ color: "#20ADA0" }} />
-                <Tab label="Read" sx={{ color: "#20ADA0" }} />
+                <Tab label="Unread" sx={{ color: "white" }} />
+                <Tab label="Read" sx={{ color: "white" }} />
               </Tabs>
               <Box sx={{ p: 2 }}>
                 {tabValue === 0 ? (
                   <Box>
                     {notifications.length === 0 ? (
-                      <Typography>No unread Notifications</Typography>
+                      <Typography>No unread notifications</Typography>
                     ) : (
                       notifications
                         .slice(0, visibleNotifications)
                         .map((notification, index) => (
-                          <Typography key={index}>
-                            {notification.message}
-                            <IconButton onClick={() => markAsRead(index)}>
-                              <MarkEmailReadIcon sx={{ color: "#20ADA0" }} />
-                            </IconButton>
+                          <Typography
+                            key={index}
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              borderBottom: "1px solid #f0f0f0",
+                              padding: "8px 0",
+                            }}
+                          >
                             {notification.message}
                             <IconButton onClick={() => markAsRead(index)}>
                               <MarkEmailReadIcon sx={{ color: "#20ADA0" }} />
@@ -288,9 +310,10 @@ const Topbar = () => {
                       <Button
                         onClick={handleViewMore}
                         sx={{
-                          color: "black",
+                          color: "#20ADA0",
+                          textTransform: "capitalize",
                           ":hover": {
-                            bgcolor: "#20ADA0",
+                            bgcolor: "#f0f0f0",
                           },
                         }}
                       >
@@ -306,11 +329,30 @@ const Topbar = () => {
                       readNotification
                         .slice(0, visibleNotifications)
                         .map((notification, index) => (
-                          <Typography key={index}>{notification}</Typography>
+                          <Typography
+                            key={index}
+                            sx={{
+                              borderBottom: "1px solid #f0f0f0",
+                              padding: "8px 0",
+                            }}
+                          >
+                            {notification}
+                          </Typography>
                         ))
                     )}
                     {readNotification.length > visibleNotifications && (
-                      <Button onClick={handleViewMore}>View More</Button>
+                      <Button
+                        onClick={handleViewMore}
+                        sx={{
+                          color: "#20ADA0",
+                          textTransform: "capitalize",
+                          ":hover": {
+                            bgcolor: "#f0f0f0",
+                          },
+                        }}
+                      >
+                        View More
+                      </Button>
                     )}
                   </Box>
                 )}
@@ -338,9 +380,39 @@ const Topbar = () => {
             />
           </Box>
         ) : (
-          <Button>
-            <Link href="/signin" underline="none">
-              SignUp / SignIn
+          <Button
+            variant="contained"
+            sx={{
+              background: "linear-gradient(90deg, #4CAF50, #2E7D32)",
+              color: "white",
+              fontWeight: "bold",
+              padding: "5px 10px",
+              textTransform: "uppercase",
+              marginLeft: "60px",
+              borderRadius: "20px",
+              fontSize: "14px",
+              boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
+              transition: "all 0.3s ease",
+              margin: "0px",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            <PersonAddAltOutlinedIcon
+              sx={{
+                fontSize: "18px",
+              }}
+            />
+            <Link
+              href="/signin"
+              underline="none"
+              sx={{
+                color: "inherit",
+                textDecoration: "none",
+              }}
+            >
+              SignIn / SignUp
             </Link>
           </Button>
         )}

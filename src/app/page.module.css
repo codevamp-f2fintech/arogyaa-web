@@ -3,13 +3,17 @@
 }
 
 .root {
-  padding: 0px 50px;
+  padding: 0px 0px;
   background: #f9f6f6;
   padding-top: 50px;
+  overflow: hidden;
+  margin:  0px 0px;
+  
 }
 
 .container_main {
   background-color: #f9f6f6;
+  
 }
 
 .page_title h4 {
@@ -25,22 +29,49 @@
 }
 
 .homeBanner {
-  width: 100%;
-  height: 90vh;
-  margin-top: 65px;
+  width: 100vw; /* Full viewport width */
+  height: 90vh; /* 90% of the viewport height */
+  margin: 0; /* Remove any margins */
   padding: 50px;
   position: relative;
-  border-radius: 30px 30px 30px 0;
+  border-radius: 0; /* Remove rounded corners for full-width effect */
   padding-top: 90px;
-  background:
-    /* linear-gradient(to left, #95E1D0 , #40BA9D), */ url("/assets/images/Gemini_Generated_Image_o9ery1o9ery1o9er.jpg");
-  /* Path to the image in the public folder */
-  background-size: cover;
-  /* Ensure the image covers the container */
-  background-position: center;
-  /* Center the image */
-  background-repeat: no-repeat;
-  /* Prevent image repetition */
+
+  /* Combined gradient and image background */
+  background: linear-gradient(
+      to right,
+      rgba(32, 173, 160, 0.8),
+      rgba(0, 0, 0, 0.4)
+    ),
+    url("/assets/images/Gemini_Generated_Image_o9ery1o9ery1o9er.jpg");
+  background-size: cover; /* Make sure the background covers the container */
+  background-position: center; /* Center the image in the container */
+  background-repeat: no-repeat; /* Prevent image repetition */
+}
+/* Text content styling */
+.homeBanner h1,
+.homeBanner h2,
+.homeBanner p {
+  position: relative;
+  z-index: 2; /* Ensure text is above the overlay */
+  color: #ffffff; /* White text for contrast */
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); /* Add depth to text */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .homeBanner {
+    height: 70vh; /* Reduce height for smaller screens */
+    padding: 20px; /* Reduce padding */
+  }
+
+  .homeBanner h1 {
+    font-size: 2rem; /* Adjust font size */
+  }
+
+  .homeBanner p {
+    font-size: 1rem;
+  }
 }
 
 .slick-initialized .slick-slide {
@@ -55,10 +86,15 @@
   padding-top: 50px;
   padding-bottom: 50px;
   margin-top: 100px;
-  border-radius: 30px;
+  /* border-radius: 30px; */
   background-color: #f9f6f6;
-  background:
-    /* linear-gradient(to left, #95E1D0 , #40BA9D), */ url("/assets/images/Gemini_Generated_Image_o9ery1o9ery1o9er.jpg");
+  /* Combined gradient and image background */
+  background: linear-gradient(
+      to right,
+      rgba(32, 173, 160, 0.8),
+      rgba(0, 0, 0, 0.1)
+    ),
+    url("/assets/images/Gemini_Generated_Image_o9ery1o9ery1o9er.jpg");
   /* Path to the image in the public folder */
   background-size: cover;
   /* Ensure the image covers the container */
@@ -118,6 +154,7 @@
 
 /* Footer styles added */
 .footer {
+  width:100%;
   margin-top: 50px;
   padding: 50px 30px 30px;
   border-top: 1px solid #dbdbdb;
@@ -126,6 +163,7 @@
 
 .footer-grid-item {
   text-align: left;
+  
 }
 
 .logoBox {
@@ -213,8 +251,11 @@
 }
 
 .footer-bottom {
-  padding: 20px 0;
+
+  padding: 10px 10px; 
   background: inherit;
+  white-space: nowrap;
+  margin-right: 1000px;
 }
 
 .footer-copyright {
@@ -225,12 +266,14 @@
   margin-bottom: 10px;
   cursor: pointer;
   padding-left: 30px;
+  
 }
 
 .footer-right {
   text-align: right;
   display: flex;
   justify-content: flex-end;
+  
 }
 
 .footer-pages {
@@ -438,17 +481,34 @@
   flex-grow: 0;
   margin-right: 10px;
 }
+.appointmentButtonContainer1 {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-right: 200px;
+  padding: 10px 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  margin-top: 60px;
+}
+
+.appointmentButtonContainer1:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
 
 .appointmentButton {
-  color: #000;
-  background-color: #fafafa;
+  background-color: #20ada0;
+  color: white;
   width: 100%;
   border-radius: 100px;
 }
 
 .appointmentButton:hover {
-  background-color: #20ada0;
-  color: white;
+  color: #1d869d;
+  background-color: white;
 }
 
 .avatarContainer {
@@ -745,6 +805,7 @@
   flex-direction: column;
   align-items: flex-end;
   margin-top: -66px;
+  margin-bottom: 20px;
   margin-right: -16px;
   background: #f9f6f6;
   border-radius: 0 0 0 25px;
@@ -759,16 +820,21 @@
   line-height: 1.5rem;
   border-radius: 1px 25px 5px 0px;
   color: black;
+  -webkit-border-radius: 1px 25px 5px 0px;
+  -moz-border-radius: 1px 25px 5px 0px;
+  -ms-border-radius: 1px 25px 5px 0px;
+  -o-border-radius: 1px 25px 5px 0px;
 }
 
 .cardSubtitle2 {
   background: #f9f6f6;
-  padding: 6px;
+  padding: 3px;
   border-radius: 1px 25px 5px 0px;
   font-size: 2.5rem;
   font-weight: bold;
   line-height: 2.5rem;
   color: black;
+  margin-right: 10px;
 }
 
 .callToActionButton {
@@ -790,8 +856,15 @@
   padding: 40px;
   border-radius: 10px;
   text-align: left;
-  max-width: 400px;
-  margin-right: 70px;
+  max-width: 500px;
+  margin-right: 40px;
+    margin-top: 80px;
+  margin-bottom: 190px;
+
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -ms-border-radius: 10px;
+  -o-border-radius: 10px;
 }
 
 .formHeading {

@@ -71,45 +71,91 @@ const BannerComponent: React.FC = () => {
           alt="The house from the offer."
           src={"/assets/images/dr1.png"}
         />
-        {/* <Grid
-          sx={{ marginLeft: ".1rem" }}
-          container
-          spacing={6}
-          columns={{ xs: 4, sm: 8, md: 12 }}
-        > */}
-        <Paper
-          component="form"
-          className={styles.searchBarWrapper}
+ 
+        <Box
           sx={{
-            display: "flex",
-            alignItems: "center",
-            margin: "1rem 0",
-            padding: "1rem",
-            width: "125%",
-            borderRadius: "23px",
-            backgroundColor: "rgba(255, 255, 255, 0.90)",
-            marginTop: "110px",
-            // zIndex: -1,
-            position: "relative",
+            position: "absolute",
+            left: "140px",
+            top: "50%",
+            transform: "translateY(-50%)",
+            color: "#ffffff",
+            zIndex: 3,
+            maxWidth: "600px",
           }}
         >
-          <InputBase
-            onChange={handleChange}
-            className={styles.searchBarInput}
-            placeholder="Search for Doctors, Specialties, and Hospitals"
-            inputProps={{ "aria-label": "search" }}
-            sx={{ flex: 1, padding: "0.5rem", fontWeight: "650" }}
-          />
-          <IconButton
-            type="submit"
-            aria-label="search"
-            className={styles.searchBarButton}
+          <Typography
+            variant="h2"
+            component="h1"
+            sx={{
+              fontWeight: "bold",
+              fontSize: "3.5rem",
+              lineHeight: 1.2,
+              marginBottom: "16px",
+              textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+            }}
           >
-            <SearchIcon />
-          </IconButton>
-        </Paper>
-        {/* </Grid> */}
+            Welcome to <span style={{ color: "#20ADA0" }}>Arogyaa</span>
+          </Typography>
+          <Typography
+            variant="h5"
+            component="p"
+            sx={{
+              fontWeight: "400",
+              fontSize: "1.25rem",
+              lineHeight: 1.5,
+              marginBottom: "20px",
+              textShadow: "1px 1px 3px rgba(0, 0, 0, 0.5)",
+            }}
+          >
+            Experience world-class medical services and healthcare designed for
+            you and your family.
+          </Typography>
+          <Paper
+            component="form"
+            className={styles.searchBarWrapper}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              margin: "1rem auto",
+              marginLeft: "1px",
+              padding: "1.9px",
 
+              maxWidth: "800px",
+              borderRadius: "23px",
+              backgroundColor: "rgba(255, 255, 255, 0.95)",
+              position: "relative",
+              zIndex: 3,
+            }}
+          >
+            <InputBase
+              onChange={handleChange}
+              className={styles.searchBarInput}
+              placeholder="Search for Doctors, Specialties, and Hospitals"
+              inputProps={{ "aria-label": "search" }}
+              sx={{
+                flex: 1,
+                padding: "0.5rem",
+                fontWeight: "650",
+                fontSize: "1rem",
+              }}
+            />
+            <IconButton
+              type="submit"
+              aria-label="search"
+              className={styles.searchBarButton}
+              sx={{
+                backgroundColor: "#20ADA0",
+                color: "#fff",
+                borderRadius: "50%",
+                "&:hover": {
+                  backgroundColor: "#1A8575",
+                },
+              }}
+            >
+              <SearchIcon />
+            </IconButton>
+          </Paper>
+        </Box>
         <CardContent className={styles.bannerCardContent}>
           <Typography
             variant="h5"
