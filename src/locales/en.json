@@ -5,7 +5,7 @@
   },
   "homepage": {
     "bannerComponent": {
-      "request": "Search In Banner",
+      "request": "Request a call",
       "description": "You can simply order a call and we will help you make an appointment with the right specialist.",
       "buttonText": "Send Request",
       "the_best_medical": "The Best Medical",
