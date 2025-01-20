@@ -24,6 +24,14 @@ import { setSymptom, setLoading } from "@/redux/features/symptomsSlice";
 import { useGetSymptom } from "@/hooks/symptoms";
 import { useRouter } from "next/navigation";
 
+const screens = {
+  sm: "600px",
+  md: "900px",
+  lg: "1200px",
+  xl: "1536px",
+  "2xl": "1920px",
+};
+
 const SymptomCards: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
   const router = useRouter();
@@ -64,12 +72,26 @@ const SymptomCards: React.FC = () => {
         {en.homepage.symptomCards.title2}
       </Typography>
 
-      <Grid container spacing={2} columns={{ xs: 4, sm: 8, md: 12 }}>
-        {symptom && symptom?.results?.length > 0 ?
+      <Grid container spacing={2}>
+        {symptom && symptom?.results?.length > 0 ? (
           symptom.results.map((item) => {
             const icon = symptomsList.find((icon) => icon.title === item.name)?.image;
             return (
-              <Grid item xs={3} className={styles.symptomGrid} key={item._id}>
+              <Grid
+                item
+                xs={12}
+                sm={6}
+                md={4}
+                lg={3}
+                xl={2}
+                key={item._id}
+                sx={{
+                  [`@media (min-width: ${screens.sm})`]: { width: "50%" },
+                  [`@media (min-width: ${screens.md})`]: { width: "33.33%" },
+                  [`@media (min-width: ${screens.lg})`]: { width: "25%" },
+                  [`@media (min-width: ${screens.xl})`]: { width: "16.66%" },
+                }}
+              >
                 <Paper elevation={3} className={styles.symptomPaper}>
                   <CardMedia
                     component="img"
@@ -90,7 +112,7 @@ const SymptomCards: React.FC = () => {
                       variant="contained"
                       className={styles.symptomButton}
                       endIcon={<ArrowCircleRightIcon />}
-                      onClick={() => router.push('/doctor')}
+                      onClick={() => router.push("/doctor")}
                     >
                       Consult Now
                     </Button>
@@ -99,17 +121,18 @@ const SymptomCards: React.FC = () => {
               </Grid>
             );
           })
-          : <div>No Symptoms Found</div>
-        }
+        ) : (
+          <div>No Symptoms Found</div>
+        )}
       </Grid>
 
-      <Grid container spacing={2} columns={{ xs: 12, sm: 12, md: 12 }}>
-        <Grid xs={12} sx={{ textAlign: "center", marginTop: "20px" }}>
+      <Grid container spacing={2}>
+        <Grid item xs={12} sx={{ textAlign: "center", marginTop: "20px" }}>
           <Button
             variant="contained"
             className={styles.gridButton}
             endIcon={<ArrowCircleRightIcon />}
-          // onClick={handleFetchNext}
+            onClick={handleFetchNext}
           >
             {en.homepage.symptomCards.buttonText}
           </Button>

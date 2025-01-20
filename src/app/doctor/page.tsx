@@ -30,6 +30,15 @@ import {
 } from "@mui/material";
 import ChatIcon from "@mui/icons-material/Chat";
 import PhoneIcon from "@mui/icons-material/Phone";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import SchoolIcon from "@mui/icons-material/School";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import LanguageIcon from "@mui/icons-material/Language";
+import WorkIcon from "@mui/icons-material/Work";
+import PersonIcon from "@mui/icons-material/Person";
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
+import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
+import WcIcon from "@mui/icons-material/Wc";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import BookOnlineIcon from "@mui/icons-material/BookOnline";
 
@@ -57,11 +66,12 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: "'Poppins', 'Roboto', 'Arial', sans-serif",
+    fontFamily: "'system-ui'", // Use camelCase for fontFamily
     h1: {
       fontSize: "2.5rem",
       fontWeight: 600,
     },
+  
     h2: {
       fontSize: "2rem",
       fontWeight: 600,
@@ -126,7 +136,7 @@ export default function ModernDoctorProfile() {
     sortBy: "",
   });
   const router = useRouter();
-  
+
   const openModal = (doctor: any): void => {
     setModalData({
       doctorId: doctor._id,
@@ -195,24 +205,35 @@ export default function ModernDoctorProfile() {
         </Typography>
         <ModalOne isOpen={isModalOpen} onClose={closeModal} data={modalData} />
 
-        {/* Filters */}
         <Paper
-          elevation={0}
+          elevation={6}
           sx={{
             p: 4,
-            mb: 4,
-            borderRadius: 4,
-            backgroundColor: "background.paper",
+            mb: 3,
+            borderRadius: 3,
+            bgcolor: "primary.light",
+            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+            maxWidth: "750px",
+            margin: "auto",
+            marginLeft: "5px",
+            marginTop: "30px",
           }}
         >
-          <Grid
-            sx={{ border: "2px solid black" }}
-            container
-            spacing={3}
-            alignItems="flex-end"
-          >
-            <Grid sx={{ border: "2px solid blue" }} item xs={12} sm={6} md={3}>
-              <FormControl fullWidth variant="outlined">
+          {/* <Typography variant="h6" align="center" gutterBottom>
+            Filter Options
+          </Typography> */}
+          <Grid container spacing={3} alignItems="center">
+            {/* Gender Filter */}
+            <Grid item xs={12} sm={4}>
+              <FormControl
+                fullWidth
+                variant="outlined"
+                size="small"
+                sx={{
+                  backgroundColor: "#ffffff", // Sets the background color to white
+                  borderRadius: "4px", // Optional: Adds rounded corners
+                }}
+              >
                 <InputLabel id="gender-label">Gender</InputLabel>
                 <Select
                   labelId="gender-label"
@@ -229,9 +250,18 @@ export default function ModernDoctorProfile() {
                 </Select>
               </FormControl>
             </Grid>
+
             {/* Experience Filter */}
-            <Grid sx={{ border: "2px solid green" }} item xs={12} sm={6} md={2}>
-              <FormControl variant="standard" sx={{ width: "100%" }}>
+            <Grid item xs={12} sm={4}>
+              <FormControl
+                fullWidth
+                variant="outlined"
+                size="small"
+                sx={{
+                  backgroundColor: "#ffffff", // Sets the background color to white
+                  borderRadius: "4px", // Optional: Adds rounded corners
+                }}
+              >
                 <InputLabel id="experience-label">Experience</InputLabel>
                 <Select
                   labelId="experience-label"
@@ -251,15 +281,18 @@ export default function ModernDoctorProfile() {
                 </Select>
               </FormControl>
             </Grid>
+
             {/* Fees Filter */}
-            <Grid
-              sx={{ border: "2px solid yellow" }}
-              item
-              xs={12}
-              sm={6}
-              md={2}
-            >
-              <FormControl variant="standard" sx={{ width: "100%" }}>
+            <Grid item xs={12} sm={4}>
+              <FormControl
+                fullWidth
+                variant="outlined"
+                size="small"
+                sx={{
+                  backgroundColor: "#ffffff", // Sets the background color to white
+                  borderRadius: "4px", // Optional: Adds rounded corners
+                }}
+              >
                 <InputLabel id="fees-label">Fees</InputLabel>
                 <Select
                   labelId="fees-label"
@@ -341,13 +374,12 @@ export default function ModernDoctorProfile() {
                         }}
                       >
                         {doctor.username || "Unknown Doctor"}
-                        &nbsp;[
-                        <PhoneIcon
-                          sx={{ fontSize: "1rem", marginRight: "4px" }}
+                        {/* <PhoneIcon 
+                          sx={{ fontSize: "1rem", marginLeft: "8px" }}
                         />
-                        {doctor.contact || "Unknown Doctor"}]
+                        {doctor.contact || "Unknown Contact"} */}
                       </Typography>
-                      <Typography
+                      {/* <Typography
                         variant="h6"
                         sx={{
                           fontSize: "0.9rem",
@@ -358,7 +390,7 @@ export default function ModernDoctorProfile() {
                         }}
                       >
                         Bio: {doctor.bio || "Not available"}
-                      </Typography>
+                      </Typography> */}
                       <Typography
                         variant="h6"
                         sx={{
@@ -367,12 +399,14 @@ export default function ModernDoctorProfile() {
                           color: "gray",
                           lineHeight: "1.2rem",
                           marginTop: "5px",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
                         }}
                       >
-                        Gender: {doctor.gender || "Not available"} | Fees:{" "}
+                        Gender: {doctor.gender || "Not available"} || Fees:{" "}
                         {doctor.consultationFee || "Not available"}
                       </Typography>
-
                       <Typography
                         variant="h6"
                         sx={{
@@ -380,14 +414,26 @@ export default function ModernDoctorProfile() {
                           fontWeight: 400,
                           color: "gray",
                           lineHeight: "1.2rem",
-                          marginTop: "5px",
+                          marginTop: "1px",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px", // Controls space between icon and text
                         }}
                       >
-                        Qualifications:{" "}
-                        {doctor.qualificationIds?.join(", ") || "Not available"}
+                        <LocalHospitalIcon
+                          sx={{
+                            fontSize: "1rem",
+                            color: "#20ADA0",
+                            marginTop: "1px", // Fine-tunes alignment with text
+                          }}
+                        />
+
+                        {doctor.hospitalAffiliations?.join(", ") ||
+                          "Not available"}
                       </Typography>
+
                       <Box>
-                        <Typography
+                        {/* <Typography
                           variant="h6"
                           sx={{
                             fontSize: "0.8rem",
@@ -399,85 +445,118 @@ export default function ModernDoctorProfile() {
                           }}
                         >
                           Availability:
-                        </Typography>
+                        </Typography> */}
 
+                        {/* Availability */}
+                        <Box>
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              fontSize: "0.8rem",
+                              fontWeight: 600,
+                              color: "#354c5c",
+                              lineHeight: "1.2rem",
+                              marginTop: "15px",
+                              marginBottom: "5px",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "8px",
+                            }}
+                          >
+                            <AccessTimeIcon
+                              sx={{ fontSize: "1rem", color: "#20ADA0" }}
+                            />
+                            Availability:
+                          </Typography>
+
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexDirection: "row",
+                              flexWrap: "wrap",
+                              alignItems: "center",
+                              gap: "10px",
+                            }}
+                          >
+                            {doctor.availability &&
+                            doctor.availability.length > 0 ? (
+                              doctor.availability.map((slot, index) => (
+                                <Typography
+                                  key={index}
+                                  sx={{
+                                    fontSize: "0.8rem",
+                                    color: "#20ADA0",
+                                    backgroundColor: "#e0e0e0",
+                                    padding: "4px 8px",
+                                    borderRadius: "4px",
+                                    fontWeight: 500,
+                                  }}
+                                >
+                                  {slot.day}: {slot.startTime} - {slot.endTime}
+                                </Typography>
+                              ))
+                            ) : (
+                              <Typography
+                                sx={{
+                                  fontSize: "0.8rem",
+                                  color: "#354c5c",
+                                }}
+                              >
+                                No availability information
+                              </Typography>
+                            )}
+                          </Box>
+                        </Box>
+
+                        {/* Experience and Languages */}
                         <Box
                           sx={{
                             display: "flex",
-                            flexDirection: "row",
-                            flexWrap: "wrap",
                             alignItems: "center",
-                            gap: "10px",
+                            marginTop: "20px",
+                            gap: "16px",
                           }}
                         >
-                          {doctor.availability &&
-                          doctor.availability.length > 0 ? (
-                            doctor.availability.map((slot, index) => (
-                              <Typography
-                                key={index}
-                                sx={{
-                                  fontSize: "0.8rem",
-                                  color: "#20ada0",
-                                  backgroundColor: "#e0e0e0",
-                                  padding: "2px 8px",
-                                  borderRadius: "4px",
-                                  textDecoration: "bold",
-                                }}
-                              >
-                                {slot.day}: {slot.startTime}-{slot.endTime}
-                              </Typography>
-                            ))
-                          ) : (
-                            <Typography
-                              sx={{ fontSize: "0.8rem", color: "#354c5c" }}
-                            >
-                              No availability information
-                            </Typography>
-                          )}
-                        </Box>
-                      </Box>
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              fontSize: "0.8rem",
+                              fontWeight: 600,
+                              color: "#354c5c",
+                              lineHeight: "1.2rem",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "8px",
+                            }}
+                          >
+                            <WorkIcon
+                              sx={{ fontSize: "1rem", color: "#20ADA0" }}
+                            />
+                            {doctor.experience != null
+                              ? `${doctor.experience} years of experience`
+                              : "Experience not available"}
+                          </Typography>
 
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          marginTop: "20px",
-                        }}
-                      >
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            fontSize: "0.8rem",
-                            fontWeight: 600,
-                            color: "#354c5c",
-                            lineHeight: "1.2rem",
-                          }}
-                        >
-                          {doctor.experience != null
-                            ? `${doctor.experience} years of experience`
-                            : "Experience not available"}
-                        </Typography>
-                        <span
-                          style={{
-                            color: "gray",
-                            margin: "0px 10px",
-                          }}
-                        >
-                          |
-                        </span>
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            fontSize: "0.8rem",
-                            fontWeight: 600,
-                            color: "#354c5c",
-                            lineHeight: "1.2rem",
-                          }}
-                        >
-                          {doctor.languagesSpoken?.length > 0
-                            ? doctor.languagesSpoken.join(", ")
-                            : "Languages not available"}
-                        </Typography>
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              fontSize: "0.8rem",
+                              fontWeight: 600,
+                              color: "#354c5c",
+                              lineHeight: "1.2rem",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "8px",
+                            }}
+                          >
+                            <LanguageIcon
+                              sx={{ fontSize: "1rem", color: "#20ADA0" }}
+                            />
+                            {doctor.languagesSpoken?.length > 0
+                              ? doctor.languagesSpoken.join(", ")
+                              : "Languages not available"}
+                          </Typography>
+                        </Box>
                       </Box>
                     </Box>
 
@@ -488,6 +567,7 @@ export default function ModernDoctorProfile() {
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "flex-end",
+                        gap: 0.4,
                       }}
                     >
                       {/* Chat Button */}
@@ -504,7 +584,7 @@ export default function ModernDoctorProfile() {
                             mb: 1,
                           }}
                         >
-                          Chat
+                          {/* Chat */}
                         </Button>
                       </Link>
 
@@ -518,7 +598,7 @@ export default function ModernDoctorProfile() {
                           borderRadius: "20px",
                           ":hover": { backgroundColor: "#1a8c80" },
                           marginRight: 1,
-                          mb: 2,
+                          mb: 1,
                         }}
                         onClick={() => {
                           router.push(
@@ -526,7 +606,7 @@ export default function ModernDoctorProfile() {
                           );
                         }}
                       >
-                        View Profile
+                        {/* View Profile */}
                       </Button>
 
                       {/* Book Appointment Button */}
@@ -539,11 +619,26 @@ export default function ModernDoctorProfile() {
                           borderRadius: "20px",
                           ":hover": { backgroundColor: "#1a8c80" },
                           marginRight: 1,
-                          mb: 2,
+                          mb: 1,
                         }}
                         onClick={() => openModal(doctor)}
                       >
-                        Book Appointment
+                        {/* Book Appointment */}
+                      </Button>
+                      <Button
+                        variant="contained"
+                        startIcon={<PhoneIcon />}
+                        sx={{
+                          backgroundColor: "#e0e0e0",
+                          color: "#1a8c80",
+                          borderRadius: "20px",
+                          ":hover": { backgroundColor: "#1a8c80" },
+                          marginRight: 1,
+                          mb: 1,
+                        }}
+                        href={`tel:${doctor.contact || ""}`}
+                      >
+                        {doctor.contact ? ` ${doctor.contact}` : "Call"}
                       </Button>
                     </Box>
                   </Box>
@@ -555,7 +650,8 @@ export default function ModernDoctorProfile() {
           </Grid>
 
           <Grid item xs={12} md={4}>
-            <Card elevation={0} sx={{ mb: 4, overflow: "hidden" }}>
+            {/* Booking Card */}
+            <Card elevation={0} sx={{ mb: 4, overflow: "hidden", mt: 2 }}>
               <CardContent sx={{ bgcolor: "primary.light", color: "white" }}>
                 <Typography variant="h5" gutterBottom>
                   Book an Appointment
@@ -566,30 +662,40 @@ export default function ModernDoctorProfile() {
                 <Typography variant="h6" gutterBottom>
                   Diet Consultation @Rs.299 Only
                 </Typography>
-                <Box component="ul" sx={{ pl: 2 }}>
+                {/* <Box component="ul" sx={{ pl: 2 }}>
                   <Typography component="li">50+ Expert Dietitians</Typography>
                   <Typography component="li">
                     Personalized Diet Plans
                   </Typography>
-                </Box>
+                </Box> */}
               </CardContent>
             </Card>
 
-            <Card elevation={0}>
+            {/* Callback Form Card */}
+            <Card
+              elevation={3}
+              sx={{
+                borderRadius: "16px",
+                padding: "16px",
+                boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+              }}
+            >
               <CardContent>
                 <Typography
                   variant="h5"
                   color="primary"
                   align="center"
                   gutterBottom
+                  sx={{ fontWeight: "bold" }}
                 >
                   We're Here to Help!
                 </Typography>
                 <Typography
-                  variant="body1"
+                  variant="body2"
                   color="text.secondary"
                   align="center"
                   gutterBottom
+                  sx={{ marginBottom: "24px" }}
                 >
                   Get an instant callback within minutes
                 </Typography>
@@ -598,13 +704,17 @@ export default function ModernDoctorProfile() {
                     fullWidth
                     label="Your Name"
                     variant="outlined"
-                    margin="normal"
+                    margin="dense"
+                    size="small"
+                    sx={{ marginBottom: "16px" }}
                   />
                   <TextField
                     fullWidth
                     label="Phone Number"
                     variant="outlined"
-                    margin="normal"
+                    margin="dense"
+                    size="small"
+                    sx={{ marginBottom: "16px" }}
                   />
                   <TextField
                     fullWidth
@@ -612,7 +722,9 @@ export default function ModernDoctorProfile() {
                     label="Select Location"
                     defaultValue=""
                     helperText="Please select your location"
-                    margin="normal"
+                    margin="dense"
+                    size="small"
+                    sx={{ marginBottom: "16px" }}
                   >
                     <MenuItem value="bareilly">Bareilly</MenuItem>
                     <MenuItem value="delhi">Delhi</MenuItem>
@@ -622,7 +734,13 @@ export default function ModernDoctorProfile() {
                     fullWidth
                     variant="contained"
                     size="large"
-                    sx={{ mt: 2 }}
+                    sx={{
+                      mt: 2,
+                      color: "white",
+                      backgroundColor: "primary.main",
+                      borderRadius: "20px",
+                      ":hover": { backgroundColor: "primary.dark" },
+                    }}
                   >
                     Request Callback
                   </Button>

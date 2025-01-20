@@ -195,7 +195,11 @@ const Topbar = () => {
         <Box
           sx={{
             flexGrow: 1,
-            display: { xs: "none", md: "flex", justifyContent: "center" },
+            display: {
+              xs: "none",
+              md: "flex",
+              justifyContent: "center",
+            },
           }}
         >
           {pages.map((page) => (
@@ -210,9 +214,9 @@ const Topbar = () => {
         </Box>
 
         <Box className={styles.appointmentButtonContainer}>
-          {pathname !== '/doctor' && (
+          {pathname !== "/doctor" && (
             <Button
-              onClick={() => router.push('/doctor')}
+              onClick={() => router.push("/doctor")}
               variant="outlined"
               className={styles.appointmentButton}
               endIcon={<ArrowCircleRightIcon />}

@@ -146,7 +146,7 @@ const SpecialitySlider: React.FC = () => {
         </Slider>
 
         <Grid
-          sx={{mt: 8 }}
+          sx={{ mt: 8 }}
           container
           spacing={2}
           columns={{ xs: 4, sm: 8, md: 12 }}
@@ -155,7 +155,8 @@ const SpecialitySlider: React.FC = () => {
             xs={12}
             sx={{
               textAlign: "center",
-              marginTop: "10px",
+              marginTop: "0px",
+              marginBottom: "40px",
             }}
           >
             <Button
@@ -163,6 +164,21 @@ const SpecialitySlider: React.FC = () => {
               className={styles.gridButton}
               endIcon={<ArrowCircleRightIcon />}
               onClick={handleFetchNext}
+              sx={{
+                background: "linear-gradient(90deg, #ff7a18, #ff0000)",
+                color: "#fff",
+                padding: "6px 24px",
+                fontSize: "15px",
+
+                borderRadius: "30px",
+
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  background: "linear-gradient(90deg, #0072ff, #00c6ff)",
+                  boxShadow: "0px 6px 15px rgba(0, 118, 255, 0.5)", //
+                  transform: "scale(1.05)",
+                },
+              }}
             >
               {en.homepage.specialitySlider.buttonText}
             </Button>
