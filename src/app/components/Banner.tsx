@@ -6,7 +6,6 @@ import SearchIcon from "@mui/icons-material/Search";
 import Link from "next/link";
 import {
   Box,
-  CardContent,
   Paper,
   InputBase,
   Typography,
@@ -75,17 +74,24 @@ const BannerComponent: React.FC = () => {
           className={styles.bannerImage}
           alt="The house from the offer."
           src={"/assets/images/dr1.png"}
+          sx={{
+            width: "100%",
+            height: "auto",
+            maxHeight: "500px",
+            objectFit: "cover",
+          }}
         />
 
         <Box
           sx={{
             position: "absolute",
-            left: "140px",
+            left: { xs: "20px", sm: "50px", md: "100px" },
             top: "50%",
             transform: "translateY(-50%)",
             color: "#ffffff",
             zIndex: 3,
-            maxWidth: "600px",
+            maxWidth: { xs: "90%", sm: "600px" },
+            textAlign: { xs: "center", md: "left" },
           }}
         >
           <Typography
@@ -93,9 +99,9 @@ const BannerComponent: React.FC = () => {
             component="h1"
             sx={{
               fontWeight: "bold",
-              fontSize: "3.5rem",
+              fontSize: { xs: "2rem", sm: "3rem", md: "3.5rem" },
               lineHeight: 1.2,
-              marginBottom: "16px",
+              marginBottom: "20px",
               textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
             }}
           >
@@ -105,8 +111,8 @@ const BannerComponent: React.FC = () => {
             variant="h5"
             component="p"
             sx={{
-              fontWeight: "400",
-              fontSize: "1.25rem",
+              fontWeight: "300",
+              fontSize: { xs: "1rem", sm: "1.2rem", md: "1.5rem" },
               lineHeight: 1.5,
               marginBottom: "20px",
               textShadow: "1px 1px 3px rgba(0, 0, 0, 0.5)",
@@ -122,12 +128,10 @@ const BannerComponent: React.FC = () => {
               display: "flex",
               alignItems: "center",
               margin: "1rem auto",
-              padding: "1.9px",
-
-              maxWidth: "800px",
+              padding: "5px",
+              maxWidth: { xs: "100%", sm: "600px" },
               borderRadius: "23px",
               backgroundColor: "rgba(255, 255, 255, 0.90)",
-              marginTop: "180px",
               position: "relative",
             }}
           >
@@ -140,8 +144,7 @@ const BannerComponent: React.FC = () => {
               sx={{
                 flex: 1,
                 padding: "0.5rem",
-                fontWeight: "650",
-                fontSize: "1rem",
+                fontSize: { xs: "0.9rem", sm: "1rem" },
               }}
             />
             <IconButton
@@ -161,38 +164,19 @@ const BannerComponent: React.FC = () => {
             </IconButton>
           </Paper>
         </Box>
-        <CardContent
-          sx={{
-            filter: results.length > 0 ? "blur(4px)" : "none",
-            transition: "filter 0.3s ease",
-          }}
-          className={styles.bannerCardContent}
-        >
-          <Typography
-            variant="h5"
-            component="span"
-            className={styles.bannerBestMedical}
-          >
-            {en.homepage.bannerComponent.the_best_medical}
-          </Typography>
-          <Typography
-            variant="h4"
-            component="h4"
-            className={styles.bannerTreatment}
-          >
-            {en.homepage.bannerComponent.treatment}
-          </Typography>
-        </CardContent>
 
         {/* Display search results */}
         <Box
           sx={{
             marginTop: "0.1rem",
             backgroundColor: "rgba(255, 255, 255, 0.90)",
-            position: "relative",
+            position: "absolute",
+            left: { xs: "20px", sm: "50px", md: "100px" },
+            maxWidth: { xs: "90%", sm: "600px" },
             borderRadius: "8px",
             zIndex: 10,
             boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+            textAlign: "left",
           }}
         >
           {results.length > 0 ? (
@@ -223,7 +207,14 @@ const BannerComponent: React.FC = () => {
             </List>
           ) : (
             keyword && (
-              <Typography variant="body2" sx={{ marginTop: "1rem" }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  margin: "1rem",
+                  color: "#555",
+                  fontSize: { xs: "0.9rem", sm: "1rem" },
+                }}
+              >
                 No results found for "{keyword}"
               </Typography>
             )
