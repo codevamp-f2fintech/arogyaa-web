@@ -1,9 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Box, Button, Paper, Typography } from "@mui/material";
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import BookOnlineIcon from "@mui/icons-material/BookOnline";
+
 import Slider from "react-slick";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
@@ -15,28 +19,36 @@ import { useGetDoctors } from "@/hooks/doctor";
 import styles from "../page.module.css";
 import en from "@/locales/en.json";
 import Loader from "./common/Loader";
+import ModalOne from "../components/common/BookAppointmentModal"; 
 
 const ExpertSpecialistSlider: React.FC = () => {
   const { doctor, reduxLoading } = useSelector(
     (state: RootState) => state.doctors
   );
   const dispatch = useDispatch();
+  const router = useRouter();
+  const { value: data, swrLoading } = useGetDoctors(null, "get-doctors", 1, 6);
 
-  const {
-    value: data,
-    swrLoading,
-  } = useGetDoctors(null, "get-doctors", 1, 6);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [selectedDoctor, setSelectedDoctor] = useState<any>(null);
 
-  console.log(data, "api doctor");
-  console.log(doctor, "redux doctor");
 
-  // Update Redux store with fetched data
+  const openModal = (doctor: any) => {
+    setSelectedDoctor(doctor);
+    setModalOpen(true);
+  };
+
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setSelectedDoctor(null);
+  };
+
   useEffect(() => {
     if (data && data.results && data.results.length > 0) {
       dispatch(setDoctor(data));
     }
   }, [data, dispatch]);
-
 
   const sliderSettings = {
     dots: true,
@@ -98,16 +110,49 @@ const ExpertSpecialistSlider: React.FC = () => {
                     margin: "0 10px",
                     height: "310px",
                     marginBottom: "15px",
+                    position: "relative",
                   }}
                 >
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: "10px",
+                      right: "10px",
+                      display: "flex",
+                      gap: "10px",
+                    }}
+                  >
+                    <AccountCircleIcon
+                      sx={{
+                        fontSize: "24px",
+                        color: "#20ADA0",
+                        cursor: "pointer",
+                        transition: "color 0.3s",
+                      }}
+                      onClick={() => {
+                        router.push(
+                          `/doctor/profile/${encodeURIComponent(doctor._id)}`
+                        );
+                      }}
+                    />
+                    <BookOnlineIcon
+                      sx={{
+                        fontSize: "24px",
+                        color: "#20ADA0",
+                        cursor: "pointer",
+                        transition: "color 0.3s",
+                      }}
+                      onClick={() => openModal(doctor)}
+                    />
+                  </Box>
+
                   <Box
                     component="img"
                     className={styles.doctorImage}
                     alt={doctor.username}
                     src={
-                      // Add image URL from API if available
-                      doctor.profilePicture
-                      // "../assets/images/portrait-young-woman-doctor-with-stethoscope-uniform (1).png"
+                      doctor.profilePicture ||
+                      "../assets/images/portrait-young-woman-doctor-with-stethoscope-uniform (1).png"
                     }
                   />
                   <Typography
@@ -117,7 +162,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                   >
                     {doctor.username}
                   </Typography>
-                  {/* <Typography
+                                   {/* <Typography
                     variant="h6"
                     component="h6"
                     className={styles.field}
@@ -166,6 +211,17 @@ const ExpertSpecialistSlider: React.FC = () => {
           </Box>
         </>
       )}
+
+      <ModalOne
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        data={{
+          doctorId: selectedDoctor?._id,
+          doctorName: selectedDoctor?.username,
+          consultationFee: selectedDoctor?.consultationFee,
+          address: selectedDoctor?.address,
+        }}
+      />
     </Box>
   );
 };

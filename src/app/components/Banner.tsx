@@ -74,12 +74,6 @@ const BannerComponent: React.FC = () => {
           className={styles.bannerImage}
           alt="The house from the offer."
           src={"/assets/images/dr1.png"}
-          sx={{
-            width: "100%",
-            height: "auto",
-            maxHeight: "500px",
-            objectFit: "cover",
-          }}
         />
 
         <Box
@@ -168,15 +162,21 @@ const BannerComponent: React.FC = () => {
         {/* Display search results */}
         <Box
           sx={{
-            marginTop: "0.1rem",
+            marginTop: "20rem",
+            marginLeft:"3rem",
             backgroundColor: "rgba(255, 255, 255, 0.90)",
-            position: "absolute",
-            left: { xs: "20px", sm: "50px", md: "100px" },
-            maxWidth: { xs: "90%", sm: "600px" },
+            position: "relative",
+            left: { xs: "0px", sm: "0px", md: "0px" },
+            maxWidth: { xs: "60%", sm: "600px" },
             borderRadius: "8px",
             zIndex: 10,
             boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
             textAlign: "left",
+            overflow: "hidden",
+            transform: "scaleY(0)",
+            transformOrigin: "top",
+            animation:
+              results.length > 0 ? "openBox 0.3s ease-out forwards" : "",
           }}
         >
           {results.length > 0 ? (
@@ -213,6 +213,7 @@ const BannerComponent: React.FC = () => {
                   margin: "1rem",
                   color: "#555",
                   fontSize: { xs: "0.9rem", sm: "1rem" },
+                  textAlign: "center",
                 }}
               >
                 No results found for "{keyword}"
@@ -220,6 +221,19 @@ const BannerComponent: React.FC = () => {
             )
           )}
         </Box>
+
+        <style jsx global>{`
+          @keyframes openBox {
+            0% {
+              transform: scaleY(0);
+              opacity: 0;
+            }
+            100% {
+              transform: scaleY(1);
+              opacity: 1;
+            }
+          }
+        `}</style>
       </div>
     </div>
   );
