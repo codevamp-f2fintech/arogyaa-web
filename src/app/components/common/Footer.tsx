@@ -160,7 +160,7 @@ const Footer = () => {
               © Copyright 2024, All rights reserved with Arogya HealthCare
             </Typography>
           </Grid>
-          {/* <Grid xs={7} className={styles["footer-right"]}>
+          <Grid xs={7} className={styles["footer-right"]}>
             <Typography
               variant="body2"
               component="p"
@@ -182,7 +182,7 @@ const Footer = () => {
             >
               {en.footer.pages_section.faq}
             </Typography>
-          </Grid> */}
+          </Grid>
         </Grid>
       </Box>
     </>

@@ -37,7 +37,7 @@ const SpecialitySlider: React.FC = () => {
     error,
   } = useGetSpeciality(null, "get-specialities", pageSize.page, pageSize.size);
 
-  // Update Redux store with fetched data
+  
   useEffect(() => {
     if (data && data.results && data.results.length > 0) {
       dispatch(setSpeciality(data));
@@ -121,22 +121,63 @@ const SpecialitySlider: React.FC = () => {
               const icon = icons.find(
                 (icon) => icon.title === item.name.toLowerCase()
               )?.path;
+
               return (
                 <Box
                   key={item._id}
                   sx={{
-                    margin: "10px", // Add spacing between cards
-                    padding: "10px", // Optional padding inside each card
-                    borderRadius: "8px", // Optional rounded corners
+                    position: "relative",
+                    margin: "10px",
+                    padding: "10px",
+                    borderRadius: "8px",
+                    overflow: "hidden",
+
+                    "@media (max-width: 1024px)": {
+                      margin: "8px",
+                      padding: "8px",
+                    },
+                    "@media (max-width: 600px)": {
+                      margin: "5px",
+                      padding: "5px",
+                    },
                   }}
                 >
                   <SpecialistCard
-                    key={item._id}
                     icon={icon}
                     name={item.name}
-                    description={item.description}
+                    description={item.description.slice(0, 100) + "..."}
                     onConsult={() => handleConsult(item._id)}
                   />
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      borderRadius: "20px",
+                      bottom: 78,
+                      left: 0,
+                      right: 0,
+                      background: "#20ADA0",
+                      color: "#fff",
+                      padding: "5px",
+                      opacity: 0,
+                      transition: "opacity 0.3s",
+                      "&:hover": {
+                        opacity: 1,
+                      },
+                      fontSize: "14px",
+                      textAlign: "center",
+
+                      "@media (max-width: 1024px)": {
+                        fontSize: "12px",
+                        padding: "8px",
+                      },
+                      "@media (max-width: 600px)": {
+                        fontSize: "10px",
+                        padding: "5px",
+                      },
+                    }}
+                  >
+                    {item.description}
+                  </Box>
                 </Box>
               );
             })
@@ -146,7 +187,7 @@ const SpecialitySlider: React.FC = () => {
         </Slider>
 
         <Grid
-          sx={{ mt: 8 }}
+          sx={{ mt: 1 }}
           container
           spacing={2}
           columns={{ xs: 4, sm: 8, md: 12 }}
@@ -155,7 +196,6 @@ const SpecialitySlider: React.FC = () => {
             xs={12}
             sx={{
               textAlign: "center",
-              marginTop: "0px",
               marginBottom: "40px",
             }}
           >
