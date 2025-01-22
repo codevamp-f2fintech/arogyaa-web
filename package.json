@@ -21,6 +21,7 @@
     "axios": "^1.7.8",
     "dayjs": "^1.11.13",
     "formik": "^2.4.6",
+    "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
     "next": "^14.2.21",
@@ -31,11 +32,11 @@
     "react-slick": "^0.30.2",
     "slick-carousel": "^1.8.1",
     "socket.io-client": "^4.8.1",
-    "styled-components": "^6.1.13",
     "swr": "^2.2.5",
     "yup": "^1.4.0"
   },
   "devDependencies": {
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

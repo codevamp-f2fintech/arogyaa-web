@@ -152,7 +152,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                     alt={doctor.username}
                     src={
                       doctor.profilePicture ||
-                      "../assets/images/portrait-young-woman-doctor-with-stethoscope-uniform (1).png"
+                      "../assets/images/online-doctor-with-white-coat.png"
                     }
                   />
                   <Typography

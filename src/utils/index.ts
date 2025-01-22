@@ -36,7 +36,7 @@ export const Utility = () => {
    * @param str - The string whose 1st letter is to be capitalized
    * @returns
    */
-  const capitalizeFirstLetter = (str: string) => {
+  const capitalizeFirstLetter = (str: string | undefined) => {
     if (str) {
       return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
     }
@@ -55,11 +55,9 @@ export const Utility = () => {
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
 
-    // Check if the date is valid
     if (isNaN(date.getTime())) {
       return "Invalid Date";
     }
-
     return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "2-digit",
@@ -84,6 +82,22 @@ export const Utility = () => {
     };
 
     return urls[serviceName] || "";
+  };
+
+  /**
+   * Extracts and concatenates IDs from an array of objects.
+   * @param array - The array of objects from which to extract IDs.
+   * @returns A comma-separated string of IDs.
+   */
+  const getIdsFromObject = (array: Array<{ _id: string }>): string[] => {
+    if (!Array.isArray(array)) {
+      return [];
+    }
+    const arrayId: string[] = [];
+    array.forEach((item) => {
+      arrayId.push(item._id);
+    });
+    return arrayId;
   };
 
   /**
@@ -156,7 +170,6 @@ export const Utility = () => {
    * @param {string} severity - The severity level of the snackbar alert (e.g., 'success', 'info', 'warning', 'error').
    * @param {string} msg - The message to be displayed in the snackbar alert.
    * @param {function|null} navigateTo - The navigation function to be called after the delay.
-   * @param {string|null} [path] - The optional path to navigate to after hiding the snackbar alert.
    * @returns {void} This function does not return any value.
    */
   const snackbarAndNavigate = (
@@ -165,7 +178,6 @@ export const Utility = () => {
     severity: AlertColor,
     msg: string,
     navigateTo: Function | null = null,
-    path: string | null = null,
     reload = false,
   ): void => {
     dispatch(
@@ -183,11 +195,11 @@ export const Utility = () => {
           snackbarMessage: "",
         })
       );
-      if (path && navigateTo) {
-        navigateTo(path);
-        if (reload) {
-          location.reload();
-        }
+      if (navigateTo) {
+        navigateTo();
+      }
+      if (reload) {
+        location.reload();
       }
     }, 2500);
   };
@@ -230,7 +242,6 @@ export const Utility = () => {
    * @returns {any | null} - Decoded token payload, or null if token not found or invalid.
    */
   const decodedToken = (token = null): any | null => {
-    // Prioritize server-side provided token
     if (typeof document === "undefined") {
       if (token) {
         try {
@@ -240,7 +251,7 @@ export const Utility = () => {
           return null;
         }
       }
-      return {}; // No token provided server-side
+      return {};
     }
     // Client-side handling
     if (!token) {
@@ -270,22 +281,18 @@ export const Utility = () => {
       console.warn("WebSocket connection already initialized.");
       return;
     }
-
     socket = io(url);
 
     socket.on("connect", () => {
       console.log("WebSocket connected:", socket?.id);
     });
-
     socket.on("message", (message) => {
       console.log("WebSocket message received:", message);
       onMessage(message);
     });
-
     socket.on("disconnect", () => {
       console.log("WebSocket disconnected.");
     });
-
     socket.on("error", (error) => {
       console.error("WebSocket error:", error);
     });
@@ -301,7 +308,6 @@ export const Utility = () => {
       console.error("WebSocket is not initialized.");
       return;
     }
-
     socket.emit(event, data);
   };
 
@@ -322,6 +328,7 @@ export const Utility = () => {
     fetchData,
     formatDate,
     getServiceUrl,
+    getIdsFromObject,
     getSessionStorage,
     setSessionStorage,
     getLocalStorage,

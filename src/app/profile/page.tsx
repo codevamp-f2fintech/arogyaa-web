@@ -16,9 +16,10 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 import { Utility } from "@/utils";
 import { fetcher } from "@/apis/apiClient";
+import { PatientData } from "@/types/patient";
 
 const UserProfile = () => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<PatientData>();
   const [profilePicture, setProfilePicture] = useState("/iconimg.jpg");
   const { decodedToken } = Utility();
   const patientId = decodedToken()?.id;
@@ -44,6 +45,7 @@ const UserProfile = () => {
           `get-patient-by-id/${patientId}`
         );
         setUser(response);
+        console.log(response, 'patient')
       } catch (error) {
         console.error("Error fetching patient profile:", error);
       }
@@ -168,7 +170,7 @@ const UserProfile = () => {
                 justifyContent: "center",
               }}
             >
-              {user.username || "N/A"}
+              {user?.username || "N/A"}
             </Typography>
 
             <Box sx={{ mb: 4, mt: 5 }}>
@@ -187,16 +189,14 @@ const UserProfile = () => {
                   }}
                 >
                   <PhoneIcon sx={{ color: "#20ADA0", fontSize: "1.2rem" }} />
-                  <Typography>{user.phone || "N/A"}</Typography>
+                  <Typography>{user?.contact || "N/A"}</Typography>
 
                   {/* Copy Button */}
                   <IconButton
                     onClick={() => {
-                      if (user.phone) {
-                        navigator.clipboard.writeText(user.phone);
-                        alert("Phone number copied to clipboard!");
-                      } else {
-                        alert("No phone number available to copy.");
+                      if (user?.contact) {
+                        navigator.clipboard.writeText(user?.contact);
+                        alert("Contact number copied to clipboard!");
                       }
                     }}
                     sx={{
@@ -215,17 +215,16 @@ const UserProfile = () => {
                   <EmailIcon sx={{ color: "#20ADA0", fontSize: "1.2rem" }} />
                   <Typography
                     component="a"
-                    href={`mailto:${user.email || ""}`}
+                    href={`mailto:${user?.email || ""}`}
                     sx={{
                       textDecoration: "none",
                       color: "inherit",
                       "&:hover": {
-                        // textDecoration: "underline",
                         color: "#20ADA0",
                       },
                     }}
                   >
-                    {user.email || "N/A"}
+                    {user?.email || "N/A"}
                   </Typography>
                 </Box>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -277,12 +276,12 @@ const UserProfile = () => {
                 {
                   icon: PersonIcon,
                   label: "Gender",
-                  value: user.gender || "N/A",
+                  value: user?.gender || "N/A",
                 },
                 {
                   icon: CalendarTodayIcon,
                   label: "Date of Birth",
-                  value: "10/03/1987",
+                  value: user?.dob || "NA",
                 },
                 {
                   icon: CalendarTodayIcon,
@@ -355,9 +354,9 @@ const UserProfile = () => {
             <Grid
               container
               spacing={2}
-              //   sx={{
-              //     border: "2px solid green",
-              //   }}
+            //   sx={{
+            //     border: "2px solid green",
+            //   }}
             >
               {[
                 { icon: CalendarTodayIcon, label: "Appointments" },

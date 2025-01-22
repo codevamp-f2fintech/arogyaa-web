@@ -1,30 +1,37 @@
 export interface DoctorData {
-  _id: string;
+  _id: string | number;
   username: string;
   email: string;
   password: string;
   contact: string;
-  experience: number;
+  experience: string | number;
   bio: string;
-  gender: string;
+  tags: string[];
+  gender: string | null;
   dob: string;
   languageSpoken: string[];
   address: string;
-  profilePicture: string;
-  consultationFee: number;
-  status: string;
-  role: string;
+  pincode: string | number;
+  profilePicture: { file: File; preview: string } | null;
+  consultationFee: string | number;
+  status: string | null;
+  role: string | null;
   specializationIds: string[];
+  symptomIds: string[];
   qualificationIds: string[];
-  availability: string[];
+  availability: { day: string; startTime: string; endTime: string }[];
   createdAt: string;
   updatedAt: string;
   __v: number;
 }
 
 export interface Doctor {
-  results: DoctorData[];
-  count: number;
-  pages: number;
-  errorMessage?: string | null;
+  statusCode: number;
+  message: string;
+  data: {
+    results: DoctorData[];
+    count: number;
+    pages: number;
+  };
+  errorMessage?: string;
 }

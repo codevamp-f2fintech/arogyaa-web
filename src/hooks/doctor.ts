@@ -79,7 +79,7 @@ export const useCreateDoctor = (pathKey: string) => {
     setError(null);
 
     try {
-      const doctor = await creator<DoctorData, Partial<DoctorData>>(
+      const doctor = await creator<Doctor, Partial<DoctorData>>(
         "doctor",
         pathKey,
         newDoctorData
@@ -109,7 +109,7 @@ export const useModifyDoctor = (pathKey: string) => {
     setError(null);
 
     try {
-      const doctor = await modifier<DoctorData, Partial<DoctorData>>(
+      const doctor = await modifier<Doctor, Partial<DoctorData>>(
         "doctor",
         pathKey,
         updatedDoctorData

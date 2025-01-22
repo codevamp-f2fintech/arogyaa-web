@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import Cookies from "js-cookie";
 import {
   Box,
   Select,
@@ -42,11 +43,12 @@ import WcIcon from "@mui/icons-material/Wc";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import BookOnlineIcon from "@mui/icons-material/BookOnline";
 
-import ModalOne from "../components/common/BookAppointmentModal";
+import BookAppointmentModal from "../components/common/BookAppointmentModal";
 import StarIcon from "@mui/icons-material/Star";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import SearchIcon from "@mui/icons-material/Search";
 import { useGetDoctors } from "@/hooks/doctor";
+import { DoctorData } from "@/types/doctor";
 
 // Create a custom theme
 const theme = createTheme({
@@ -71,7 +73,7 @@ const theme = createTheme({
       fontSize: "2.5rem",
       fontWeight: 600,
     },
-  
+
     h2: {
       fontSize: "2rem",
       fontWeight: 600,
@@ -121,36 +123,16 @@ const theme = createTheme({
   },
 });
 
-export default function ModernDoctorProfile() {
+export default function DoctorListing() {
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
-  const [modalData, setModalData] = useState<{
-    doctorId: string;
-    doctorName: string;
-    consultationFee?: number;
-    address?: string;
-    availability?: { day: string; startTime: string; endTime: string }[];
-  } | null>(null);
+  const [selectedDoctor, setSelectedDoctor] = useState<DoctorData>();
   const [filters, setFilters] = useState({
     gender: "",
     experienceFilter: "",
     sortBy: "",
   });
   const router = useRouter();
-
-  const openModal = (doctor: any): void => {
-    setModalData({
-      doctorId: doctor._id,
-      doctorName: doctor.username,
-      consultationFee: doctor.consultationFee,
-      address: doctor.address,
-      availability: doctor.availability,
-    });
-    setModalOpen(true);
-  };
-  const closeModal = (): void => {
-    setModalOpen(false);
-    setModalData(null);
-  };
+  const searchParams = useSearchParams();
 
   const {
     value: doctors,
@@ -164,6 +146,41 @@ export default function ModernDoctorProfile() {
       [field]: value,
     }));
   };
+
+  const openModal = (doctor: DoctorData): void => {
+    const userToken = Cookies.get("token");
+    if (!userToken) {
+      const encodedReturnUrl = encodeURIComponent(
+        `/doctor?autoBookDoctorId=${doctor._id}`
+      );
+      router.push(`/signup?redirect=${encodedReturnUrl}`);
+      return;
+    }
+    setSelectedDoctor(doctor);
+    setModalOpen(true);
+  };
+
+  const closeModal = (): void => {
+    setModalOpen(false);
+    setSelectedDoctor(null);
+  };
+
+  // 3) On mount (or after fetch), check if the URL has ?autoBookDoctorId=XXXX
+  //    If the user is already logged in, automatically open the modal for that doctor
+  useEffect(() => {
+    const token = Cookies.get("token");
+    const autoBookDoctorId = searchParams.get("autoBookDoctorId");
+
+    if (token && autoBookDoctorId && doctors?.results?.length) {
+      const found = doctors.results.find(
+        (doc: DoctorData) => doc._id === autoBookDoctorId
+      );
+      if (found) {
+        setSelectedDoctor(found);
+        setModalOpen(true);
+      }
+    }
+  }, [searchParams, doctors?.results?.length]);
 
   if (swrLoading) {
     return (
@@ -203,8 +220,7 @@ export default function ModernDoctorProfile() {
         >
           Find Your Perfect Doctor
         </Typography>
-        <ModalOne isOpen={isModalOpen} onClose={closeModal} data={modalData} />
-
+        {/* Filters */}
         <Paper
           elevation={6}
           sx={{
@@ -311,7 +327,6 @@ export default function ModernDoctorProfile() {
             </Grid>
           </Grid>
         </Paper>
-
         {/* Doctor list */}
         <Grid container spacing={3}>
           <Grid item xs={12} sm={8} md={8}>
@@ -340,7 +355,7 @@ export default function ModernDoctorProfile() {
                       alt={doctor.username}
                       src={
                         doctor.profilePicture ||
-                        "../../../assets/images/drRanjanaSharma.jpg"
+                        "../assets/images/online-doctor-with-white-coat.png"
                       }
                       sx={{
                         width: "150px",
@@ -479,7 +494,7 @@ export default function ModernDoctorProfile() {
                             }}
                           >
                             {doctor.availability &&
-                            doctor.availability.length > 0 ? (
+                              doctor.availability.length > 0 ? (
                               doctor.availability.map((slot, index) => (
                                 <Typography
                                   key={index}
@@ -749,6 +764,7 @@ export default function ModernDoctorProfile() {
             </Card>
           </Grid>
         </Grid>
+        <BookAppointmentModal isOpen={isModalOpen} onClose={closeModal} data={selectedDoctor} />
       </Container>
     </ThemeProvider>
   );

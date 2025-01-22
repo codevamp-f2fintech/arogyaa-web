@@ -65,7 +65,7 @@ export const useCreatePatient = (pathKey: string) => {
         setError(null);
 
         try {
-            const patient = await creator<PatientData, Partial<PatientData>>('patient', pathKey, newPatientData);
+            const patient = await creator<Patient, Partial<PatientData>>('patient', pathKey, newPatientData);
             return patient;
         } catch (err) {
             setError(err as Error);
@@ -92,7 +92,7 @@ export const useModifyPatient = (pathKey: string) => {
         setError(null);
 
         try {
-            const patient = await modifier<PatientData, Partial<PatientData>>('patient', pathKey, updatedPatientData);
+            const patient = await modifier<Patient, Partial<PatientData>>('patient', pathKey, updatedPatientData);
             return patient;
         } catch (err) {
             setError(err as Error);
