@@ -15,43 +15,37 @@ import { icons } from "@/static-data";
 import { useGetSpeciality } from "@/hooks/speciality";
 import { setSpeciality } from "@/redux/features/specialitySlice";
 
-import styles from "../page.module.css";
 import Loader from "./common/Loader";
 import SpecialistCard from "./SpecialistCard";
-import { border, display } from "@mui/system";
 
 const SpecialitySlider: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
   const router = useRouter();
-  const { speciality, reduxLoading } = useSelector(
-    (state: RootState) => state.specialities
-  );
+  const { speciality } = useSelector((state: RootState) => state.specialities);
   const [pageSize, setPageSize] = useState({
     page: 1,
     size: 6,
   });
 
-  const {
-    value: data,
-    swrLoading,
-    error,
-  } = useGetSpeciality(null, "get-specialities", pageSize.page, pageSize.size);
+  const { value: data, swrLoading } = useGetSpeciality(
+    null,
+    "get-specialities",
+    pageSize.page,
+    pageSize.size
+  );
 
-  
   useEffect(() => {
     if (data && data.results && data.results.length > 0) {
       dispatch(setSpeciality(data));
     }
   }, [data, dispatch]);
 
-  // Fetch next set of specialities
   const handleFetchNext = useCallback(() => {
     setPageSize((prevSize) => ({
       ...prevSize,
       page: prevSize.page + 1,
-      size: prevSize.size + 5,
     }));
-  }, [dispatch]);
+  }, []);
 
   const handleConsult = useCallback(
     (id: string) => {
@@ -62,43 +56,32 @@ const SpecialitySlider: React.FC = () => {
     [router]
   );
 
-  // Slider settings memoization to prevent re-renders
   const sliderSettings = useMemo(
     () => ({
       dots: true,
-      infinite: false,
+      arrows: true,
+      infinite: true,
       speed: 500,
-      slidesToShow: 4,
-      slidesToScroll: 2,
-      autoplay: false,
+      slidesToShow: 3,
+      slidesToScroll: 3,
+      autoplay: true,
       autoplaySpeed: 3000,
-      lazyLoad: "ondemand",
-      customPaging: (i: number) => (
-        <div className={styles.customDot}>{i + 1}</div>
-      ),
-      dotsClass: `slick-dots ${styles.customDots}`,
+      lazyLoad: "progressive",
+      pauseOnHover: true,
+      cssEase: "ease-in-out",
+      dotsClass: "slick-dots custom-dots",
       responsive: [
         {
           breakpoint: 1024,
           settings: {
             slidesToShow: 3,
-            slidesToScroll: 3,
-            infinite: false,
-            dots: true,
+            slidesToScroll: 1,
           },
         },
         {
           breakpoint: 600,
           settings: {
-            slidesToShow: 1,
-            slidesToScroll: 1,
-            initialSlide: 1,
-          },
-        },
-        {
-          breakpoint: 480,
-          settings: {
-            slidesToShow: 1,
+            slidesToShow: 2,
             slidesToScroll: 1,
           },
         },
@@ -108,126 +91,125 @@ const SpecialitySlider: React.FC = () => {
   );
 
   return (
-    <>
-      <Box className={styles.outerBox}></Box>
-      <div>
-        <h1 className={styles.specialityTitle}>
-          {en.homepage.specialitySlider.title}
-        </h1>
+    <Box sx={{ maxWidth: "1300px", margin: "0 auto" }}>
+      <h1
+        style={{ textAlign: "center", marginBottom: "20px", marginTop: "50px" }}
+      >
+        {en.homepage.specialitySlider.title}
+      </h1>
 
-        <Slider {...sliderSettings}>
-          {speciality && speciality?.results?.length > 0 ? (
-            speciality.results.map((item) => {
-              const icon = icons.find(
-                (icon) => icon.title === item.name.toLowerCase()
-              )?.path;
+      <Slider {...sliderSettings}>
+        {speciality && speciality?.results?.length > 0 ? (
+          speciality.results.map((item) => {
+            const icon = icons.find(
+              (icon) => icon.title === item.name.toLowerCase()
+            )?.path;
 
-              return (
+            return (
+              <Box
+                key={item._id}
+                sx={{
+                  position: "relative",
+                  margin: "10px",
+                  padding: "10px",
+                  borderRadius: "8px",
+                  overflow: "hidden",
+                  maxHeight: "800px",
+                  "@media (max-width: 1024px)": {
+                    margin: "8px",
+                    padding: "8px",
+                  },
+                  "@media (max-width: 600px)": {
+                    margin: "5px",
+                    padding: "5px",
+                  },
+                }}
+              >
+                <SpecialistCard
+                  icon={icon}
+                  name={item.name}
+                  description={item.description.slice(0, 100) + "..."}
+                  onConsult={() => handleConsult(item._id)}
+                />
                 <Box
-                  key={item._id}
                   sx={{
-                    position: "relative",
-                    margin: "10px",
-                    padding: "10px",
-                    borderRadius: "8px",
-                    overflow: "hidden",
+                    position: "absolute",
+                    borderRadius: "20px",
+                    bottom: 78,
+                    left: 0,
+                    right: 0,
+                    background: "linear-gradient(145deg, #20ADA0, #17a98d)",
+                    color: "#fff",
+                    padding: "10px 10px",
+                    opacity: 0,
+                    transition: "opacity 0.3s, transform 0.3s ease-in-out",
+                    transform: "translateY(10px)",
+                    "&:hover": {
+                      opacity: 1,
+                      transform: "translateY(0)",
+                      boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
+                    },
+                    fontSize: "14px",
+                    textAlign: "center",
+
+                    letterSpacing: "0.5px",
 
                     "@media (max-width: 1024px)": {
-                      margin: "8px",
-                      padding: "8px",
+                      fontSize: "12px",
+                      padding: "8px 16px",
                     },
                     "@media (max-width: 600px)": {
-                      margin: "5px",
-                      padding: "5px",
+                      fontSize: "10px",
+                      padding: "6px 12px",
                     },
                   }}
                 >
-                  <SpecialistCard
-                    icon={icon}
-                    name={item.name}
-                    description={item.description.slice(0, 100) + "..."}
-                    onConsult={() => handleConsult(item._id)}
-                  />
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      borderRadius: "20px",
-                      bottom: 78,
-                      left: 0,
-                      right: 0,
-                      background: "#20ADA0",
-                      color: "#fff",
-                      padding: "5px",
-                      opacity: 0,
-                      transition: "opacity 0.3s",
-                      "&:hover": {
-                        opacity: 1,
-                      },
-                      fontSize: "14px",
-                      textAlign: "center",
-
-                      "@media (max-width: 1024px)": {
-                        fontSize: "12px",
-                        padding: "8px",
-                      },
-                      "@media (max-width: 600px)": {
-                        fontSize: "10px",
-                        padding: "5px",
-                      },
-                    }}
-                  >
-                    {item.description}
-                  </Box>
+                  {item.description}
                 </Box>
-              );
-            })
-          ) : (
-            <div>No Specialities Found</div>
-          )}
-        </Slider>
+              </Box>
+            );
+          })
+        ) : (
+          <div>No Specialities Found</div>
+        )}
+      </Slider>
 
+      <Grid
+        sx={{ mt: 2 }}
+        container
+        spacing={2}
+        columns={{ xs: 4, sm: 8, md: 12 }}
+      >
         <Grid
-          sx={{ mt: 1 }}
-          container
-          spacing={2}
-          columns={{ xs: 4, sm: 8, md: 12 }}
+          xs={12}
+          sx={{
+            textAlign: "center",
+            marginBottom: "20px",
+            marginTop: "40px",
+          }}
         >
-          <Grid
-            xs={12}
+          {swrLoading && <Loader />}
+
+          <Button
+            variant="contained"
+            endIcon={<ArrowCircleRightIcon />}
+            onClick={handleFetchNext}
             sx={{
-              textAlign: "center",
-              marginBottom: "40px",
+              background: "#20ADA0",
+              color: "#fff",
+              padding: "10px 20px",
+              borderRadius: "30px",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                background: "#20ADA0",
+              },
             }}
           >
-            <Button
-              variant="contained"
-              className={styles.gridButton}
-              endIcon={<ArrowCircleRightIcon />}
-              onClick={handleFetchNext}
-              sx={{
-                background: "linear-gradient(90deg, #ff7a18, #ff0000)",
-                color: "#fff",
-                padding: "6px 24px",
-                fontSize: "15px",
-
-                borderRadius: "30px",
-
-                transition: "all 0.3s ease",
-                "&:hover": {
-                  background: "linear-gradient(90deg, #0072ff, #00c6ff)",
-                  boxShadow: "0px 6px 15px rgba(0, 118, 255, 0.5)", //
-                  transform: "scale(1.05)",
-                },
-              }}
-            >
-              {en.homepage.specialitySlider.buttonText}
-            </Button>
-          </Grid>
+            {en.homepage.specialitySlider.buttonText}
+          </Button>
         </Grid>
-
-        {swrLoading && <Loader />}
-      </div>
-    </>
+      </Grid>
+    </Box>
   );
 };
 

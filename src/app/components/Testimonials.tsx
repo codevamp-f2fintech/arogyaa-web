@@ -7,49 +7,48 @@ import {
   CardContent,
   Avatar,
   Rating,
+  IconButton,
 } from "@mui/material";
-
+import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import en from "@/locales/en.json";
 import styles from "../page.module.css";
 
-const Testimonials: React.FC = () => {
+const Testimonials = () => {
   const dummyTestimonials = [
     {
-      src: "/assets/images/avatar1.jpg",
-      srcquote: "/assets/images/icons8-quote-left-100.png",
-      description: "The staff was friendly and very professional. I felt truly cared for!",
-      name: "Emily Johnson",
-      age: "28",
+      src: "/dr1.png",
+      description:
+        "The staff was friendly and very careful. They truly cared for all patients!",
+      name: "Dr. Tanmay Joshi",
+
       rating: 4.8,
+      video: "#",
     },
     {
       src: "/assets/images/avatar2.jpg",
-      srcquote: "/assets/images/icons8-quote-left-100.png",
-      description: "The facilities were top-notch, and the service exceeded my expectations.",
-      name: "James Carter",
-      age: "35",
+      description:
+        "The facilities were top-notch, and the service exceeded my expectations.",
+      name: "Nayni Srividhya",
+
       rating: 5,
+      video: "#",
     },
     {
       src: "/assets/images/avatar3.jpg",
-      srcquote: "/assets/images/icons8-quote-left-100.png",
-      description: "I had an amazing experience! The staff went above and beyond to help.",
-      name: "Sophia Lee",
-      age: "30",
-    
+      description:
+        "I had an amazing experience! The staff went above and beyond to help.",
+      name: "Dr. Medidi Sree",
+
+      rating: 4.9,
+      video: "#",
     },
   ];
 
   return (
-    <Box
-      className={`${styles.testimonialsSection} ${styles.testimonialsBackground}`}
-    >
+    <Box className={styles.testimonialsSection}>
       <Box className={styles.testimonialsTitleBox}>
         <Typography variant="h5" className={styles.testimonialsTitle1}>
-          {en.homepage.testimonials.title1 || "Our Happy Clients"}
-        </Typography>
-        <Typography variant="h2" className={styles.testimonialsTitle2}>
-          {en.homepage.testimonials.title2 || "What People Say About Us"}
+          { "Our Patient’s Stories"}
         </Typography>
       </Box>
 
@@ -57,24 +56,24 @@ const Testimonials: React.FC = () => {
         {dummyTestimonials.map((testimonial, index) => (
           <Card key={index} className={styles.testimonialCard}>
             <CardContent>
-              <Avatar
-                src={testimonial.src}
-                alt={testimonial.name}
-                className={styles.testimonialAvatar}
-              />
-              <img
-                src={testimonial.srcquote}
-                alt="Quote Icon"
-                className={styles.quoteIcon}
-              />
+              <Box className={styles.testimonialHeader}>
+                <Avatar
+                  src={testimonial.src}
+                  alt={testimonial.name}
+                  className={styles.testimonialAvatar}
+                />
+                <IconButton className={styles.playButton}>
+                  <PlayCircleIcon fontSize="large" />
+                </IconButton>
+              </Box>
               <Typography
                 variant="body1"
                 className={styles.testimonialDescription}
               >
-                "{testimonial.description}"
+                “{testimonial.description}”
               </Typography>
               <Typography variant="h6" className={styles.testimonialName}>
-                {testimonial.name}, Age: {testimonial.age}
+                {testimonial.name}
               </Typography>
               <Rating value={testimonial.rating} readOnly precision={0.1} />
             </CardContent>
