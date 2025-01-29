@@ -195,7 +195,11 @@ const Topbar = () => {
         <Box
           sx={{
             flexGrow: 1,
-            display: { xs: "none", md: "flex", justifyContent: "center" },
+            display: {
+              xs: "none",
+              md: "flex",
+              justifyContent: "center",
+            },
           }}
         >
           {pages.map((page) => (
@@ -208,21 +212,80 @@ const Topbar = () => {
             </Button>
           ))}
         </Box>
-
         <Box className={styles.appointmentButtonContainer}>
-          {pathname !== '/doctor' && (
-            <Button
-              onClick={() => router.push('/doctor')}
-              variant="outlined"
-              className={styles.appointmentButton}
-              endIcon={<ArrowCircleRightIcon />}
-            >
-              {en.topbar.appointment} {/* Button label */}
-            </Button>
-          )}
+          {pathname !== "/doctor" &&
+            !pathname.startsWith("/doctor/profile/") && (
+              <Button
+                onClick={() => router.push("/doctor")}
+                variant="outlined"
+                className={styles.appointmentButton}
+                endIcon={<ArrowCircleRightIcon />}
+                sx={{
+                  textTransform: "capitalize",
+                  fontWeight: "600",
+                }}
+              >
+                {en.topbar.appointment}
+              </Button>
+            )}
         </Box>
 
-        <Box>
+       
+        {decodedToken()?.id ? (
+          <Box className={styles.avatarContainer}>
+            <IconButton className={styles.avatarButton}>
+              <Avatar
+                alt={capitalizeFirstLetter(decodedToken()?.patientName)}
+                src={decodedToken()?.patientName}
+                onClick={userPopover.handleOpen}
+                ref={userPopover.anchorRef}
+                sx={{ cursor: "pointer" }}
+              />
+            </IconButton>
+            <UserPopover
+              anchorEl={userPopover.anchorRef.current}
+              onClose={userPopover.handleClose}
+              open={userPopover.open}
+            />
+          </Box>
+        ) : (
+          <Button
+            variant="contained"
+            sx={{
+              background: "#20ADA0 !important",
+              color: "white",
+              fontWeight: "bold",
+              padding: "6px 20px",
+              marginLeft: "4px",
+              borderRadius: "20px",
+              fontSize: "14px",
+              boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
+              transition: "all 0.3s ease",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            <Link
+              href="/signin"
+              underline="none"
+              sx={{
+                color: "inherit",
+                textDecoration: "none",
+                fontWeight: "bold",
+                textTransform: "capitalize",
+              }}
+            >
+              Login
+            </Link>
+            <PersonAddAltOutlinedIcon
+              sx={{
+                fontSize: "18px",
+              }}
+            />
+          </Button>
+        )}
+        {/* <Box>
           <IconButton
             aria-describedby={id}
             onClick={handleClick}
@@ -359,63 +422,7 @@ const Topbar = () => {
               </Box>
             </Box>
           </Popover>
-        </Box>
-
-        {/* <Avatar src="/static/images/avatar/2.jpg" /> */}
-        {decodedToken()?.id ? (
-          <Box className={styles.avatarContainer}>
-            <IconButton className={styles.avatarButton}>
-              <Avatar
-                alt={capitalizeFirstLetter(decodedToken()?.patientName)}
-                src={decodedToken()?.patientName}
-                onClick={userPopover.handleOpen}
-                ref={userPopover.anchorRef}
-                sx={{ cursor: "pointer" }}
-              />
-            </IconButton>
-            <UserPopover
-              anchorEl={userPopover.anchorRef.current}
-              onClose={userPopover.handleClose}
-              open={userPopover.open}
-            />
-          </Box>
-        ) : (
-          <Button
-            variant="contained"
-            sx={{
-              background: "linear-gradient(90deg, #4CAF50, #2E7D32)",
-              color: "white",
-              fontWeight: "bold",
-              padding: "5px 10px",
-              textTransform: "uppercase",
-              marginLeft: "60px",
-              borderRadius: "20px",
-              fontSize: "14px",
-              boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
-              transition: "all 0.3s ease",
-              margin: "0px",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
-          >
-            <PersonAddAltOutlinedIcon
-              sx={{
-                fontSize: "18px",
-              }}
-            />
-            <Link
-              href="/signin"
-              underline="none"
-              sx={{
-                color: "inherit",
-                textDecoration: "none",
-              }}
-            >
-              SignIn / SignUp
-            </Link>
-          </Button>
-        )}
+        </Box> */}
       </Toolbar>
     </AppBar>
   );

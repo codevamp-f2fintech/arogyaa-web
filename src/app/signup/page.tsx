@@ -1,6 +1,8 @@
 "use client";
+
 import React, { useState } from "react";
-import axios from "axios";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Box,
   Container,
@@ -23,16 +25,23 @@ import LockIcon from "@mui/icons-material/Lock";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 import SnackbarComponent from "../components/common/Snackbar";
-import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
+import { creator } from "@/apis/apiClient";
+import { useCreatePatient } from "@/hooks/patient";
 import { Utility } from "@/utils";
+
+interface SignupResponse {
+  token: string;
+  message: string;
+  statusCode: number;
+}
 
 const Signup = () => {
   const [formData, setFormData] = useState({
     username: "",
     age: "",
     email: "",
-    phone: "",
+    contact: "",
     gender: "",
     password: "",
     confirmPassword: "",
@@ -42,15 +51,18 @@ const Signup = () => {
     username: "",
     age: "",
     email: "",
-    phone: "",
+    contact: "",
     gender: "",
     password: "",
     confirmPassword: "",
   });
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { snackbar } = useSelector((state: RootState) => state.snackbar);
-  const { snackbarAndNavigate } = Utility();
   const dispatch: AppDispatch = useDispatch();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { snackbarAndNavigate } = Utility();
+  const { createPatient } = useCreatePatient("/create-patient");
 
   const handleChange = (e: any) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -87,12 +99,12 @@ const Signup = () => {
       isValid = false;
     }
 
-    // Phone validation
-    if (!formData.phone) {
-      newErrors.phone = "Phone number is required.";
+    // contact validation
+    if (!formData.contact) {
+      newErrors.contact = "Contact is required.";
       isValid = false;
-    } else if (!/^\d{10}$/.test(formData.phone)) {
-      newErrors.phone = "Phone number must be 10 digits.";
+    } else if (!/^\d{10}$/.test(formData.contact)) {
+      newErrors.contact = "Contact must be 10 digits long.";
       isValid = false;
     }
 
@@ -104,13 +116,13 @@ const Signup = () => {
 
     // Password validation
     const passwordPattern =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!formData.password) {
       newErrors.password = "Password is required.";
       isValid = false;
     } else if (!passwordPattern.test(formData.password)) {
       newErrors.password =
-        "Password must be at least 6 characters long, contain at least one number, one special character, one uppercase, and one lowercase letter.";
+        "Password must be at least 8 characters long, contain at least one number, one special character, one uppercase, and one lowercase letter.";
       isValid = false;
     }
 
@@ -126,57 +138,68 @@ const Signup = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      snackbarAndNavigate(dispatch, true, "error", "Please fix the errors.");
-      return;
-    }
+    const isValid = validateForm();
+    if (!isValid) return;
 
     const { confirmPassword, ...data } = formData;
-
     try {
-      const response = await axios.post(
-        "http://localhost:4006/api/v1/patient-service/create-patient",
-        data
-      );
-      console.log("Response >>>>", response);
+      const createPatientResponse = await createPatient(data);
 
-      if (response.status === 201) {
-        snackbarAndNavigate(
-          dispatch,
-          true,
-          "success",
-          "Patient created successfully"
-        );
+      if (createPatientResponse?.statusCode === 201) {
+        const response: SignupResponse = await creator(
+          'patient',
+          "/login",
+          {
+            email: createPatientResponse?.data?.email,
+            password: data?.password,
+          });
+        if (response?.statusCode === 200) {
+          document.cookie = `token=${response.token}; path=/; max-age=${1 * 24 * 60 * 60}; secure; samesite=strict`;
+          const rawRedirect = searchParams.get("redirect");
+          const decodedRedirect = rawRedirect ? decodeURIComponent(rawRedirect) : null;
+
+          snackbarAndNavigate(
+            dispatch,
+            true,
+            "success",
+            "Patient created successfully",
+            () => router.push(decodedRedirect || '/doctor'),
+          );
+        }
       } else {
         snackbarAndNavigate(
           dispatch,
           true,
-          "warning",
-          response.data?.message || "Unexpected warning."
+          "error",
+          createPatientResponse?.message || "Error Creating Patient. Please Try Again",
+          null,
+          true
         );
       }
     } catch (error: any) {
+      console.log(error, 'this is errp')
       const status = error.response?.status;
-      const message = error.response?.data?.message || error.message;
+      const message = error.response?.message || error.message;
 
-      if (status === 409) {
-        snackbarAndNavigate(dispatch, true, "error", "Email already exists.");
-      } else if (status === 500) {
-        snackbarAndNavigate(
-          dispatch,
-          true,
-          "error",
-          "Internal server error. Please try again."
-        );
-      } else {
-        snackbarAndNavigate(
-          dispatch,
-          true,
-          "error",
-          message || "Signup failed. Please try again."
-        );
-      }
+      // if (status === 409) {
+      //   snackbarAndNavigate(dispatch, true, "error", "Email already exists.");
+      // } else if (status === 500) {
+      //   snackbarAndNavigate(
+      //     dispatch,
+      //     true,
+      //     "error",
+      //     "Internal server error. Please try again."
+      //   );
+      // } else {
+      //   snackbarAndNavigate(
+      //     dispatch,
+      //     true,
+      //     "error",
+      //     message || "Signup failed. Please try again.",
+      //     null,
+      //     true
+      //   );
+      // }
     }
   };
 
@@ -242,17 +265,8 @@ const Signup = () => {
             color: "#449AC8",
           }}
         >
-          Please Fill Patient Details
+          Please Fill In Patient Details
         </Typography>
-        {/* <Typography
-          variant="subtitle1"
-          sx={{
-            mb: 1,
-            color: "gray",
-          }}
-        >
-          Please Sign-Up To Your Account For Consult With Our Doctors
-        </Typography> */}
         <form onSubmit={handleSubmit}>
           <Box
             display="grid"
@@ -263,7 +277,7 @@ const Signup = () => {
               style={{ marginTop: 10 }}
               fullWidth
               name="username"
-              label="Name"
+              label="Username"
               variant="outlined"
               autoComplete="off" // Turn off autofill
               onChange={handleChange}
@@ -278,7 +292,6 @@ const Signup = () => {
                 ),
               }}
             />
-
             {/* Age Field */}
             <TextField
               style={{ marginTop: 10 }}
@@ -294,12 +307,11 @@ const Signup = () => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <LooksOneIcon /> {/* Number icon */}
+                    <LooksOneIcon />
                   </InputAdornment>
                 ),
               }}
             />
-
             <TextField
               style={{ marginTop: 10, width: "100%" }}
               fullWidth
@@ -317,77 +329,15 @@ const Signup = () => {
                     <EmailIcon />
                   </InputAdornment>
                 ),
-                style: { overflow: "auto" }, // Allow horizontal scrolling
+                style: { overflow: "auto" }
               }}
               inputProps={{
-                maxLength: 50, // Add character limit
-                style: { whiteSpace: "nowrap" }, // Prevent text wrapping
+                style: { whiteSpace: "nowrap" }
               }}
               sx={{
-                gridColumn: "span 2", // Make it span two columns in the grid
-                // overflowX: "scroll", // Allow horizontal scrolling
+                gridColumn: "span 2",
               }}
             />
-            <TextField
-              style={{ marginTop: 10 }}
-              fullWidth
-              name="phone"
-              label="Contact"
-              variant="outlined"
-              autoComplete="off" // Turn off autofill
-              onChange={handleChange}
-              value={formData.phone}
-              error={!!errors.phone}
-              helperText={errors.phone}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <PhoneIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <FormControl
-              fullWidth
-              style={{ marginTop: 10 }}
-              error={!!errors.gender}
-            >
-              <InputLabel>Gender</InputLabel>
-              <Select
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                label="Gender"
-                startAdornment={
-                  <InputAdornment position="start">
-                    <WcIcon />
-                  </InputAdornment>
-                }
-                sx={{
-                  textAlign: "left", // Align the select box label and selected value to the left
-                }}
-              >
-                <MenuItem value="male" sx={{ textAlign: "left" }}>
-                  Male
-                </MenuItem>
-                <MenuItem value="female" sx={{ textAlign: "left" }}>
-                  Female
-                </MenuItem>
-                <MenuItem value="other" sx={{ textAlign: "left" }}>
-                  Other
-                </MenuItem>
-              </Select>
-              {errors.gender && (
-                <Typography
-                  variant="body2"
-                  color="error"
-                  sx={{ textAlign: "left" }}
-                >
-                  {errors.gender}
-                </Typography>
-              )}
-            </FormControl>
-
             <TextField
               style={{ marginTop: 10 }}
               fullWidth
@@ -448,6 +398,65 @@ const Signup = () => {
                 ),
               }}
             />
+            <TextField
+              style={{ marginTop: 10 }}
+              fullWidth
+              name="contact"
+              label="Contact"
+              variant="outlined"
+              autoComplete="off" // Turn off autofill
+              onChange={handleChange}
+              value={formData.contact}
+              error={!!errors.contact}
+              helperText={errors.contact}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PhoneIcon />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <FormControl
+              fullWidth
+              style={{ marginTop: 10 }}
+              error={!!errors.gender}
+            >
+              <InputLabel>Gender</InputLabel>
+              <Select
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                label="Gender"
+                startAdornment={
+                  <InputAdornment position="start">
+                    <WcIcon />
+                  </InputAdornment>
+                }
+                sx={{
+                  textAlign: "left", // Align the select box label and selected value to the left
+                }}
+              >
+                <MenuItem value="male" sx={{ textAlign: "left" }}>
+                  Male
+                </MenuItem>
+                <MenuItem value="female" sx={{ textAlign: "left" }}>
+                  Female
+                </MenuItem>
+                <MenuItem value="other" sx={{ textAlign: "left" }}>
+                  Other
+                </MenuItem>
+              </Select>
+              {errors.gender && (
+                <Typography
+                  variant="body2"
+                  color="error"
+                  sx={{ textAlign: "left" }}
+                >
+                  {errors.gender}
+                </Typography>
+              )}
+            </FormControl>
             <Button
               type="submit"
               sx={{

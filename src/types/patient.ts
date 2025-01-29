@@ -3,11 +3,12 @@ export interface PatientData {
     username: string;
     age: string;
     email: string;
-    phone: string;
+    contact: string;
     gender: string;
     dob: Date;
     medical_history: string[];
     address: string;
+    pincode: number;
     profilePicture: string;
     password: string;
     createdAt: string;
@@ -16,8 +17,12 @@ export interface PatientData {
 }
 
 export interface Patient {
-    results: PatientData[];
-    count: number;
-    pages: number;
+    statusCode: number;
+    message: string;
+    data: {
+        results: PatientData[];
+        count: number;
+        pages: number;
+    };
     errorMessage?: string;
 }

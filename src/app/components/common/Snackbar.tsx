@@ -66,7 +66,7 @@ const SnackbarComponent: React.FC<SnackbarProps> = ({
     <Snackbar
       anchorOrigin={{ vertical: "top", horizontal: "center" }}
       open={state.open}
-      onClose={onClose}
+      onClose={handleClose}
       autoHideDuration={2000}
       TransitionComponent={state.Transition}
       key={state.Transition.name}

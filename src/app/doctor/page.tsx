@@ -1,11 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import Cookies from "js-cookie";
 import {
   Box,
+  Collapse,
   Select,
+  InputBase,
   MenuItem,
   FormControl,
   InputLabel,
@@ -14,9 +17,6 @@ import {
   Typography,
   Button,
   TextField,
-  Card,
-  CardContent,
-  CardMedia,
   Chip,
   Avatar,
   ThemeProvider,
@@ -27,19 +27,22 @@ import {
   IconButton,
   Rating,
   Skeleton,
+  List,
+  ListItemText,
+  ListItem,
 } from "@mui/material";
+import styles from "../page.module.css";
 import ChatIcon from "@mui/icons-material/Chat";
-import PhoneIcon from "@mui/icons-material/Phone";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import BookOnlineIcon from "@mui/icons-material/BookOnline";
-
-import ModalOne from "../components/common/BookAppointmentModal";
-import StarIcon from "@mui/icons-material/Star";
-import FilterListIcon from "@mui/icons-material/FilterList";
+import WorkIcon from "@mui/icons-material/Work";
+import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import BookAppointmentModal from "../components/common/BookAppointmentModal";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 import SearchIcon from "@mui/icons-material/Search";
 import { useGetDoctors } from "@/hooks/doctor";
+import { fetcher } from "@/apis/apiClient";
+import { DoctorData } from "@/types/doctor";
 
-// Create a custom theme
 const theme = createTheme({
   palette: {
     primary: {
@@ -53,15 +56,16 @@ const theme = createTheme({
       dark: "#233240",
     },
     background: {
-      default: "#F5F7FA",
+      default: "#fff",
     },
   },
   typography: {
-    fontFamily: "'Poppins', 'Roboto', 'Arial', sans-serif",
+    fontFamily: "'system-ui'",
     h1: {
       fontSize: "2.5rem",
       fontWeight: 600,
     },
+
     h2: {
       fontSize: "2rem",
       fontWeight: 600,
@@ -112,34 +116,29 @@ const theme = createTheme({
 });
 
 export default function ModernDoctorProfile() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
-  const [modalData, setModalData] = useState<{
-    doctorId: string;
-    doctorName: string;
-    consultationFee?: number;
-    address?: string;
-    availability?: { day: string; startTime: string; endTime: string }[];
-  } | null>(null);
+  const [selectedDoctor, setSelectedDoctor] = useState<DoctorData>();
+  const [results, setResults] = useState([]);
+  const [keyword, setKeyword] = useState("");
+
   const [filters, setFilters] = useState({
     gender: "",
     experienceFilter: "",
     sortBy: "",
   });
-  const router = useRouter();
-  
-  const openModal = (doctor: any): void => {
-    setModalData({
-      doctorId: doctor._id,
-      doctorName: doctor.username,
-      consultationFee: doctor.consultationFee,
-      address: doctor.address,
-      availability: doctor.availability,
-    });
-    setModalOpen(true);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const keyword = e.target.value;
+    setKeyword(keyword);
+    debouncedFetchResults(keyword);
   };
-  const closeModal = (): void => {
-    setModalOpen(false);
-    setModalData(null);
+  const handleFilterChange = (field: string, value: string) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [field]: value,
+    }));
   };
 
   const {
@@ -148,12 +147,75 @@ export default function ModernDoctorProfile() {
     error,
   } = useGetDoctors(null, "get-doctors", 1, 6, filters);
 
-  const handleFilterChange = (field: string, value: string) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      [field]: value,
-    }));
+  const fetchDoctorResults = async (searchTerm: string) => {
+    if (!searchTerm.trim()) {
+      setResults([]);
+      return;
+    }
+
+    try {
+      const response = await fetcher(
+        "doctor",
+        `get-doctors?keyword=${encodeURIComponent(searchTerm)}`
+      );
+      if (response && response.results && Array.isArray(response.results)) {
+        setResults(response.results);
+      } else {
+        console.error("Unexpected response structure:", response);
+        setResults([]);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setResults([]);
+    }
   };
+  const openModal = (doctor: DoctorData): void => {
+    const userToken = Cookies.get("token");
+    if (!userToken) {
+      const encodedReturnUrl = encodeURIComponent(
+        `/doctor?autoBookDoctorId=${doctor._id}`
+      );
+      router.push(`/signup?redirect=${encodedReturnUrl}`);
+      return;
+    }
+    setSelectedDoctor(doctor);
+    setModalOpen(true);
+  };
+  const closeModal = (): void => {
+    setModalOpen(false);
+    setSelectedDoctor(null);
+  };
+  const debounce = (func: (...args: any[]) => void, delay: number) => {
+    let timer: NodeJS.Timeout;
+    return (...args: any[]) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        func(...args);
+      }, delay);
+    };
+  };
+
+  const debouncedFetchResults = useCallback(
+    debounce(fetchDoctorResults, 500),
+    []
+  );
+
+  // 3) On mount (or after fetch), check if the URL has ?autoBookDoctorId=XXXX
+  //    If the user is already logged in, automatically open the modal for that doctor
+  useEffect(() => {
+    const token = Cookies.get("token");
+    const autoBookDoctorId = searchParams.get("autoBookDoctorId");
+
+    if (token && autoBookDoctorId && doctors?.results?.length) {
+      const found = doctors.results.find(
+        (doc: DoctorData) => doc._id === autoBookDoctorId
+      );
+      if (found) {
+        setSelectedDoctor(found);
+        setModalOpen(true);
+      }
+    }
+  }, [searchParams, doctors?.results?.length]);
 
   if (swrLoading) {
     return (
@@ -182,455 +244,491 @@ export default function ModernDoctorProfile() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Container maxWidth="lg" sx={{ py: 8 }}>
-        <Typography
-          sx={{ marginTop: "revert" }}
-          variant="h2"
-          component="h1"
-          gutterBottom
-          align="center"
-          color="primary"
-        >
-          Find Your Perfect Doctor
-        </Typography>
-        <ModalOne isOpen={isModalOpen} onClose={closeModal} data={modalData} />
-
-        {/* Filters */}
-        <Paper
-          elevation={0}
+      <Container maxWidth={false} sx={{ py: 12 }}>
+        {/* Search Bar */}
+        <Grid
+          container
+          spacing={2}
           sx={{
-            p: 4,
-            mb: 4,
-            borderRadius: 4,
-            backgroundColor: "background.paper",
+            justifyContent: "flex-end",
+            alignItems: "center",
           }}
         >
-          <Grid
-            sx={{ border: "2px solid black" }}
-            container
-            spacing={3}
-            alignItems="flex-end"
-          >
-            <Grid sx={{ border: "2px solid blue" }} item xs={12} sm={6} md={3}>
-              <FormControl fullWidth variant="outlined">
-                <InputLabel id="gender-label">Gender</InputLabel>
-                <Select
-                  labelId="gender-label"
-                  id="gender-select"
-                  value={filters.gender}
-                  onChange={(e) => handleFilterChange("gender", e.target.value)}
-                  label="Gender"
-                >
-                  <MenuItem value="">
-                    <em>All</em>
-                  </MenuItem>
-                  <MenuItem value="male">Male</MenuItem>
-                  <MenuItem value="female">Female</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            {/* Experience Filter */}
-            <Grid sx={{ border: "2px solid green" }} item xs={12} sm={6} md={2}>
-              <FormControl variant="standard" sx={{ width: "100%" }}>
-                <InputLabel id="experience-label">Experience</InputLabel>
-                <Select
-                  labelId="experience-label"
-                  id="experience-select"
-                  value={filters.experienceFilter}
-                  onChange={(e) =>
-                    handleFilterChange("experienceFilter", e.target.value)
-                  }
-                  label="Experience"
-                >
-                  <MenuItem value="">
-                    <em>All</em>
-                  </MenuItem>
-                  <MenuItem value="above 5 years">5+ Years</MenuItem>
-                  <MenuItem value="above 10 years">10+ Years</MenuItem>
-                  <MenuItem value="above 15 years">15+ Years</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            {/* Fees Filter */}
-            <Grid
-              sx={{ border: "2px solid yellow" }}
-              item
-              xs={12}
-              sm={6}
-              md={2}
+          {/* Search Bar on the Right */}
+          <Grid item xs={12} sm={4} md={4}>
+            <Paper
+              component="form"
+              className={styles.searchBarWrapper}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                margin: "1rem 0rem",
+                padding: "0.25rem", // Reduced padding to make it more compact
+                maxWidth: "400px", // Increased width
+                width: "100%", // Ensures responsiveness
+                borderRadius: "20px", // Adjusted for a sleeker look
+                backgroundColor: "rgba(255, 255, 255, 0.90)",
+                position: "relative",
+                marginLeft: "auto",
+              }}
             >
-              <FormControl variant="standard" sx={{ width: "100%" }}>
-                <InputLabel id="fees-label">Fees</InputLabel>
-                <Select
-                  labelId="fees-label"
-                  id="fees-select"
-                  value={filters.sortBy}
-                  onChange={(e) => handleFilterChange("sortBy", e.target.value)}
-                  label="Fees"
-                >
-                  <MenuItem value="">
-                    <em>All</em>
-                  </MenuItem>
-                  <MenuItem value="fee_high_to_low">High To Low</MenuItem>
-                  <MenuItem value="fee_low_to_high">Low To High</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-          </Grid>
-        </Paper>
+              <InputBase
+                value={keyword}
+                onChange={handleChange}
+                className={styles.searchBarInput}
+                placeholder="Search for Doctors and Specialties"
+                inputProps={{ "aria-label": "search" }}
+                sx={{
+                  flex: 1,
+                  padding: "0.3rem 0.5rem",
+                  fontSize: { xs: "0.75rem", sm: "0.9rem" },
+                }}
+              />
+              <IconButton
+                type="submit"
+                aria-label="search"
+                className={styles.searchBarButton}
+                sx={{
+                  backgroundColor: "#20ADA0",
+                  color: "#fff",
+                  borderRadius: "50%",
+                  padding: "0.4rem",
+                  "&:hover": {
+                    backgroundColor: "#1A8575",
+                  },
+                }}
+              >
+                <SearchIcon fontSize="small" />
+              </IconButton>
+            </Paper>
 
-        {/* Doctor list */}
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={8} md={8}>
-            {Array.isArray(doctors?.results) ? (
-              doctors.results.map((doctor: any) => (
+            <Box
+              sx={{
+                position: "absolute",
+                top: "160px",
+                width: "28vw",
+                mx: "30px",
+                my: "0px",
+                backgroundColor: "#fff",
+                color: "#000",
+                maxWidth: { xs: "100%", sm: "600px" },
+                borderRadius: "8px",
+                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                textAlign: "left",
+                overflow: "hidden",
+              }}
+            >
+              <Collapse in={results.length > 0}>
+                {results.length > 0 ? (
+                  <List
+                    sx={{
+                      maxHeight: "180px",
+                      overflowY: "auto",
+                      padding: "8px",
+                      "::-webkit-scrollbar": {
+                        width: "8px",
+                      },
+                      "::-webkit-scrollbar-thumb": {
+                        backgroundColor: "#20ADA0",
+                        borderRadius: "4px",
+                      },
+                      "::-webkit-scrollbar-thumb:hover": {
+                        backgroundColor: "#1A8575",
+                      },
+                    }}
+                  >
+                    {results.map((doctor) => (
+                      <ListItem key={doctor._id}>
+                        <Link
+                          href={`/doctor/profile/${doctor._id}`}
+                          passHref
+                          style={{
+                            textDecoration: "none",
+                            color: "inherit",
+                            width: "100%",
+                          }}
+                        >
+                          <ListItemText
+                            primary={doctor.username}
+                            sx={{
+                              cursor: "pointer",
+                              "&:hover": {
+                                color: "black",
+                              },
+                            }}
+                          />
+                        </Link>
+                      </ListItem>
+                    ))}
+                  </List>
+                ) : (
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      margin: "1rem",
+                      color: "#555",
+                      fontSize: { xs: "0.9rem", sm: "1rem" },
+                      textAlign: "center",
+                    }}
+                  >
+                    No results found for "{keyword}"
+                  </Typography>
+                )}
+              </Collapse>
+            </Box>
+          </Grid>
+        </Grid>
+
+        {/* Filters */}
+        <Grid
+          container
+          spacing={2}
+          alignItems="center"
+          sx={{
+            justifyContent: "flex-start",
+            mb: 3,
+            marginTop: "-75px",
+          }}
+        >
+          {/* Gender Filter */}
+          <Grid item xs={4} sm={3} md={2}>
+            <FormControl
+              fullWidth
+              variant="outlined"
+              size="small"
+              sx={{
+                backgroundColor: "rgba(255, 255, 255, 0.90)",
+                borderRadius: "30px",
+                minWidth: 120, // Set a consistent width
+              }}
+            >
+              <InputLabel id="gender-label">Gender</InputLabel>
+              <Select
+                labelId="gender-label"
+                id="gender-select"
+                value={filters.gender}
+                onChange={(e) => handleFilterChange("gender", e.target.value)}
+                label="Gender"
+                sx={{
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "black",
+                    borderRadius: "40px",
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "black",
+                  },
+                }}
+              >
+                <MenuItem value="">
+                  <em>All</em>
+                </MenuItem>
+                <MenuItem value="male">Male</MenuItem>
+                <MenuItem value="female">Female</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+
+          {/* Experience Filter */}
+          <Grid item xs={4} sm={3} md={2}>
+            <FormControl
+              fullWidth
+              variant="outlined"
+              size="small"
+              sx={{
+                background: "#fff",
+                borderRadius: "30px",
+              }}
+            >
+              <InputLabel id="experience-label">Experience</InputLabel>
+              <Select
+                labelId="experience-label"
+                id="experience-select"
+                value={filters.experienceFilter}
+                onChange={(e) =>
+                  handleFilterChange("experienceFilter", e.target.value)
+                }
+                label="Experience"
+                sx={{
+                  "&:focus-visible": {
+                    borderColor: "black",
+                  },
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "black",
+                    borderRadius: "40px",
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "black",
+                  },
+                }}
+              >
+                <MenuItem value="">
+                  <em>All</em>
+                </MenuItem>
+                <MenuItem value="above 5 years">5+ Years</MenuItem>
+                <MenuItem value="above 10 years">10+ Years</MenuItem>
+                <MenuItem value="above 15 years">15+ Years</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+
+          {/* Fees Filter */}
+          <Grid item xs={4} sm={3} md={2}>
+            <FormControl
+              fullWidth
+              variant="outlined"
+              size="small"
+              sx={{
+                background: "#fff",
+                borderRadius: "30px",
+              }}
+            >
+              <InputLabel id="fees-label">Fees</InputLabel>
+              <Select
+                labelId="fees-label"
+                id="fees-select"
+                value={filters.sortBy}
+                onChange={(e) => handleFilterChange("sortBy", e.target.value)}
+                label="Fees"
+                sx={{
+                  "&:focus-visible": {
+                    borderColor: "black",
+                  },
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "black",
+                    borderRadius: "40px",
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "black",
+                  },
+                }}
+              >
+                <MenuItem value="">
+                  <em>All</em>
+                </MenuItem>
+                <MenuItem value="fee_high_to_low">High To Low</MenuItem>
+                <MenuItem value="fee_low_to_high">Low To High</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: "20px",
+            right: "20px",
+            zIndex: 1000,
+          }}
+        >
+          <Link href="/appointment/chat" passHref>
+            <IconButton
+              color="primary"
+              sx={{
+                backgroundColor: "#20ADA0",
+                color: "#fff",
+                width: "60px",
+                height: "60px",
+                borderRadius: "50%",
+                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
+                "&:hover": {
+                  backgroundColor: "#178F84",
+                },
+              }}
+            >
+              <ChatIcon fontSize="large" />
+            </IconButton>
+          </Link>
+        </Box>
+        {/* Doctor List */}
+        <Grid
+          container
+          spacing={3}
+          sx={{
+            marginTop: "20px",
+          }}
+        >
+          {Array.isArray(doctors?.results) &&
+            doctors.results.map((doctor: any) => (
+              <Grid item xs={12} sm={6} md={4} key={doctor._id}>
                 <Paper
-                  key={doctor._id}
+                  elevation={5}
                   sx={{
+                    borderRadius: "20px",
+                    overflow: "hidden",
                     display: "flex",
-                    marginTop: "15px",
-                    borderRadius: "10px",
-                    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                    flexDirection: "column",
+
+                    // "&:hover": {
+                    //   transform: "scale(1.02)",
+                    //   boxShadow: "0px 12px 20px rgba(0, 0, 0, 0.3)",
+                    // },
                   }}
                 >
+                  {/* Header Section */}
                   <Box
                     sx={{
-                      padding: "10px",
-                      borderRadius: "50%",
                       display: "flex",
                       alignItems: "center",
-                      justifyContent: "center",
+                      padding: "20px",
                     }}
                   >
                     <Box
                       component="img"
-                      alt={doctor.username}
                       src={
                         doctor.profilePicture ||
-                        "../../../assets/images/drRanjanaSharma.jpg"
+                        "https://blog.pincel.app/wp-content/uploads/2024/02/Doctor_headshot_happy_full_body_in_a_medical_coat_professional_light_blue_background.jpeg"
                       }
+                      alt={doctor.username || "Doctor"}
                       sx={{
-                        width: "150px",
-                        height: "150px",
+                        width: "90px",
+                        height: "90px",
                         borderRadius: "50%",
                         objectFit: "cover",
-                        border: "5px solid white",
+                        border: "3px solid #fff",
+                        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                        marginRight: "20px",
                       }}
                     />
+
+                    <Box>
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: "bold", color: "black" }}
+                      >
+                        {doctor.username || "Unknown Doctor"}
+                      </Typography>
+
+                      <Box sx={{ mt: 1 }}>
+                        <Chip
+                          icon={<CheckCircleOutlineIcon />}
+                          label={
+                            doctor.tags?.length > 0
+                              ? doctor.tags.join(" | ")
+                              : "Languages not available"
+                          }
+                          sx={{
+                            color: "#20ADA0",
+                          }}
+                          variant="body2"
+                          size="small"
+                        />
+                      </Box>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "black",
+                          mt: 1,
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
+                        <LocationOnIcon
+                          sx={{ fontSize: 16, color: "gray", mr: 0.5 }}
+                        />
+                        {doctor.address || "Doctor Title"} |{" "}
+                        {doctor.hospitalAffiliations?.[0] || "Hospital Name"}
+                      </Typography>
+                    </Box>
                   </Box>
 
+                  {/* Details Section */}
                   <Box
                     sx={{
                       display: "flex",
                       justifyContent: "space-between",
-                      width: "100%",
-                      padding: "20px",
+                      alignItems: "center",
+                      px: 3,
+                      py: 2,
+                      borderTop: "1px solid #f0f0f0",
+                      borderBottom: "1px solid #f0f0f0",
+                      backgroundColor: "#f9f9f9",
                     }}
                   >
-                    <Box>
-                      <Typography
-                        variant="h4"
-                        sx={{
-                          fontSize: "1.25rem",
-                          fontWeight: 600,
-                          color: "#20ADA0",
-                          lineHeight: "1.5rem",
-                          marginBottom: "10px",
-                          display: "flex",
-                          alignItems: "center",
-                        }}
-                      >
-                        {doctor.username || "Unknown Doctor"}
-                        &nbsp;[
-                        <PhoneIcon
-                          sx={{ fontSize: "1rem", marginRight: "4px" }}
-                        />
-                        {doctor.contact || "Unknown Doctor"}]
-                      </Typography>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontSize: "0.9rem",
-                          fontWeight: 400,
-                          color: "gray",
-                          lineHeight: "1.2rem",
-                          marginTop: "5px",
-                        }}
-                      >
-                        Bio: {doctor.bio || "Not available"}
-                      </Typography>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontSize: "0.9rem",
-                          fontWeight: 400,
-                          color: "gray",
-                          lineHeight: "1.2rem",
-                          marginTop: "5px",
-                        }}
-                      >
-                        Gender: {doctor.gender || "Not available"} | Fees:{" "}
-                        {doctor.consultationFee || "Not available"}
-                      </Typography>
-
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontSize: "0.9rem",
-                          fontWeight: 400,
-                          color: "gray",
-                          lineHeight: "1.2rem",
-                          marginTop: "5px",
-                        }}
-                      >
-                        Qualifications:{" "}
-                        {doctor.qualificationIds?.join(", ") || "Not available"}
-                      </Typography>
-                      <Box>
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            fontSize: "0.8rem",
-                            fontWeight: 600,
-                            color: "#354c5c",
-                            lineHeight: "1.2rem",
-                            marginTop: "10px",
-                            marginBottom: "5px",
-                          }}
-                        >
-                          Availability:
-                        </Typography>
-
-                        <Box
-                          sx={{
-                            display: "flex",
-                            flexDirection: "row",
-                            flexWrap: "wrap",
-                            alignItems: "center",
-                            gap: "10px",
-                          }}
-                        >
-                          {doctor.availability &&
-                          doctor.availability.length > 0 ? (
-                            doctor.availability.map((slot, index) => (
-                              <Typography
-                                key={index}
-                                sx={{
-                                  fontSize: "0.8rem",
-                                  color: "#20ada0",
-                                  backgroundColor: "#e0e0e0",
-                                  padding: "2px 8px",
-                                  borderRadius: "4px",
-                                  textDecoration: "bold",
-                                }}
-                              >
-                                {slot.day}: {slot.startTime}-{slot.endTime}
-                              </Typography>
-                            ))
-                          ) : (
-                            <Typography
-                              sx={{ fontSize: "0.8rem", color: "#354c5c" }}
-                            >
-                              No availability information
-                            </Typography>
-                          )}
-                        </Box>
-                      </Box>
-
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          marginTop: "20px",
-                        }}
-                      >
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            fontSize: "0.8rem",
-                            fontWeight: 600,
-                            color: "#354c5c",
-                            lineHeight: "1.2rem",
-                          }}
-                        >
-                          {doctor.experience != null
-                            ? `${doctor.experience} years of experience`
-                            : "Experience not available"}
-                        </Typography>
-                        <span
-                          style={{
-                            color: "gray",
-                            margin: "0px 10px",
-                          }}
-                        >
-                          |
-                        </span>
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            fontSize: "0.8rem",
-                            fontWeight: 600,
-                            color: "#354c5c",
-                            lineHeight: "1.2rem",
-                          }}
-                        >
-                          {doctor.languagesSpoken?.length > 0
-                            ? doctor.languagesSpoken.join(", ")
-                            : "Languages not available"}
-                        </Typography>
-                      </Box>
-                    </Box>
-
-                    <Box
+                    <Typography
+                      variant="body2"
                       sx={{
-                        textAlign: "right",
-                        marginTop: "15px",
                         display: "flex",
-                        flexDirection: "column",
-                        alignItems: "flex-end",
+                        alignItems: "center",
+                        gap: "6px",
+                        fontSize: "14px",
+                        fontWeight: "bold",
+                        color: "rgba(0, 0, 0, 0.6)",
                       }}
                     >
-                      {/* Chat Button */}
-                      <Link href="/appointment/chat" passHref>
-                        <Button
-                          variant="contained"
-                          startIcon={<ChatIcon />}
-                          sx={{
-                            backgroundColor: "#20ADA0",
-                            color: "#fff",
-                            borderRadius: "20px",
-                            ":hover": { backgroundColor: "#1a8c80" },
-                            marginRight: 1,
-                            mb: 1,
-                          }}
-                        >
-                          Chat
-                        </Button>
-                      </Link>
+                      <WorkIcon fontSize="small" color="primary" />
+                      {doctor.experience
+                        ? `${doctor.experience} Years Experience`
+                        : "Experience Not Available"}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        fontWeight: "bold",
+                        color: "rgba(0, 0, 0, 0.6)",
+                      }}
+                    >
+                      <CurrencyRupeeIcon fontSize="small" color="primary" />
+                      {doctor.consultationFee || "Not Available"}
+                    </Typography>
+                  </Box>
 
-                      {/* View Profile Button */}
-                      <Button
-                        variant="contained"
-                        startIcon={<AccountCircleIcon />}
-                        sx={{
-                          backgroundColor: "#20ADA0",
-                          color: "#fff",
-                          borderRadius: "20px",
-                          ":hover": { backgroundColor: "#1a8c80" },
-                          marginRight: 1,
-                          mb: 2,
-                        }}
-                        onClick={() => {
-                          router.push(
-                            `/doctor/profile/${encodeURIComponent(doctor._id)}`
-                          );
-                        }}
-                      >
-                        View Profile
-                      </Button>
-
-                      {/* Book Appointment Button */}
-                      <Button
-                        variant="contained"
-                        startIcon={<BookOnlineIcon />}
-                        sx={{
-                          backgroundColor: "#20ADA0",
-                          color: "#fff",
-                          borderRadius: "20px",
-                          ":hover": { backgroundColor: "#1a8c80" },
-                          marginRight: 1,
-                          mb: 2,
-                        }}
-                        onClick={() => openModal(doctor)}
-                      >
-                        Book Appointment
-                      </Button>
-                    </Box>
+                  {/* Actions Section */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      backgroundColor: "#fefefe",
+                      borderTop: "1px solid #f0f0f0",
+                    }}
+                  >
+                    <Button
+                      variant="outlined"
+                      fullWidth
+                      sx={{
+                        borderRadius: "0px",
+                        textTransform: "none",
+                        background: "#20ada0",
+                        color: "#fff",
+                        borderRight: "1px solid #f0f0f0",
+                        "&:hover": {
+                          backgroundColor: "#074799",
+                        },
+                      }}
+                      onClick={() => {
+                        router.push(
+                          `/doctor/profile/${encodeURIComponent(doctor._id)}`
+                        );
+                      }}
+                    >
+                      View Full Profile
+                    </Button>
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      sx={{
+                        borderRadius: "0px",
+                        textTransform: "none",
+                        backgroundColor: "orange",
+                        color: "#fff",
+                        "&:hover": {
+                          backgroundColor: "green",
+                        },
+                      }}
+                      onClick={() => openModal(doctor)}
+                    >
+                      Book Appointment
+                    </Button>
                   </Box>
                 </Paper>
-              ))
-            ) : (
-              <Typography>No doctors available</Typography>
-            )}
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <Card elevation={0} sx={{ mb: 4, overflow: "hidden" }}>
-              <CardContent sx={{ bgcolor: "primary.light", color: "white" }}>
-                <Typography variant="h5" gutterBottom>
-                  Book an Appointment
-                </Typography>
-                <Typography variant="h4" gutterBottom>
-                  Expert Dietitians
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Diet Consultation @Rs.299 Only
-                </Typography>
-                <Box component="ul" sx={{ pl: 2 }}>
-                  <Typography component="li">50+ Expert Dietitians</Typography>
-                  <Typography component="li">
-                    Personalized Diet Plans
-                  </Typography>
-                </Box>
-              </CardContent>
-            </Card>
-
-            <Card elevation={0}>
-              <CardContent>
-                <Typography
-                  variant="h5"
-                  color="primary"
-                  align="center"
-                  gutterBottom
-                >
-                  We're Here to Help!
-                </Typography>
-                <Typography
-                  variant="body1"
-                  color="text.secondary"
-                  align="center"
-                  gutterBottom
-                >
-                  Get an instant callback within minutes
-                </Typography>
-                <form>
-                  <TextField
-                    fullWidth
-                    label="Your Name"
-                    variant="outlined"
-                    margin="normal"
-                  />
-                  <TextField
-                    fullWidth
-                    label="Phone Number"
-                    variant="outlined"
-                    margin="normal"
-                  />
-                  <TextField
-                    fullWidth
-                    select
-                    label="Select Location"
-                    defaultValue=""
-                    helperText="Please select your location"
-                    margin="normal"
-                  >
-                    <MenuItem value="bareilly">Bareilly</MenuItem>
-                    <MenuItem value="delhi">Delhi</MenuItem>
-                    <MenuItem value="mumbai">Mumbai</MenuItem>
-                  </TextField>
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    size="large"
-                    sx={{ mt: 2 }}
-                  >
-                    Request Callback
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </Grid>
+              </Grid>
+            ))}
         </Grid>
+        <BookAppointmentModal
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          data={selectedDoctor}
+        />
       </Container>
     </ThemeProvider>
   );

@@ -53,7 +53,7 @@ export const useCreateAppointment = (pathKey: string) => {
     setLoading(true);
     setError(null);
     try {
-      const appointment = await creator<AppointmentData, AppointmentData>(
+      const appointment = await creator<Appointment, Partial<AppointmentData>>(
         'appointment',
         pathKey,
         newAppointmentData

@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useDispatch, useSelector } from "react-redux";
-import styled from "styled-components";
+import { Formik, Form, Field } from "formik";
+import * as Yup from "yup";
 import {
   TextField,
   Button,
@@ -15,12 +18,14 @@ import {
   InputLabel,
   Autocomplete,
   SelectChangeEvent,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
-
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
+import InfoIcon from "@mui/icons-material/Info";
+import {
+  Assignment as AssignmentIcon,
+  CalendarMonth as CalendarMonthIcon
+} from "@mui/icons-material";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import BookOnlineIcon from "@mui/icons-material/BookOnline";
 import ChecklistRtlIcon from "@mui/icons-material/ChecklistRtl";
@@ -31,238 +36,109 @@ import type { AppDispatch, RootState } from "@/redux/store";
 import { useCreateAppointment } from "@/hooks/appointment";
 import { useRouter } from "next/navigation";
 import { Utility } from "@/utils";
-import { Formik } from "formik";
-import * as Yup from "yup";
+import { DoctorData } from "@/types/doctor";
+
+dayjs.extend(customParseFormat);
 
 const ModalOneSchema = Yup.object().shape({
-  name: Yup.string()
-
-    .min(2, "name is too short!")
-    .max(20, "name is too long!")
-    .required("name is required"),
-  age: Yup.number()
-    .typeError("Age must be a number")
-    .min(0, "Age must be at least 0")
-    .max(120, "Age must be at most 120")
-    .required("Age is required"),
-  phoneNumber: Yup.string()
-    .typeError("Phone Number must be a number")
-    .min(10, "Phone Number must be at least 10")
-    .max(10, "Phone Number must be at most 10")
-    .required("Phone Number is requred"),
-  gender: Yup.string(),
   appointmentDate: Yup.date()
     .required("Date of Appointment is required")
     .nullable(),
+  appointmentTime: Yup.string().required("Appointment Time is required"),
+  appointmentType: Yup.string().required("Appointment Type is required"),
+  symptomIds: Yup.array()
+    .min(1, "At least one symptom is required")
+    .required("Symptom is required"),
 });
 
-interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  data?: {
-    doctorId: string;
-    doctorName: string;
-    consultationFee?: number;
-    address?: string;
-    availability?: { day: string; startTime: string; endTime: string }[];
-  };
+interface AppointmentFormValues {
+  symptomIds: any[];
+  appointmentDate: string;
+  appointmentTime: string;
+  appointmentType: string;
 }
-const ModalHeader = styled.div`
-  padding: 15px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #ababab;
-  .tx1 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #20ada0;
-  }
-  .tx2 {
-    font-size: 1.1rem;
-    font-weight: 300;
-    color: #000;
-  }
-  .tx2 span {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #20ada0;
-  }
-`;
-const ModalBody = styled.div`
-  overflow-x: auto;
-  max-height: 72vh;
-  padding: 10px 20px;
-  margin-top: 15px;
-  .locat {
-    font-size: 1rem;
-    font-weight: 300;
-    color: #000;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-  }
-  .time_box {
-    display: flex;
-    flex-wrap: wrap;
-    width: 100%;
-  }
-  .time_box li {
-    margin-top: 10px;
-    font-size: 0.8rem;
-    font-weight: 300;
-    color: #20ada0;
-    line-height: 1.2rem;
-    padding: 8px 10px;
-    border: 1px solid #20ada0;
-    border-radius: 4px;
-    list-style: none;
-    color: black;
-    margin-right: 10px;
-    cursor: pointer;
-  }
-  .time_box li:hover {
-    cursor: pointer;
-    background: #20ada0;
-    color: white;
-  }
-  .tx2date {
-    font-size: 1rem;
-    font-weight: 300;
-    color: #000;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-  }
-  .tx2date svg {
-    margin-right: 7px;
-  }
-  input.Mui-disabled {
-    opacity: 1;
-    -webkit-text-fill-color: rgb(0 0 0 / 100%);
-  }
-  .MuiFormLabel-filled.Mui-disabled {
-    color: rgba(0, 0, 0, 0.6);
-  }
-  .fldset_lgend {
-    background: white;
-    margin-left: 15px;
-    font-size: 0.7rem;
-    font-weight: 500;
-    color: #20ada0;
-    padding: 0px 5px;
-  }
-  .fieldset_wrap {
-    padding: 20px;
-    padding-bottom: 20px;
-    padding-top: 10px;
-    border-color: #efefef;
-    margin-bottom: 10px;
-  }
-  .MuiPickersTextField {
-    width: 100%;
-  }
-  .pric_tw {
-    border: 1px solid #b1b1b1;
-  }
-`;
-const ModalFooter = styled.div`
-  padding: 15px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-top: 1px solid #ababab;
-  display: flex;
-  justify-content: center;
-  .footer_btn_wrp {
-    display: flex;
-    justify-content: center;
-  }
-`;
-const Pricewrap = styled.div`
-  .price_header_txt {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #000;
-    line-height: 1.2rem;
-    padding: 15px 10px;
-    background: #efefef;
-  }
-  .tx1 {
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: #000000;
-    margin-top: 10px;
-  }
-  .tx2 {
-    font-size: 1rem;
-    font-weight: normal;
-    color: #1f1f1f;
-    margin-top: 5px;
-    padding-bottom: 10px;
-  }
-  .tx3 {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0px;
-    border-top: 1px solid #bababa;
-  }
-  .tx3 .spntx1 {
-    font-size: 0.9rem;
-    font-weight: normal;
-    color: #000;
-  }
-  .tx3 .spntx2 {
-    font-size: 0.9rem;
-    font-weight: normal;
-    color: #000;
-  }
-  .tx4 {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0px;
-    border-top: 1px solid #bababa;
-  }
-  .tx4 .spntx1 {
-    font-size: 1rem;
-    font-weight: 500;
-    color: #20ada0;
-  }
-  .tx4 .spntx2 {
-    font-size: 1rem;
-    font-weight: 500;
-    color: #20ada0;
-  }
-  .prc_contnt {
-    padding: 10px;
-    padding-bottom: 0px;
-  }
-`;
+
+const initialValues: AppointmentFormValues = {
+  symptomIds: [],
+  appointmentDate: "",
+  appointmentTime: "",
+  appointmentType: ""
+};
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
+  data: DoctorData | undefined;
 }
 
 const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
- 
-  const [Gender, setGender] = useState("");
-  const [name, setFirstName] = useState("");
-  const [age, setAge] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [symptoms, setSymptoms] = useState([]);
-  const [appointmentDate, setAppointmentDate] = useState<Date | null>(null);
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
   const { snackbar } = useSelector((state: RootState) => state.snackbar);
-
   const dispatch: AppDispatch = useDispatch();
   const router = useRouter();
-  const { snackbarAndNavigate } = Utility();
+  const { capitalizeFirstLetter, decodedToken, getIdsFromObject, snackbarAndNavigate } = Utility();
+  // ---- TRACK SELECTED DAY & TIME SLOT IN LOCAL STATE ----
+  const [selectedDayName, setSelectedDayName] = useState<string | null>(null);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>("");
+  // ---- BUCKETS THAT WILL HOLD MORNING / AFTERNOON / EVENING / NIGHT SLOTS ----
+  const [timeBuckets, setTimeBuckets] = useState<{
+    morning: string[];
+    afternoon: string[];
+    evening: string[];
+    night: string[];
+  }>({ morning: [], afternoon: [], evening: [], night: [] });
 
-  const { createdAppointment, createAppointment } = useCreateAppointment(
-    `${process.env.NEXT_PUBLIC_APPOINTMENT_URL}/appointments/create-appointments`
+  // ---- Whenever selectedDayName changes, generate new time slots from data.availability ----
+  useEffect(() => {
+    if (!selectedDayName || !data?.availability) {
+      setTimeBuckets({ morning: [], afternoon: [], evening: [], night: [] });
+      return;
+    }
+
+    // Find the entry in availability that matches the chosen weekday
+    const dayAvailability = data.availability.find(
+      (slot) => slot.day?.toLowerCase() === selectedDayName.toLowerCase()
+    );
+    if (!dayAvailability) {
+      setTimeBuckets({ morning: [], afternoon: [], evening: [], night: [] });
+      return;
+    }
+
+    // Generate discrete time slots from (startTime, endTime) in steps of 60 min
+    const slots = generateTimeSlots(dayAvailability.startTime, dayAvailability.endTime, 60);
+    const buckets = { morning: [] as string[], afternoon: [] as string[], evening: [] as string[], night: [] as string[] };
+    slots.forEach((slotTime) => {
+      const part = getTimeOfDaySlot(slotTime);
+      buckets[part].push(slotTime);
+    });
+    setTimeBuckets(buckets);
+  }, [selectedDayName, data?.availability]);
+
+  // ---- Helper: Generate array of times from start->end, e.g. ["07:30 AM","08:30 AM", ...] ----
+  function generateTimeSlots(start: string, end: string, stepInMinutes = 60) {
+    if (!start || !end) return [];
+    let current = dayjs(start.trim(), "HH:mm");
+    let endTime = dayjs(end.trim(), "HH:mm");
+
+    const slots: string[] = [];
+    while (current <= endTime) {
+      slots.push(current.format("hh:mm A")); // e.g. "07:30 AM"
+      current = current.add(stepInMinutes, "minute");
+    }
+    return slots;
+  }
+
+  // ---- Helper: Return which “bucket” (morning/afternoon/evening/night) a given "07:30 AM" belongs in ----
+  function getTimeOfDaySlot(timeString: string) {
+    const hour = dayjs(timeString, "hh:mm A").hour(); // 0–23
+    if (hour < 12) return "morning";     // 00:00–11:59
+    if (hour < 16) return "afternoon";   // 12:00–15:59
+    if (hour < 20) return "evening";     // 16:00–19:59
+    return "night";                      // 20:00–23:59
+  }
+
+  const { createAppointment } = useCreateAppointment(
+    'create-appointment'
   );
 
   // Define the snackbar close handler
@@ -275,399 +151,558 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
     }
   };
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setGender(event.target.value as string);
-  };
-
-  const handleTimeSlotClick = (time: string) => {
+  const handleTimeSlotClick = (time: string, setFieldValue: Function) => {
     setSelectedTimeSlot(time);
+    setFieldValue("appointmentTime", time);
   };
 
-  const handleBookNowClick = async () => {
-    if (!appointmentDate) {
-      snackbarAndNavigate(
-        dispatch,
-        true,
-        "error",
-        "Please select an appointment date."
-      );
-      return;
-    }
+  const handleBookAppointment = useCallback(
+    async (values: AppointmentFormValues) => {
+      const doctorId = data?._id;
+      const patientId = decodedToken()?.id;
 
-    if (!selectedTimeSlot) {
-      snackbarAndNavigate(
-        dispatch,
-        true,
-        "error",
-        "Please select a time slot."
-      );
-
-      return;
-    }
-
-    await createNewAppointment(appointmentDate);
-    snackbarAndNavigate(dispatch, true, "success", "Successfully got");
-  };
-
-  async function createNewAppointment(appointmentTime) {
-    const doctorId = "67064426c3f5d295a53132bf";
-    const patientId = "6706303eda4bfa3afd2962dd";
-
-    try {
-      const appointmentData = {
-        patientId,
-        doctorId,
-        appointmentTime,
-        status: "scheduled",
-      };
-      await createAppointment(appointmentData);
-    } catch (error) {
-      console.error("Error creating appointment:", error);
-      return false; // Return false in case of error
-    }
-  }
-
-  useEffect(() => {
-    if (createdAppointment) {
-      console.log("createdAppointment", createdAppointment);
-      if (createdAppointment.status === "scheduled") {
-        snackbarAndNavigate(dispatch, true, "warning", "Successfully got");
-
-        router.push("/"); // Redirect to the homepage
-      } else {
-        snackbarAndNavigate(dispatch, true, "warning", "Successfully got");
+      if (!doctorId || !patientId) {
+        snackbarAndNavigate(
+          dispatch,
+          true,
+          "error",
+          "Missing doctorId or patientId—cannot create appointment",
+          null,
+          true
+        );
+        return;
       }
-    }
-  }, [createdAppointment]);
+      try {
+        const appointmentData = {
+          ...values,
+          patientId,
+          doctorId,
+          status: "scheduled",
+          symptomIds: getIdsFromObject(values?.symptomIds),
+        };
+
+        const response = await createAppointment(appointmentData);
+        if (response?.statusCode === 201) {
+          snackbarAndNavigate(
+            dispatch,
+            true,
+            "success",
+            "Created Successfully",
+            null,
+            true
+          );
+        }
+      } catch (error: any) {
+        const errorMessage =
+          error?.response?.data?.message ||
+          "Error creating Appointment, please try again.";
+        snackbarAndNavigate(
+          dispatch,
+          true,
+          "error",
+          errorMessage,
+          null,
+          true
+        );
+      } finally {
+        setLoading(false);
+      }
+    },
+    [data?._id]
+  );
+
+  const priceWrapSx = {
+    "& .price_header_txt": {
+      fontSize: "1.1rem",
+      fontWeight: 600,
+      color: "#000",
+      lineHeight: "1.2rem",
+      padding: "15px 10px",
+      background: "#efefef",
+    },
+    "& .tx1": {
+      fontSize: "1.1rem",
+      fontWeight: 500,
+      color: "#000",
+      marginTop: "10px",
+    },
+    "& .tx2": {
+      fontSize: "1rem",
+      fontWeight: "normal",
+      color: "#1f1f1f",
+      marginTop: "5px",
+      paddingBottom: "10px",
+    },
+    "& .tx3": {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: "10px 0px",
+      borderTop: "1px solid #bababa",
+      "& .spntx1": {
+        fontSize: "0.9rem",
+        fontWeight: "normal",
+        color: "#000",
+      },
+      "& .spntx2": {
+        fontSize: "0.9rem",
+        fontWeight: "normal",
+        color: "#000",
+      },
+    },
+    "& .tx4": {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: "10px 0px",
+      borderTop: "1px solid #bababa",
+      "& .spntx1": {
+        fontSize: "1rem",
+        fontWeight: 500,
+        color: "#20ada0",
+      },
+      "& .spntx2": {
+        fontSize: "1rem",
+        fontWeight: 500,
+        color: "#20ada0",
+      },
+    },
+    "& .prc_contnt": {
+      padding: "10px",
+      paddingBottom: "0px",
+    },
+  };
 
   if (!isOpen) return null;
 
-  console.log("appointmentDate", appointmentDate);
-
-  function handleSignup(values: {
-    name: string;
-    age: string;
-    gender: string;
-    phoneNumber: string;
-  }) {
-    throw new Error("Function not implemented.");
-  }
-
-  function setFieldValue(arg0: string, newValue: import("dayjs").Dayjs | null) {
-    throw new Error("Function not implemented.");
-  }
-
   return (
-    <>
-      <Modal
-        open={isOpen}
-        onClose={onClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
+    <Modal
+      open={isOpen}
+      onClose={onClose}
+      aria-labelledby="modal-modal-title"
+      aria-describedby="modal-modal-description"
+    >
+      {/* Outer Box that wraps the entire Modal content */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "90%",
+          maxWidth: "1200px",
+          bgcolor: "background.paper",
+          border: "2px solid #000",
+          boxShadow: 24,
+        }}
       >
-        <Box sx={style}>
-          <ModalHeader>
-            <Typography id="" variant="h6" component="h2" className="tx1">
-            Book Appointment With {data?.doctorName || "Doctor"}
-            </Typography>
-            <CloseIcon sx={{ cursor: "pointer" }} onClick={onClose} />
-          </ModalHeader>
-          <ModalBody>
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={4} md={4}>
-                {/* <Typography className='locat'>
-                                <LocationOnIcon /> St John’s Medical College Bangalore
-                            </Typography> */}
-                <Formik
-                  initialValues={{
-                    appointmentDate: null,
-                    // role: "sales",
-                  }}
-                  validationSchema={ModalOneSchema}
-                  onSubmit={async (values, { setSubmitting, resetForm }) => {
-                    setSubmitting(true);
-                    await handleSignup(values);
-                    setSubmitting(false);
-                    resetForm();
-                  }}
-                >
-                  {({
-                    values,
-                    errors,
-                    touched,
-                    handleChange,
-                    handleBlur,
-                    isSubmitting,
-                    dirty,
-                  }) => (
-                    <form>
-                      <FormControl fullWidth>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DatePicker
-                            label="Choose Date of Appointment"
-                            value={values.appointmentDate}
-                            onChange={(newValue) => {
-                              setFieldValue("appointmentDate", newValue);
-                            }}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                fullWidth
-                                error={
-                                  touched.appointmentDate &&
-                                  Boolean(errors.appointmentDate)
-                                }
-                                helperText={
-                                  touched.appointmentDate &&
-                                  errors.appointmentDate
-                                }
-                              />
-                            )}
-                          />
-                        </LocalizationProvider>
-                      </FormControl>
-                      <FormControl fullWidth sx={{ marginTop: "15px" }}>
-                        <MultiSelect
-                          symptoms={symptoms}
-                          setSymptoms={setSymptoms}
-                        />
-                      </FormControl>
-                    </form>
-                  )}
-                </Formik>
-              </Grid>
-              <Grid item xs={12} sm={5} md={5}>
-                <Pricewrap>
-                  {/* <Typography className='tx2date'>
-                                <ChecklistRtlIcon />40 Slots Available
-                            </Typography> */}
-                  <Box
-                    component="fieldset"
-                    className="fieldset_wrap"
-                    sx={{ marginTop: "-5px" }}
-                  >
-                    <legend className="fldset_lgend">Morning Slots</legend>
-                    <ul className="time_box">
-                      {["03:00 AM", "06:00 AM", "09:00 AM"].map((time) => (
-                        <li
-                          key={time}
-                          onClick={() => handleTimeSlotClick(time)}
-                          style={{
-                            background:
-                              selectedTimeSlot === time ? "#20ada0" : "",
-                            color:
-                              selectedTimeSlot === time ? "white" : "black",
-                          }}
-                        >
-                          {time}
-                        </li>
-                      ))}
-                    </ul>
-                  </Box>
-                  <Box component="fieldset" className="fieldset_wrap">
-                    <legend className="fldset_lgend">Afternoon Slots</legend>
-                    <ul className="time_box">
-                      {["12:00 PM", "03:00 PM", "05:00 PM"].map((time) => (
-                        <li
-                          key={time}
-                          onClick={() => handleTimeSlotClick(time)}
-                          style={{
-                            background:
-                              selectedTimeSlot === time ? "#20ada0" : "",
-                            color:
-                              selectedTimeSlot === time ? "white" : "black",
-                          }}
-                        >
-                          {time}
-                        </li>
-                      ))}
-                    </ul>
-                  </Box>
-                  <Box component="fieldset" className="fieldset_wrap">
-                    <legend className="fldset_lgend">Evening Slots</legend>
-                    <ul className="time_box">
-                      {["06:00 PM", "07:00 PM", "08:00 PM"].map((time) => (
-                        <li
-                          key={time}
-                          onClick={() => handleTimeSlotClick(time)}
-                          style={{
-                            background:
-                              selectedTimeSlot === time ? "#20ada0" : "",
-                            color:
-                              selectedTimeSlot === time ? "white" : "black",
-                          }}
-                        >
-                          {time}
-                        </li>
-                      ))}
-                    </ul>
-                  </Box>
-                  <Box component="fieldset" className="fieldset_wrap">
-                    <legend className="fldset_lgend">Night Slots</legend>
-                    <ul className="time_box">
-                      {["09:00 PM", "10:00 PM", "11:00 PM"].map((time) => (
-                        <li
-                          key={time}
-                          onClick={() => handleTimeSlotClick(time)}
-                          style={{
-                            background:
-                              selectedTimeSlot === time ? "#20ada0" : "",
-                            color:
-                              selectedTimeSlot === time ? "white" : "black",
-                          }}
-                        >
-                          {time}
-                        </li>
-                      ))}
-                    </ul>
-                  </Box>
-                </Pricewrap>
-              </Grid>
-              <Grid item xs={12} sm={3} md={3}>
-                <Pricewrap className="pric_tw">
-                  <Typography className="price_header_txt">
-                    Consultation Details
-                  </Typography>
-                  <Box className="prc_contnt">
-                    <Typography className="tx1">{data?.doctorName || "Doctor"}</Typography>
-                   
-                    <Typography className="tx3">
-                      <span className="spntx1">Price</span>
-                      <span className="spntx2">₹
-                      {data?.consultationFee || "Doctor"}</span>
-                    </Typography>
-                    <Typography className="tx4">
-                      <span className="spntx1">Total</span>
-                      <span className="spntx2">₹
-                      {data?.consultationFee || "Doctor"}</span>
-                    </Typography>
-                  </Box>
-                </Pricewrap>
-              </Grid>
-            </Grid>
-          </ModalBody>
-          <ModalFooter>
-            <Box className="footer_btn_wrp">
-              <Button
-                variant="contained"
-                sx={{
-                  width: "auto",
-                  minWidth: "150px",
-                  color: "#fff",
-                  background: "#20ADA0",
-                  borderRadius: "4px",
-                  marginLeft: "20px",
-                  ":hover": {
-                    bgcolor: "#20ADA0", // theme.palette.primary.main
-                    color: "white",
-                  },
-                }}
-                onClick={handleBookNowClick}
-              >
-                <BookOnlineIcon sx={{ marginRight: 1 }} />
-                Book Now
-              </Button>
-              <Button
-                onClick={onClose}
-                variant="contained"
-                sx={{
-                  width: "auto",
-                  minWidth: "150px",
-                  color: "#fff",
-                  background: "#20ADA0",
-                  borderRadius: "4px",
-                  marginLeft: "20px",
-                  ":hover": {
-                    bgcolor: "#20ADA0", // theme.palette.primary.main
-                    color: "white",
-                  },
-                }}
-              >
-                Cancel
-              </Button>
-            </Box>
-          </ModalFooter>
+        {/* ===== ModalHeader ===== */}
+        <Box
+          sx={{
+            padding: "15px 20px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            borderBottom: "1px solid #ababab",
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: "1.25rem",
+              fontWeight: 600,
+              color: "#20ada0",
+            }}
+          >
+            Book Appointment With {capitalizeFirstLetter(data?.username) || "Doctor"}
+          </Typography>
+          <CloseIcon sx={{ cursor: "pointer" }} onClick={onClose} />
         </Box>
-      </Modal>
-      <SnackbarComponent
-        alerting={snackbar.snackbarAlert}
-        severity={snackbar.snackbarSeverity}
-        message={snackbar.snackbarMessage}
-        onClose={handleSnackbarClose}
-      />
-    </>
+
+        <Formik
+          initialValues={initialValues}
+          validationSchema={ModalOneSchema}
+          onSubmit={values => handleBookAppointment(values)}
+        >
+          {({
+            dirty,
+            errors,
+            touched,
+            values,
+            isSubmitting,
+            setFieldValue,
+          }) => (
+            <Form>
+              {/* ===== ModalBody ===== */}
+              <Box
+                sx={{
+                  overflowX: "auto",
+                  maxHeight: "72vh",
+                  padding: "10px 20px",
+                  marginTop: "15px",
+                  "& .locat": {
+                    fontSize: "1rem",
+                    fontWeight: 300,
+                    color: "#000",
+                    marginBottom: "20px",
+                    display: "flex",
+                    alignItems: "center",
+                  },
+                  "& .time_box": {
+                    display: "flex",
+                    flexWrap: "wrap",
+                    width: "100%",
+                    "& li": {
+                      marginTop: "10px",
+                      fontSize: "0.8rem",
+                      fontWeight: 300,
+                      lineHeight: "1.2rem",
+                      padding: "8px 10px",
+                      border: "1px solid #20ada0",
+                      borderRadius: "4px",
+                      listStyle: "none",
+                      marginRight: "10px",
+                      cursor: "pointer",
+                      color: "black",
+                      "&:hover": {
+                        background: "#20ada0",
+                        color: "white",
+                      },
+                    },
+                  },
+                  "& .tx2date": {
+                    fontSize: "1rem",
+                    fontWeight: 300,
+                    color: "#000",
+                    marginBottom: "16px",
+                    display: "flex",
+                    alignItems: "center",
+                    "& svg": {
+                      marginRight: "7px",
+                    },
+                  },
+                  "& input.Mui-disabled": {
+                    opacity: 1,
+                    WebkitTextFillColor: "rgb(0 0 0 / 100%)",
+                  },
+                  "& .MuiFormLabel-filled.Mui-disabled": {
+                    color: "rgba(0, 0, 0, 0.6)",
+                  },
+                  "& .fldset_lgend": {
+                    background: "white",
+                    marginLeft: "15px",
+                    fontSize: "0.7rem",
+                    fontWeight: 500,
+                    color: "#20ada0",
+                    padding: "0px 5px",
+                  },
+                  "& .fieldset_wrap": {
+                    padding: "20px",
+                    paddingBottom: "20px",
+                    paddingTop: "10px",
+                    borderColor: "#efefef",
+                    marginBottom: "10px",
+                    border: "1px solid #efefef",
+                  },
+                  "& .MuiPickersTextField": {
+                    width: "100%",
+                  },
+                  "& .pric_tw": {
+                    border: "1px solid #b1b1b1",
+                  },
+                }}
+              >
+                <Grid container spacing={3}>
+                  {/* ===== Left Section  ===== */}
+                  <Grid item xs={12} sm={4} md={4}>
+                    <Field
+                      fullWidth
+                      as={TextField}
+                      label="Date Of Appointment *"
+                      name="appointmentDate"
+                      type="date"
+                      value={
+                        values.appointmentDate ? dayjs(values.appointmentDate).format("YYYY-MM-DD") : ""
+                      }
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        const formattedDate = dayjs(e.target.value).format(
+                          "YYYY-MM-DD"
+                        );
+                        setFieldValue("appointmentDate", formattedDate);
+                        const dayName = dayjs(e.target.value).format("dddd");
+                        setSelectedDayName(dayName);
+                        setSelectedTimeSlot("");
+                        setFieldValue("appointmentTime", "");
+                      }}
+                      InputLabelProps={{ shrink: true }}
+                      sx={{
+                        position: "relative",
+                        "& input[type=date]::-webkit-calendar-picker-indicator": {
+                          zIndex: 3,
+                          cursor: "pointer",
+                        },
+                      }}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment
+                            position="end"
+                            sx={{
+                              pointerEvents: "none", // Let clicks pass through
+                              position: "absolute",
+                              right: "12px",
+                              zIndex: 1,
+                            }}
+                          >
+                            <CalendarMonthIcon />
+                          </InputAdornment>
+                        ),
+                      }}
+                      error={touched.appointmentDate && Boolean(errors.appointmentDate)}
+                      helperText={touched.appointmentDate && errors.appointmentDate}
+                    />
+                    <FormControl
+                      fullWidth
+                      error={touched.appointmentType && Boolean(errors.appointmentType)}
+                    >
+                      <InputLabel> Appointment Type </InputLabel>
+                      <Select
+                        label="Appointment Type "
+                        name="appointmentType"
+                        value={values.appointmentType}
+                        onChange={(e) => setFieldValue("appointmentType", e.target.value)}
+                        startAdornment={
+                          <InputAdornment position="start">
+                            <InfoIcon color="primary" />
+                          </InputAdornment>
+                        }
+                      >
+                        <MenuItem value="online">Online</MenuItem>
+                        <MenuItem value="in-person">In-Person</MenuItem>
+                      </Select>
+                      {touched.appointmentType && errors.appointmentType && (
+                        <Typography color="error" variant="body2">
+                          {errors.appointmentType}
+                        </Typography>
+                      )}
+                    </FormControl>
+                    <Autocomplete
+                      multiple
+                      disableCloseOnSelect
+                      options={data?.symptomIds || []}
+                      getOptionLabel={option => option.name}
+                      isOptionEqualToValue={(option, value) => option._id === value._id}
+                      value={values.symptomIds || undefined}
+                      onChange={(event, value) => setFieldValue("symptomIds", value)}
+                      sx={{ gridColumn: "span 2" }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Symptom *"
+                          name="symptomIds"
+                          type="text"
+                          error={!!touched.symptomIds && !!errors.symptomIds}
+                          helperText={
+                            touched.symptomIds && typeof errors.symptomIds === "string"
+                              ? errors.symptomIds
+                              : ""
+                          }
+                          InputProps={{
+                            ...params.InputProps,
+                            startAdornment: (
+                              <>
+                                <InputAdornment position="start">
+                                  <AssignmentIcon color="primary" />
+                                </InputAdornment>
+                                {params.InputProps.startAdornment}
+                              </>
+                            ),
+                          }}
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Field type="hidden" name="appointmentTime" />    {/* Hidden Formik Field so Formik tracks appointmenttime errors*/}
+
+                  {/* ===== Middle Section (Dynamic Time Slots) ===== */}
+                  <Grid item xs={12} sm={5} md={5}>
+                    <Box sx={priceWrapSx}>
+                      <Box
+                        component="fieldset"
+                        className="fieldset_wrap"
+                        sx={{ marginTop: "-5px" }}
+                      >
+                        <legend className="fldset_lgend">Morning Slots</legend>
+                        <ul className="time_box">
+                          {timeBuckets.morning.map((time) => (
+                            <li
+                              key={time}
+                              onClick={() => handleTimeSlotClick(time, setFieldValue)}
+                              style={{
+                                background: selectedTimeSlot === time ? "#20ada0" : "",
+                                color: selectedTimeSlot === time ? "white" : "black",
+                              }}
+                            >
+                              {time}
+                            </li>
+                          ))}
+                        </ul>
+                      </Box>
+
+                      <Box component="fieldset" className="fieldset_wrap">
+                        <legend className="fldset_lgend">Afternoon Slots</legend>
+                        <ul className="time_box">
+                          {timeBuckets.afternoon.map((time) => (
+                            <li
+                              key={time}
+                              onClick={() => handleTimeSlotClick(time, setFieldValue)}
+                              style={{
+                                background: selectedTimeSlot === time ? "#20ada0" : "",
+                                color: selectedTimeSlot === time ? "white" : "black",
+                              }}
+                            >
+                              {time}
+                            </li>
+                          ))}
+                        </ul>
+                      </Box>
+
+                      <Box component="fieldset" className="fieldset_wrap">
+                        <legend className="fldset_lgend">Evening Slots</legend>
+                        <ul className="time_box">
+                          {timeBuckets.evening.map((time) => (
+                            <li
+                              key={time}
+                              onClick={() => handleTimeSlotClick(time, setFieldValue)}
+                              style={{
+                                background: selectedTimeSlot === time ? "#20ada0" : "",
+                                color: selectedTimeSlot === time ? "white" : "black",
+                              }}
+                            >
+                              {time}
+                            </li>
+                          ))}
+                        </ul>
+                      </Box>
+
+                      <Box component="fieldset" className="fieldset_wrap">
+                        <legend className="fldset_lgend">Night Slots</legend>
+                        <ul className="time_box">
+                          {timeBuckets.night.map((time) => (
+                            <li
+                              key={time}
+                              onClick={() => handleTimeSlotClick(time, setFieldValue)}
+                              style={{
+                                background: selectedTimeSlot === time ? "#20ada0" : "",
+                                color: selectedTimeSlot === time ? "white" : "black",
+                              }}
+                            >
+                              {time}
+                            </li>
+                          ))}
+                        </ul>
+                      </Box>
+                    </Box>
+                    {touched.appointmentTime && errors.appointmentTime && (
+                      <Typography color="error" variant="body2" paddingLeft='38px'>
+                        {errors.appointmentTime}
+                      </Typography>
+                    )}
+                  </Grid>
+
+                  {/* ===== Right Section (Price/Consultation Details) ===== */}
+                  <Grid item xs={12} sm={3} md={3}>
+                    <Box sx={{ ...priceWrapSx, border: "1px solid #b1b1b1" }}>
+                      <Typography className="price_header_txt">
+                        Consultation Details
+                      </Typography>
+                      <Box className="prc_contnt">
+                        <Typography className="tx1">
+                          {capitalizeFirstLetter(data?.username) || "Doctor"}
+                        </Typography>
+                        <Typography className="tx3">
+                          <span className="spntx1">Price</span>
+                          <span className="spntx2">
+                            {(values.appointmentDate && values.appointmentTime && values.symptomIds.length > 0
+                              && values.appointmentType) ? `₹${data?.consultationFee}` : "--"}
+                          </span>
+                        </Typography>
+                        <Typography className="tx4">
+                          <span className="spntx1">Total</span>
+                          <span className="spntx2">
+                            {(values.appointmentDate && values.appointmentTime && values.symptomIds.length > 0
+                              && values.appointmentType) ? `₹${data?.consultationFee}` : "--"}
+                          </span>
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
+                </Grid>
+              </Box>
+
+              {/* ===== ModalFooter ===== */}
+              <Box
+                sx={{
+                  padding: "15px 20px",
+                  borderTop: "1px solid #ababab",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  "& .footer_btn_wrp": {
+                    display: "flex",
+                    justifyContent: "center",
+                  },
+                }}
+              >
+                <Box className="footer_btn_wrp">
+                  <Button
+                    disabled={!dirty || isSubmitting}
+                    variant="contained"
+                    type="submit"
+                    sx={{
+                      minWidth: "150px",
+                      color: "#fff",
+                      background: "#20ADA0",
+                      borderRadius: "4px",
+                      marginLeft: "20px",
+                      ":hover": {
+                        bgcolor: "#20ADA0",
+                        color: "white",
+                      },
+                    }}
+                  >
+                    <BookOnlineIcon sx={{ marginRight: 1 }} />
+                    Book Now
+                  </Button>
+                  <Button
+                    onClick={onClose}
+                    variant="contained"
+                    sx={{
+                      minWidth: "150px",
+                      color: "#fff",
+                      background: "#20ADA0",
+                      borderRadius: "4px",
+                      marginLeft: "20px",
+                      ":hover": {
+                        bgcolor: "#20ADA0",
+                        color: "white",
+                      },
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </Box>
+              </Box>
+            </Form>
+          )}
+        </Formik>
+        <SnackbarComponent
+          alerting={snackbar.snackbarAlert}
+          severity={snackbar.snackbarSeverity}
+          message={snackbar.snackbarMessage}
+          onClose={handleSnackbarClose}
+        />
+      </Box>
+    </Modal>
   );
 }
-const style = {
-  position: "absolute" as "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: "90%",
-  maxWidth: "1200px",
-  bgcolor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
-};
-
-const styles = {
-  modalOverlay: {
-    position: "fixed" as "fixed",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 1000,
-  },
-  modalContent: {
-    backgroundColor: "#fff",
-    padding: "20px",
-    borderRadius: "10px",
-    maxWidth: "1000px",
-    width: "100%",
-    textAlign: "center" as "center",
-  },
-  closeButton: {
-    marginTop: "20px",
-  },
-};
 
 export default ModalOne;
-
-interface MultiSelectProps {
-  symptoms: string[];
-  setSymptoms: React.Dispatch<React.SetStateAction<string[]>>;
-}
-
-const MultiSelect = ({ symptoms, setSymptoms }: MultiSelectProps) => {
-  const options = [
-    { title: "Fever" },
-    { title: "Cold" },
-    { title: "Cough" },
-    { title: "Headache" },
-  ];
-
-  return (
-    <Autocomplete
-      multiple
-      options={options}
-      getOptionLabel={(option) => option.title}
-      value={options.filter((option) => symptoms.includes(option.title))} // Ensure the selected values are shown
-      onChange={(event, newValue) => {
-        setSymptoms(newValue.map((option) => option.title)); // Map the selected options to their titles
-      }}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          variant="outlined"
-          label="Select Symptoms"
-          placeholder="Options"
-        />
-      )}
-    />
-  );
-};

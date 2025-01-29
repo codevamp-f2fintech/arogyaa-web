@@ -1,9 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Box, Button, Paper, Typography } from "@mui/material";
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import EventIcon from "@mui/icons-material/Event";
+
 import Slider from "react-slick";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
@@ -15,64 +19,81 @@ import { useGetDoctors } from "@/hooks/doctor";
 import styles from "../page.module.css";
 import en from "@/locales/en.json";
 import Loader from "./common/Loader";
+import BookAppointmentModal from "../components/common/BookAppointmentModal";
+import { DoctorData } from "@/types/doctor";
+import Cookies from "js-cookie"
 
 const ExpertSpecialistSlider: React.FC = () => {
+  const [selectedDoctor, setSelectedDoctor] = useState<DoctorData | null>(null);
   const { doctor, reduxLoading } = useSelector(
     (state: RootState) => state.doctors
   );
   const dispatch = useDispatch();
+  const router = useRouter();
+  const { value: data, swrLoading } = useGetDoctors(null, "get-doctors", 1, 6);
 
-  const {
-    value: data,
-    swrLoading,
-  } = useGetDoctors(null, "get-doctors", 1, 6);
+  const [isModalOpen, setModalOpen] = useState(false);
 
-  console.log(data, "api doctor");
-  console.log(doctor, "redux doctor");
+  const openModal = (doctor: DoctorData): void => {
+    const userToken = Cookies.get("token");
+    if (!userToken) {
+      const encodedReturnUrl = encodeURIComponent(
+        `/doctor?autoBookDoctorId=${doctor._id}`
+      );
+      router.push(`/signup?redirect=${encodedReturnUrl}`);
+      return;
+    }
+    setSelectedDoctor(doctor);
+    setModalOpen(true);
+  };
 
-  // Update Redux store with fetched data
+  const closeModal = (): void => {
+    setModalOpen(false);
+    setSelectedDoctor(null);
+  };
+
   useEffect(() => {
-    if (data && data.results && data.results.length > 0) {
+    if (data?.results?.length) {
       dispatch(setDoctor(data));
     }
   }, [data, dispatch]);
 
-
-  const sliderSettings = {
-    dots: true,
-    infinite: false,
-    speed: 500,
-    slidesToShow: 4,
-    slidesToScroll: 1,
-    centerMode: false,
-    responsive: [
-      {
-        breakpoint: 1024,
-        settings: {
-          slidesToShow: 3,
-          slidesToScroll: 1,
-          infinite: false,
-          dots: true,
+  const sliderSettings = useMemo(
+    () => ({
+      dots: true,
+      infinite: false,
+      speed: 500,
+      slidesToShow: 4,
+      slidesToScroll: 1,
+      lazyLoad: "ondemand",
+      pauseOnHover: true,
+      cssEase: "ease-in-out",
+      responsive: [
+        {
+          breakpoint: 1024,
+          settings: {
+            slidesToShow: 3,
+            slidesToScroll: 1,
+          },
         },
-      },
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 1,
-          infinite: false,
-          dots: true,
+        {
+          breakpoint: 768,
+          settings: {
+            slidesToShow: 2,
+            slidesToScroll: 1,
+          },
         },
-      },
-      {
-        breakpoint: 600,
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
+        {
+          breakpoint: 480,
+          settings: {
+            slidesToShow: 1,
+            slidesToScroll: 1,
+          },
         },
-      },
-    ],
-  };
+      ],
+    }),
+    []
+  );
 
   return (
     <Box className={styles.expertSpecialistSlider}>
@@ -98,16 +119,49 @@ const ExpertSpecialistSlider: React.FC = () => {
                     margin: "0 10px",
                     height: "310px",
                     marginBottom: "15px",
+                    position: "relative",
                   }}
                 >
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: "10px",
+                      right: "10px",
+                      display: "flex",
+                      gap: "10px",
+                    }}
+                  >
+                    <AccountCircleIcon
+                      sx={{
+                        fontSize: "24px",
+                        color: "#20ADA0",
+                        cursor: "pointer",
+                        transition: "color 0.3s",
+                      }}
+                      onClick={() => {
+                        router.push(
+                          `/doctor/profile/${encodeURIComponent(doctor._id)}`
+                        );
+                      }}
+                    />
+                    <EventIcon
+                      sx={{
+                        fontSize: "24px",
+                        color: "#20ADA0",
+                        cursor: "pointer",
+                        transition: "color 0.3s",
+                      }}
+                      onClick={() => openModal(doctor)}
+                    />
+                  </Box>
+
                   <Box
                     component="img"
                     className={styles.doctorImage}
                     alt={doctor.username}
                     src={
-                      // Add image URL from API if available
-                      doctor.profilePicture
-                      // "../assets/images/portrait-young-woman-doctor-with-stethoscope-uniform (1).png"
+                      doctor.profilePicture ||
+                      "../assets/images/online-doctor-with-white-coat.png"
                     }
                   />
                   <Typography
@@ -117,19 +171,6 @@ const ExpertSpecialistSlider: React.FC = () => {
                   >
                     {doctor.username}
                   </Typography>
-                  {/* <Typography
-                    variant="h6"
-                    component="h6"
-                    className={styles.field}
-                  >
-                    {doctor.specializationId
-                      .slice(0, Math.ceil(doctor.specializationId.length / 2))
-                      .join(", ")}
-                    <br />
-                    {doctor.specializationId
-                      .slice(Math.ceil(doctor.specializationId.length / 2))
-                      .join(", ")}
-                  </Typography> */}
                   <Typography
                     variant="h6"
                     component="p"
@@ -166,6 +207,12 @@ const ExpertSpecialistSlider: React.FC = () => {
           </Box>
         </>
       )}
+
+      <BookAppointmentModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        data={selectedDoctor}
+      />
     </Box>
   );
 };

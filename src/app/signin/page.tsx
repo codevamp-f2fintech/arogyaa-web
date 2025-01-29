@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 import {
   Box,
@@ -18,9 +18,15 @@ import * as Yup from "yup";
 import { Formik, Form } from "formik";
 
 import SnackbarComponent from "../components/common/Snackbar";
-import { Utility } from "@/utils";
+import { creator } from "@/apis/apiClient";
 import { RootState } from "@/redux/store";
-import { useCreatePatient } from "@/hooks/patient";
+import { Utility } from "@/utils";
+
+interface SignInResponse {
+  token: string;
+  message: string;
+  statusCode: number;
+}
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("This Field Is Required"),
@@ -32,10 +38,10 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const { snackbar } = useSelector((state: RootState) => state.snackbar);
 
-  const { createPatient } = useCreatePatient("/login");
-  const { snackbarAndNavigate } = Utility();
   const dispatch = useDispatch();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { snackbarAndNavigate } = Utility();
 
   const handleClickShowPassword = (): void => {
     setShowPassword((prev) => !prev);
@@ -58,24 +64,27 @@ export default function Login() {
 
   const handleLogin = React.useCallback(
     async (values: { email: string; password: string }): Promise<void> => {
-      console.log(values, "submitted values");
       setLoading(true);
       try {
-        const response = await createPatient({
-          email: values.email,
-          password: values.password,
-        });
-        console.log(response, "this is response from login");
+        const response: SignInResponse = await creator(
+          'patient',
+          "/login",
+          {
+            email: values.email,
+            password: values.password,
+          });
         if (response?.statusCode === 200) {
           document.cookie = `token=${response.token}; path=/; max-age=${1 * 24 * 60 * 60
             }; secure; samesite=strict`;
+          const rawRedirect = searchParams.get("redirect");
+          const decodedRedirect = rawRedirect ? decodeURIComponent(rawRedirect) : null;
+
           snackbarAndNavigate(
             dispatch,
             true,
             "success",
-            response.message || "Login Successful",
-            () => router.push("/"),
-            "/"
+            response?.message || "Login Successful",
+            () => router.push(decodedRedirect || '/doctor')
           );
         } else if (response?.statusCode === 409) {
           snackbarAndNavigate(
