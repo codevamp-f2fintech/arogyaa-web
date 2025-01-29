@@ -30,7 +30,7 @@ const UserProfile = () => {
   const patientId = decodedToken()?.id;
   const [activeView, setActiveView] = useState<
     "overview" | "appointments" | "tests" | "billing" | "treatment"
-  >("overview");
+  >("appointments");
 
   // Define quick action buttons
   const quickActions = [
@@ -325,7 +325,7 @@ const UserProfile = () => {
               background: "rgba(255, 255, 255, 0.95)",
             }}
           >
-            {activeView === "overview" && <PatientOverview />}
+            {activeView === "overview" && <PatientOverview user={user} />}
             {activeView === "appointments" && <AppointmentHistory />}
             {activeView === "tests" && <TestHistory />}
             {activeView === "billing" && <BillingHistory />}

@@ -63,6 +63,8 @@ const Signup = () => {
   const searchParams = useSearchParams();
   const { snackbarAndNavigate } = Utility();
   const { createPatient } = useCreatePatient("/create-patient");
+  const rawRedirect = searchParams.get("redirect");
+  const decodedRedirect = rawRedirect ? decodeURIComponent(rawRedirect) : null;
 
   const handleChange = (e: any) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -140,8 +142,8 @@ const Signup = () => {
     e.preventDefault();
     const isValid = validateForm();
     if (!isValid) return;
-
     const { confirmPassword, ...data } = formData;
+
     try {
       const createPatientResponse = await createPatient(data);
 
@@ -155,9 +157,6 @@ const Signup = () => {
           });
         if (response?.statusCode === 200) {
           document.cookie = `token=${response.token}; path=/; max-age=${1 * 24 * 60 * 60}; secure; samesite=strict`;
-          const rawRedirect = searchParams.get("redirect");
-          const decodedRedirect = rawRedirect ? decodeURIComponent(rawRedirect) : null;
-
           snackbarAndNavigate(
             dispatch,
             true,
@@ -180,26 +179,25 @@ const Signup = () => {
       console.log(error, 'this is errp')
       const status = error.response?.status;
       const message = error.response?.message || error.message;
-
-      // if (status === 409) {
-      //   snackbarAndNavigate(dispatch, true, "error", "Email already exists.");
-      // } else if (status === 500) {
-      //   snackbarAndNavigate(
-      //     dispatch,
-      //     true,
-      //     "error",
-      //     "Internal server error. Please try again."
-      //   );
-      // } else {
-      //   snackbarAndNavigate(
-      //     dispatch,
-      //     true,
-      //     "error",
-      //     message || "Signup failed. Please try again.",
-      //     null,
-      //     true
-      //   );
-      // }
+      if (status === 409) {
+        snackbarAndNavigate(dispatch, true, "error", "Email already exists.");
+      } else if (status === 500) {
+        snackbarAndNavigate(
+          dispatch,
+          true,
+          "error",
+          "Internal server error. Please try again."
+        );
+      } else {
+        snackbarAndNavigate(
+          dispatch,
+          true,
+          "error",
+          message || "Signup failed. Please try again.",
+          null,
+          true
+        );
+      }
     }
   };
 
@@ -480,7 +478,13 @@ const Signup = () => {
                 borderColor: "#1976d2",
                 color: "#1976d2",
               }}
-              onClick={() => (window.location.href = "/signin")}
+              onClick={() => {
+                const redirectParam = decodedRedirect
+                  ? `?redirect=${decodedRedirect}`
+                  : '';
+
+                router.push(`/signin${redirectParam}`);
+              }}
             >
               Already have an account? Sign In
             </Button>

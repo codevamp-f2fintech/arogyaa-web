@@ -20,13 +20,18 @@ import {
   CalendarToday as CalendarTodayIcon,
   Healing as HealingIcon,
 } from "@mui/icons-material";
+import { Utility } from "@/utils";
 
 const PatientOverview: React.FC<{ user: any }> = ({ user }) => {
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const { capitalizeFirstLetter } = Utility();
+
   const patientData = [
     {
       id: "1",
       field: "Gender",
-      value: user?.gender || "N/A",
+      value: capitalizeFirstLetter(user?.gender) || "N/A",
       icon: <PersonIcon sx={{ color: "#20ADA0" }} />,
     },
     {
@@ -54,9 +59,6 @@ const PatientOverview: React.FC<{ user: any }> = ({ user }) => {
       icon: <HealingIcon sx={{ color: "#20ADA0" }} />,
     },
   ];
-
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);

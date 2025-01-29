@@ -49,12 +49,10 @@ const AppointmentHistory: React.FC = () => {
       try {
         const response = await fetcher(
           "appointment",
-          `get-patients-appointment/${patientId}`
+          `get-patients-appointment/${patientId}?page=1`
         );
-
-        const results = response?.data?.results || response?.results || [];
-        const count = response?.data?.count || response?.count || 0;
-
+        const results = response?.results || [];
+        const count = response?.count || 0;
         setAppointments(results);
         setTotalCount(count);
         setError(null);
@@ -155,7 +153,6 @@ const AppointmentHistory: React.FC = () => {
           >
             <TableRow>
               {[
-                // "Appointment ID",
                 "Doctor's Name",
                 "Appointment Time",
                 "Status",
@@ -183,16 +180,15 @@ const AppointmentHistory: React.FC = () => {
                   transition: "background-color 0.2s",
                 }}
               >
-                {/* <TableCell>{appointment._id}</TableCell> */}
-                <TableCell>{appointment?.doctorDetails?.username}</TableCell>
+                <TableCell>{appointment?.doctorId?.username}</TableCell>
                 <TableCell>
-                  {new Date(appointment.appointmentTime).toLocaleString()}
+                  {appointment?.appointmentTime}
                 </TableCell>
                 <TableCell>
                   <Chip
                     icon={<AppointmentIcon />}
-                    label={appointment.status}
-                    color={getStatusColor(appointment.status)}
+                    label={appointment?.status}
+                    color={getStatusColor(appointment?.status)}
                     size="small"
                     variant="outlined"
                   />

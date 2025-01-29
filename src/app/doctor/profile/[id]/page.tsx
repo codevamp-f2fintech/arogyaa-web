@@ -1,11 +1,12 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import React, { useState, useEffect, ChangeEvent, MouseEvent } from "react";
 import {
   Box, Grid, Paper, Typography, Button, Tabs, Tab, ThemeProvider,
   createTheme,
 } from "@mui/material";
+import Cookies from "js-cookie";
 import DoneIcon from "@mui/icons-material/Done";
 import PaymentIcon from "@mui/icons-material/Payment";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
@@ -18,7 +19,7 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import VideoCallIcon from "@mui/icons-material/VideoCall";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 
-import ModalOne from "../../../components/common/BookAppointmentModal";
+import BookAppointmentModal from "../../../components/common/BookAppointmentModal";
 import { fetcher } from "@/apis/apiClient";
 
 // Define TypeScript interfaces for profile data
@@ -30,7 +31,7 @@ interface AvailabilitySlot {
 
 interface ProfileData {
   data?: {
-    id: string;
+    _id: string;
     username: string;
     profilePicture?: string;
     email: string;
@@ -46,105 +47,95 @@ interface ProfileData {
   };
 }
 
-// Define props for ModalOne if needed
-interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+const cardStyle = {
+  padding: "26px",
+  borderRadius: "10px",
+  height: "190px",
+  backgroundColor: "#f9f9f9", // Same background for all cards
+  boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)", // Same shadow for all cards
+};
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#20ADA0",
+      light: "#4FBEB3",
+      dark: "#178F84",
+    },
+    secondary: {
+      main: "#354C5C",
+      light: "#5A7082",
+      dark: "#233240",
+    },
+    background: {
+      default: "#F5F7FA",
+    },
+  },
+  typography: {
+    fontFamily: "'system-ui'",
+    h1: {
+      fontSize: "2.5rem",
+      fontWeight: 600,
+    },
+
+    h2: {
+      fontSize: "2rem",
+      fontWeight: 600,
+    },
+    h3: {
+      fontSize: "1.75rem",
+      fontWeight: 600,
+    },
+    h4: {
+      fontSize: "1.5rem",
+      fontWeight: 600,
+    },
+    h5: {
+      fontSize: "1.25rem",
+      fontWeight: 600,
+    },
+    h6: {
+      fontSize: "1rem",
+      fontWeight: 600,
+    },
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          textTransform: "none",
+          fontWeight: 600,
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 16,
+          boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+        },
+      },
+    },
+  },
+});
 
 const DrProfile: React.FC = () => {
+  const [profileData, setProfileData] = useState<ProfileData>({});
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [tabValue, setTabValue] = useState<number>(0);
   const [appointmentTabValue, setAppointmentTabValue] = useState<number>(0);
+  const router = useRouter();
   const params = useParams();
   const doctorId = params?.id;
-  const cardStyle = {
-    padding: "26px",
-    borderRadius: "10px",
-    height: "190px",
-    backgroundColor: "#f9f9f9", // Same background for all cards
-    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)", // Same shadow for all cards
-  };
-  const theme = createTheme({
-    palette: {
-      primary: {
-        main: "#20ADA0",
-        light: "#4FBEB3",
-        dark: "#178F84",
-      },
-      secondary: {
-        main: "#354C5C",
-        light: "#5A7082",
-        dark: "#233240",
-      },
-      background: {
-        default: "#F5F7FA",
-      },
-    },
-    typography: {
-      fontFamily: "'system-ui'",
-      h1: {
-        fontSize: "2.5rem",
-        fontWeight: 600,
-      },
 
-      h2: {
-        fontSize: "2rem",
-        fontWeight: 600,
-      },
-      h3: {
-        fontSize: "1.75rem",
-        fontWeight: 600,
-      },
-      h4: {
-        fontSize: "1.5rem",
-        fontWeight: 600,
-      },
-      h5: {
-        fontSize: "1.25rem",
-        fontWeight: 600,
-      },
-      h6: {
-        fontSize: "1rem",
-        fontWeight: 600,
-      },
-    },
-    components: {
-      MuiButton: {
-        styleOverrides: {
-          root: {
-            borderRadius: 8,
-            textTransform: "none",
-            fontWeight: 600,
-          },
-        },
-      },
-      MuiCard: {
-        styleOverrides: {
-          root: {
-            borderRadius: 16,
-            boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-          },
-        },
-      },
-      MuiChip: {
-        styleOverrides: {
-          root: {
-            borderRadius: 8,
-          },
-        },
-      },
-    },
-  });
-
-  const [profileData, setProfileData] = useState<ProfileData>({});
-  const [modalData, setModalData] = useState<{
-    doctorId: string;
-    doctorName: string;
-    consultationFee?: number;
-    address?: string;
-    availability?: AvailabilitySlot[];
-  } | null>(null);
   useEffect(() => {
     if (doctorId) {
       const fetchProfileData = async () => {
@@ -161,21 +152,21 @@ const DrProfile: React.FC = () => {
       fetchProfileData();
     }
   }, [doctorId]);
+
   const openModal = (): void => {
-    if (profileData.data) {
-      setModalData({
-        doctorId: profileData.data.id,
-        doctorName: profileData.data.username,
-        consultationFee: profileData.data.consultationFee,
-        address: profileData.data.address,
-        availability: profileData.data.availability,
-      });
-      setModalOpen(true);
+    const userToken = Cookies.get("token");
+    if (!userToken) {
+      const encodedReturnUrl = encodeURIComponent(
+        `/doctor?autoBookDoctorId=${profileData?.data?._id}`
+      );
+      router.push(`/signup?redirect=${encodedReturnUrl}`);
+      return;
     }
+    setModalOpen(true);
   };
+
   const closeModal = (): void => {
     setModalOpen(false);
-    setModalData(null);
   };
 
   const handleTabChange = (
@@ -209,7 +200,6 @@ const DrProfile: React.FC = () => {
           marginTop: "20px",
         }}
       >
-        <ModalOne isOpen={isModalOpen} onClose={closeModal} data={modalData} />
         <Box sx={{ padding: "10px" }}>
           <Grid container spacing={3}>
             {/* Doctor Information Section */}
@@ -405,38 +395,6 @@ const DrProfile: React.FC = () => {
                       }}
                     >
                       <Box>
-                        {/* <Button
-                        onClick={openModal}
-                        variant="contained"
-                        aria-label="Book a video appointment"
-                        startIcon={<VideoCallIcon sx={{ fontSize: "20px" }} />}
-                        sx={{
-                          marginRight: "5px",
-                          paddingX: "5px",
-                          marginBottom: "14px",
-                          paddingY: "3px",
-                          color: "#20ADA0",
-                          background: "#fff",
-                          borderRadius: "8px",
-                          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-                          fontSize: "1rem",
-                          textTransform: "none",
-                          transition: "transform 0.2s, box-shadow 0.2s",
-                          // ":hover": {
-                          //   transform: "scale(1.05)",
-                          //   boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.15)",
-                          //   background:
-                          //     "linear-gradient(90deg, #1D877A, #20ADA0)",
-                          // },
-                          // ":focus-visible": {
-                          //   outline: "2px solid #20ADA0",
-                          //   outlineOffset: "2px",
-                          // },
-                        }}
-                      >
-                        Book Video Appointment
-                      </Button> */}
-
                         <Button
                           onClick={openModal}
                           variant="contained"
@@ -463,7 +421,11 @@ const DrProfile: React.FC = () => {
                     </Box>
                   </Box>
                 </Box>
-
+                <BookAppointmentModal
+                  isOpen={isModalOpen}
+                  onClose={closeModal}
+                  data={profileData?.data}
+                />
                 {/* Rating Section */}
                 <Box
                   sx={{

@@ -119,7 +119,7 @@ export default function ModernDoctorProfile() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
-  const [selectedDoctor, setSelectedDoctor] = useState<DoctorData>();
+  const [selectedDoctor, setSelectedDoctor] = useState<DoctorData | null>();
   const [results, setResults] = useState([]);
   const [keyword, setKeyword] = useState("");
 
@@ -169,6 +169,7 @@ export default function ModernDoctorProfile() {
       setResults([]);
     }
   };
+
   const openModal = (doctor: DoctorData): void => {
     const userToken = Cookies.get("token");
     if (!userToken) {
@@ -181,10 +182,12 @@ export default function ModernDoctorProfile() {
     setSelectedDoctor(doctor);
     setModalOpen(true);
   };
+
   const closeModal = (): void => {
     setModalOpen(false);
     setSelectedDoctor(null);
   };
+
   const debounce = (func: (...args: any[]) => void, delay: number) => {
     let timer: NodeJS.Timeout;
     return (...args: any[]) => {

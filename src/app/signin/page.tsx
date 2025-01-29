@@ -42,6 +42,8 @@ export default function Login() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { snackbarAndNavigate } = Utility();
+  const rawRedirect = searchParams.get("redirect");
+  const decodedRedirect = rawRedirect ? decodeURIComponent(rawRedirect) : null;
 
   const handleClickShowPassword = (): void => {
     setShowPassword((prev) => !prev);
@@ -76,9 +78,6 @@ export default function Login() {
         if (response?.statusCode === 200) {
           document.cookie = `token=${response.token}; path=/; max-age=${1 * 24 * 60 * 60
             }; secure; samesite=strict`;
-          const rawRedirect = searchParams.get("redirect");
-          const decodedRedirect = rawRedirect ? decodeURIComponent(rawRedirect) : null;
-
           snackbarAndNavigate(
             dispatch,
             true,
@@ -312,7 +311,13 @@ export default function Login() {
                           marginTop: "10px",
                           textTransform: "none",
                         }}
-                        onClick={() => (window.location.href = "/signup")}
+                        onClick={() => {
+                          const redirectParam = decodedRedirect
+                            ? `?redirect=${decodedRedirect}`
+                            : '';
+
+                          router.push(`/signup${redirectParam}`);
+                        }}
                       >
                         Don’t have an account? Sign Up
                       </Button>

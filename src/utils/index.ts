@@ -1,8 +1,9 @@
+import dayjs from "dayjs";
 import { AlertColor } from "@mui/material/Alert";
 import { jwtDecode } from "jwt-decode";
+import { io, Socket } from "socket.io-client";
 
 import { setSnackbar } from "@/redux/features/snackbarSlice";
-import { io, Socket } from "socket.io-client";
 
 export const Utility = () => {
   // WebSocket instance
@@ -79,6 +80,8 @@ export const Utility = () => {
       qualification: process.env.NEXT_PUBLIC_QUALIFICATION_URL as string,
       doctor: process.env.NEXT_PUBLIC_DOCTOR_URL as string,
       patient: process.env.NEXT_PUBLIC_PATIENT_URL as string,
+      payment: process.env.NEXT_PUBLIC_PAYMENT_URL as string,
+      user: process.env.NEXT_PUBLIC_USER_URL as string,
     };
 
     return urls[serviceName] || "";
@@ -99,6 +102,29 @@ export const Utility = () => {
     });
     return arrayId;
   };
+
+  // Generate array of times from start->end, e.g. ["07:30 AM","08:30 AM", ...] ----
+  function generateTimeSlots(start: string, end: string, stepInMinutes = 60) {
+    if (!start || !end) return [];
+    let current = dayjs(start.trim(), "HH:mm");
+    let endTime = dayjs(end.trim(), "HH:mm");
+
+    const slots: string[] = [];
+    while (current <= endTime) {
+      slots.push(current.format("hh:mm A")); // e.g. "07:30 AM"
+      current = current.add(stepInMinutes, "minute");
+    }
+    return slots;
+  }
+
+  // Return which “bucket” (morning/afternoon/evening/night) a given "07:30 AM" belongs in ----
+  function getTimeOfDaySlot(timeString: string) {
+    const hour = dayjs(timeString, "hh:mm A").hour(); // 0–23
+    if (hour < 12) return "morning";     // 00:00–11:59
+    if (hour < 16) return "afternoon";   // 12:00–15:59
+    if (hour < 20) return "evening";     // 16:00–19:59
+    return "night";                      // 20:00–23:59
+  }
 
   /**
    * Utility to store value in sessionStorage.
@@ -329,6 +355,8 @@ export const Utility = () => {
     formatDate,
     getServiceUrl,
     getIdsFromObject,
+    generateTimeSlots,
+    getTimeOfDaySlot,
     getSessionStorage,
     setSessionStorage,
     getLocalStorage,
