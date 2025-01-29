@@ -7,10 +7,9 @@ import EmailIcon from "@mui/icons-material/Email";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import FolderIcon from "@mui/icons-material/Folder";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import HealingIcon from "@mui/icons-material/Healing";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import PersonIcon from "@mui/icons-material/Person";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
+import DashboardIcon from "@mui/icons-material/Dashboard";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
@@ -18,11 +17,29 @@ import { Utility } from "@/utils";
 import { fetcher } from "@/apis/apiClient";
 import { PatientData } from "@/types/patient";
 
+import AppointmentHistory from "../components/appointment-history";
+import TestHistory from "../components/Test-history";
+import BillingHistory from "../components/Billing-history";
+import TreatmentHistory from "../components/Treatment-history";
+import PatientOverview from "../components/Patient-overview";
+
 const UserProfile = () => {
   const [user, setUser] = useState<PatientData>();
   const [profilePicture, setProfilePicture] = useState("/iconimg.jpg");
   const { decodedToken } = Utility();
   const patientId = decodedToken()?.id;
+  const [activeView, setActiveView] = useState<
+    "overview" | "appointments" | "tests" | "billing" | "treatment"
+  >("overview");
+
+  // Define quick action buttons
+  const quickActions = [
+    { icon: DashboardIcon, label: "Overview", value: "overview" },
+    { icon: CalendarTodayIcon, label: "Appointments", value: "appointments" },
+    { icon: FolderIcon, label: "Tests", value: "tests" },
+    { icon: CheckCircleIcon, label: "Treatment", value: "treatment" },
+    { icon: MonetizationOnIcon, label: "Billing", value: "billing" },
+  ];
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -56,9 +73,17 @@ const UserProfile = () => {
     fetchUserProfile();
   }, [fetchUserProfile]);
 
-  const MenuItem = ({ icon: Icon, label }: { icon: any; label: string }) => (
+  const MenuItem = ({
+    icon: Icon,
+    label,
+    value,
+  }: {
+    icon: any;
+    label: string;
+    value: string;
+  }) => (
     <Paper
-      elevation={1}
+      elevation={3}
       sx={{
         display: "flex",
         flexDirection: "column",
@@ -67,19 +92,26 @@ const UserProfile = () => {
         borderRadius: "12px",
         cursor: "pointer",
         transition: "all 0.3s ease",
+        background:
+          activeView === value
+            ? "linear-gradient(135deg, #20ADA0 0%, #B6DADA 100%)"
+            : "#fff",
         "&:hover": {
           transform: "translateY(-5px)",
           boxShadow: "0 8px 16px rgba(0,0,0,0.1)",
-          background: "linear-gradient(135deg, #20ADA0 0%, #B6DADA 100%)",
-          "& .MuiTypography-root": { color: "white" },
-          "& .MuiSvgIcon-root": { color: "white" },
+        },
+        "& .MuiTypography-root": {
+          color: activeView === value ? "white" : "#2C3E50",
+          fontWeight: activeView === value ? "700" : "500",
+        },
+        "& .MuiSvgIcon-root": {
+          color: activeView === value ? "white" : "#20ADA0",
         },
       }}
+      onClick={() => setActiveView(value as typeof activeView)}
     >
-      <Icon sx={{ fontSize: "2rem", mb: 1, color: "#20ADA0" }} />
-      <Typography variant="body2" sx={{ fontWeight: "500" }}>
-        {label}
-      </Typography>
+      <Icon sx={{ fontSize: "2rem", mb: 1 }} />
+      <Typography variant="body2">{label}</Typography>
     </Paper>
   );
 
@@ -138,11 +170,11 @@ const UserProfile = () => {
                 component="label"
                 sx={{
                   position: "absolute",
-                  bottom: "6px",
+                  top: "100px",
                   right: "6px",
+                  mb: 40,
                   backgroundColor: "white",
-                  border: "2px solid #e0e0e0",
-                  mr: 16,
+                  mr: 14,
                   width: "30px",
                   height: "30px",
                   boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
@@ -191,7 +223,6 @@ const UserProfile = () => {
                   <PhoneIcon sx={{ color: "#20ADA0", fontSize: "1.2rem" }} />
                   <Typography>{user?.contact || "N/A"}</Typography>
 
-                  {/* Copy Button */}
                   <IconButton
                     onClick={() => {
                       if (user?.contact) {
@@ -242,7 +273,6 @@ const UserProfile = () => {
                       textDecoration: "none",
                       color: "inherit",
                       "&:hover": {
-                        // textDecoration: "underline",
                         color: "#20ADA0",
                       },
                     }}
@@ -262,83 +292,6 @@ const UserProfile = () => {
               p: 4,
               borderRadius: "20px",
               background: "rgba(255, 255, 255, 0.95)",
-              mb: 3,
-            }}
-          >
-            <Typography
-              variant="h5"
-              sx={{ mb: 3, color: "#2C3E50", fontWeight: "700" }}
-            >
-              Patient Overview
-            </Typography>
-            <Grid container spacing={3}>
-              {[
-                {
-                  icon: PersonIcon,
-                  label: "Gender",
-                  value: user?.gender || "N/A",
-                },
-                {
-                  icon: CalendarTodayIcon,
-                  label: "Date of Birth",
-                  value: user?.dob || "NA",
-                },
-                {
-                  icon: CalendarTodayIcon,
-                  label: "Previous Visit",
-                  value: "25/11/2020",
-                },
-                {
-                  icon: CalendarTodayIcon,
-                  label: "Next Visit",
-                  value: "09/12/2020",
-                },
-                {
-                  icon: HealingIcon,
-                  label: "Allergies",
-                  value: "Hayfever, Crayfish",
-                },
-              ].map((item, index) => (
-                <Grid item xs={12} sm={6} md={4} key={index}>
-                  <Box
-                    sx={{
-                      p: 2,
-                      borderRadius: "12px",
-                      background: "#f8f9fa",
-                      height: "100%",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        mb: 1,
-                        gap: 1,
-                      }}
-                    >
-                      <item.icon sx={{ color: "#20ADA0" }} />
-                      <Typography
-                        variant="body2"
-                        sx={{ fontWeight: "600", color: "#2C3E50" }}
-                      >
-                        {item.label}
-                      </Typography>
-                    </Box>
-                    <Typography variant="body2" sx={{ ml: 4 }}>
-                      {item.value}
-                    </Typography>
-                  </Box>
-                </Grid>
-              ))}
-            </Grid>
-          </Paper>
-
-          <Paper
-            elevation={3}
-            sx={{
-              p: 4,
-              borderRadius: "20px",
-              background: "rgba(255, 255, 255, 0.95)",
             }}
           >
             <Typography
@@ -351,26 +304,32 @@ const UserProfile = () => {
             >
               Quick Actions
             </Typography>
-            <Grid
-              container
-              spacing={2}
-            //   sx={{
-            //     border: "2px solid green",
-            //   }}
-            >
-              {[
-                { icon: CalendarTodayIcon, label: "Appointments" },
-                { icon: HealingIcon, label: "Doctors" },
-                { icon: FolderIcon, label: "Tests" },
-                { icon: CheckCircleIcon, label: "Treatment" },
-                { icon: PersonIcon, label: "Partner" },
-                { icon: MonetizationOnIcon, label: "Billing" },
-              ].map((item, index) => (
+            <Grid container spacing={2} sx={{ justifyContent: "space-around" }}>
+              {quickActions.map((action, index) => (
                 <Grid item xs={6} sm={4} md={2} key={index}>
-                  <MenuItem icon={item.icon} label={item.label} />
+                  <MenuItem
+                    icon={action.icon}
+                    label={action.label}
+                    value={action.value}
+                  />
                 </Grid>
               ))}
             </Grid>
+          </Paper>
+          <Paper
+            elevation={3}
+            sx={{
+              marginTop: "26px",
+              p: 4,
+              borderRadius: "20px",
+              background: "rgba(255, 255, 255, 0.95)",
+            }}
+          >
+            {activeView === "overview" && <PatientOverview />}
+            {activeView === "appointments" && <AppointmentHistory />}
+            {activeView === "tests" && <TestHistory />}
+            {activeView === "billing" && <BillingHistory />}
+            {activeView === "treatment" && <TreatmentHistory />}
           </Paper>
         </Grid>
       </Grid>
