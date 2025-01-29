@@ -162,8 +162,8 @@ const BannerComponent: React.FC = () => {
         {/* Display search results */}
         <Box
           sx={{
-            marginTop: "20rem",
-            marginLeft:"3rem",
+            marginTop: "19.5rem",
+            marginLeft: "3rem",
             backgroundColor: "rgba(255, 255, 255, 0.90)",
             position: "relative",
             left: { xs: "0px", sm: "0px", md: "0px" },
@@ -180,31 +180,38 @@ const BannerComponent: React.FC = () => {
           }}
         >
           {results.length > 0 ? (
-            <List>
-              {results.map((doctor: any, index: number) => (
-                <ListItem key={doctor._id || index}>
-                  <Link
-                    href={`/doctor/profile/${doctor._id}`}
-                    passHref
-                    style={{
-                      textDecoration: "none",
-                      color: "inherit",
-                      width: "100%",
-                    }}
-                  >
-                    <ListItemText
-                      primary={doctor.username || ""}
-                      sx={{
-                        cursor: "pointer",
-                        ":hover": {
-                          color: "#20ADA0",
-                        },
+            <Box
+              sx={{
+                maxHeight: "168px",
+                overflowY: "auto",
+              }}
+            >
+              <List>
+                {results.map((doctor: any, index: number) => (
+                  <ListItem key={doctor._id || index}>
+                    <Link
+                      href={`/doctor/profile/${doctor._id}`}
+                      passHref
+                      style={{
+                        textDecoration: "none",
+                        color: "inherit",
+                        width: "100%",
                       }}
-                    />
-                  </Link>
-                </ListItem>
-              ))}
-            </List>
+                    >
+                      <ListItemText
+                        primary={doctor.username || ""}
+                        sx={{
+                          cursor: "pointer",
+                          ":hover": {
+                            color: "#20ADA0",
+                          },
+                        }}
+                      />
+                    </Link>
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
           ) : (
             keyword && (
               <Typography
