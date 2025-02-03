@@ -18,6 +18,7 @@ import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 import MarkEmailReadIcon from "@mui/icons-material/MarkEmailRead";
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
+import EventIcon from "@mui/icons-material/Event";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
 import Popover from "@mui/material/Popover";
@@ -40,7 +41,7 @@ const pages = ["Products", "Pricing", "Blog"];
 const Topbar = () => {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
-  const [tabValue, setTabValue] = useState(0); // State for tab selection
+  const [tabValue, setTabValue] = useState(0);
   const [readNotification, setReadNotification] = useState<string[]>([]);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const dispatch: AppDispatch = useDispatch();
@@ -116,7 +117,7 @@ const Topbar = () => {
     <AppBar className={styles.appBar}>
       <Toolbar disableGutters>
         <AdbIcon
-          sx={{ display: { xs: "none", md: "flex", color: "#000" }, mr: 1 }}
+          sx={{ display: { xs: "none", md: "flex", color: "#20ada0" }, mr: 0.1,mb:0.6}}
         />
         <Typography
           variant="h6"
@@ -219,7 +220,7 @@ const Topbar = () => {
                 onClick={() => router.push("/doctor")}
                 variant="outlined"
                 className={styles.appointmentButton}
-                endIcon={<ArrowCircleRightIcon />}
+                endIcon={<EventIcon />}
                 sx={{
                   textTransform: "capitalize",
                   fontWeight: "600",
@@ -230,7 +231,6 @@ const Topbar = () => {
             )}
         </Box>
 
-       
         {decodedToken()?.id ? (
           <Box className={styles.avatarContainer}>
             <IconButton className={styles.avatarButton}>

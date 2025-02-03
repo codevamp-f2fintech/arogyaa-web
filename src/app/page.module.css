@@ -49,18 +49,18 @@
   position: relative;
   z-index: 2;
   color: #ffffff;
-  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); 
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .homeBanner {
-    height: 70vh; 
-    padding: 20px; 
+    height: 70vh;
+    padding: 20px;
   }
 
   .homeBanner h1 {
-    font-size: 2rem; 
+    font-size: 2rem;
   }
 
   .homeBanner p {
@@ -82,20 +82,19 @@
   margin-top: 100px;
   /* border-radius: 30px; */
   background-color: #f9f6f6;
-  
+
   background: linear-gradient(
       to right,
       rgba(32, 173, 160, 0.8),
       rgba(0, 0, 0, 0.1)
     ),
     url("/assets/images/Gemini_Generated_Image_o9ery1o9ery1o9er.jpg");
-  
+
   background-size: cover;
 
   background-position: center;
-  
+
   background-repeat: no-repeat;
-  
 }
 
 .slider_src_place {
@@ -110,9 +109,9 @@
 
 .customDots {
   bottom: -30px;
- 
+
   display: flex !important;
- 
+
   justify-content: center;
 }
 
@@ -120,25 +119,24 @@
   width: 12px;
   height: 12px;
   background-color: #ccc;
- 
+
   border-radius: 50%;
   margin: 0 5px;
-  
+
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 12px;
- 
+
   color: #333;
   /* Text color */
 }
 
 .slick-active .customDot {
   background-color: #ff5722;
-  
-  color: white;
 
+  color: white;
 }
 
 .sliderImage {
@@ -153,6 +151,7 @@
   padding: 50px 30px 30px;
   border-top: 1px solid #dbdbdb;
   border-bottom: 1px solid #dbdbdb;
+  
 }
 
 .footer-grid-item {
@@ -221,6 +220,7 @@
   margin-right: 15px;
   cursor: pointer;
   color: #20ada0;
+  background: #f9f9f9;
 }
 
 .email-input {
@@ -1024,8 +1024,8 @@
   width: 100px;
   background: #fff;
   position: relative;
-  border: 2px solid #20ada0; 
-  border-radius: 50%; 
+  border: 2px solid #20ada0;
+  border-radius: 50%;
   padding: 10px;
   display: flex;
   justify-content: center;
@@ -1230,14 +1230,14 @@
 
 .testimonialCard:hover {
   transform: translateY(-8px);
-  box-shadow: 0px 10px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 2px 2px 2px 4px #81e6db inset;
 }
 
 .testimonialAvatar {
   width: 90px;
   height: 90px;
   margin: 0 auto 15px;
-  border: 4px solid #007bff;
+  border: 2px solid #81e6db;
   border-radius: 50%;
 }
 
@@ -1249,7 +1249,6 @@
 }
 
 .testimonialDescription {
- 
   font-size: 16px;
   margin: 15px 0;
   color: #495057;
