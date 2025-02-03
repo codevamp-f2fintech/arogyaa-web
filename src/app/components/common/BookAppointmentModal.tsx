@@ -24,15 +24,17 @@ import {
 import InfoIcon from "@mui/icons-material/Info";
 import {
   Assignment as AssignmentIcon,
-  CalendarMonth as CalendarMonthIcon
+  CalendarMonth as CalendarMonthIcon,
 } from "@mui/icons-material";
-import PaymentForm from './PaymentForm';
+import { Cancel } from "@mui/icons-material";
+import EventAvailableIcon from "@mui/icons-material/EventAvailable";
+import PaymentForm from "./PaymentForm";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import BookOnlineIcon from "@mui/icons-material/BookOnline";
 import ChecklistRtlIcon from "@mui/icons-material/ChecklistRtl";
 import CloseIcon from "@mui/icons-material/Close";
-import { Elements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 
 import SnackbarComponent from "./Snackbar";
 import type { AppDispatch, RootState } from "@/redux/store";
@@ -67,7 +69,7 @@ const initialValues: AppointmentFormValues = {
   appointmentDate: "",
   appointmentTime: "",
   appointmentType: "",
-  description: ""
+  description: "",
 };
 
 interface ModalProps {
@@ -77,7 +79,9 @@ interface ModalProps {
 }
 const today = dayjs().format("YYYY-MM-DD");
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+);
 
 const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -86,8 +90,14 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
   const { snackbar } = useSelector((state: RootState) => state.snackbar);
   const dispatch: AppDispatch = useDispatch();
 
-  const { capitalizeFirstLetter, decodedToken, getIdsFromObject,
-    generateTimeSlots, getTimeOfDaySlot, snackbarAndNavigate } = Utility();
+  const {
+    capitalizeFirstLetter,
+    decodedToken,
+    getIdsFromObject,
+    generateTimeSlots,
+    getTimeOfDaySlot,
+    snackbarAndNavigate,
+  } = Utility();
   // TRACK SELECTED DAY & TIME SLOT IN LOCAL STATE
   const [selectedDayName, setSelectedDayName] = useState<string | null>(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>("");
@@ -99,9 +109,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
     night: string[];
   }>({ morning: [], afternoon: [], evening: [], night: [] });
 
-  const { createAppointment } = useCreateAppointment(
-    'create-appointment'
-  );
+  const { createAppointment } = useCreateAppointment("create-appointment");
 
   const {
     value: symptoms,
@@ -126,15 +134,23 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
     }
 
     // Generate discrete time slots from (startTime, endTime) in steps of 60 min
-    const slots = generateTimeSlots(dayAvailability.startTime, dayAvailability.endTime, 60);
-    const buckets = { morning: [] as string[], afternoon: [] as string[], evening: [] as string[], night: [] as string[] };
+    const slots = generateTimeSlots(
+      dayAvailability.startTime,
+      dayAvailability.endTime,
+      60
+    );
+    const buckets = {
+      morning: [] as string[],
+      afternoon: [] as string[],
+      evening: [] as string[],
+      night: [] as string[],
+    };
     slots.forEach((slotTime) => {
       const part = getTimeOfDaySlot(slotTime);
       buckets[part].push(slotTime);
     });
     setTimeBuckets(buckets);
   }, [selectedDayName, data?.availability]);
-
 
   // Define the snackbar close handler
   const handleSnackbarClose = (
@@ -177,7 +193,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
         };
 
         const response = await createAppointment(appointmentData);
-        console.log(response, 'appointment')
+        console.log(response, "appointment");
         if (response?.statusCode === 201) {
           setShowPaymentForm(true);
           setAppointmentId(response.data._id);
@@ -186,14 +202,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
         const errorMessage =
           error?.response?.data?.message ||
           "Error creating Appointment, please try again.";
-        snackbarAndNavigate(
-          dispatch,
-          true,
-          "error",
-          errorMessage,
-          null,
-          true
-        );
+        snackbarAndNavigate(dispatch, true, "error", errorMessage, null, true);
       } finally {
         setLoading(false);
       }
@@ -280,44 +289,99 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: "90%",
+            width: "80%",
             maxWidth: "1200px",
             bgcolor: "background.paper",
-            border: "2px solid #000",
+            border: "2px solid #fff",
             boxShadow: 24,
-            borderRadius: '8px',
-            overflow: 'hidden',
+            borderRadius: "8px",
+            overflow: "hidden",
           }}
         >
           {/* ===== ModalHeader ===== */}
           <Box
             sx={{
-              display: !showPaymentForm ? 'block' : 'none',
+              display: !showPaymentForm ? "block" : "none",
               opacity: !showPaymentForm ? 1 : 0,
               transition: "opacity 2s ease-in-out",
-              padding: "20px",
-              // padding: "15px 20px",
-              // display: "flex",
-              // justifyContent: "space-between",
-              // alignItems: "center",
-              // borderBottom: "1px solid #ababab",
+              padding: "10px",
+              // tom: "1px solid #ababab",
             }}
           >
-            <Typography
+            <Box
               sx={{
-                fontSize: "1.25rem",
-                fontWeight: 600,
-                color: "#20ada0",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "2px",
+                padding: "1px",
+                borderRadius: "8px",
               }}
             >
-              Book Appointment With {capitalizeFirstLetter(data?.username) || "Doctor"}
-            </Typography>
-            <CloseIcon sx={{ cursor: "pointer" }} onClick={onClose} />
+              {/* Left: Book with Doctor */}
+              <Typography
+                sx={{
+                  fontSize: "1.5rem",
+                  fontWeight: 400,
+                  color: "#20ada0",
+                  textAlign: "left",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Book With {capitalizeFirstLetter(data?.username) || "Doctor"}
+              </Typography>
+
+              {/* Right: Available Days */}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  backgroundColor: "#f8f8ff",
+                  border: "1px solid #ccc",
+                  padding: "5px 10px",
+                  borderRadius: "8px",
+                }}
+              >
+                <EventAvailableIcon
+                  sx={{ color: "#20ADA0", marginRight: "8px" }}
+                />
+                <Typography
+                  sx={{
+                    fontSize: "1.1rem",
+                    fontWeight: 400,
+                    color: "#20ADA0",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {data?.availability?.length > 0
+                    ? `Available on: ${data.availability
+                        .map((slot) => slot.day)
+                        .join(", ")}`
+                    : "No Days Available"}
+                </Typography>
+              </Box>
+            </Box>
+
+            {/* Line after the Box */}
+            <Box
+              sx={{
+                margin: "10px 0",
+                borderBottom: "1px solid #ccc",
+                width: "100%",
+              }}
+            />
+
+            {/* <Box sx={{ display: "flex", justifyContent: "flex-end"}}>
+              <CloseIcon
+                sx={{ cursor: "pointer", color: "#333", fontSize: 24 }}
+                onClick={onClose}
+              />
+            </Box> */}
 
             <Formik
               initialValues={initialValues}
               validationSchema={ModalOneSchema}
-              onSubmit={values => handleBookAppointment(values)}
+              onSubmit={(values) => handleBookAppointment(values)}
             >
               {({
                 dirty,
@@ -331,10 +395,10 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                   {/* ===== ModalBody ===== */}
                   <Box
                     sx={{
-                      display: !showPaymentForm ? 'block' : 'none',
+                      display: !showPaymentForm ? "block" : "none",
                       overflowX: "auto",
                       maxHeight: "72vh",
-                      padding: "10px 20px",
+                      padding: "20px",
                       marginTop: "15px",
                       "& .locat": {
                         fontSize: "1rem",
@@ -408,100 +472,181 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                       },
                     }}
                   >
-                    <Grid container spacing={3}>
+                    <Grid container spacing={4}>
                       {/* ===== Left Section  ===== */}
-                      <Grid item xs={12} sm={4} md={4}>
+                      <Grid
+                        item
+                        xs={12}
+                        sm={4}
+                        md={4}
+                        sx={{
+                          p: 1,
+                          borderRadius: "8px",
+
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 1,
+                        }}
+                      >
+                        {/* === Date of Appointment === */}
                         <Field
                           fullWidth
                           as={TextField}
+                          sx={{
+                            marginBottom: "7px",
+                          }}
                           label="Date Of Appointment *"
                           name="appointmentDate"
                           type="date"
                           value={
-                            values.appointmentDate ? dayjs(values.appointmentDate).format("YYYY-MM-DD") : ""
+                            values.appointmentDate
+                              ? dayjs(values.appointmentDate).format(
+                                  "YYYY-MM-DD"
+                                )
+                              : ""
                           }
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          onChange={(
+                            e: React.ChangeEvent<HTMLInputElement>
+                          ) => {
                             const formattedDate = dayjs(e.target.value).format(
                               "YYYY-MM-DD"
                             );
                             setFieldValue("appointmentDate", formattedDate);
-                            const dayName = dayjs(e.target.value).format("dddd");
+                            const dayName = dayjs(e.target.value).format(
+                              "dddd"
+                            );
                             setSelectedDayName(dayName);
                             setSelectedTimeSlot("");
                             setFieldValue("appointmentTime", "");
                           }}
                           InputLabelProps={{ shrink: true }}
                           sx={{
-                            position: "relative",
-                            "& input[type=date]::-webkit-calendar-picker-indicator": {
-                              zIndex: 3,
-                              cursor: "pointer",
+                            "& input[type=date]": {
+                              background: "#fff",
+                              borderRadius: "6px",
+                              padding: "12px 12px",
+                            },
+                            "& input[type=date]::-webkit-calendar-picker-indicator":
+                              {
+                                zIndex: 3,
+                                cursor: "pointer",
+                              },
+                            "& .MuiInputBase-root": {
+                              fontSize: "0.9rem",
                             },
                           }}
+                          inputProps={{ min: today }}
+                          error={
+                            touched.appointmentDate &&
+                            Boolean(errors.appointmentDate)
+                          }
+                          helperText={
+                            touched.appointmentDate && errors.appointmentDate
+                          }
+                        />
+
+                        {/*Display Message*/}
+                        {!values.appointmentDate ? (
+                          <Typography
+                            sx={{
+                              textAlign: "center",
+                              backgroundColor: "#f8f8ff",
+                              border: "1px solid #ccc",
+                              borderRadius: "6px",
+                              padding: "3px",
+                              color: "#20ADA0",
+                              marginBottom: "10px",
+                              fontSize: "1rem",
+                              fontWeight: 400,
+                            }}
+                          >
+                            Choose an appointment date.
+                          </Typography>
+                        ) : !timeBuckets ||
+                          Object.values(timeBuckets).every(
+                            (bucket) => bucket.length === 0
+                          ) ? (
+                          <Typography
+                            sx={{
+                              textAlign: "center",
+                              backgroundColor: "#f8f8ff",
+                              border: "1px solid #ccc",
+                              borderRadius: "6px",
+                              padding: "8px",
+                              color: "#20ADA0",
+                              marginBottom: "10px",
+                              fontSize: "1rem",
+                              fontWeight: 500,
+                            }}
+                          >
+                            No slots available.
+                          </Typography>
+                        ) : null}
+
+                        {/* === Appointment Type === */}
+                        <TextField
+                          fullWidth
+                          select
+                          label="Appointment Type*"
+                          name="appointmentType"
+                          value={values.appointmentType}
+                          onChange={(e) =>
+                            setFieldValue("appointmentType", e.target.value)
+                          }
+                          error={
+                            touched.appointmentType &&
+                            Boolean(errors.appointmentType)
+                          }
+                          helperText={
+                            touched.appointmentType && errors.appointmentType
+                          }
                           InputProps={{
-                            endAdornment: (
-                              <InputAdornment
-                                position="end"
-                                sx={{
-                                  pointerEvents: "none", // Let clicks pass through
-                                  position: "absolute",
-                                  right: "12px",
-                                  zIndex: 1,
-                                }}
-                              >
-                                <CalendarMonthIcon />
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <InfoIcon sx={{ color: "#20ADA0" }} />
                               </InputAdornment>
                             ),
                           }}
-                          inputProps={{
-                            min: today, // Ensures the picker allows only future dates
+                          sx={{
+                            background: "#fff",
+                            borderRadius: "6px",
+                            marginBottom: "2px",
                           }}
-                          error={touched.appointmentDate && Boolean(errors.appointmentDate)}
-                          helperText={touched.appointmentDate && errors.appointmentDate}
-                        />
-                        <FormControl
-                          fullWidth
-                          error={touched.appointmentType && Boolean(errors.appointmentType)}
                         >
-                          <InputLabel> Appointment Type </InputLabel>
-                          <Select
-                            label="Appointment Type "
-                            name="appointmentType"
-                            value={values.appointmentType}
-                            onChange={(e) => setFieldValue("appointmentType", e.target.value)}
-                            startAdornment={
-                              <InputAdornment position="start">
-                                <InfoIcon color="primary" />
-                              </InputAdornment>
-                            }
-                          >
-                            <MenuItem value="online">Online</MenuItem>
-                            <MenuItem value="in-person">In-Person</MenuItem>
-                          </Select>
-                          {touched.appointmentType && errors.appointmentType && (
-                            <Typography color="error" variant="body2">
-                              {errors.appointmentType}
-                            </Typography>
-                          )}
-                        </FormControl>
+                          <MenuItem value="online">Online</MenuItem>
+                          <MenuItem value="in-person">In-Person</MenuItem>
+                        </TextField>
+
+                        {/* === Symptoms Selection === */}
                         <Autocomplete
                           multiple
                           disableCloseOnSelect
                           options={symptoms?.results || []}
-                          getOptionLabel={option => option.name}
-                          isOptionEqualToValue={(option, value) => option._id === value._id}
+                          getOptionLabel={(option) => option.name}
+                          isOptionEqualToValue={(option, value) =>
+                            option._id === value._id
+                          }
                           value={values.symptomIds || undefined}
-                          onChange={(event, value) => setFieldValue("symptomIds", value)}
-                          sx={{ gridColumn: "span 2" }}
+                          onChange={(event, value) =>
+                            setFieldValue("symptomIds", value)
+                          }
+                          sx={{
+                            background: "#fff",
+                            borderRadius: "6px",
+                            padding: "4px 2px",
+                          }}
                           renderInput={(params) => (
                             <TextField
                               {...params}
                               label="Symptom *"
                               name="symptomIds"
                               type="text"
-                              error={!!touched.symptomIds && !!errors.symptomIds}
+                              error={
+                                !!touched.symptomIds && !!errors.symptomIds
+                              }
                               helperText={
-                                touched.symptomIds && typeof errors.symptomIds === "string"
+                                touched.symptomIds &&
+                                typeof errors.symptomIds === "string"
                                   ? errors.symptomIds
                                   : ""
                               }
@@ -510,7 +655,9 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                                 startAdornment: (
                                   <>
                                     <InputAdornment position="start">
-                                      <AssignmentIcon color="primary" />
+                                      <AssignmentIcon
+                                        sx={{ color: "#20ADA0" }}
+                                      />
                                     </InputAdornment>
                                     {params.InputProps.startAdornment}
                                   </>
@@ -519,48 +666,98 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                             />
                           )}
                         />
+
+                        {/* === Short Description === */}
                         <Field
                           as={TextField}
-                          margin="normal"
                           fullWidth
                           label="Short Description"
                           name="description"
                           autoComplete="off"
                           autoFocus
+                          sx={{
+                            background: "#fff",
+                            borderRadius: "6px",
+                            "&:hover": {
+                              boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.1)",
+                            },
+                          }}
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">
-                                <AssignmentIcon sx={{ color: "black" }} />
+                                <AssignmentIcon sx={{ color: "#20ADA0" }} />
                               </InputAdornment>
                             ),
-                            sx: { color: "white" },
                           }}
-                          InputLabelProps={{
-                            style: { color: "white" },
-                          }}
-                          error={touched.description && Boolean(errors.description)}
+                          error={
+                            touched.description && Boolean(errors.description)
+                          }
                           helperText={touched.description && errors.description}
                         />
+                        <Field name="video">
+                          {({ field }) => (
+                            <Box>
+                              <Typography
+                                sx={{
+                                  fontSize: "1rem",
+                                  fontWeight: 500,
+                                  color: "#20ADA0",
+                                  marginBottom: "8px",
+                                }}
+                              >
+                                Upload a Video
+                              </Typography>
+                              <TextField
+                                type="file"
+                                inputProps={{ accept: "video/*" }}
+                                onChange={(event) => {
+                                  const file = event.target.files?.[0];
+                                  setFieldValue("video", file);
+                                }}
+                                fullWidth
+                                sx={{
+                                  "& input": {
+                                    background: "#fff",
+                                    borderRadius: "6px",
+                                    padding: "10px",
+                                  },
+                                }}
+                                error={touched.video && Boolean(errors.video)}
+                                helperText={touched.video && errors.video}
+                              />
+                            </Box>
+                          )}
+                        </Field>
                       </Grid>
-
                       {/* ===== Middle Section (Dynamic Time Slots) ===== */}
-                      <Field type="hidden" name="appointmentTime" />    {/* Hidden Formik Field so Formik tracks appointmenttime errors*/}
+                      <Field type="hidden" name="appointmentTime" />{" "}
+                      {/* Hidden Formik Field so Formik tracks appointmenttime errors*/}
                       <Grid item xs={12} sm={5} md={5}>
                         <Box sx={priceWrapSx}>
                           <Box
                             component="fieldset"
                             className="fieldset_wrap"
-                            sx={{ marginTop: "-5px" }}
+                            sx={{ marginTop: "-7px" }}
                           >
-                            <legend className="fldset_lgend">Morning Slots</legend>
+                            <legend className="fldset_lgend">
+                              Morning Slots
+                            </legend>
                             <ul className="time_box">
                               {timeBuckets.morning.map((time) => (
                                 <li
                                   key={time}
-                                  onClick={() => handleTimeSlotClick(time, setFieldValue)}
+                                  onClick={() =>
+                                    handleTimeSlotClick(time, setFieldValue)
+                                  }
                                   style={{
-                                    background: selectedTimeSlot === time ? "#20ada0" : "",
-                                    color: selectedTimeSlot === time ? "white" : "black",
+                                    background:
+                                      selectedTimeSlot === time
+                                        ? "#20ada0"
+                                        : "",
+                                    color:
+                                      selectedTimeSlot === time
+                                        ? "white"
+                                        : "black",
                                   }}
                                 >
                                   {time}
@@ -570,15 +767,25 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           </Box>
 
                           <Box component="fieldset" className="fieldset_wrap">
-                            <legend className="fldset_lgend">Afternoon Slots</legend>
+                            <legend className="fldset_lgend">
+                              Afternoon Slots
+                            </legend>
                             <ul className="time_box">
                               {timeBuckets.afternoon.map((time) => (
                                 <li
                                   key={time}
-                                  onClick={() => handleTimeSlotClick(time, setFieldValue)}
+                                  onClick={() =>
+                                    handleTimeSlotClick(time, setFieldValue)
+                                  }
                                   style={{
-                                    background: selectedTimeSlot === time ? "#20ada0" : "",
-                                    color: selectedTimeSlot === time ? "white" : "black",
+                                    background:
+                                      selectedTimeSlot === time
+                                        ? "#20ada0"
+                                        : "",
+                                    color:
+                                      selectedTimeSlot === time
+                                        ? "white"
+                                        : "black",
                                   }}
                                 >
                                   {time}
@@ -588,15 +795,25 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           </Box>
 
                           <Box component="fieldset" className="fieldset_wrap">
-                            <legend className="fldset_lgend">Evening Slots</legend>
+                            <legend className="fldset_lgend">
+                              Evening Slots
+                            </legend>
                             <ul className="time_box">
                               {timeBuckets.evening.map((time) => (
                                 <li
                                   key={time}
-                                  onClick={() => handleTimeSlotClick(time, setFieldValue)}
+                                  onClick={() =>
+                                    handleTimeSlotClick(time, setFieldValue)
+                                  }
                                   style={{
-                                    background: selectedTimeSlot === time ? "#20ada0" : "",
-                                    color: selectedTimeSlot === time ? "white" : "black",
+                                    background:
+                                      selectedTimeSlot === time
+                                        ? "#20ada0"
+                                        : "",
+                                    color:
+                                      selectedTimeSlot === time
+                                        ? "white"
+                                        : "black",
                                   }}
                                 >
                                   {time}
@@ -606,15 +823,25 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           </Box>
 
                           <Box component="fieldset" className="fieldset_wrap">
-                            <legend className="fldset_lgend">Night Slots</legend>
+                            <legend className="fldset_lgend">
+                              Night Slots
+                            </legend>
                             <ul className="time_box">
                               {timeBuckets.night.map((time) => (
                                 <li
                                   key={time}
-                                  onClick={() => handleTimeSlotClick(time, setFieldValue)}
+                                  onClick={() =>
+                                    handleTimeSlotClick(time, setFieldValue)
+                                  }
                                   style={{
-                                    background: selectedTimeSlot === time ? "#20ada0" : "",
-                                    color: selectedTimeSlot === time ? "white" : "black",
+                                    background:
+                                      selectedTimeSlot === time
+                                        ? "#20ada0"
+                                        : "",
+                                    color:
+                                      selectedTimeSlot === time
+                                        ? "white"
+                                        : "black",
                                   }}
                                 >
                                   {time}
@@ -623,35 +850,50 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                             </ul>
                           </Box>
                         </Box>
+
                         {touched.appointmentTime && errors.appointmentTime && (
-                          <Typography color="error" variant="body2" paddingLeft='38px'>
+                          <Typography
+                            color="error"
+                            variant="body2"
+                            paddingLeft="38px"
+                          >
                             {errors.appointmentTime}
                           </Typography>
                         )}
                       </Grid>
-
                       {/* ===== Right Section (Price/Consultation/Payment Details) ===== */}
                       <Grid item xs={12} sm={3} md={3}>
-                        <Box sx={{ ...priceWrapSx, border: "1px solid #b1b1b1" }}>
+                        <Box
+                          sx={{ ...priceWrapSx, border: "1px solid #b1b1b1" }}
+                        >
                           <Typography className="price_header_txt">
                             Consultation Details
                           </Typography>
                           <Box className="prc_contnt">
                             <Typography className="tx1">
-                              {capitalizeFirstLetter(data?.username) || "Doctor"}
+                              {capitalizeFirstLetter(data?.username) ||
+                                "Doctor"}
                             </Typography>
                             <Typography className="tx3">
                               <span className="spntx1">Price</span>
                               <span className="spntx2">
-                                {(values.appointmentDate && values.appointmentTime && values.symptomIds.length > 0
-                                  && values.appointmentType) ? `₹${data?.consultationFee}` : "--"}
+                                {values.appointmentDate &&
+                                values.appointmentTime &&
+                                values.symptomIds.length > 0 &&
+                                values.appointmentType
+                                  ? `₹${data?.consultationFee}`
+                                  : "--"}
                               </span>
                             </Typography>
                             <Typography className="tx4">
                               <span className="spntx1">Total</span>
                               <span className="spntx2">
-                                {(values.appointmentDate && values.appointmentTime && values.symptomIds.length > 0
-                                  && values.appointmentType) ? `₹${data?.consultationFee}` : "--"}
+                                {values.appointmentDate &&
+                                values.appointmentTime &&
+                                values.symptomIds.length > 0 &&
+                                values.appointmentType
+                                  ? `₹${data?.consultationFee}`
+                                  : "--"}
                               </span>
                             </Typography>
                           </Box>
@@ -663,7 +905,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                   {/* ===== ModalFooter ===== */}
                   <Box
                     sx={{
-                      padding: "15px 20px",
+                      padding: "10px 10px",
                       borderTop: "1px solid #ababab",
                       display: "flex",
                       justifyContent: "center",
@@ -708,6 +950,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                             color: "white",
                           },
                         }}
+                        startIcon={<Cancel sx={{ fontSize: 22 }} />}
                       >
                         Cancel
                       </Button>
@@ -721,21 +964,93 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
           {/* Payment Form (Visible after Booking) */}
           <Box
             sx={{
-              display: showPaymentForm ? 'block' : 'none',
+              display: showPaymentForm ? "flex" : "none",
               opacity: showPaymentForm ? 1 : 0,
               transition: "opacity 2s ease-in-out",
-              padding: '20px',
-              width: '100%',
-              height: '100%',
-              background: '#f9f9f9',
+              padding: "20px",
+              width: "100%",
+              maxWidth: "900px",
+              margin: "0 auto",
+              height: "auto",
+              background: "white",
+              borderRadius: "8px",
+              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
             }}
           >
-            <Typography variant="h4" sx={{ marginBottom: '1rem', color: '#20ADA0' }}>
-              Complete Payment
-            </Typography>
-            <Elements stripe={stripePromise}>
-              <PaymentForm setShowPaymentForm={setShowPaymentForm} appointmentId={appointmentId} />
-            </Elements>
+            {/* Left Column - Payment Form */}
+            <Box
+              sx={{
+                flex: "1",
+                paddingRight: "20px",
+              }}
+            >
+              <Typography
+                variant="h4"
+                sx={{
+                  marginBottom: "1rem",
+                  color: "#20ADA0",
+                  textAlign: "center",
+                }}
+              >
+                Complete Payment
+              </Typography>
+              <Elements stripe={stripePromise}>
+                <PaymentForm
+                  setShowPaymentForm={setShowPaymentForm}
+                  appointmentId={appointmentId}
+                />
+              </Elements>
+            </Box>
+
+            {/* Right Column - Design/Content */}
+            <Box
+              sx={{
+                flex: "1",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "#f8f8ff",
+                borderRadius: "8px",
+                padding: "20px",
+              }}
+            >
+              <Typography
+                variant="h5"
+                sx={{
+                  marginBottom: "1rem",
+                  color: "#20ADA0",
+                  textAlign: "center",
+                }}
+              >
+                Payment Information
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  marginBottom: "1rem",
+                  textAlign: "center",
+                  color: "#555",
+                }}
+              >
+                100% Secure payment.
+              </Typography>
+              <img
+                src="/iconimg.jpg"
+                alt="Secure Payment"
+                style={{
+                  width: "80%",
+                  maxWidth: "200px",
+                  marginBottom: "1rem",
+                }}
+              />
+              <Typography
+                variant="body2"
+                sx={{ textAlign: "center", color: "#888" }}
+              >
+                Your payment details are encrypted and secure.
+              </Typography>
+            </Box>
           </Box>
 
           <SnackbarComponent
@@ -748,6 +1063,6 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
       </Modal>
     </>
   );
-}
+};
 
 export default ModalOne;
