@@ -18,7 +18,7 @@ const Testimonials = () => {
     {
       src: "/dr1.png",
       description:
-        "The staff was friendly and very careful. They truly cared for all patients!",
+        "The staff was friendly and very careful.They truly cared for all patients!",
       name: "Dr. Tanmay Joshi",
 
       rating: 4.8,

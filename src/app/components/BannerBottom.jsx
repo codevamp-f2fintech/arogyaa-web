@@ -51,7 +51,7 @@ const StyledImage = styled("img")(({ theme }) => ({
   position: "absolute",
   bottom: -10,
   left: 0,
-  height: "100%", // Reduced image height
+  height: "100%", 
   objectFit: "contain",
   opacity: 0.95,
   filter: "drop-shadow(0 10px 20px rgba(0,0,0,0.15))",
