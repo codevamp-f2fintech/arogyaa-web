@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Container,
   Table,
@@ -9,64 +9,64 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Typography,
   Paper,
   TablePagination,
+  Alert,
+  Box,
   Chip,
   alpha,
 } from "@mui/material";
-
 import { Science as TestIcon } from "@mui/icons-material";
+import { Utility } from "@/utils";
+import { fetcher } from "@/apis/apiClient";
+
+interface Test {
+  _id: string;
+  patientId: string;
+  doctorId: string;
+  name: string;
+  description: string;
+  category: string;
+  photo: string;
+}
 
 const TestHistory: React.FC = () => {
-  const testData = [
-    {
-      id: "1",
-      testName: "Blood Test",
-      testDate: "2025-01-15T10:00:00",
-      status: "completed",
-    },
-    {
-      id: "2",
-      testName: "X-Ray",
-      testDate: "2025-01-20T12:30:00",
-      status: "scheduled",
-    },
-    {
-      id: "3",
-      testName: "MRI Scan",
-      testDate: "2025-02-05T14:00:00",
-      status: "pending",
-    },
-    {
-      id: "4",
-      testName: "CT Scan",
-      testDate: "2025-03-10T09:00:00",
-      status: "cancelled",
-    },
-  ];
-
+  const [tests, setTests] = useState<Test[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [totalCount, setTotalCount] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
-  // Function to get status chip color
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "completed":
-        return "success";
-      case "pending":
-        return "warning";
-      case "cancelled":
-        return "error";
-      default:
-        return "default";
+  const { decodedToken } = Utility();
+  const patientId = decodedToken()?.id;
+
+  const fetchTests = React.useCallback(async () => {
+    if (patientId) {
+      try {
+        const response = await fetcher(
+          "test",
+          `get-tests-by-patientId/${patientId}?page=${
+            page + 1
+          }&limit=${rowsPerPage}`
+        );
+        const results = response?.results || [];
+        const count = response?.count || 0;
+        setTests(results);
+        setTotalCount(count);
+        setError(null);
+      } catch (error) {
+        console.error("Error fetching tests:", error);
+        setError(error instanceof Error ? error.message : String(error));
+        setTests([]);
+        setTotalCount(0);
+      }
     }
-  };
+  }, [patientId, page, rowsPerPage]);
 
-  // Paginate the static test data
-  const paginatedTests = testData.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  useEffect(() => {
+    fetchTests();
+  }, [fetchTests]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -79,15 +79,33 @@ const TestHistory: React.FC = () => {
     setPage(0);
   };
 
+  const getStatusColor = (category: string) => {
+    switch (category.toLowerCase()) {
+      case "completed":
+        return "success";
+      case "pending":
+        return "warning";
+      case "cancelled":
+        return "error";
+      default:
+        return "default";
+    }
+  };
+
+  const paginatedTests = useMemo(() => {
+    const startIndex = page * rowsPerPage;
+    return tests.slice(startIndex, startIndex + rowsPerPage);
+  }, [tests, page, rowsPerPage]);
+
   return (
     <Container maxWidth="lg">
-      <TableContainer
-        component={Paper}
-        sx={{
-          boxShadow: 3,
-          borderRadius: 2,
-        }}
-      >
+      {error && (
+        <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
+          {error}
+        </Alert>
+      )}
+
+      <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 2 }}>
         <Table>
           <TableHead
             sx={{
@@ -96,7 +114,7 @@ const TestHistory: React.FC = () => {
             }}
           >
             <TableRow>
-              {["Test Name", "Test Date", "Status"].map((header) => (
+              {["Name", "Description", "Category", "Photo"].map((header) => (
                 <TableCell
                   key={header}
                   sx={{
@@ -113,25 +131,39 @@ const TestHistory: React.FC = () => {
           <TableBody>
             {paginatedTests.map((test) => (
               <TableRow
-                key={test.id}
+                key={test._id}
                 hover
                 sx={{
                   "&:last-child td, &:last-child th": { border: 0 },
                   transition: "background-color 0.2s",
                 }}
               >
-                <TableCell>{test.testName}</TableCell>
-                <TableCell>
-                  {new Date(test.testDate).toLocaleString()}
-                </TableCell>
+                <TableCell>{test.name}</TableCell>
+                <TableCell>{test.description}</TableCell>
                 <TableCell>
                   <Chip
                     icon={<TestIcon />}
-                    label={test.status}
-                    color={getStatusColor(test.status)}
+                    label={test.category}
+                    color={getStatusColor(test.category)}
                     size="small"
                     variant="outlined"
                   />
+                </TableCell>
+                <TableCell>
+                  {test.photo ? (
+                    <img
+                      src={test.photo}
+                      alt={test.name}
+                      style={{
+                        width: "50px",
+                        height: "50px",
+                        objectFit: "cover",
+                        borderRadius: "4px",
+                      }}
+                    />
+                  ) : (
+                    "No Image"
+                  )}
                 </TableCell>
               </TableRow>
             ))}
@@ -140,7 +172,7 @@ const TestHistory: React.FC = () => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={testData.length}
+          count={totalCount}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
