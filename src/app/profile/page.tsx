@@ -15,6 +15,7 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 import { Utility } from "@/utils";
 import { fetcher } from "@/apis/apiClient";
+import { PatientData } from "@/types/patient";
 
 import AppointmentHistory from "../components/appointment-history";
 import TestHistory from "../components/Test-history";
@@ -23,13 +24,13 @@ import TreatmentHistory from "../components/Treatment-history";
 import PatientOverview from "../components/Patient-overview";
 
 const UserProfile = () => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<PatientData>();
   const [profilePicture, setProfilePicture] = useState("/iconimg.jpg");
   const { decodedToken } = Utility();
   const patientId = decodedToken()?.id;
   const [activeView, setActiveView] = useState<
     "overview" | "appointments" | "tests" | "billing" | "treatment"
-  >("overview");
+  >("appointments");
 
   // Define quick action buttons
   const quickActions = [
@@ -61,6 +62,7 @@ const UserProfile = () => {
           `get-patient-by-id/${patientId}`
         );
         setUser(response);
+        console.log(response, 'patient')
       } catch (error) {
         console.error("Error fetching patient profile:", error);
       }
@@ -200,7 +202,7 @@ const UserProfile = () => {
                 justifyContent: "center",
               }}
             >
-              {user.username || "N/A"}
+              {user?.username || "N/A"}
             </Typography>
 
             <Box sx={{ mb: 4, mt: 5 }}>
@@ -219,15 +221,13 @@ const UserProfile = () => {
                   }}
                 >
                   <PhoneIcon sx={{ color: "#20ADA0", fontSize: "1.2rem" }} />
-                  <Typography>{user.contact || "N/A"}</Typography>
+                  <Typography>{user?.contact || "N/A"}</Typography>
 
                   <IconButton
                     onClick={() => {
-                      if (user.contact) {
-                        navigator.clipboard.writeText(user.phone);
-                        alert("Phone number copied to clipboard!");
-                      } else {
-                        alert("No phone number available to copy.");
+                      if (user?.contact) {
+                        navigator.clipboard.writeText(user?.contact);
+                        alert("Contact number copied to clipboard!");
                       }
                     }}
                     sx={{
@@ -246,7 +246,7 @@ const UserProfile = () => {
                   <EmailIcon sx={{ color: "#20ADA0", fontSize: "1.2rem" }} />
                   <Typography
                     component="a"
-                    href={`mailto:${user.email || ""}`}
+                    href={`mailto:${user?.email || ""}`}
                     sx={{
                       textDecoration: "none",
                       color: "inherit",
@@ -255,7 +255,7 @@ const UserProfile = () => {
                       },
                     }}
                   >
-                    {user.email || "N/A"}
+                    {user?.email || "N/A"}
                   </Typography>
                 </Box>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
