@@ -16,10 +16,12 @@ import {
   Box,
   Chip,
   alpha,
+  Button,
 } from "@mui/material";
 import { Science as TestIcon } from "@mui/icons-material";
 import { Utility } from "@/utils";
 import { fetcher } from "@/apis/apiClient";
+import ImagePicker from "./common/ImagePicker";
 
 interface Test {
   _id: string;
@@ -29,6 +31,7 @@ interface Test {
   description: string;
   category: string;
   photo: string;
+  status: string;
 }
 
 const TestHistory: React.FC = () => {
@@ -37,6 +40,8 @@ const TestHistory: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [totalCount, setTotalCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedTestId, setSelectedTestId] = useState<string | null>(null);
 
   const { decodedToken } = Utility();
   const patientId = decodedToken()?.id;
@@ -97,6 +102,16 @@ const TestHistory: React.FC = () => {
     return tests.slice(startIndex, startIndex + rowsPerPage);
   }, [tests, page, rowsPerPage]);
 
+  const handleOpenModal = (testId: string) => {
+    setSelectedTestId(testId);
+    setOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setSelectedTestId(null);
+  };
+
   return (
     <Container maxWidth="lg">
       {error && (
@@ -114,18 +129,20 @@ const TestHistory: React.FC = () => {
             }}
           >
             <TableRow>
-              {["Name", "Description", "Category", "Photo"].map((header) => (
-                <TableCell
-                  key={header}
-                  sx={{
-                    fontWeight: 600,
-                    textTransform: "uppercase",
-                    color: "text.secondary",
-                  }}
-                >
-                  {header}
-                </TableCell>
-              ))}
+              {["Name", "Description", "Status", "Photo", "Action"].map(
+                (header) => (
+                  <TableCell
+                    key={header}
+                    sx={{
+                      fontWeight: 600,
+                      textTransform: "uppercase",
+                      color: "text.secondary",
+                    }}
+                  >
+                    {header}
+                  </TableCell>
+                )
+              )}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -140,15 +157,8 @@ const TestHistory: React.FC = () => {
               >
                 <TableCell>{test.name}</TableCell>
                 <TableCell>{test.description}</TableCell>
-                <TableCell>
-                  <Chip
-                    icon={<TestIcon />}
-                    label={test.category}
-                    color={getStatusColor(test.category)}
-                    size="small"
-                    variant="outlined"
-                  />
-                </TableCell>
+                <TableCell>{test.status}</TableCell>
+
                 <TableCell>
                   {test.photo ? (
                     <img
@@ -164,6 +174,12 @@ const TestHistory: React.FC = () => {
                   ) : (
                     "No Image"
                   )}
+                </TableCell>
+                <TableCell>
+                  <Button onClick={() => handleOpenModal(test._id)}>
+                    {" "}
+                    upload{" "}
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -184,6 +200,14 @@ const TestHistory: React.FC = () => {
           }}
         />
       </TableContainer>
+
+      {openModal && selectedTestId && (
+        <ImagePicker
+          open={openModal}
+          onClose={handleCloseModal}
+          selectedTestId={selectedTestId}
+        />
+      )}
     </Container>
   );
 };
