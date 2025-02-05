@@ -16,55 +16,41 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import { Utility } from "@/utils";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/redux/store";
 import SnackbarComponent from "./Snackbar";
-import { modifier } from "@/apis/apiClient";
+import { Utility } from "@/utils";
+import { AppDispatch, RootState } from "@/redux/store";
+import { useDispatch, useSelector } from "react-redux";
 
 interface ImagePickerProps {
   open: boolean;
   onClose: () => void;
-  selectedTestId: string;
+  handleUpload: any;
+  fileInputRef: any;
+  image: any;
+  setImage: any;
+  isHovering: boolean;
+  setIsHovering: any;
+  isUploading: boolean;
+  imagePreview: any;
+  setImagePreview: any;
 }
 
 const ImagePicker: React.FC<ImagePickerProps> = ({
   open,
   onClose,
-  selectedTestId,
+  handleUpload,
+  fileInputRef,
+  image,
+  setImage,
+  isHovering,
+  setIsHovering,
+  isUploading,
+  imagePreview,
+  setImagePreview,
 }) => {
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [image, setImage] = useState<File | null>(null);
-  const [isHovering, setIsHovering] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
   const { snackbar } = useSelector((state: RootState) => state.snackbar);
   const dispatch: AppDispatch = useDispatch();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const { snackbarAndNavigate } = Utility();
-
-  const handleUpload = useCallback(async () => {
-    console.log(image, selectedTestId, "img");
-    if (selectedTestId && image) {
-      try {
-        const response = await modifier("test", "update-test",{
-            id: selectedTestId,
-            photo: image
-        });
-console.log(response, res)
-      } catch (error) {
-        console.error("Error fetching tests:", error);
-      }
-    }
-    // setIsUploading(true);
-    // try {
-    //   console.log("button pressed");
-    //   // Your existing upload logic here
-    //   await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate upload
-    // } finally {
-    //   setIsUploading(false);
-    // }
-  }, [image]);
-
   return (
     <Dialog
       open={open}
@@ -311,7 +297,6 @@ console.log(response, res)
           {isUploading ? "Uploading..." : "Upload"}
         </Button>
       </DialogActions>
-
       <SnackbarComponent
         alerting={snackbar.snackbarAlert}
         severity={snackbar.snackbarSeverity}

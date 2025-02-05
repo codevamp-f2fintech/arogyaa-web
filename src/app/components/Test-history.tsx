@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
 import {
   Container,
   Table,
@@ -19,8 +25,12 @@ import {
   Button,
 } from "@mui/material";
 import { Science as TestIcon } from "@mui/icons-material";
+
+import { fetcher, modifier } from "@/apis/apiClient";
 import { Utility } from "@/utils";
-import { fetcher } from "@/apis/apiClient";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
+import SnackbarComponent from "./common/Snackbar";
 import ImagePicker from "./common/ImagePicker";
 
 interface Test {
@@ -41,7 +51,17 @@ const TestHistory: React.FC = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [openModal, setOpenModal] = useState(false);
+
   const [selectedTestId, setSelectedTestId] = useState<string | null>(null);
+  const [testImage, setTestImage] = useState<File | null>(null);
+  const [isHovering, setIsHovering] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const [testImagePreview, setTestImagePreview] = useState<string | null>(null);
+  const { snackbar } = useSelector((state: RootState) => state.snackbar);
+  const dispatch: AppDispatch = useDispatch();
+  const testFileInputRef = useRef<HTMLInputElement>(null);
+  const { snackbarAndNavigate } = Utility();
 
   const { decodedToken } = Utility();
   const patientId = decodedToken()?.id;
@@ -111,6 +131,66 @@ const TestHistory: React.FC = () => {
     setOpenModal(false);
     setSelectedTestId(null);
   };
+
+  //   const handleUpload = useCallback(async () => {
+  //     console.log(image, selectedTestId, "img");
+  //     if (selectedTestId && image) {
+  //       try {
+  //         const response = await modifier("test", "update-test",{
+  //             id: selectedTestId,
+  //             photo: image
+  //         });
+  // console.log(response)
+  //       } catch (error) {
+  //         console.error("Error fetching tests:", error);
+  //       }
+  //     }
+  //     // setIsUploading(true);
+  //     // try {
+  //     //   console.log("button pressed");
+  //     //   // Your existing upload logic here
+  //     //   await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate upload
+  //     // } finally {
+  //     //   setIsUploading(false);
+  //     // }
+  //   }, [image]);
+
+  const handleUpload = useCallback(async () => {
+    if (!selectedTestId || !testImage) return;
+
+    try {
+      setIsUploading(true);
+
+      const headers = {
+        "Content-Type": "multipart/form-data",
+      };
+      const response = await modifier(
+        "test",
+        "update-test",
+        {
+          _id: selectedTestId,
+          photo: testImage,
+        },
+        headers
+      );
+
+      console.log("Upload success:", response);
+      snackbarAndNavigate(
+        dispatch,
+        true,
+        "success",
+        "Image uploaded successfully"
+      );
+
+      // Close modal after successful upload
+      handleCloseModal();
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      snackbarAndNavigate(dispatch, true, "error", "Failed to upload image");
+    } finally {
+      setIsUploading(false);
+    }
+  }, [testImage, selectedTestId]);
 
   return (
     <Container maxWidth="lg">
@@ -205,9 +285,23 @@ const TestHistory: React.FC = () => {
         <ImagePicker
           open={openModal}
           onClose={handleCloseModal}
-          selectedTestId={selectedTestId}
+          handleUpload={handleUpload}
+          fileInputRef={testFileInputRef}
+          image={testImage}
+          setImage={setTestImage}
+          isHovering={isHovering}
+          setIsHovering={setIsHovering}
+          isUploading={isUploading}
+          imagePreview={testImagePreview}
+          setImagePreview={setTestImagePreview}
         />
       )}
+
+      <SnackbarComponent
+        alerting={snackbar.snackbarAlert}
+        severity={snackbar.snackbarSeverity}
+        message={snackbar.snackbarMessage}
+      />
     </Container>
   );
 };
