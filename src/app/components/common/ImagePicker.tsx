@@ -54,7 +54,11 @@ const ImagePicker: React.FC<ImagePickerProps> = ({
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={(event, reason) => {
+        if (reason !== "backdropClick") {
+          onClose();
+        }
+      }}
       maxWidth="sm"
       fullWidth
       PaperProps={{
@@ -279,7 +283,7 @@ const ImagePicker: React.FC<ImagePickerProps> = ({
           disabled={!image || isUploading}
           sx={{
             px: 4,
-            py: 1.2,
+            py: 1,
             borderRadius: 2,
             textTransform: "none",
             color: "white",
