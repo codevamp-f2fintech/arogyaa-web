@@ -15,16 +15,15 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
   Paper,
   TablePagination,
   Alert,
   Box,
-  Chip,
   alpha,
   Button,
   Select,
   MenuItem,
+  Modal,
 } from "@mui/material";
 
 import { fetcher, modifier } from "@/apis/apiClient";
@@ -59,6 +58,9 @@ const TestHistory: React.FC = () => {
   const [isHovering, setIsHovering] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
+  const [viewImageModal, setViewImageModal] = useState(false);
+  const [viewImageUrl, setViewImageUrl] = useState<string | null>(null);
+
   const [testImagePreview, setTestImagePreview] = useState<string | null>(null);
   const { snackbar } = useSelector((state: RootState) => state.snackbar);
   const dispatch: AppDispatch = useDispatch();
@@ -67,6 +69,7 @@ const TestHistory: React.FC = () => {
 
   const { decodedToken } = Utility();
   const patientId = decodedToken()?.id;
+  const { capitalizeFirstLetter } = Utility();
 
   const fetchTests = React.useCallback(async () => {
     if (patientId) {
@@ -79,7 +82,6 @@ const TestHistory: React.FC = () => {
         );
         const results = response?.results || [];
         const count = response?.count || 0;
-        // Ensure `type` field is included
         const updatedResults = results.map((test: Test) => ({
           ...test,
           type: test.type || "N/A", // Default value
@@ -134,48 +136,19 @@ const TestHistory: React.FC = () => {
         test._id === testId ? { ...test, status: newStatus } : test
       )
     );
-
-    // // Show success feedback
-    // snackbarAndNavigate(
-    //   dispatch,
-    //   true,
-    //   "success",
-    //   "Status updated successfully"
-    // );
   };
 
   const handleOpenModal = (testId: string) => {
     setSelectedTestId(testId);
+    setTestImagePreview(null);
     setOpenModal(true);
   };
 
   const handleCloseModal = () => {
     setOpenModal(false);
+    setTestImagePreview(null);
     setSelectedTestId(null);
   };
-
-  //   const handleUpload = useCallback(async () => {
-  //     console.log(image, selectedTestId, "img");
-  //     if (selectedTestId && image) {
-  //       try {
-  //         const response = await modifier("test", "update-test",{
-  //             id: selectedTestId,
-  //             photo: image
-  //         });
-  // console.log(response)
-  //       } catch (error) {
-  //         console.error("Error fetching tests:", error);
-  //       }
-  //     }
-  //     // setIsUploading(true);
-  //     // try {
-  //     //   console.log("button pressed");
-  //     //   // Your existing upload logic here
-  //     //   await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate upload
-  //     // } finally {
-  //     //   setIsUploading(false);
-  //     // }
-  //   }, [image]);
 
   const handleUpload = useCallback(async () => {
     if (!selectedTestId || !testImage) return;
@@ -197,6 +170,13 @@ const TestHistory: React.FC = () => {
       );
 
       console.log("Upload success:", response);
+      // Update the specific test with the new photo URL
+      const imageUrl = URL.createObjectURL(testImage); // Generate URL for preview
+      setTests((prevTests) =>
+        prevTests.map((test) =>
+          test._id === selectedTestId ? { ...test, photo: imageUrl } : test
+        )
+      );
       snackbarAndNavigate(
         dispatch,
         true,
@@ -213,6 +193,16 @@ const TestHistory: React.FC = () => {
       setIsUploading(false);
     }
   }, [testImage, selectedTestId]);
+
+  const handleOpenViewImageModal = (imageUrl: string) => {
+    setViewImageUrl(imageUrl);
+    setViewImageModal(true);
+  };
+
+  const handleCloseViewImageModal = () => {
+    setViewImageUrl(null);
+    setViewImageModal(false);
+  };
 
   return (
     <Container maxWidth="lg">
@@ -231,7 +221,7 @@ const TestHistory: React.FC = () => {
             }}
           >
             <TableRow>
-              {["Name", "Description", "type", "Status", "Photo", "Action"].map(
+              {["Name", "Description", "type", "Status", "Action"].map(
                 (header) => (
                   <TableCell
                     key={header}
@@ -259,7 +249,9 @@ const TestHistory: React.FC = () => {
               >
                 <TableCell>{test.name}</TableCell>
                 <TableCell>{test.description}</TableCell>
-                <TableCell>{test.type || "N/A"}</TableCell>
+                <TableCell>
+                  {capitalizeFirstLetter(test.type || "N/A")}
+                </TableCell>
 
                 <TableCell
                   sx={{
@@ -277,6 +269,7 @@ const TestHistory: React.FC = () => {
                     size="small"
                     displayEmpty
                     sx={{
+                      borderRadius: "20px",
                       width: "100%", // Match the parent TableCell width
                       height: "36px", // Consistent height for all rows
                       textAlign: "center",
@@ -355,7 +348,6 @@ const TestHistory: React.FC = () => {
                     </MenuItem>
                   </Select>
                 </TableCell>
-
                 <TableCell>
                   {test.photo ? (
                     <img
@@ -364,19 +356,18 @@ const TestHistory: React.FC = () => {
                       style={{
                         width: "50px",
                         height: "50px",
-                        objectFit: "cover",
                         borderRadius: "4px",
                       }}
+                      onClick={() => handleOpenViewImageModal(test.photo)}
                     />
                   ) : (
-                    "No Image"
+                    <Button
+                      variant="contained"
+                      onClick={() => handleOpenModal(test._id)}
+                    >
+                      Upload
+                    </Button>
                   )}
-                </TableCell>
-                <TableCell>
-                  <Button onClick={() => handleOpenModal(test._id)}>
-                    {" "}
-                    upload{" "}
-                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -413,6 +404,49 @@ const TestHistory: React.FC = () => {
           setImagePreview={setTestImagePreview}
         />
       )}
+      <Modal open={viewImageModal} onClose={handleCloseViewImageModal}>
+        <Box
+          onClick={handleCloseViewImageModal}
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          <Button
+            onClick={handleCloseViewImageModal}
+            sx={{
+              position: "absolute",
+              top: 16,
+              right: 16,
+              backgroundColor: "white",
+              color: "black",
+              borderRadius: "50%",
+              minWidth: "40px",
+              minHeight: "40px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              "&:hover": {
+                backgroundColor: "#f0f0f0",
+              },
+            }}
+          >
+            ✕
+          </Button>
+
+          {viewImageUrl && (
+            <img
+              src={viewImageUrl}
+              alt="Preview"
+              style={{ maxWidth: "90%", maxHeight: "90%" }}
+              onClick={(e) => e.stopPropagation()}
+            />
+          )}
+        </Box>
+      </Modal>
 
       <SnackbarComponent
         alerting={snackbar.snackbarAlert}
