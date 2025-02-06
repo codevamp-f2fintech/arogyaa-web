@@ -23,8 +23,9 @@ import {
   Chip,
   alpha,
   Button,
+  Select,
+  MenuItem,
 } from "@mui/material";
-import { Science as TestIcon } from "@mui/icons-material";
 
 import { fetcher, modifier } from "@/apis/apiClient";
 import { Utility } from "@/utils";
@@ -42,6 +43,7 @@ interface Test {
   category: string;
   photo: string;
   status: string;
+  type: string;
 }
 
 const TestHistory: React.FC = () => {
@@ -77,6 +79,11 @@ const TestHistory: React.FC = () => {
         );
         const results = response?.results || [];
         const count = response?.count || 0;
+        // Ensure `type` field is included
+        const updatedResults = results.map((test: Test) => ({
+          ...test,
+          type: test.type || "N/A", // Default value
+        }));
         setTests(results);
         setTotalCount(count);
         setError(null);
@@ -108,8 +115,6 @@ const TestHistory: React.FC = () => {
     switch (category.toLowerCase()) {
       case "completed":
         return "success";
-      case "pending":
-        return "warning";
       case "cancelled":
         return "error";
       default:
@@ -121,6 +126,23 @@ const TestHistory: React.FC = () => {
     const startIndex = page * rowsPerPage;
     return tests.slice(startIndex, startIndex + rowsPerPage);
   }, [tests, page, rowsPerPage]);
+
+  const handleStatusChange = (testId: string, newStatus: string) => {
+    // Update the local state to reflect the new status
+    setTests((prev) =>
+      prev.map((test) =>
+        test._id === testId ? { ...test, status: newStatus } : test
+      )
+    );
+
+    // // Show success feedback
+    // snackbarAndNavigate(
+    //   dispatch,
+    //   true,
+    //   "success",
+    //   "Status updated successfully"
+    // );
+  };
 
   const handleOpenModal = (testId: string) => {
     setSelectedTestId(testId);
@@ -209,7 +231,7 @@ const TestHistory: React.FC = () => {
             }}
           >
             <TableRow>
-              {["Name", "Description", "Status", "Photo", "Action"].map(
+              {["Name", "Description", "type", "Status", "Photo", "Action"].map(
                 (header) => (
                   <TableCell
                     key={header}
@@ -237,7 +259,102 @@ const TestHistory: React.FC = () => {
               >
                 <TableCell>{test.name}</TableCell>
                 <TableCell>{test.description}</TableCell>
-                <TableCell>{test.status}</TableCell>
+                <TableCell>{test.type || "N/A"}</TableCell>
+
+                <TableCell
+                  sx={{
+                    width: 150,
+                    textAlign: "center",
+                    verticalAlign: "middle", // Ensures alignment within the row
+                  }}
+                >
+                  <Select
+                    value={test.status}
+                    onChange={(e) =>
+                      handleStatusChange(test._id, e.target.value)
+                    }
+                    variant="outlined"
+                    size="small"
+                    displayEmpty
+                    sx={{
+                      width: "100%", // Match the parent TableCell width
+                      height: "36px", // Consistent height for all rows
+                      textAlign: "center",
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        border: "none",
+                      },
+                      "& .MuiSelect-select": {
+                        borderRadius: "20px",
+                        padding: "6px 14px !important", // Consistent padding
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "0.875rem",
+                        fontWeight: 500,
+                        boxSizing: "border-box",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                      },
+                      "& .MuiSelect-icon": {
+                        fontSize: "1.2rem",
+                        right: 8,
+                      },
+                      backgroundColor: () => {
+                        switch (test.status.toLowerCase()) {
+                          case "completed":
+                            return "#E7F7E8";
+                          case "scheduled":
+                            return "#FFF8E5";
+                          case "cancelled":
+                            return "#F0F4FF";
+                          default:
+                            return "#F5F5F5";
+                        }
+                      },
+                      color: () => {
+                        switch (test.status.toLowerCase()) {
+                          case "completed":
+                            return "#2D9735";
+                          case "scheduled":
+                            return "#B98900";
+                          case "cancelled":
+                            return "#C41E1D";
+                          default:
+                            return "#000";
+                        }
+                      },
+                    }}
+                    MenuProps={{
+                      PaperProps: {
+                        sx: {
+                          width: 150, // Ensures dropdown menu matches Select width
+                          borderRadius: 2,
+                          boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.08)",
+                          mt: 1,
+                          "& .MuiMenuItem-root": {
+                            padding: "8px 14px",
+                            borderRadius: "8px",
+                            margin: "2px 4px",
+                            fontSize: "0.875rem",
+                            "&:hover": {
+                              backgroundColor: "#F5F5F5",
+                            },
+                          },
+                        },
+                      },
+                    }}
+                  >
+                    <MenuItem value="scheduled">
+                      <Box sx={{ color: "#B98900" }}>Scheduled</Box>
+                    </MenuItem>
+                    <MenuItem value="completed">
+                      <Box sx={{ color: "#2D9735" }}>Completed</Box>
+                    </MenuItem>
+                    <MenuItem value="cancelled">
+                      <Box sx={{ color: "#C41E1D" }}>Cancelled</Box>
+                    </MenuItem>
+                  </Select>
+                </TableCell>
 
                 <TableCell>
                   {test.photo ? (
