@@ -126,9 +126,9 @@ const UserProfile = () => {
           background: "linear-gradient(135deg, #20ADA0 0%, #B6DADA 100%)",
         }}
       >
-        <Typography variant="h6" sx={{ color: "white" }}>
+        {/* <Typography variant="h6" sx={{ color: "white" }}>
           Loading user details...
-        </Typography>
+        </Typography> */}
       </Box>
     );
   }

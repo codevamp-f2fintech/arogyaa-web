@@ -160,7 +160,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
     if (reason === "clickaway") {
       return;
     }
-  };
+  }
 
   const handleTimeSlotClick = (time: string, setFieldValue: Function) => {
     setSelectedTimeSlot(time);
@@ -278,7 +278,9 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
     <>
       <Modal
         open={isOpen}
-        onClose={onClose}
+        onClose={(_, reason) => {
+          if (reason !== "backdropClick") onClose();
+        }}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
@@ -572,7 +574,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                               backgroundColor: "#f8f8ff",
                               border: "1px solid #ccc",
                               borderRadius: "6px",
-                              padding: "8px",
+                              padding: "2px",
                               color: "#20ADA0",
                               marginBottom: "10px",
                               fontSize: "1rem",

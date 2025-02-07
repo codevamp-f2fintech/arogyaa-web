@@ -1,5 +1,6 @@
+"use client";
 import * as React from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import RouterLink from "next/link";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
@@ -30,6 +31,7 @@ export function UserPopover({
   const [user, setUser] = React.useState<PatientData | undefined>();
   const { capitalizeFirstLetter, decodedToken } = Utility();
   const userId = decodedToken()?.id;
+  const router = useRouter();
 
   const fetchUserProfile = React.useCallback(async () => {
     if (userId) {
@@ -64,9 +66,9 @@ export function UserPopover({
   }, [fetchUserProfile]);
 
   const handleSignOut = React.useCallback(async (): Promise<void> => {
+    router.push("/");
     try {
       document.cookie = "token=; path=/; max-age=0; secure; samesite=strict";
-      location.reload();
     } catch (err) {
       console.log("Sign out error", err);
     }
