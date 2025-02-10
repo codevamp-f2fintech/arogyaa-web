@@ -32,6 +32,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import SnackbarComponent from "./common/Snackbar";
 import ImagePicker from "./common/ImagePicker";
+import { AddCircle } from "@mui/icons-material";
+import CreateTestDialog from "./common/CreateTestDialog";
 
 interface Test {
   _id: string;
@@ -60,6 +62,7 @@ const TestHistory: React.FC = () => {
 
   const [viewImageModal, setViewImageModal] = useState(false);
   const [viewImageUrl, setViewImageUrl] = useState<string | null>(null);
+  const [openCreateDialog, setOpenCreateDialog] = useState(false);
 
   const [testImagePreview, setTestImagePreview] = useState<string | null>(null);
   const { snackbar } = useSelector((state: RootState) => state.snackbar);
@@ -129,14 +132,32 @@ const TestHistory: React.FC = () => {
     return tests.slice(startIndex, startIndex + rowsPerPage);
   }, [tests, page, rowsPerPage]);
 
-  const handleStatusChange = (testId: string, newStatus: string) => {
-    // Update the local state to reflect the new status
-    setTests((prev) =>
-      prev.map((test) =>
-        test._id === testId ? { ...test, status: newStatus } : test
-      )
-    );
-  };
+  const handleStatusChange = useCallback(
+    async (testId: string, newStatus: string) => {
+      if (!testId) return;
+
+      try {
+        const response = await modifier("test", "update-test", {
+          _id: testId,
+          status: newStatus,
+        });
+        if (!response) {
+          throw new Error("No status changes from the API");
+        }
+        snackbarAndNavigate(
+          dispatch,
+          true,
+          "success",
+          "Status updated successfully"
+        );
+        fetchTests();
+      } catch (error) {
+        console.error("Error updating status:", error);
+        snackbarAndNavigate(dispatch, true, "error", "Failed to update status");
+      }
+    },
+    [dispatch, fetchTests]
+  );
 
   const handleOpenModal = (testId: string) => {
     setSelectedTestId(testId);
@@ -206,6 +227,33 @@ const TestHistory: React.FC = () => {
 
   return (
     <Container maxWidth="lg">
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+        <Button
+          onClick={() => setOpenCreateDialog(true)}
+          sx={{
+            background: "#20ADA0 !important",
+            color: "white",
+            fontWeight: "bold",
+            padding: "6px 20px",
+            marginLeft: "4px",
+            borderRadius: "20px",
+            fontSize: "14px",
+            boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
+            transition: "all 0.3s ease",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+          }}
+        >
+          <AddCircle sx={{ fontSize: 20 }} />
+          Create
+        </Button>
+      </Box>
+      <CreateTestDialog
+        open={openCreateDialog}
+        onClose={() => setOpenCreateDialog(false)}
+        fetchTests={fetchTests}
+      />
       {error && (
         <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
           {error}
@@ -247,8 +295,8 @@ const TestHistory: React.FC = () => {
                   transition: "background-color 0.2s",
                 }}
               >
-                <TableCell>{test.name}</TableCell>
-                <TableCell>{test.description}</TableCell>
+                <TableCell>{capitalizeFirstLetter(test.name)}</TableCell>
+                <TableCell>{capitalizeFirstLetter(test.description)}</TableCell>
                 <TableCell>
                   {capitalizeFirstLetter(test.type || "N/A")}
                 </TableCell>
