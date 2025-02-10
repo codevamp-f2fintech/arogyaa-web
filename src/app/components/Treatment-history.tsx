@@ -14,13 +14,17 @@ import {
   Paper,
   TablePagination,
   alpha,
-  FormControl,
   MenuItem,
   Select,
   IconButton,
   Modal,
 } from "@mui/material";
-import { Loop, CheckCircle, Visibility, AddCircle } from "@mui/icons-material";
+import {
+  CheckCircle,
+  Visibility,
+  AddCircle,
+  HourglassEmpty,
+} from "@mui/icons-material";
 import { fetcher, modifier } from "@/apis/apiClient";
 import { Utility } from "@/utils";
 import { useDispatch, useSelector } from "react-redux";
@@ -173,8 +177,8 @@ const TreatmentHistory: React.FC = () => {
     setViewImageUrl(imageUrl);
     setViewImageModal(true);
   };
-
-  const handleCloseViewImageModal = () => {
+  const handleCloseViewImageModal = (event: React.MouseEvent) => {
+    event.stopPropagation();
     setViewImageModal(false);
     setViewImageUrl(null);
   };
@@ -290,108 +294,114 @@ const TreatmentHistory: React.FC = () => {
                 <TableCell sx={{ textAlign: "center" }}>
                   {capitalizeFirstLetter(treatment.description)}
                 </TableCell>
-                <TableCell sx={{ textAlign: "center" }}>
-                  <FormControl
+                <TableCell
+                  sx={{
+                    width: 150,
+                    textAlign: "center",
+                    verticalAlign: "middle",
+                  }}
+                >
+                  <Select
+                    value={treatment.status}
+                    onChange={(e) =>
+                      handleStatusChange(treatment._id, e.target.value)
+                    }
+                    variant="outlined"
+                    size="small"
+                    displayEmpty
                     sx={{
-                      minWidth: 120,
-                      backgroundColor:
-                        treatment.status === "in progress"
-                          ? alpha("#cce5ff", 0.3)
-                          : treatment.status === "completed"
-                          ? alpha("#d4edda", 0.3)
-                          : alpha("#f8f9fa", 0.3),
-                      borderRadius: "8px",
-                      boxShadow: "0px 2px 4px rgba(0,0,0,0.15)",
-                      transition: "all 0.3s ease",
-                      "&:hover": {
-                        boxShadow: "0px 4px 8px rgba(0,0,0,0.2)",
+                      borderRadius: "20px",
+                      width: "100%",
+                      height: "36px",
+                      textAlign: "center",
+                      backgroundColor: () => {
+                        switch (treatment.status.toLowerCase()) {
+                          case "in progress":
+                            return "#cce5ff";
+                          case "completed":
+                            return "#d4edda";
+                          default:
+                            return "#f8f9fa";
+                        }
+                      },
+                      color: () => {
+                        switch (treatment.status.toLowerCase()) {
+                          case "in progress":
+                            return "#0056b3";
+                          case "completed":
+                            return "#2D9735";
+                          default:
+                            return "#000";
+                        }
+                      },
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        border: "none",
                       },
                       "& .MuiSelect-select": {
-                        padding: "6px 10px",
+                        borderRadius: "20px",
+                        padding: "6px 14px !important",
                         display: "flex",
                         alignItems: "center",
-                        gap: "6px",
+                        justifyContent: "center",
+                        fontSize: "0.875rem",
+                        fontWeight: 500,
+                        boxSizing: "border-box",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                        paddingRight: "28px !important",
+                      },
+                      "& .MuiSelect-icon": {
+                        fontSize: "1.2rem",
+                        right: 4,
+                      },
+                    }}
+                    MenuProps={{
+                      PaperProps: {
+                        sx: {
+                          width: 150,
+                          borderRadius: 2,
+                          boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.08)",
+                          mt: 1,
+                          "& .MuiMenuItem-root": {
+                            padding: "8px 14px",
+                            borderRadius: "8px",
+                            margin: "2px 4px",
+                            fontSize: "0.875rem",
+                            "&:hover": {
+                              backgroundColor: "#F5F5F5",
+                            },
+                          },
+                        },
                       },
                     }}
                   >
-                    <Select
-                      value={treatment.status}
-                      onChange={(e) =>
-                        handleStatusChange(treatment._id, e.target.value)
-                      }
-                      disableUnderline
-                      onClose={() => console.log("Dropdown closed")}
-                      MenuProps={{
-                        PaperProps: {
-                          sx: {
-                            borderRadius: "8px",
-                            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
-                          },
-                        },
-                        disableScrollLock: true,
-                      }}
-                      sx={{
-                        color:
-                          treatment.status === "in progress"
-                            ? "#20ADA0"
-                            : treatment.status === "completed"
-                            ? "green"
-                            : "grey",
-                        fontSize: "0.85rem",
-                        fontWeight: 500,
-                        borderRadius: "8px",
-                        "&.Mui-focused": {
-                          backgroundColor: "transparent",
-                        },
-                        "& .MuiSvgIcon-root": {
-                          fontSize: "1rem",
-                          color:
-                            treatment.status === "in progress"
-                              ? "#20ADA0"
-                              : treatment.status === "completed"
-                              ? "green"
-                              : "#6b7280",
-                        },
-                        "&:hover": {
-                          borderColor: "#20ADA0",
-                        },
-                      }}
-                    >
-                      {statuses.map((status) => (
-                        <MenuItem
-                          key={status}
-                          value={status}
-                          sx={{
-                            color:
-                              status === "in progress"
-                                ? "#20ADA0"
-                                : status === "completed"
-                                ? "green"
-                                : "red",
-                            fontWeight: 500,
-                            fontSize: "0.85rem",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "6px",
-                            borderRadius: "8px",
-                            "&:hover": {
-                              backgroundColor: alpha("#f0f0f0", 0.5),
-                            },
-                          }}
-                        >
-                          {status === "in progress" && (
-                            <Loop sx={{ color: "#20ADA0", fontSize: "1rem" }} />
-                          )}
-                          {status === "completed" && (
-                            <CheckCircle
-                              sx={{ color: "green", fontSize: "1rem" }}
-                            />
-                          )}
-                          {status}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
+                    <MenuItem value="in progress">
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1.5,
+                          color: "#0056b3",
+                        }}
+                      >
+                        <HourglassEmpty fontSize="small" />
+                        In Progress
+                      </Box>
+                    </MenuItem>
+                    <MenuItem value="completed">
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1.5,
+                          color: "#2D9735",
+                        }}
+                      >
+                        <CheckCircle fontSize="small" />
+                        Completed
+                      </Box>
+                    </MenuItem>
+                  </Select>
                 </TableCell>
 
                 <TableCell sx={{ textAlign: "center" }}>
@@ -470,25 +480,76 @@ const TreatmentHistory: React.FC = () => {
         />
       )}
 
-      <Modal open={viewImageModal} onClose={handleCloseViewImageModal}>
+      <Modal
+        open={viewImageModal}
+        onClose={(event, reason) => {
+          if (reason === "backdropClick") return;
+          handleCloseViewImageModal(event);
+        }}
+      >
         <Box
-          onClick={handleCloseViewImageModal}
           sx={{
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
             height: "100vh",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
           }}
         >
-          {viewImageUrl && (
-            <img
-              src={viewImageUrl}
-              alt="Preview"
-              style={{ maxWidth: "90%", maxHeight: "90%" }}
-            />
-          )}
+          <Box
+            onClick={(e) => e.stopPropagation()}
+            sx={{
+              position: "relative",
+              backgroundColor: "white",
+              padding: 2,
+              borderRadius: 2,
+              outline: "none",
+              boxShadow: 24,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {/* Close Button */}
+            <Button
+              onClick={handleCloseViewImageModal}
+              sx={{
+                position: "absolute",
+                top: 10,
+                right: 10,
+                backgroundColor: "white",
+                color: "black",
+                borderRadius: "50%",
+                minWidth: "40px",
+                minHeight: "40px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                "&:hover": {
+                  backgroundColor: "#f0f0f0",
+                },
+              }}
+            >
+              ✕
+            </Button>
+
+            {viewImageUrl && (
+              <img
+                src={viewImageUrl}
+                alt="Preview"
+                style={{
+                  maxWidth: "90%",
+                  maxHeight: "90%",
+                  borderRadius: "8px",
+                }}
+                onClick={(e) => e.stopPropagation()}
+              />
+            )}
+          </Box>
         </Box>
       </Modal>
+
       <SnackbarComponent
         alerting={snackbar.snackbarAlert}
         severity={snackbar.snackbarSeverity}
