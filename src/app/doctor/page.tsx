@@ -597,7 +597,7 @@ export default function ModernDoctorProfile() {
                         variant="h6"
                         sx={{ fontWeight: "bold", color: "black" }}
                       >
-                        {doctor.username || "Unknown Doctor"}
+                        {doctor.username || "NA"}
                       </Typography>
 
                       <Box sx={{ mt: 1 }}>
@@ -606,7 +606,7 @@ export default function ModernDoctorProfile() {
                           label={
                             doctor.tags?.length > 0
                               ? doctor.tags.join(" | ")
-                              : "Languages not available"
+                              : "Not Available"
                           }
                           sx={{
                             color: "#20ADA0",

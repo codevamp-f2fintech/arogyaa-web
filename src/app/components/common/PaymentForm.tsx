@@ -1,40 +1,34 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Box,
   Typography,
   Button,
-  TextField,
   Tabs,
   Tab,
   Paper,
-  InputAdornment,
-  CircularProgress,
 } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import {
   CreditCard,
-  AccountBalance,
-  MoreHoriz,
   Payment,
+  Cancel
 } from "@mui/icons-material";
-
-import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import { green } from "@mui/material/colors";
-import { Cancel } from "@mui/icons-material";
+import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 
+import { AppDispatch } from "@/redux/store";
 import { creator, modifier } from "@/apis/apiClient";
 import { Utility } from "@/utils";
-import { AppDispatch } from "@/redux/store";
 
 interface PaymentFormProps {
   setShowPaymentForm: (show: boolean) => void;
-  appointmentId: string;
+  paymentInfo: object | undefined;
 }
 
 const PaymentForm: React.FC<PaymentFormProps> = ({
   setShowPaymentForm,
-  appointmentId,
+  paymentInfo,
 }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -43,60 +37,83 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
   const [paymentSucceeded, setPaymentSucceeded] = useState<boolean>(false);
   const [selectedTab, setSelectedTab] = useState(0);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setSelectedTab(newValue);
-  };
   const dispatch: AppDispatch = useDispatch();
   const router = useRouter();
   const { snackbarAndNavigate } = Utility();
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!stripe || !elements) {
-      return;
-    }
-
-    setIsProcessing(true);
-    try {
-      const data = await creator("payment", "/create-payment-intent", {
-        amount: 500,
-        currency: "usd",
-      });
-      const clientSecret = data.data;
-
-      const cardElement = elements.getElement(CardElement);
-      const paymentResult = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: cardElement!,
-        },
-      });
-      if (paymentResult.error) {
-        setMessage(paymentResult.error.message || "Payment failed.");
-        setPaymentSucceeded(false);
-      } else {
-        if (paymentResult.paymentIntent?.status === "succeeded") {
-          const data = await modifier("appointment", "/update-appointment", {
-            _id: appointmentId,
-            status: "scheduled",
-          });
-          snackbarAndNavigate(
-            dispatch,
-            true,
-            "success",
-            "Appointment Booked Successfully",
-            () => router.push("/profile")
-          );
-          setMessage("Payment succeeded!");
-          setPaymentSucceeded(true);
-        }
-      }
-    } catch (error: any) {
-      setMessage(error.message || "An error occurred.");
-      setPaymentSucceeded(false);
-    } finally {
-      setIsProcessing(false);
-    }
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setSelectedTab(newValue);
   };
+
+  const handleSubmit = useCallback(
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (!stripe || !elements) return;
+
+      setIsProcessing(true);
+      try {
+        const createPaymentData = await creator(
+          "payment",
+          "/create-payment-intent",
+          paymentInfo
+        );
+
+        if (!createPaymentData || createPaymentData.statusCode !== 201) {
+          setMessage("Error initiating payment.");
+          setPaymentSucceeded(false);
+          return;
+        }
+
+        const clientSecret = createPaymentData.data?.clientSecret;
+        const cardElement = elements.getElement(CardElement);
+        if (!cardElement) {
+          setMessage("Card element not found.");
+          setPaymentSucceeded(false);
+          return;
+        }
+
+        const paymentResult = await stripe.confirmCardPayment(clientSecret, {
+          payment_method: { card: cardElement },
+        });
+
+        if (paymentResult.error) {
+          setMessage(paymentResult.error.message || "Payment failed.");
+          setPaymentSucceeded(false);
+        } else if (paymentResult.paymentIntent?.status === "succeeded") {
+          const updateData = await modifier(
+            "appointment",
+            "/update-appointment",
+            {
+              _id: paymentInfo?.appointmentId,
+              status: "scheduled",
+            });
+          if (updateData?.statusCode === 200) {
+            snackbarAndNavigate(
+              dispatch,
+              true,
+              "success",
+              "Appointment Booked Successfully",
+              () => router.push("/profile")
+            );
+            setMessage("Payment succeeded!");
+            setPaymentSucceeded(true);
+          } else {
+            setMessage("Payment succeeded, but failed to update appointment.");
+            setPaymentSucceeded(false);
+          }
+        } else {
+          setMessage("Payment not completed.");
+          setPaymentSucceeded(false);
+        }
+      } catch (error: any) {
+        setMessage(error.message || "An error occurred.");
+        setPaymentSucceeded(false);
+      } finally {
+        setIsProcessing(false);
+      }
+    },
+    [stripe, elements, paymentInfo, dispatch, router, snackbarAndNavigate]
+  );
 
   return (
     <Paper

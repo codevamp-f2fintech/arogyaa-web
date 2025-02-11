@@ -21,6 +21,8 @@ import {
   InputAdornment,
   IconButton,
 } from "@mui/material";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 import InfoIcon from "@mui/icons-material/Info";
 import {
   Assignment as AssignmentIcon,
@@ -28,14 +30,9 @@ import {
 } from "@mui/icons-material";
 import { Cancel } from "@mui/icons-material";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
-import PaymentForm from "./PaymentForm";
-import ScheduleIcon from "@mui/icons-material/Schedule";
 import BookOnlineIcon from "@mui/icons-material/BookOnline";
-import ChecklistRtlIcon from "@mui/icons-material/ChecklistRtl";
-import CloseIcon from "@mui/icons-material/Close";
-import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
 
+import PaymentForm from "./PaymentForm";
 import SnackbarComponent from "./Snackbar";
 import type { AppDispatch, RootState } from "@/redux/store";
 import { DoctorData } from "@/types/doctor";
@@ -62,6 +59,7 @@ interface AppointmentFormValues {
   appointmentTime: string;
   appointmentType: string;
   description: string;
+  videoUrl: File | null;
 }
 
 const initialValues: AppointmentFormValues = {
@@ -70,6 +68,8 @@ const initialValues: AppointmentFormValues = {
   appointmentTime: "",
   appointmentType: "",
   description: "",
+  videoUrl: null,
+
 };
 
 interface ModalProps {
@@ -80,13 +80,13 @@ interface ModalProps {
 const today = dayjs().format("YYYY-MM-DD");
 
 const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 );
 
 const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [showPaymentForm, setShowPaymentForm] = useState<boolean>(false);
-  const [appointmentId, setAppointmentId] = useState<string>();
+  const [paymentInfo, setPaymentInfo] = useState<object>();
   const { snackbar } = useSelector((state: RootState) => state.snackbar);
   const dispatch: AppDispatch = useDispatch();
 
@@ -111,11 +111,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
 
   const { createAppointment } = useCreateAppointment("create-appointment");
 
-  const {
-    value: symptoms,
-    swrLoading,
-    error,
-  } = useGetSymptom(null, "get-symptoms", 1, 200);
+  const { value: symptoms } = useGetSymptom(null, "get-symptoms", 1, 200);
 
   // Whenever selectedDayName changes, generate new time slots from data.availability
   useEffect(() => {
@@ -193,10 +189,18 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
         };
 
         const response = await createAppointment(appointmentData);
-        console.log(response, "appointment");
         if (response?.statusCode === 201) {
+          const paymentData = {
+            patientId,
+            doctorId,
+            appointmentId: response.data._id,
+            status: "successful",
+            amount: (parseInt(data?.consultationFee) * 100), // Stripe expects the amount in paise (not INR).
+            currency: "inr",
+            transactionMethod: 'card',
+          };
           setShowPaymentForm(true);
-          setAppointmentId(response.data._id);
+          setPaymentInfo(paymentData);
         }
       } catch (error: any) {
         const errorMessage =
@@ -357,8 +361,8 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                 >
                   {data?.availability?.length > 0
                     ? `Available on: ${data.availability
-                        .map((slot) => slot.day)
-                        .join(", ")}`
+                      .map((slot) => slot.day)
+                      .join(", ")}`
                     : "No Days Available"}
                 </Typography>
               </Box>
@@ -494,17 +498,14 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         <Field
                           fullWidth
                           as={TextField}
-                          sx={{
-                            marginBottom: "7px",
-                          }}
                           label="Date Of Appointment *"
                           name="appointmentDate"
                           type="date"
                           value={
                             values.appointmentDate
                               ? dayjs(values.appointmentDate).format(
-                                  "YYYY-MM-DD"
-                                )
+                                "YYYY-MM-DD"
+                              )
                               : ""
                           }
                           onChange={(
@@ -523,16 +524,17 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           }}
                           InputLabelProps={{ shrink: true }}
                           sx={{
+                            marginBottom: "7px",
                             "& input[type=date]": {
                               background: "#fff",
                               borderRadius: "6px",
                               padding: "12px 12px",
                             },
                             "& input[type=date]::-webkit-calendar-picker-indicator":
-                              {
-                                zIndex: 3,
-                                cursor: "pointer",
-                              },
+                            {
+                              zIndex: 3,
+                              cursor: "pointer",
+                            },
                             "& .MuiInputBase-root": {
                               fontSize: "0.9rem",
                             },
@@ -648,7 +650,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                               }
                               helperText={
                                 touched.symptomIds &&
-                                typeof errors.symptomIds === "string"
+                                  typeof errors.symptomIds === "string"
                                   ? errors.symptomIds
                                   : ""
                               }
@@ -714,7 +716,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                                 inputProps={{ accept: "video/*" }}
                                 onChange={(event) => {
                                   const file = event.target.files?.[0];
-                                  setFieldValue("video", file);
+                                  setFieldValue("videoUrl", file);
                                 }}
                                 fullWidth
                                 sx={{
@@ -724,8 +726,8 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                                     padding: "10px",
                                   },
                                 }}
-                                error={touched.video && Boolean(errors.video)}
-                                helperText={touched.video && errors.video}
+                                error={touched.videoUrl && Boolean(errors.videoUrl)}
+                                helperText={touched.videoUrl && errors.videoUrl}
                               />
                             </Box>
                           )}
@@ -880,9 +882,9 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                               <span className="spntx1">Price</span>
                               <span className="spntx2">
                                 {values.appointmentDate &&
-                                values.appointmentTime &&
-                                values.symptomIds.length > 0 &&
-                                values.appointmentType
+                                  values.appointmentTime &&
+                                  values.symptomIds.length > 0 &&
+                                  values.appointmentType
                                   ? `₹${data?.consultationFee}`
                                   : "--"}
                               </span>
@@ -891,9 +893,9 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                               <span className="spntx1">Total</span>
                               <span className="spntx2">
                                 {values.appointmentDate &&
-                                values.appointmentTime &&
-                                values.symptomIds.length > 0 &&
-                                values.appointmentType
+                                  values.appointmentTime &&
+                                  values.symptomIds.length > 0 &&
+                                  values.appointmentType
                                   ? `₹${data?.consultationFee}`
                                   : "--"}
                               </span>
@@ -999,7 +1001,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
               <Elements stripe={stripePromise}>
                 <PaymentForm
                   setShowPaymentForm={setShowPaymentForm}
-                  appointmentId={appointmentId}
+                  paymentInfo={paymentInfo}
                 />
               </Elements>
             </Box>

@@ -74,53 +74,50 @@ const SymptomCards: React.FC = () => {
 
       <Grid container spacing={2}>
         {symptom && symptom?.results?.length > 0 ? (
-          symptom.results.map((item) => {
-            const icon = symptomsList.find((icon) => icon.title === item.name)?.image;
-            return (
-              <Grid
-                item
-                xs={12}
-                sm={6}
-                md={4}
-                lg={3}
-                xl={2}
-                key={item._id}
-                sx={{
-                  [`@media (min-width: ${screens.sm})`]: { width: "50%" },
-                  [`@media (min-width: ${screens.md})`]: { width: "33.33%" },
-                  [`@media (min-width: ${screens.lg})`]: { width: "25%" },
-                  [`@media (min-width: ${screens.xl})`]: { width: "16.66%" },
-                }}
-              >
-                <Paper elevation={3} className={styles.symptomPaper}>
-                  <CardMedia
-                    component="img"
-                    className={styles.symptomCardMedia}
-                    image={icon}
-                    alt={icon}
-                  />
-                  <CardContent sx={{ textAlign: "center" }}>
-                    <Typography
-                      variant="h5"
-                      component="h5"
-                      className={styles.symptomCardTitle}
-                    >
-                      {item.name}
-                    </Typography>
+          symptom.results.map((item) => (
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              md={4}
+              lg={3}
+              xl={2}
+              key={item._id}
+              sx={{
+                [`@media (min-width: ${screens.sm})`]: { width: "50%" },
+                [`@media (min-width: ${screens.md})`]: { width: "33.33%" },
+                [`@media (min-width: ${screens.lg})`]: { width: "25%" },
+                [`@media (min-width: ${screens.xl})`]: { width: "16.66%" },
+              }}
+            >
+              <Paper elevation={3} className={styles.symptomPaper}>
+                <CardMedia
+                  component="img"
+                  className={styles.symptomCardMedia}
+                  image={item.icon}
+                  alt={item.icon}
+                />
+                <CardContent sx={{ textAlign: "center" }}>
+                  <Typography
+                    variant="h5"
+                    component="h5"
+                    className={styles.symptomCardTitle}
+                  >
+                    {item.name}
+                  </Typography>
 
-                    <Button
-                      variant="contained"
-                      className={styles.symptomButton}
-                      endIcon={<ArrowCircleRightIcon />}
-                      onClick={() => router.push("/doctor")}
-                    >
-                      Consult Now
-                    </Button>
-                  </CardContent>
-                </Paper>
-              </Grid>
-            );
-          })
+                  <Button
+                    variant="contained"
+                    className={styles.symptomButton}
+                    endIcon={<ArrowCircleRightIcon />}
+                    onClick={() => router.push("/doctor")}
+                  >
+                    Consult Now
+                  </Button>
+                </CardContent>
+              </Paper>
+            </Grid>
+          ))
         ) : (
           <div>No Symptoms Found</div>
         )}

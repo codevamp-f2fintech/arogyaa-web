@@ -43,19 +43,19 @@ const PatientOverview: React.FC<{ user: any }> = ({ user }) => {
     {
       id: "3",
       field: "Previous Visit",
-      value: "25/11/2020", // Replace with dynamic data if available
+      value: "25/11/2024", // Replace with dynamic data if available
       icon: <CalendarTodayIcon sx={{ color: "#20ADA0" }} />,
     },
     {
       id: "4",
       field: "Next Visit",
-      value: "09/12/2020", // Replace with dynamic data if available
+      value: "14/02/2025", // Replace with dynamic data if available
       icon: <CalendarTodayIcon sx={{ color: "#20ADA0" }} />,
     },
     {
       id: "5",
       field: "Allergies",
-      value: "Hayfever, Crayfish", // Replace with dynamic data if available
+      value: "Pet, Pollen", // Replace with dynamic data if available
       icon: <HealingIcon sx={{ color: "#20ADA0" }} />,
     },
   ];
