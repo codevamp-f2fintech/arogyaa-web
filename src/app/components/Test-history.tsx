@@ -410,8 +410,22 @@ const TestHistory: React.FC = () => {
                     />
                   ) : (
                     <Button
-                      variant="contained"
                       onClick={() => handleOpenModal(test._id)}
+                      sx={{
+                        display: "block",
+                        margin: "0 auto",
+                        background: "#20ADA0",
+                        color: "white",
+                        fontWeight: "bold",
+                        textDecoration: "none",
+                        borderRadius: "4px",
+                        padding: "5px 10px",
+                        "&:hover": {
+                          background: "#178F84",
+                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+                        },
+                        transition: "all 0.3s ease",
+                      }}
                     >
                       Upload
                     </Button>

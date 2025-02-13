@@ -220,8 +220,9 @@ const TreatmentHistory: React.FC = () => {
             background: "#20ADA0 !important",
             color: "white",
             fontWeight: "bold",
-            padding: "6px 20px",
+            padding: "6px 15px",
             marginLeft: "4px",
+            marginTop: "-12px",
             borderRadius: "20px",
             fontSize: "14px",
             boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
@@ -438,7 +439,21 @@ const TreatmentHistory: React.FC = () => {
                   ) : (
                     <Button
                       onClick={() => handleOpenModal(treatment._id)}
-                      sx={{ display: "block", margin: "0 auto" }}
+                      sx={{
+                        display: "block",
+                        margin: "0 auto",
+                        background: "#20ADA0",
+                        color: "white",
+                        fontWeight: "bold",
+                        textDecoration: "none",
+                        borderRadius: "4px",
+                        padding: "5px 10px",
+                        "&:hover": {
+                          background: "#178F84",
+                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+                        },
+                        transition: "all 0.3s ease",
+                      }}
                     >
                       Upload
                     </Button>

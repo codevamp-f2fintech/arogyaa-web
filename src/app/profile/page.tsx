@@ -12,6 +12,7 @@ import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 
 import { Utility } from "@/utils";
 import { fetcher } from "@/apis/apiClient";
@@ -39,6 +40,7 @@ const UserProfile = () => {
     { icon: FolderIcon, label: "Tests", value: "tests" },
     { icon: CheckCircleIcon, label: "Treatment", value: "treatment" },
     { icon: MonetizationOnIcon, label: "Billing", value: "billing" },
+    
   ];
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {

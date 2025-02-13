@@ -69,7 +69,6 @@ const initialValues: AppointmentFormValues = {
   appointmentType: "",
   description: "",
   videoUrl: null,
-
 };
 
 interface ModalProps {
@@ -156,13 +155,12 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
     if (reason === "clickaway") {
       return;
     }
-  }
+  };
 
   const handleTimeSlotClick = (time: string, setFieldValue: Function) => {
     setSelectedTimeSlot(time);
     setFieldValue("appointmentTime", time);
   };
-
   const handleBookAppointment = useCallback(
     async (values: AppointmentFormValues) => {
       const doctorId = data?._id;
@@ -179,39 +177,54 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
         );
         return;
       }
+
       try {
+        setLoading(true);
+
         const appointmentData = {
           ...values,
           patientId,
           doctorId,
           status: "pending",
-          symptomIds: getIdsFromObject(values?.symptomIds),
+          symptomIds: JSON.stringify(getIdsFromObject(values.symptomIds)),
         };
-
         const response = await createAppointment(appointmentData);
+
+        console.log("Response received:", response);
+
         if (response?.statusCode === 201) {
           const paymentData = {
             patientId,
             doctorId,
             appointmentId: response.data._id,
             status: "successful",
-            amount: (parseInt(data?.consultationFee) * 100), // Stripe expects the amount in paise (not INR).
+            amount: parseInt(data?.consultationFee) * 100,
             currency: "inr",
-            transactionMethod: 'card',
+            transactionMethod: "card",
           };
+
           setShowPaymentForm(true);
           setPaymentInfo(paymentData);
+        } else {
+          snackbarAndNavigate(
+            dispatch,
+            true,
+            "error",
+            "Failed to create appointment",
+            null,
+            true
+          );
         }
       } catch (error: any) {
         const errorMessage =
           error?.response?.data?.message ||
-          "Error creating Appointment, please try again.";
+          "Error creating appointment, please try again.";
         snackbarAndNavigate(dispatch, true, "error", errorMessage, null, true);
       } finally {
         setLoading(false);
       }
     },
-    [data?._id]
+    [data?._id, createAppointment] 
   );
 
   const priceWrapSx = {
@@ -361,8 +374,8 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                 >
                   {data?.availability?.length > 0
                     ? `Available on: ${data.availability
-                      .map((slot) => slot.day)
-                      .join(", ")}`
+                        .map((slot) => slot.day)
+                        .join(", ")}`
                     : "No Days Available"}
                 </Typography>
               </Box>
@@ -504,8 +517,8 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           value={
                             values.appointmentDate
                               ? dayjs(values.appointmentDate).format(
-                                "YYYY-MM-DD"
-                              )
+                                  "YYYY-MM-DD"
+                                )
                               : ""
                           }
                           onChange={(
@@ -531,10 +544,10 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                               padding: "12px 12px",
                             },
                             "& input[type=date]::-webkit-calendar-picker-indicator":
-                            {
-                              zIndex: 3,
-                              cursor: "pointer",
-                            },
+                              {
+                                zIndex: 3,
+                                cursor: "pointer",
+                              },
                             "& .MuiInputBase-root": {
                               fontSize: "0.9rem",
                             },
@@ -650,7 +663,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                               }
                               helperText={
                                 touched.symptomIds &&
-                                  typeof errors.symptomIds === "string"
+                                typeof errors.symptomIds === "string"
                                   ? errors.symptomIds
                                   : ""
                               }
@@ -726,7 +739,9 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                                     padding: "10px",
                                   },
                                 }}
-                                error={touched.videoUrl && Boolean(errors.videoUrl)}
+                                error={
+                                  touched.videoUrl && Boolean(errors.videoUrl)
+                                }
                                 helperText={touched.videoUrl && errors.videoUrl}
                               />
                             </Box>
@@ -882,9 +897,9 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                               <span className="spntx1">Price</span>
                               <span className="spntx2">
                                 {values.appointmentDate &&
-                                  values.appointmentTime &&
-                                  values.symptomIds.length > 0 &&
-                                  values.appointmentType
+                                values.appointmentTime &&
+                                values.symptomIds.length > 0 &&
+                                values.appointmentType
                                   ? `₹${data?.consultationFee}`
                                   : "--"}
                               </span>
@@ -893,9 +908,9 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                               <span className="spntx1">Total</span>
                               <span className="spntx2">
                                 {values.appointmentDate &&
-                                  values.appointmentTime &&
-                                  values.symptomIds.length > 0 &&
-                                  values.appointmentType
+                                values.appointmentTime &&
+                                values.symptomIds.length > 0 &&
+                                values.appointmentType
                                   ? `₹${data?.consultationFee}`
                                   : "--"}
                               </span>
