@@ -43,6 +43,7 @@ export const useGetAppointment = (
  * Hook for creating a new user.
  *
  * @param pathKey - The API path key used to create a new user.
+ * @param {D} headers - The optional headers to be sent.
  * @returns An object containing the created user, loading state, error state, and the createUser function.
  */
 export const useCreateAppointment = (pathKey: string) => {
@@ -53,11 +54,17 @@ export const useCreateAppointment = (pathKey: string) => {
     setLoading(true);
     setError(null);
     try {
+      const headers: Record<string, string> = {
+        "Content-Type": "multipart/form-data",
+      };
+
       const appointment = await creator<Appointment, Partial<AppointmentData>>(
-        'appointment',
+        "appointment",
         pathKey,
-        newAppointmentData
+        newAppointmentData,
+        headers 
       );
+
       return appointment;
     } catch (err) {
       setError(err as Error);

@@ -37,25 +37,25 @@ const PatientOverview: React.FC<{ user: any }> = ({ user }) => {
     {
       id: "2",
       field: "Date of Birth",
-      value: "10/03/1987", // Replace with dynamic data if available
+      value: "10/03/1987", 
       icon: <CalendarTodayIcon sx={{ color: "#20ADA0" }} />,
     },
     {
       id: "3",
       field: "Previous Visit",
-      value: "25/11/2024", // Replace with dynamic data if available
+      value: "25/11/2024", 
       icon: <CalendarTodayIcon sx={{ color: "#20ADA0" }} />,
     },
     {
       id: "4",
       field: "Next Visit",
-      value: "14/02/2025", // Replace with dynamic data if available
+      value: "14/02/2025",
       icon: <CalendarTodayIcon sx={{ color: "#20ADA0" }} />,
     },
     {
       id: "5",
       field: "Allergies",
-      value: "Pet, Pollen", // Replace with dynamic data if available
+      value: "Pet, Pollen", 
       icon: <HealingIcon sx={{ color: "#20ADA0" }} />,
     },
   ];
@@ -78,48 +78,74 @@ const PatientOverview: React.FC<{ user: any }> = ({ user }) => {
 
   return (
     <Container maxWidth="lg">
-      <TableContainer
-        component={Paper}
+      <Box
         sx={{
-          boxShadow: 3,
+          backgroundColor: "#20ADA0", 
           borderRadius: 2,
+          padding: "20px",
+          marginTop: 4,
+          marginBottom: 4,
+          boxShadow: 3,
         }}
       >
-        <Table>
-          <TableHead
-            sx={{
-              backgroundColor: (theme) =>
-                alpha(theme.palette.primary.main, 0.05),
-            }}
-          >
-            <TableRow>
-              {["Field", "Value"].map((header) => (
-                <TableCell
-                  key={header}
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 700,
+            color: "#fff", 
+            marginBottom: 2,
+          }}
+        >
+          Patient Overview
+        </Typography>
+        <TableContainer
+          component={Paper}
+          sx={{
+            borderRadius: 3,
+            boxShadow: 3,
+            overflow: "hidden",
+            border: "1px solid #e0e0e0",
+          }}
+        >
+          <Table>
+            <TableHead
+              sx={{
+                backgroundColor: (theme) =>
+                  alpha(theme.palette.primary.main, 0.05),
+              }}
+            >
+              <TableRow>
+                {["", ""].map((header) => (
+                  <TableCell
+                    key={header}
+                    sx={{
+                      fontWeight: 600,
+                      textTransform: "uppercase",
+                      color: "text.secondary",
+                      padding: "16px 24px",
+                    }}
+                  >
+                    {header}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {paginatedData.map((item) => (
+                <TableRow
+                  key={item.id}
+                  hover
                   sx={{
-                    fontWeight: 600,
-                    textTransform: "uppercase",
-                    color: "text.secondary",
+                    "&:last-child td, &:last-child th": { border: 0 },
+                    transition: "background-color 0.3s",
+                    "&:hover": {
+                      backgroundColor: "#e8f7f7",
+                    },
                   }}
                 >
-                  {header}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {paginatedData.map((item) => (
-              <TableRow
-                key={item.id}
-                hover
-                sx={{
-                  "&:last-child td, &:last-child th": { border: 0 },
-                  transition: "background-color 0.2s",
-                }}
-              >
-                <TableCell>
-                  <Box
+                  <TableCell
                     sx={{
+                      padding: "12px 24px",
                       display: "flex",
                       alignItems: "center",
                       gap: 1,
@@ -129,28 +155,37 @@ const PatientOverview: React.FC<{ user: any }> = ({ user }) => {
                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
                       {item.field}
                     </Typography>
-                  </Box>
-                </TableCell>
-                <TableCell>{item.value}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={patientData.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          sx={{
-            "& .MuiTablePagination-selectLabel, & .MuiTablePagination-select": {
-              fontWeight: 500,
-            },
-          }}
-        />
-      </TableContainer>
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      padding: "12px 24px",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {item.value}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={patientData.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            sx={{
+              "& .MuiTablePagination-selectLabel, & .MuiTablePagination-select": {
+                fontWeight: 500,
+              },
+              borderTop: "1px solid #e0e0e0",
+              backgroundColor: "#f9f9f9",
+            }}
+          />
+        </TableContainer>
+      </Box>
     </Container>
   );
 };

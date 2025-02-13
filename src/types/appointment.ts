@@ -9,6 +9,7 @@ export interface AppointmentData {
   status: string;
   createdAt: string;
   updatedAt: string;
+  videoUrl?: string; 
   __v: number;
 }
 

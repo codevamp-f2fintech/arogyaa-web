@@ -13,9 +13,11 @@ import {
   Paper,
   Fade,
   LinearProgress,
+  CircularProgress,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { Cancel } from "@mui/icons-material";
 import SnackbarComponent from "./Snackbar";
 import { Utility } from "@/utils";
 import { AppDispatch, RootState } from "@/redux/store";
@@ -256,49 +258,50 @@ const ImagePicker: React.FC<ImagePickerProps> = ({
       >
         <Button
           onClick={onClose}
-          variant="outlined"
+          variant="contained"
           sx={{
-            px: 4,
-            py: 1.2,
-            borderRadius: 2,
-            textTransform: "none",
-            color: "#000",
-            fontWeight: "500",
-            minWidth: 120,
-            borderColor: "#c75146", // Change outline color
-            "&:hover": {
-              color: "black",
-              bgcolor: "#f4845f",
-              borderColor: "#c75146", // Keep outline color on hover
-            },
-          }}
-        >
-          Cancel
-        </Button>
-
-        {/* cmplt  */}
-        <Button
-          onClick={handleUpload}
-          //   variant="contained"
-          disabled={!image || isUploading}
-          sx={{
-            px: 4,
-            py: 1,
-            borderRadius: 2,
-            textTransform: "none",
-            color: "white",
-            bgcolor: "#20ADA0",
-
-            fontWeight: "500",
-            minWidth: 120,
-            boxShadow: 2,
+            minWidth: "150px",
+            color: "#fff",
+            background: "#20ADA0",
+            borderRadius: "4px",
+            marginLeft: "20px",
             "&:hover": {
               color: "#fff",
               bgcolor: "#198A80        ",
             },
           }}
+          startIcon={<Cancel sx={{ fontSize: 22 }} />}
         >
-          {isUploading ? "Uploading..." : "Upload"}
+          Cancel
+        </Button>
+        {/* cmplt  */}
+        <Button
+          onClick={handleUpload}
+          disabled={!image || isUploading}
+          sx={{
+            px: 4,
+            py: 1,
+            textTransform: "none",
+            color: "white",
+            borderRadius: "4px",
+            bgcolor: "#20ADA0",
+            fontWeight: "500",
+            minWidth: "150px",
+            boxShadow: 2,
+            "&:hover": {
+              color: "#fff",
+              bgcolor: "#198A80",
+            },
+          }}
+        >
+          {isUploading ? (
+            <CircularProgress size={24} sx={{ color: "white" }} />
+          ) : (
+            <>
+              <CloudUploadIcon sx={{ mr: 1 }} />
+              UPLOAD
+            </>
+          )}
         </Button>
       </DialogActions>
       <SnackbarComponent
