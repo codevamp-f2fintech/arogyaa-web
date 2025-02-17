@@ -35,7 +35,9 @@ const screens = {
 const SymptomCards: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
   const router = useRouter();
-  const { symptom, reduxLoading } = useSelector((state: RootState) => state.symptoms);
+  const { symptom, reduxLoading } = useSelector(
+    (state: RootState) => state.symptoms
+  );
   const [pageSize, setPageSize] = useState({
     page: 1,
     size: 6,
@@ -64,13 +66,21 @@ const SymptomCards: React.FC = () => {
 
   return (
     <Box className={styles.symptomBox}>
-      <Typography variant="h2" component="h2" className={styles.symptomTitle}>
-        <span className={styles.symptomTitleSpan}>
-          {en.homepage.symptomCards.title1}
-        </span>
-        <br />
-        {en.homepage.symptomCards.title2}
+      <Typography variant="h5" component="h5" className={styles.title1}>
+        {en.homepage.symptomCards.title1}
       </Typography>
+      <h1
+        style={{
+          textAlign: "center",
+          marginBottom: "20px",
+          marginTop: "2px",
+          // border: "2px solid blue",
+          color: "black",
+          // fontFamily: "Roboto",
+        }}
+      >
+        {en.homepage.symptomCards.title2}
+      </h1>
 
       <Grid container spacing={2}>
         {symptom && symptom?.results?.length > 0 ? (
@@ -125,14 +135,24 @@ const SymptomCards: React.FC = () => {
 
       <Grid container spacing={2}>
         <Grid item xs={12} sx={{ textAlign: "center", marginTop: "20px" }}>
-          <Button
+          {/* <Button
             variant="contained"
-            className={styles.gridButton}
+            // className={styles.gridButton}
             endIcon={<ArrowCircleRightIcon />}
             onClick={handleFetchNext}
+            sx={{
+              background: "#20ADA0",
+              color: "#fff",
+              padding: "10px 20px",
+              borderRadius: "30px",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                background: "#20ADA0",
+              },
+            }}
           >
             {en.homepage.symptomCards.buttonText}
-          </Button>
+          </Button> */}
         </Grid>
       </Grid>
     </Box>

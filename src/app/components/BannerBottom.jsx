@@ -1,26 +1,30 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
-import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import PhoneIcon from "@mui/icons-material/Phone";
 import {
   Box,
-  Button,
-  InputBase,
-  CardContent,
-  Grid,
-  Paper,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
   Typography,
-  alpha,
+  Grid,
   useTheme,
   useMediaQuery,
-  InputAdornment,
 } from "@mui/material";
-import { styled, keyframes } from "@mui/material/styles";
-import en from "@/locales/en.json";
-import styles from "../page.module.css";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { styled, keyframes, alpha } from "@mui/material/styles";
+
+const moveImageVertical = keyframes`
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(20px); // Move 20px down
+  }
+  100% {
+    transform: translateY(0); // Return to original position
+  }
+`;
 
 const fadeIn = keyframes`
   from {
@@ -51,188 +55,235 @@ const StyledImage = styled("img")(({ theme }) => ({
   position: "absolute",
   bottom: -10,
   left: 0,
-  height: "100%", 
+  height: "100%",
   objectFit: "contain",
   opacity: 0.95,
   filter: "drop-shadow(0 10px 20px rgba(0,0,0,0.15))",
+  animation: `${moveImageVertical} 5s ease-in-out infinite`,
   [theme.breakpoints.down("md")]: {
     display: "none",
   },
 }));
 
-const ContentWrapper = styled(Box)(({ theme }) => ({
-  position: "relative",
-  zIndex: 1,
-  backgroundColor: alpha(theme.palette.background.paper, 0.8),
-  borderRadius: theme.shape.borderRadius * 2,
-  padding: theme.spacing(3),
-  boxShadow: `0 8px 32px ${alpha("#20ADA0", 0.1)}`,
-  maxWidth: "80%",
-  margin: "0 auto",
+const FAQWrapper = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(4),
+  backgroundColor: theme.palette.background.default,
 }));
 
-const StyledInputPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(1),
-  marginBottom: theme.spacing(2),
-  boxShadow: "none",
-  border: `1px solid ${alpha("#20ADA0", 0.2)}`,
-  borderRadius: theme.shape.borderRadius * 1.5,
-  transition: "all 0.3s ease",
-  backgroundColor: alpha(theme.palette.background.paper, 0.9),
-  "&:hover, &:focus-within": {
-    border: `1px solid #20ADA0`,
-    boxShadow: `0 0 0 3px ${alpha("#20ADA0", 0.1)}`,
-    transform: "translateY(-2px)",
-  },
-}));
-
-const ActionButton = styled(Button)(({ theme }) => ({
-  padding: theme.spacing(1.5, 3),
-  borderRadius: theme.shape.borderRadius * 1.5,
-  textTransform: "none",
-  fontWeight: 600,
-  fontSize: "1rem",
-  background: `linear-gradient(45deg, #20ADA0, ${alpha("#20ADA0", 0.8)})`,
-  boxShadow: `0 8px 16px ${alpha("#20ADA0", 0.25)}`,
-  "&:hover": {
-    boxShadow: `0 12px 24px ${alpha("#20ADA0", 0.35)}`,
-    transform: "translateY(-2px)",
-  },
-}));
-
-const BannerBottom = () => {
+const FAQPage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const [formData, setFormData] = useState({ name: "", phone: "" });
-  const handleInputChange = (field) => (event) => {
-    setFormData((prev) => ({ ...prev, [field]: event.target.value }));
-  };
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log("Form submitted:", formData);
-  };
-  const router = useRouter();
+  const [expanded, setExpanded] = useState(false);
 
-  const handleClick2 = () => {
-    router.push("/doctor");
+  const handleChange = (panel) => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
   };
 
   return (
-    <StyledBanner>
-      <StyledImage
-        alt="Doctor"
-        src="/assets/images/doctor-with-his-arms-crossed-white-background.png"
-      />
-     <Grid
-  container
-  spacing={4}
-  sx={{
-    alignItems: "center",
-    justifyContent: "flex-end",
-  }}
->
-  <Grid item xs={12} md={6} sx={{ display: { xs: "none", md: "block" } }}>
-    
-  </Grid>
-  <Grid item xs={12} md={6}>
-    <ContentWrapper>
-      <CardContent>
-        <Typography
-          variant="h5"
+    <Box>
+      {/* Banner Section */}
+      <StyledBanner>
+        <StyledImage
+          alt="Doctor"
+          src="/assets/images/doctor-with-his-arms-crossed-white-background.png"
+        />
+        <Grid
+          container
+          spacing={4}
           sx={{
-            fontWeight: 700,
-            mb: 1,
-            color: theme.palette.text.primary,
+            alignItems: "center",
+            justifyContent: "flex-end",
           }}
         >
-          {en.homepage.bannerBottom.make_your_health}
-        </Typography>
-        <Typography
-          variant="h3"
-          sx={{
-            fontWeight: 800,
-            mb: 3,
-            fontSize: isMobile ? "1.8rem" : "2.5rem",
-            lineHeight: 1.2,
-          }}
-        >
-          {en.homepage.bannerBottom.overlook}
-        </Typography>
-        <Button
-          onClick={handleClick2}
-          variant="outlined"
-          className={styles.appointmentButton}
-          endIcon={<ArrowCircleRightIcon />}
-          sx={{
-            fontWeight: 600,
-            padding: "10px 20px",
-            borderColor: "#20ADA0",
-            color: "#20ADA0",
-            "&:hover": {
-              backgroundColor: "#20ADA0",
-              color: "#fff",
-            },
-          }}
-        >
-          {en.topbar.appointment}
-        </Button>
-      </CardContent>
-      <Box component="form" onSubmit={handleSubmit}>
-        <Typography
-          variant="h6"
-          sx={{
-            fontWeight: 600,
-            mb: 1.5,
-          }}
-        >
-          {en.homepage.bannerComponent.request}
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{
-            mb: 2,
-            color: alpha(theme.palette.text.primary, 0.7),
-            lineHeight: 1.6,
-          }}
-        >
-          {en.homepage.bannerComponent.description}
-        </Typography>
-        <StyledInputPaper>
-          <InputBase
-            fullWidth
-            placeholder="Name"
-            value={formData.name}
-            onChange={handleInputChange("name")}
-            startAdornment={
-              <InputAdornment position="start">
-                <PersonOutlineIcon sx={{ color: "#20ADA0" }} />
-              </InputAdornment>
-            }
-          />
-        </StyledInputPaper>
-        <StyledInputPaper>
-          <InputBase
-            fullWidth
-            placeholder="Phone Number"
-            value={formData.phone}
-            onChange={handleInputChange("phone")}
-            startAdornment={
-              <InputAdornment position="start">
-                <PhoneIcon sx={{ color: "#20ADA0" }} />
-              </InputAdornment>
-            }
-          />
-        </StyledInputPaper>
-        <ActionButton type="submit" fullWidth>
-          {en.homepage.bannerComponent.buttonText}
-        </ActionButton>
-      </Box>
-    </ContentWrapper>
-  </Grid>
-</Grid>
+          <Grid item xs={12} md={6}></Grid>
+          <Grid item xs={12} md={6}></Grid>
+          {/* FAQ Section */}
+          <FAQWrapper
+            sx={{
+              marginRight: "94px", // Add margin on the right
+              borderRadius: "12px", // Apply a rounded border radius
+              width: "600px",
+              backgroundColor: "#E5F9F5", // Light background with the color combination
+              padding: "16px", // Add some padding for better spacing
+            }}
+          >
+            <Typography
+              variant="h4"
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                mb: 3,
+                fontWeight: 700,
+                color: "#20ADA0", // Color for the heading
+              }}
+            >
+              FAQ
+            </Typography>
 
-    </StyledBanner>
+            {/* Accordion 1 */}
+            <Accordion
+              expanded={expanded === "panel1"}
+              onChange={handleChange("panel1")}
+              sx={{
+                backgroundColor: "#ffffff", // Accordion background
+                border: "1px solid #20ADA0", // Border with color combination
+                boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)", // Add shadow to accordion
+                "&:hover": {
+                  backgroundColor: "#F2F9F8", // Change background color on hover
+                  transform: "translateY(-5px)", // Move accordion up on hover
+                  transition: "transform 0.3s ease, background-color 0.3s ease", // Smooth transition
+                },
+              }}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1-content"
+                id="panel1-header"
+                sx={{
+                  backgroundColor: "#F2F9F8", // Accordion header background
+                  color: "#20ADA0", // Text color in the header
+                  fontWeight: "bold", // Make the text bold
+                  "&:hover": {
+                    color: "#ffffff", // Change text color on hover
+                    backgroundColor: "#20ADA0", // Change header background color on hover
+                  },
+                }}
+              >
+                <Typography variant="h6">
+                  What are your working hours?
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography>
+                  Our working hours are Monday to Friday, 9 AM to 6 PM.
+                </Typography>
+              </AccordionDetails>
+            </Accordion>
+
+            {/* Accordion 2 */}
+            <Accordion
+              expanded={expanded === "panel2"}
+              onChange={handleChange("panel2")}
+              sx={{
+                backgroundColor: "#ffffff", // Accordion background
+                border: "1px solid #20ADA0", // Border with color combination
+                "&:hover": {
+                  backgroundColor: "#F2F9F8", // Change background color on hover
+                  transform: "translateY(-5px)", // Move accordion up on hover
+                  transition: "transform 0.3s ease, background-color 0.3s ease", // Smooth transition
+                },
+              }}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel2-content"
+                id="panel2-header"
+                sx={{
+                  backgroundColor: "#F2F9F8", // Accordion header background
+                  color: "#20ADA0", // Text color in the header
+                  fontWeight: "bold", // Make the text bold
+                  "&:hover": {
+                    color: "#ffffff", // Change text color on hover
+                    backgroundColor: "#20ADA0", // Change header background color on hover
+                  },
+                }}
+              >
+                <Typography variant="h6">
+                  How can I schedule an appointment?
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography>
+                  You can schedule an appointment through our online portal or
+                  by calling our office.
+                </Typography>
+              </AccordionDetails>
+            </Accordion>
+
+            {/* Accordion 3 */}
+            <Accordion
+              expanded={expanded === "panel3"}
+              onChange={handleChange("panel3")}
+              sx={{
+                backgroundColor: "#ffffff", // Accordion background
+                border: "1px solid #20ADA0", // Border with color combination
+                "&:hover": {
+                  backgroundColor: "#F2F9F8", // Change background color on hover
+                  transform: "translateY(-5px)", // Move accordion up on hover
+                  transition: "transform 0.3s ease, background-color 0.3s ease", // Smooth transition
+                },
+              }}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel3-content"
+                id="panel3-header"
+                sx={{
+                  backgroundColor: "#F2F9F8", // Accordion header background
+                  color: "#20ADA0", // Text color in the header
+                  fontWeight: "bold", // Make the text bold
+                  "&:hover": {
+                    color: "#ffffff", // Change text color on hover
+                    backgroundColor: "#20ADA0", // Change header background color on hover
+                  },
+                }}
+              >
+                <Typography variant="h6">
+                  What insurance do you accept?
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography>
+                  We accept a variety of insurance providers. Please contact us
+                  for more information.
+                </Typography>
+              </AccordionDetails>
+            </Accordion>
+
+            {/* Accordion 4 */}
+            <Accordion
+              expanded={expanded === "panel4"}
+              onChange={handleChange("panel4")}
+              sx={{
+                backgroundColor: "#ffffff", // Accordion background
+                border: "1px solid #20ADA0", // Border with color combination
+                "&:hover": {
+                  backgroundColor: "#F2F9F8", // Change background color on hover
+                  transform: "translateY(-5px)", // Move accordion up on hover
+                  transition: "transform 0.3s ease, background-color 0.3s ease", // Smooth transition
+                },
+              }}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel4-content"
+                id="panel4-header"
+                sx={{
+                  backgroundColor: "#F2F9F8", // Accordion header background
+                  color: "#20ADA0", // Text color in the header
+                  fontWeight: "bold", // Make the text bold
+                  "&:hover": {
+                    color: "#ffffff", // Change text color on hover
+                    backgroundColor: "#20ADA0", // Change header background color on hover
+                  },
+                }}
+              >
+                <Typography variant="h6">
+                  What services do you offer?
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography>
+                  We offer a wide range of services including consultations,
+                  diagnostics, and treatments.
+                </Typography>
+              </AccordionDetails>
+            </Accordion>
+          </FAQWrapper>
+        </Grid>
+      </StyledBanner>
+    </Box>
   );
 };
 
-export default BannerBottom;
+export default FAQPage;

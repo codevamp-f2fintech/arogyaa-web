@@ -203,7 +203,7 @@ const Topbar = () => {
             },
           }}
         >
-          {pages.map((page) => (
+          {/* {pages.map((page) => (
             <Button
               key={page}
               onClick={handleCloseNavMenu}
@@ -211,7 +211,7 @@ const Topbar = () => {
             >
               {page}
             </Button>
-          ))}
+          ))} */}
         </Box>
         <Box className={styles.appointmentButtonContainer}>
           {pathname !== "/doctor" &&

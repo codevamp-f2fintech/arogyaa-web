@@ -13,7 +13,7 @@
     },
     "specialitySlider": {
       "title": "We Serve In Different Areas For Our Patients",
-      "buttonText": "Fetch Next"
+      "buttonText": "View All"
     },
     "expertSpecialistSlider": {
       "title1": "Meet Our",
@@ -21,13 +21,13 @@
       "drName": "Dr. Nidhi",
       "field": "Physician",
       "experiance": "15 years of experiance",
-      "buttonText": "See All Doctors",
+      "buttonText": "View All",
       "randomText": "Lorem Ipsum Lorem Ipsum"
     },
     "symptomCards": {
       "title1": "Common",
       "title2": "Health Concerns",
-      "buttonText": "See All Symptoms"
+      "buttonText": "View All"
     },
     "aboutUs": {
       "title1": "About",
@@ -41,8 +41,8 @@
       "cardDescription3": "Availability"
     },
     "testimonials": {
-      "title1": " Testimonials",
-      "title2": "What Our Patients Say"
+      "title1": " Feedback From",
+      "title2": "Our Clients"
     },
     "bannerBottom": {
       "buttonText": "Book Appointment",
