@@ -115,25 +115,50 @@ const theme = createTheme({
   },
 });
 
+// Simple debounce function
+const debounce = (func: (...args: any[]) => void, delay: number) => {
+  let timer: NodeJS.Timeout;
+  return (...args: any[]) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
+};
+
 export default function ModernDoctorProfile() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [selectedDoctor, setSelectedDoctor] = useState<DoctorData | null>();
   const [results, setResults] = useState([]);
-  const [keyword, setKeyword] = useState("");
-
+  const [keyword, setKeyword] = useState<string>("");
+  const [debouncedKeyword, setDebouncedKeyword] = useState<string>("");
   const [filters, setFilters] = useState({
     gender: "",
     experienceFilter: "",
     sortBy: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const keyword = e.target.value;
-    setKeyword(keyword);
-    debouncedFetchResults(keyword);
+  const queryParams = {
+    ...filters,
+    keyword: debouncedKeyword,
   };
+
+  // Create a debounced function to update the debounced keyword state
+  const debouncedSearch = useCallback(
+    debounce((value: string) => {
+      setDebouncedKeyword(value);
+    }, 500),
+    []
+  );
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setKeyword(value);
+    debouncedSearch(value);
+  };
+
   const handleFilterChange = (field: string, value: string) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
@@ -145,30 +170,7 @@ export default function ModernDoctorProfile() {
     value: doctors,
     swrLoading,
     error,
-  } = useGetDoctors(null, "get-doctors", 1, 6, filters);
-
-  const fetchDoctorResults = async (searchTerm: string) => {
-    if (!searchTerm.trim()) {
-      setResults([]);
-      return;
-    }
-
-    try {
-      const response = await fetcher(
-        "doctor",
-        `get-doctors?keyword=${encodeURIComponent(searchTerm)}`
-      );
-      if (response && response.results && Array.isArray(response.results)) {
-        setResults(response.results);
-      } else {
-        console.error("Unexpected response structure:", response);
-        setResults([]);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setResults([]);
-    }
-  };
+  } = useGetDoctors(null, "get-doctors", 1, 100, queryParams);
 
   const openModal = (doctor: DoctorData): void => {
     const userToken = Cookies.get("token");
@@ -188,20 +190,6 @@ export default function ModernDoctorProfile() {
     setSelectedDoctor(null);
   };
 
-  const debounce = (func: (...args: any[]) => void, delay: number) => {
-    let timer: NodeJS.Timeout;
-    return (...args: any[]) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        func(...args);
-      }, delay);
-    };
-  };
-
-  const debouncedFetchResults = useCallback(
-    debounce(fetchDoctorResults, 500),
-    []
-  );
 
   // 3) On mount (or after fetch), check if the URL has ?autoBookDoctorId=XXXX
   //    If the user is already logged in, automatically open the modal for that doctor
@@ -288,7 +276,6 @@ export default function ModernDoctorProfile() {
                 }}
               />
               <IconButton
-                type="submit"
                 aria-label="search"
                 className={styles.searchBarButton}
                 sx={{
@@ -343,7 +330,7 @@ export default function ModernDoctorProfile() {
                     {results.map((doctor) => (
                       <ListItem key={doctor._id}>
                         <Link
-                          href={`/doctor/profile/${doctor._id}`}
+                          href={`/doctor/profile/${encodeURIComponent(doctor._id)}`}
                           passHref
                           style={{
                             textDecoration: "none",
@@ -549,7 +536,7 @@ export default function ModernDoctorProfile() {
             marginTop: "20px",
           }}
         >
-          {Array.isArray(doctors?.results) &&
+          {Array.isArray(doctors?.results) && doctors.results.length > 0 ? (
             doctors.results.map((doctor: any) => (
               <Grid item xs={12} sm={6} md={4} key={doctor._id}>
                 <Paper
@@ -559,21 +546,10 @@ export default function ModernDoctorProfile() {
                     overflow: "hidden",
                     display: "flex",
                     flexDirection: "column",
-
-                    // "&:hover": {
-                    //   transform: "scale(1.02)",
-                    //   boxShadow: "0px 12px 20px rgba(0, 0, 0, 0.3)",
-                    // },
                   }}
                 >
                   {/* Header Section */}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      padding: "20px",
-                    }}
-                  >
+                  <Box sx={{ display: "flex", alignItems: "center", padding: "20px" }}>
                     <Box
                       component="img"
                       src={
@@ -591,26 +567,17 @@ export default function ModernDoctorProfile() {
                         marginRight: "20px",
                       }}
                     />
-
                     <Box>
-                      <Typography
-                        variant="h6"
-                        sx={{ fontWeight: "bold", color: "black" }}
-                      >
+                      <Typography variant="h6" sx={{ fontWeight: "bold", color: "black" }}>
                         {doctor.username || "NA"}
                       </Typography>
-
                       <Box sx={{ mt: 1 }}>
                         <Chip
                           icon={<CheckCircleOutlineIcon />}
                           label={
-                            doctor.tags?.length > 0
-                              ? doctor.tags.join(" | ")
-                              : "Not Available"
+                            doctor.tags?.length > 0 ? doctor.tags.join(" | ") : "Not Available"
                           }
-                          sx={{
-                            color: "#20ADA0",
-                          }}
+                          sx={{ color: "#20ADA0" }}
                           variant="body2"
                           size="small"
                         />
@@ -624,11 +591,8 @@ export default function ModernDoctorProfile() {
                           alignItems: "center",
                         }}
                       >
-                        <LocationOnIcon
-                          sx={{ fontSize: 16, color: "gray", mr: 0.5 }}
-                        />
-                        {doctor.address || "Doctor Title"} |{" "}
-                        {doctor.hospitalAffiliations?.[0] || "Hospital Name"}
+                        <LocationOnIcon sx={{ fontSize: 16, color: "gray", mr: 0.5 }} />
+                        {doctor.address || "Doctor Title"} | {doctor.hospitalAffiliations?.[0] || "Hospital Name"}
                       </Typography>
                     </Box>
                   </Box>
@@ -658,9 +622,7 @@ export default function ModernDoctorProfile() {
                       }}
                     >
                       <WorkIcon fontSize="small" color="primary" />
-                      {doctor.experience
-                        ? `${doctor.experience} Years Experience`
-                        : "Experience Not Available"}
+                      {doctor.experience ? `${doctor.experience} Years Experience` : "Experience Not Available"}
                     </Typography>
                     <Typography
                       variant="body2"
@@ -678,13 +640,7 @@ export default function ModernDoctorProfile() {
                   </Box>
 
                   {/* Actions Section */}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      backgroundColor: "#fefefe",
-                      borderTop: "1px solid #f0f0f0",
-                    }}
-                  >
+                  <Box sx={{ display: "flex", backgroundColor: "#fefefe", borderTop: "1px solid #f0f0f0" }}>
                     <Button
                       variant="outlined"
                       fullWidth
@@ -699,9 +655,7 @@ export default function ModernDoctorProfile() {
                         },
                       }}
                       onClick={() => {
-                        router.push(
-                          `/doctor/profile/${encodeURIComponent(doctor._id)}`
-                        );
+                        router.push(`/doctor/profile/${encodeURIComponent(doctor._id)}`);
                       }}
                     >
                       View Full Profile
@@ -725,7 +679,15 @@ export default function ModernDoctorProfile() {
                   </Box>
                 </Paper>
               </Grid>
-            ))}
+            ))
+          ) : (
+            <Grid item xs={12}>
+              <Typography variant="h6" color="textSecondary" align="center">
+                No Doctors Found
+              </Typography>
+            </Grid>
+          )}
+
         </Grid>
         <BookAppointmentModal
           isOpen={isModalOpen}
