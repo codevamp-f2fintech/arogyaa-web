@@ -3,10 +3,23 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Box, Button, Paper, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Chip,
+  Divider,
+  IconButton,
+  Paper,
+  Rating,
+  Typography,
+} from "@mui/material";
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import EventIcon from "@mui/icons-material/Event";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import SchoolIcon from "@mui/icons-material/School";
+import VerifiedIcon from "@mui/icons-material/Verified";
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 
 import Slider from "react-slick";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,7 +34,7 @@ import en from "@/locales/en.json";
 import Loader from "./common/Loader";
 import BookAppointmentModal from "../components/common/BookAppointmentModal";
 import { DoctorData } from "@/types/doctor";
-import Cookies from "js-cookie"
+import Cookies from "js-cookie";
 
 const ExpertSpecialistSlider: React.FC = () => {
   const [selectedDoctor, setSelectedDoctor] = useState<DoctorData | null>(null);
@@ -61,12 +74,14 @@ const ExpertSpecialistSlider: React.FC = () => {
   const sliderSettings = useMemo(
     () => ({
       dots: true,
-      infinite: false,
+      infinite: true, // This ensures the slider will loop infinitely
       speed: 500,
       slidesToShow: 4,
       slidesToScroll: 1,
       lazyLoad: "ondemand",
       pauseOnHover: true,
+      autoplay: true, // Enables auto-play
+      autoplaySpeed: 3000, // Interval between each slide transition in milliseconds
       cssEase: "ease-in-out",
       responsive: [
         {
@@ -101,9 +116,17 @@ const ExpertSpecialistSlider: React.FC = () => {
         <Typography variant="h5" component="h5" className={styles.title1}>
           {en.homepage.expertSpecialistSlider.title1}
         </Typography>
-        <Typography variant="h2" component="h2" className={styles.title2}>
+        <h1
+          style={{
+            textAlign: "center",
+            marginBottom: "20px",
+            marginTop: "2px",
+            color: "black",
+            // fontFamily: "Roboto",
+          }}
+        >
           {en.homepage.expertSpecialistSlider.title2}
-        </Typography>
+        </h1>
       </Box>
 
       {reduxLoading || swrLoading ? (
@@ -114,78 +137,237 @@ const ExpertSpecialistSlider: React.FC = () => {
             {doctor?.results?.map((doctor) => (
               <div key={doctor._id}>
                 <Paper
-                  className={styles.specialistCardShort}
-                  style={{
-                    margin: "0 10px",
-                    height: "310px",
-                    marginBottom: "15px",
+                  elevation={3}
+                  sx={{
+                    m: 1,
+                    height: "435px",
+                    borderRadius: "16px",
+                    overflow: "hidden",
                     position: "relative",
+                    transition: "all 0.3s ease",
+                    backgroundColor: "#FFFFFF",
+                    "&:hover": {
+                      transform: "translateY(-8px)",
+                      boxShadow: "0 12px 24px rgba(32, 173, 160, 0.15)",
+                      "& .doctor-image": {
+                        transform: "scale(1.05)",
+                      },
+                    },
                   }}
                 >
+                  {/* Enhanced Top Banner */}
+                  <Box
+                    sx={{
+                      height: "100px",
+                      background:
+                        "linear-gradient(135deg, #20ADA0 0%, #0D847A 100%)",
+                      position: "relative",
+                      "&::after": {
+                        content: '""',
+                        position: "absolute",
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        height: "40px",
+                        background:
+                          "linear-gradient(180deg, transparent 0%, rgba(32, 173, 160, 0.1) 100%)",
+                      },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: "10px",
+                        right: "10px",
+                        display: "flex",
+                        gap: "8px",
+                      }}
+                    >
+                      <IconButton
+                        size="small"
+                        sx={{
+                          backgroundColor: "rgba(255, 255, 255, 0.9)",
+                          "&:hover": { backgroundColor: "#FFFFFF" },
+                        }}
+                      >
+                        <VerifiedIcon
+                          sx={{ color: "#20ADA0", fontSize: "20px" }}
+                        />
+                      </IconButton>
+                    </Box>
+                  </Box>
+
+                  {/* Enhanced Profile Image */}
                   <Box
                     sx={{
                       position: "absolute",
-                      top: "10px",
-                      right: "10px",
-                      display: "flex",
-                      gap: "10px",
+                      top: "50px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      width: "100px",
+                      height: "100px",
+                      borderRadius: "50%",
+                      border: "4px solid white",
+                      overflow: "hidden",
+                      boxShadow: "0 4px 12px rgba(32, 173, 160, 0.2)",
                     }}
                   >
-                    <AccountCircleIcon
+                    <Box
+                      component="img"
+                      className="doctor-image"
+                      src={
+                        doctor.profilePicture ||
+                        "../assets/images/online-doctor-with-white-coat.png"
+                      }
+                      alt={doctor.username}
                       sx={{
-                        fontSize: "24px",
-                        color: "#20ADA0",
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
                         cursor: "pointer",
-                        transition: "color 0.3s",
+                        transition: "transform 0.3s ease",
                       }}
-                      onClick={() => {
+                      onClick={() =>
                         router.push(
                           `/doctor/profile/${encodeURIComponent(doctor._id)}`
-                        );
-                      }}
-                    />
-                    <EventIcon
-                      sx={{
-                        fontSize: "24px",
-                        color: "#20ADA0",
-                        cursor: "pointer",
-                        transition: "color 0.3s",
-                      }}
-                      onClick={() => openModal(doctor)}
+                        )
+                      }
                     />
                   </Box>
 
-                  <Box
-                    component="img"
-                    className={styles.doctorImage}
-                    alt={doctor.username}
-                    src={
-                      doctor.profilePicture ||
-                      "../assets/images/online-doctor-with-white-coat.png"
-                    }
-                  />
-                  <Typography
-                    variant="h4"
-                    component="h4"
-                    className={styles.drName}
-                  >
-                    {doctor.username}
-                  </Typography>
-                  <Typography
-                    variant="h6"
-                    component="p"
-                    className={styles.experience}
-                  >
-                    {doctor.experience} years of experience
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    component="p"
-                    className={styles.bio}
-                    style={{ marginTop: "10px" }}
-                  >
-                    {doctor.bio}
-                  </Typography>
+                  {/* Enhanced Content */}
+                  <Box sx={{ mt: 8, p: 2, textAlign: "center" }}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        color: "#2C3E50",
+                        fontWeight: "600",
+                        mb: 1,
+                        cursor: "pointer",
+                        transition: "color 0.2s ease",
+                        "&:hover": { color: "#20ADA0" },
+                      }}
+                      onClick={() =>
+                        router.push(
+                          `/doctor/profile/${encodeURIComponent(doctor._id)}`
+                        )
+                      }
+                    >
+                      {doctor.username}
+                      <LocalHospitalIcon
+                        sx={{
+                          fontSize: "16px",
+                          ml: 1,
+                          color: "#20ADA0",
+                          verticalAlign: "text-top",
+                        }}
+                      />
+                    </Typography>
+
+                    {/* Enhanced Chips */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        gap: 1,
+                        mb: 2,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <Chip
+                        icon={<SchoolIcon sx={{ color: "#20ADA0" }} />}
+                        label={`${doctor.experience} Years Exp.`}
+                        variant="outlined"
+                        size="small"
+                        sx={{
+                          borderColor: "#20ADA0",
+                          "&:hover": {
+                            backgroundColor: "rgba(32, 173, 160, 0.05)",
+                            borderColor: "#20ADA0",
+                          },
+                        }}
+                      />
+                      <Chip
+                        icon={<LocationOnIcon sx={{ color: "#20ADA0" }} />}
+                        label="Location"
+                        variant="outlined"
+                        size="small"
+                        sx={{
+                          borderColor: "#20ADA0",
+                          "&:hover": {
+                            backgroundColor: "rgba(32, 173, 160, 0.05)",
+                            borderColor: "#20ADA0",
+                          },
+                        }}
+                      />
+                    </Box>
+
+                    <Rating
+                      value={4.5}
+                      precision={0.5}
+                      readOnly
+                      size="small"
+                      sx={{
+                        mb: 2,
+                        "& .MuiRating-iconFilled": {
+                          color: "#20ADA0",
+                        },
+                      }}
+                    />
+
+                    <Divider
+                      sx={{
+                        mb: 2,
+                        "&::before, &::after": {
+                          borderColor: "rgba(32, 173, 160, 0.2)",
+                        },
+                      }}
+                    />
+
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "#7F8C8D",
+                        mb: 2,
+                        height: "48px",
+                        overflow: "hidden",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        lineHeight: 1.5,
+                        px: 1,
+                      }}
+                    >
+                      {doctor.bio}
+                    </Typography>
+
+                    {/* Enhanced Button */}
+                    <Button
+                      variant="contained"
+                      onClick={() => openModal(doctor)}
+                      startIcon={<EventIcon />}
+                      sx={{
+                        background: "#20ADA0",
+                        borderRadius: "25px",
+                        padding: "8px 24px",
+                        textTransform: "none",
+                        fontWeight: "600",
+                        transition: "all 0.3s ease",
+                        boxShadow: "0 4px 12px rgba(32, 173, 160, 0.2)",
+                        mb: 2,
+                        "&:hover": {
+                          background: "#10897F",
+                          boxShadow: "0 6px 16px rgba(32, 173, 160, 0.3)",
+                          transform: "translateY(-2px)",
+                        },
+                        "&:active": {
+                          transform: "translateY(0)",
+                        },
+                      }}
+                    >
+                      Book Appointment
+                    </Button>
+                  </Box>
                 </Paper>
               </div>
             ))}

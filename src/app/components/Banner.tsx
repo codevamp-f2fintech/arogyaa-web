@@ -13,10 +13,12 @@ import {
   List,
   ListItem,
   ListItemText,
+  CardContent,
 } from "@mui/material";
 
 import en from "@/locales/en.json";
 import { fetcher } from "@/apis/apiClient";
+import { Roboto } from "next/font/google";
 
 const BannerComponent: React.FC = () => {
   const [keyword, setKeyword] = useState("");
@@ -241,6 +243,22 @@ const BannerComponent: React.FC = () => {
             }
           }
         `}</style>
+          <CardContent  className={`${styles.bannerCardContent} ${results.length > 0 ? styles.blurredContent : ''}`}>
+          <Typography
+            variant="h5"
+            component="span"
+            className={styles.bannerBestMedical}
+          >
+            {en.homepage.bannerComponent.the_best_medical}
+          </Typography>
+          <Typography
+            variant="h4"
+            component="h4"
+            className={styles.bannerTreatment}
+          >
+            {en.homepage.bannerComponent.treatment}
+          </Typography>
+        </CardContent>
       </div>
     </div>
   );

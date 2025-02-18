@@ -1,4 +1,6 @@
 export interface SpecialityData {
+  image: string;
+  experience: ReactNode;
   _id: string;
   name: string;
   description: string;

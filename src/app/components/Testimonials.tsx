@@ -47,9 +47,21 @@ const Testimonials = () => {
   return (
     <Box className={styles.testimonialsSection}>
       <Box className={styles.testimonialsTitleBox}>
-        <Typography variant="h5" className={styles.testimonialsTitle1}>
-          { "Our Patient’s Stories"}
+        <Typography variant="h5" component="h5" className={styles.title1}>
+          {en.homepage.testimonials.title1}
         </Typography>
+        <h1
+          style={{
+            textAlign: "center",
+            marginBottom: "20px",
+            marginTop: "2px",
+            // border: "2px solid blue",
+            color: "black",
+            // fontFamily: "Roboto",
+          }}
+        >
+          {en.homepage.testimonials.title2}
+        </h1>
       </Box>
 
       <Box className={styles.testimonialsContainer}>
@@ -62,9 +74,9 @@ const Testimonials = () => {
                   alt={testimonial.name}
                   className={styles.testimonialAvatar}
                 />
-                <IconButton className={styles.playButton}>
+                {/* <IconButton className={styles.playButton}>
                   <PlayCircleIcon fontSize="large" />
-                </IconButton>
+                </IconButton> */}
               </Box>
               <Typography
                 variant="body1"
@@ -75,7 +87,7 @@ const Testimonials = () => {
               <Typography variant="h6" className={styles.testimonialName}>
                 {testimonial.name}
               </Typography>
-              <Rating value={testimonial.rating} readOnly precision={0.1} />
+              <Rating sx={{color:"#20ADA0"}} value={testimonial.rating} readOnly precision={0.1} />
             </CardContent>
           </Card>
         ))}
