@@ -235,7 +235,13 @@ export default function ModernDoctorProfile() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Container maxWidth={false} sx={{ py: 12 }}>
+      <Container
+        maxWidth={false}
+        sx={{
+          py: 12,
+          background: "linear-gradient(135deg, #20ADA0 0%, #B6DADA 100%)",
+        }}
+      >
         {/* Search Bar */}
         <Grid
           container
@@ -254,10 +260,10 @@ export default function ModernDoctorProfile() {
                 display: "flex",
                 alignItems: "center",
                 margin: "1rem 0rem",
-                padding: "0.25rem", // Reduced padding to make it more compact
-                maxWidth: "400px", // Increased width
-                width: "100%", // Ensures responsiveness
-                borderRadius: "20px", // Adjusted for a sleeker look
+                padding: "0.25rem",
+                maxWidth: "400px",
+                width: "100%",
+                borderRadius: "20px",
                 backgroundColor: "rgba(255, 255, 255, 0.90)",
                 position: "relative",
                 marginLeft: "auto",
@@ -302,7 +308,7 @@ export default function ModernDoctorProfile() {
                 backgroundColor: "#fff",
                 color: "#000",
                 maxWidth: { xs: "100%", sm: "600px" },
-                borderRadius: "8px",
+                borderRadius: "1px",
                 boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
                 textAlign: "left",
                 overflow: "hidden",
@@ -387,12 +393,25 @@ export default function ModernDoctorProfile() {
               variant="outlined"
               size="small"
               sx={{
-                backgroundColor: "rgba(255, 255, 255, 0.90)",
+                background: "#fff",
                 borderRadius: "30px",
-                minWidth: 120, // Set a consistent width
+                minWidth: 120,
               }}
             >
-              <InputLabel id="gender-label">Gender</InputLabel>
+              <InputLabel
+                id="gender-label"
+                sx={{
+                  backgroundColor: "#fff",
+                  px: 1,
+                  transition: "all 0.3s ease-in-out",
+                  "&.MuiInputLabel-shrink": {
+                    px: 1,
+                    borderRadius: "2px",
+                  },
+                }}
+              >
+                Gender
+              </InputLabel>
               <Select
                 labelId="gender-label"
                 id="gender-select"
@@ -401,11 +420,7 @@ export default function ModernDoctorProfile() {
                 label="Gender"
                 sx={{
                   "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "black",
                     borderRadius: "40px",
-                  },
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "black",
                   },
                 }}
               >
@@ -429,7 +444,20 @@ export default function ModernDoctorProfile() {
                 borderRadius: "30px",
               }}
             >
-              <InputLabel id="experience-label">Experience</InputLabel>
+              <InputLabel
+                id="experience-label"
+                sx={{
+                  backgroundColor: "#fff",
+                  px: 1,
+                  transition: "all 0.3s ease-in-out",
+                  "&.MuiInputLabel-shrink": {
+                    px: 1,
+                    borderRadius: "2px",
+                  },
+                }}
+              >
+                Experience
+              </InputLabel>
               <Select
                 labelId="experience-label"
                 id="experience-select"
@@ -439,15 +467,8 @@ export default function ModernDoctorProfile() {
                 }
                 label="Experience"
                 sx={{
-                  "&:focus-visible": {
-                    borderColor: "black",
-                  },
                   "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "black",
                     borderRadius: "40px",
-                  },
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "black",
                   },
                 }}
               >
@@ -472,7 +493,20 @@ export default function ModernDoctorProfile() {
                 borderRadius: "30px",
               }}
             >
-              <InputLabel id="fees-label">Fees</InputLabel>
+              <InputLabel
+                id="fees-label"
+                sx={{
+                  backgroundColor: "#fff", 
+                  px: 1,
+                  transition: "all 0.3s ease-in-out",
+                  "&.MuiInputLabel-shrink": {
+                    px: 1, 
+                    borderRadius: "2px", 
+                  },
+                }}
+              >
+                Fees
+              </InputLabel>
               <Select
                 labelId="fees-label"
                 id="fees-select"
@@ -480,15 +514,8 @@ export default function ModernDoctorProfile() {
                 onChange={(e) => handleFilterChange("sortBy", e.target.value)}
                 label="Fees"
                 sx={{
-                  "&:focus-visible": {
-                    borderColor: "black",
-                  },
                   "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "black",
                     borderRadius: "40px",
-                  },
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "black",
                   },
                 }}
               >
@@ -539,60 +566,94 @@ export default function ModernDoctorProfile() {
           {Array.isArray(doctors?.results) && doctors.results.length > 0 ? (
             doctors.results.map((doctor: any) => (
               <Grid item xs={12} sm={6} md={4} key={doctor._id}>
-                <Paper
-                  elevation={5}
+                <Box
                   sx={{
-                    borderRadius: "20px",
+                    borderRadius: "10px",
                     overflow: "hidden",
-                    display: "flex",
-                    flexDirection: "column",
+                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                    backgroundColor: "#fff",
                   }}
                 >
-                  {/* Header Section */}
-                  <Box sx={{ display: "flex", alignItems: "center", padding: "20px" }}>
+                  {/* Doctor Header */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "20px",
+                      backgroundColor: "#F5F5F5",
+                    }}
+                  >
+                    {/* Doctor Image */}
                     <Box
                       component="img"
+                      alt="Doctor"
                       src={
                         doctor.profilePicture ||
-                        "https://blog.pincel.app/wp-content/uploads/2024/02/Doctor_headshot_happy_full_body_in_a_medical_coat_professional_light_blue_background.jpeg"
+                        "/assets/images/online-doctor-with-white-coat.png"
                       }
-                      alt={doctor.username || "Doctor"}
                       sx={{
-                        width: "90px",
-                        height: "90px",
+                        width: "80px",
+                        height: "80px",
                         borderRadius: "50%",
                         objectFit: "cover",
-                        border: "3px solid #fff",
-                        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-                        marginRight: "20px",
+                        border: "2px solid #20ADA0",
                       }}
                     />
-                    <Box>
-                      <Typography variant="h6" sx={{ fontWeight: "bold", color: "black" }}>
-                        {doctor.username || "NA"}
+
+                    {/* Doctor Info */}
+                    <Box sx={{ marginLeft: "15px", flex: 1 }}>
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: "bold", color: "#333" }}
+                      >
+                        {doctor.username || "Doctor Name"}
                       </Typography>
-                      <Box sx={{ mt: 1 }}>
-                        <Chip
-                          icon={<CheckCircleOutlineIcon />}
-                          label={
-                            doctor.tags?.length > 0 ? doctor.tags.join(" | ") : "Not Available"
-                          }
-                          sx={{ color: "#20ADA0" }}
-                          variant="body2"
-                          size="small"
-                        />
+
+                      {/* Tags / Specialization */}
+                      <Box
+                        sx={{
+                          mt: 1,
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: "5px",
+                        }}
+                      >
+                        {doctor.tags?.length > 0 ? (
+                          doctor.tags.map((tag, index) => (
+                            <Chip
+                              key={index}
+                              label={tag}
+                              sx={{
+                                backgroundColor: "#20ADA0",
+                                color: "#fff",
+                                fontSize: "12px",
+                                borderRadius: "16px",
+                              }}
+                              size="small"
+                            />
+                          ))
+                        ) : (
+                          <Typography variant="body2" sx={{ color: "#888" }}>
+                            Specialization Not Available
+                          </Typography>
+                        )}
                       </Box>
+
+                      {/* Location & Hospital */}
                       <Typography
                         variant="body2"
                         sx={{
-                          color: "black",
+                          color: "#666",
                           mt: 1,
                           display: "flex",
                           alignItems: "center",
                         }}
                       >
-                        <LocationOnIcon sx={{ fontSize: 16, color: "gray", mr: 0.5 }} />
-                        {doctor.address || "Doctor Title"} | {doctor.hospitalAffiliations?.[0] || "Hospital Name"}
+                        <LocationOnIcon
+                          sx={{ fontSize: 16, color: "#888", mr: 0.5 }}
+                        />
+                        {doctor.address || "Doctor Location"} |{" "}
+                        {doctor.hospitalAffiliations?.[0] || "Hospital Name"}
                       </Typography>
                     </Box>
                   </Box>
@@ -603,11 +664,10 @@ export default function ModernDoctorProfile() {
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      px: 3,
-                      py: 2,
+                      padding: "12px 20px",
+                      backgroundColor: "#fff",
                       borderTop: "1px solid #f0f0f0",
                       borderBottom: "1px solid #f0f0f0",
-                      backgroundColor: "#f9f9f9",
                     }}
                   >
                     <Typography
@@ -618,11 +678,13 @@ export default function ModernDoctorProfile() {
                         gap: "6px",
                         fontSize: "14px",
                         fontWeight: "bold",
-                        color: "rgba(0, 0, 0, 0.6)",
+                        color: "#555",
                       }}
                     >
-                      <WorkIcon fontSize="small" color="primary" />
-                      {doctor.experience ? `${doctor.experience} Years Experience` : "Experience Not Available"}
+                      <WorkIcon fontSize="small" sx={{ color: "#20ADA0" }} />
+                      {doctor.experience
+                        ? `${doctor.experience} Years Experience`
+                        : "Experience Not Available"}
                     </Typography>
                     <Typography
                       variant="body2"
@@ -631,10 +693,13 @@ export default function ModernDoctorProfile() {
                         alignItems: "center",
                         gap: "6px",
                         fontWeight: "bold",
-                        color: "rgba(0, 0, 0, 0.6)",
+                        color: "#555",
                       }}
                     >
-                      <CurrencyRupeeIcon fontSize="small" color="primary" />
+                      <CurrencyRupeeIcon
+                        fontSize="small"
+                        sx={{ color: "#20ADA0" }}
+                      />
                       {doctor.consultationFee || "Not Available"}
                     </Typography>
                   </Box>
@@ -647,12 +712,11 @@ export default function ModernDoctorProfile() {
                       sx={{
                         borderRadius: "0px",
                         textTransform: "none",
-                        background: "#20ada0",
-                        color: "#fff",
+                        background: "#fff",
+                        color: "#20ADA0",
+                        fontWeight: "600",
                         borderRight: "1px solid #f0f0f0",
-                        "&:hover": {
-                          backgroundColor: "#074799",
-                        },
+                        transition: "all 0.2s ease-in-out",
                       }}
                       onClick={() => {
                         router.push(`/doctor/profile/${encodeURIComponent(doctor._id)}`);
@@ -660,16 +724,22 @@ export default function ModernDoctorProfile() {
                     >
                       View Full Profile
                     </Button>
+
                     <Button
                       variant="contained"
                       fullWidth
                       sx={{
                         borderRadius: "0px",
                         textTransform: "none",
-                        backgroundColor: "orange",
+                        background: "linear-gradient(90deg, #2A9D8F, #20ADA0)",
+                        transform: "scale(1.02)",
                         color: "#fff",
+                        fontWeight: "600",
+                        transition: "all 0.3s ease-in-out",
                         "&:hover": {
-                          backgroundColor: "green",
+                          background:
+                            "linear-gradient(90deg, #2A9D8F, #20ADA0)",
+                          transform: "scale(1.02)",
                         },
                       }}
                       onClick={() => openModal(doctor)}
@@ -677,7 +747,7 @@ export default function ModernDoctorProfile() {
                       Book Appointment
                     </Button>
                   </Box>
-                </Paper>
+                </Box>
               </Grid>
             ))
           ) : (

@@ -13,14 +13,15 @@ import {
   TablePagination,
   Chip,
   alpha,
-  CircularProgress,
-  Typography,
+
+  Box,
 } from "@mui/material";
 import {
   CheckCircle,
   HourglassEmpty,
   Cancel,
   Refresh,
+  ReceiptLong,
 } from "@mui/icons-material";
 import {
   CreditCard,
@@ -85,12 +86,14 @@ const BillingHistory: React.FC = () => {
     switch (method.toLowerCase()) {
       case "card":
         return (
-          <CreditCard sx={{ color: "#20ADA0", fontSize: 20, marginRight: 0.2 }} />
+          <CreditCard
+            sx={{ color: "#20ADA0", fontSize: 20, marginRight: 0.2 }}
+          />
         );
       case "upi":
         return (
           <AccountBalanceWallet
-            sx={{ color: "#20ADA0", fontSize: 20, marginRight: 0.2  }}
+            sx={{ color: "#20ADA0", fontSize: 20, marginRight: 0.2 }}
           />
         );
       case "net_banking":
@@ -101,7 +104,7 @@ const BillingHistory: React.FC = () => {
         );
       default:
         return (
-          <Payment sx={{ color: "#20ADA0", fontSize: 20,  marginRight: 0.2  }} />
+          <Payment sx={{ color: "#20ADA0", fontSize: 20, marginRight: 0.2 }} />
         );
     }
   };
@@ -110,17 +113,19 @@ const BillingHistory: React.FC = () => {
       case "USD":
         return (
           <AttachMoney
-            sx={{ color: "#20ADA0", fontSize: 15, marginRight: 1 }}
+            sx={{ color: "#20ADA0", fontSize: 16, marginRight: 0.5 }}
           />
         );
       case "INR":
         return (
           <CurrencyRupee
-            sx={{ color: "#20ADA0", fontSize: 10, marginRight: 1 }}
+            sx={{ color: "#20ADA0", fontSize: 16, marginRight: 0.5 }}
           />
         );
       case "EUR":
-        return <Euro sx={{ color: "#20ADA0", fontSize: 10, marginRight: 1 }} />;
+        return (
+          <Euro sx={{ color: "#20ADA0", fontSize: 16, marginRight: 0.5 }} />
+        );
       case "BTC":
         return (
           <CurrencyBitcoin
@@ -189,131 +194,127 @@ const BillingHistory: React.FC = () => {
           borderRadius: 2,
         }}
       >
-        {loading ? (
-          <CircularProgress sx={{ display: "block", margin: "auto", my: 3 }} />
-        ) : error ? (
-          <Typography
-            color="error"
-            sx={{ textAlign: "center", py: 3, fontWeight: 500 }}
+        <Table>
+          <TableHead
+            sx={{
+              backgroundColor: (theme) =>
+                alpha(theme.palette.primary.main, 0.05),
+            }}
           >
-            {error}
-          </Typography>
-        ) : (
-          <>
-            <Table>
-              <TableHead
-                sx={{
-                  backgroundColor: (theme) =>
-                    alpha(theme.palette.primary.main, 0.05),
-                }}
-              >
-                <TableRow sx={{ textAlign: "center" }}>
-                  {[
-                    "Doctor's Name",
-                    "Payment Method",
-                    "Date",
-                    "Amount",
-                    "Status",
-                  ].map((header) => (
-                    <TableCell
-                      key={header}
-                      sx={{
-                        fontWeight: 600,
-                        textTransform: "uppercase",
-                        color: "text.secondary",
-                        textAlign: "center",
+            <TableRow sx={{ textAlign: "center" }}>
+              {[
+                "Doctor's Name",
+                "Payment Method",
+                "Date",
+                "Amount",
+                "Status",
+              ].map((header) => (
+                <TableCell
+                  key={header}
+                  sx={{
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                    color: "text.secondary",
+                    textAlign: "center",
+                  }}
+                >
+                  {header}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {error ? (
+              <TableRow>
+                <TableCell colSpan={5} align="center" style={{ color: "red" }}>
+                  {error}
+                </TableCell>
+              </TableRow>
+            ) : billingData.length > 0 ? (
+              billingData.map((bill) => (
+                <TableRow key={bill._id} hover>
+                  <TableCell align="center">
+                    {bill.doctorId?.username || "N/A"}
+                  </TableCell>
+                  <TableCell align="center" sx={{ whiteSpace: "nowrap" }}>
+                    <span
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 6,
                       }}
                     >
-                      {header}
-                    </TableCell>
-                  ))}
+                      {getPaymentIcon(bill.transactionMethod)}
+                      <span>{bill.transactionMethod.replace("_", " ")}</span>
+                    </span>
+                  </TableCell>
+                  <TableCell align="center">
+                    {new Date(bill.date).toLocaleString()}
+                  </TableCell>
+                  <TableCell align="center">
+                    <span
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: "8px",
+                        fontWeight: 700,
+                        fontSize: "1rem",
+                        color: "#20ADA0",
+                        backgroundColor:
+                          bill.amount >= 500
+                            ? "rgba(46, 125, 50, 0.1)"
+                            : "rgba(211, 47, 47, 0.1)",
+                        minWidth: "80px",
+                      }}
+                    >
+                      {getCurrencyIcon(bill.currency)}
+                      {bill.amount} {bill.currency}
+                    </span>
+                  </TableCell>
+                  <TableCell align="center">
+                    {getStatusChip(bill.status)}
+                  </TableCell>
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {billingData.length > 0 ? (
-                  billingData.map((bill) => (
-                    <TableRow key={bill._id} hover>
-                      <TableCell align="center">
-                        {bill.doctorId?.username || "N/A"}
-                      </TableCell>
-                      <TableCell align="center" sx={{ whiteSpace: "nowrap" }}>
-                        <span
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            gap: 6,
-                          }}
-                        >
-                          {getPaymentIcon(bill.transactionMethod)}
-                          <span>
-                            {bill.transactionMethod.replace("_", " ")}
-                          </span>
-                        </span>
-                      </TableCell>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={9} align="center">
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      gap: 0.5,
 
-                      <TableCell align="center">
-                        {new Date(bill.date).toLocaleString()}
-                      </TableCell>
-                      <TableCell align="center">
-                        <span
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            justifyContent: "center",
+                      borderRadius: "8px",
 
-                            borderRadius: "8px",
-                            fontWeight: 700,
-                            fontSize: "1rem",
-                            color:
-                              bill.amount >= 500
-                                ? "#20ADA0"
-                                : bill.amount >= 100
-                                ? "#20ADA0"
-                                : "#20ADA0",
-                            backgroundColor:
-                              bill.amount >= 500
-                                ? "rgba(46, 125, 50, 0.1)"
-                                : "rgba(211, 47, 47, 0.1)",
-                            minWidth: "80px",
-                          }}
-                        >
-                          {getCurrencyIcon(bill.currency)}
-                          {bill.amount} {bill.currency}
-                        </span>
-                      </TableCell>
-
-                      <TableCell align="center">
-                        {getStatusChip(bill.status)}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={5} align="center">
-                      No billing records found.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={totalCount}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-              sx={{
-                "& .MuiTablePagination-selectLabel, & .MuiTablePagination-select":
-                  {
-                    fontWeight: 500,
-                  },
-              }}
-            />
-          </>
-        )}
+                      color: "#20ADA0",
+                    }}
+                  >
+                    <ReceiptLong sx={{ fontSize: 18, color: "#20ADA0" }} />
+                    No Billing History
+                  </Box>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={totalCount}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          sx={{
+            "& .MuiTablePagination-selectLabel, & .MuiTablePagination-select": {
+              fontWeight: 500,
+            },
+          }}
+        />
       </TableContainer>
     </Container>
   );

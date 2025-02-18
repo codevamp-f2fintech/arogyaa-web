@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Autocomplete,
   Dialog,
@@ -25,6 +25,7 @@ import {
   Repeat,
   Timer,
 } from "@mui/icons-material";
+import CloseIcon from "@mui/icons-material/Close";
 import { styled } from "@mui/system";
 import { creator } from "@/apis/apiClient";
 import { Utility } from "@/utils";
@@ -87,6 +88,18 @@ interface CreateTreatmentDialogProps {
   fetchTreatments: (newTreatment: any) => void;
 }
 
+const initialFormData = {
+  name: "",
+  description: "",
+  quantity: "",
+  frequency: "",
+  duration: "",
+  isEmptyStomach: false,
+  type: "",
+  status: "in progress",
+  photo: null,
+};
+
 const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
   open,
   onClose,
@@ -100,26 +113,14 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
       onClose();
     }
   };
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    quantity: "",
-    frequency: "",
-    duration: "",
-    isEmptyStomach: false,
-    type: "",
-    status: "in progress",
-    photo: null,
-  });
-
-  const [errors, setErrors] = useState({
-    name: "",
-    description: "",
-    quantity: "",
-    frequency: "",
-    duration: "",
-    type: "",
-  });
+  const [formData, setFormData] = useState(initialFormData);
+  const [errors, setErrors] = useState({} as Record<string, string>);
+  useEffect(() => {
+    if (!open) {
+      setFormData(initialFormData);
+      setErrors({});
+    }
+  }, [open]);
 
   const validateForm = () => {
     let valid = true;
@@ -133,10 +134,8 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
     };
 
     setErrors(newErrors);
-    valid = !Object.values(newErrors).some((error) => error !== "");
-    return valid;
+    return !Object.values(newErrors).some((error) => error !== "");
   };
-
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -150,12 +149,18 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
   const handleCheckboxChange = (e) => {
     setFormData({ ...formData, isEmptyStomach: e.target.checked });
   };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
 
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: value ? "" : prevErrors[name],
+    }));
+  };
   const handleSubmit = async () => {
     if (!validateForm()) return;
     try {
@@ -215,7 +220,6 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
               <StyledTextField
                 label="Name"
                 name="name"
-              
                 fullWidth
                 margin="dense"
                 value={formData.name}
@@ -251,7 +255,6 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
               <StyledTextField
                 label="Quantity"
                 name="quantity"
-                
                 fullWidth
                 margin="dense"
                 value={formData.quantity}
@@ -312,7 +315,7 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                     }}
                   />
                 }
-                label="Take on Empty Stomach"
+                label="Empty Stomach"
               />
             </Grid>
 
@@ -426,7 +429,7 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                       position: "absolute",
                       top: 4,
                       right: 8,
-                     
+
                       color: "#20ADA0",
                     }}
                   >
@@ -442,8 +445,15 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
             onClick={onClose}
             variant="outlined"
             color="error"
-            sx={{ borderRadius: 50, padding: "8px 20px" }}
+            sx={{
+              borderRadius: 50,
+              padding: "8px 20px",
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+            }}
           >
+            <CloseIcon fontSize="small" />
             Cancel
           </Button>
           <Button

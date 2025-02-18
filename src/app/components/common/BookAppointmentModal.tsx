@@ -186,7 +186,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
           patientId,
           doctorId,
           status: "pending",
-          symptomIds: JSON.stringify(getIdsFromObject(values.symptomIds)),
+          symptomIds: getIdsFromObject(values.symptomIds),
         };
         const response = await createAppointment(appointmentData);
 

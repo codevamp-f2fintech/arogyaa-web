@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { Box, Typography, Grid, Paper, IconButton } from "@mui/material";
 import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
@@ -12,7 +12,8 @@ import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
+import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
+import WcIcon from "@mui/icons-material/Wc";
 
 import { Utility } from "@/utils";
 import { fetcher } from "@/apis/apiClient";
@@ -22,7 +23,13 @@ import AppointmentHistory from "../components/appointment-history";
 import TestHistory from "../components/Test-history";
 import BillingHistory from "../components/Billing-history";
 import TreatmentHistory from "../components/Treatment-history";
-import PatientOverview from "../components/Patient-overview";
+
+import {
+  MonitorWeight,
+  Straighten,
+  Event as EventIcon,
+  HeightOutlined,
+} from "@mui/icons-material";
 
 const UserProfile = () => {
   const [user, setUser] = useState<PatientData>();
@@ -30,17 +37,47 @@ const UserProfile = () => {
   const { decodedToken } = Utility();
   const patientId = decodedToken()?.id;
   const [activeView, setActiveView] = useState<
-    "overview" | "appointments" | "tests" | "billing" | "treatment"
+    "appointments" | "tests" | "billing" | "treatment"
   >("appointments");
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  
+  const currentDate = new Date();
 
-  // Define quick action buttons
+  const nextVisit = useMemo(() => {
+    return (
+      appointments
+        .filter(
+          (appointment) => new Date(appointment.appointmentDate) >= currentDate
+        )
+        .sort(
+          (a, b) =>
+            new Date(a.appointmentDate).getTime() -
+            new Date(b.appointmentDate).getTime()
+        )[0] || null
+    );
+  }, [appointments]);
+
+  const previousVisit = useMemo(() => {
+    return (
+      appointments
+        .filter(
+          (appointment) => new Date(appointment.appointmentDate) < currentDate
+        )
+        .sort(
+          (a, b) =>
+            new Date(b.appointmentDate).getTime() -
+            new Date(a.appointmentDate).getTime()
+        )[0] || null
+    );
+  }, [appointments]);
+
+
   const quickActions = [
-    { icon: DashboardIcon, label: "Overview", value: "overview" },
+  
     { icon: CalendarTodayIcon, label: "Appointments", value: "appointments" },
     { icon: FolderIcon, label: "Tests", value: "tests" },
     { icon: CheckCircleIcon, label: "Treatment", value: "treatment" },
-    { icon: MonetizationOnIcon, label: "Billing", value: "billing" },
-    
+    { icon: CurrencyRupeeIcon, label: "Billing", value: "billing" },
   ];
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,13 +86,17 @@ const UserProfile = () => {
       const reader = new FileReader();
       reader.onload = (e) => {
         if (e.target?.result) {
-          setProfilePicture(e.target.result as string); // Update profile picture
+          setProfilePicture(e.target.result as string); 
         }
       };
       reader.readAsDataURL(file);
     }
   };
-
+  interface Appointment {
+    _id: string;
+    appointmentDate: string;
+    appointmentTime: string;
+  }
   const fetchUserProfile = React.useCallback(async () => {
     if (patientId) {
       try {
@@ -64,16 +105,45 @@ const UserProfile = () => {
           `get-patient-by-id/${patientId}`
         );
         setUser(response);
-        console.log(response, 'patient')
+
+      
+        if (response?.profilePicture) {
+          setProfilePicture(response.profilePicture);
+        }
       } catch (error) {
         console.error("Error fetching patient profile:", error);
       }
     }
   }, [patientId]);
 
+  // Fetch Appointments
+  const fetchAppointments = useCallback(async () => {
+    if (patientId) {
+      try {
+        console.log("Fetching appointments for patient ID:", patientId);
+        const response = await fetcher(
+          "appointment",
+          `get-patients-appointment/${patientId}?page=1`
+        );
+        console.log("API Response:", response);
+        if (!response || !response.results) {
+          console.error("No valid data received from API.");
+          setAppointments([]);
+          return;
+        }
+
+        setAppointments(response.results || []);
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
+        setAppointments([]);
+      }
+    }
+  }, [patientId]);
+
   React.useEffect(() => {
     fetchUserProfile();
-  }, [fetchUserProfile]);
+    fetchAppointments();
+  }, [fetchUserProfile, fetchAppointments]);
 
   const MenuItem = ({
     icon: Icon,
@@ -127,11 +197,7 @@ const UserProfile = () => {
           justifyContent: "center",
           background: "linear-gradient(135deg, #20ADA0 0%, #B6DADA 100%)",
         }}
-      >
-        {/* <Typography variant="h6" sx={{ color: "white" }}>
-          Loading user details...
-        </Typography> */}
-      </Box>
+      ></Box>
     );
   }
 
@@ -146,16 +212,17 @@ const UserProfile = () => {
     >
       <Grid container spacing={3}>
         <Grid item xs={12} md={4}>
-          <Paper
-            elevation={3}
+          <Box
             sx={{
+              background: "linear-gradient(145deg, #ffffff, #f8f9fa)",
               p: 4,
-              borderRadius: "20px",
-              height: "100%",
-              background: "rgba(255, 255, 255, 0.95)",
+              borderRadius: "16px",
+              boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+              textAlign: "center",
             }}
           >
-            <Box sx={{ position: "relative", textAlign: "center" }}>
+            {/* Profile Image */}
+            <Box sx={{ position: "relative", display: "inline-block", mb: 2 }}>
               <Box
                 component="img"
                 src={profilePicture}
@@ -164,127 +231,263 @@ const UserProfile = () => {
                   width: "120px",
                   height: "120px",
                   borderRadius: "50%",
-                  border: "2px solid #e0e0e0",
+                  border: "3px solid #20ADA0",
                   objectFit: "cover",
+                  boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
                 }}
               />
-              <IconButton
-                component="label"
-                sx={{
-                  position: "absolute",
-                  top: "100px",
-                  right: "6px",
-                  mb: 40,
-                  backgroundColor: "white",
-                  mr: 14,
-                  width: "30px",
-                  height: "30px",
-                  boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                  "&:hover": {
-                    backgroundColor: "#f0f0f0",
-                  },
-                }}
-              >
-                <PhotoCameraIcon sx={{ color: "#757575" }} />
-                <input
-                  type="file"
-                  accept="image/*"
-                  hidden
-                  onChange={handleImageUpload}
-                />
-              </IconButton>
             </Box>
 
+            {/* User Name & Role */}
             <Typography
               variant="h5"
-              sx={{
-                fontWeight: "700",
-                color: "#2C3E50",
-                display: "flex",
-                justifyContent: "center",
-              }}
+              sx={{ fontWeight: "700", color: "#2C3E50", mb: 0.5 }}
             >
               {user?.username || "N/A"}
             </Typography>
 
-            <Box sx={{ mb: 4, mt: 5 }}>
+            {/* Personal Information Section */}
+            <Box
+              sx={{
+                background: "#f1f8ff",
+                borderRadius: "12px",
+                p: 2,
+                my: 2,
+                textAlign: "center",
+              }}
+            >
               <Typography
-                variant="h6"
-                sx={{ mb: 2, color: "#20ADA0", fontWeight: "600" }}
+                variant="body1"
+                sx={{ fontWeight: "600", color: "#2C3E50", mb: 1 }}
               >
-                Contact Information
+                Personal Information
               </Typography>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr",
+                  gap: 2,
+                  justifyItems: "center",
+                  width: "100%",
+                }}
+              >
+                {[
+                  {
+                    icon: <PhoneIcon />,
+                    label: "Contact",
+                    value: user?.contact || "N/A",
+                    isLink: false,
+                  },
+                  {
+                    icon: <EmailIcon />,
+                    label: "Email",
+                    value: user?.email || "N/A",
+                    isLink: `mailto:${user?.email || ""}`,
+                  },
+                  {
+                    icon: <WcIcon />,
+                    label: "Gender",
+                    value: user?.gender || "N/A",
+                  },
+                  {
+                    icon: <Straighten />,
+                    label: "Height",
+                    value: user?.height || "N/A",
+                  },
+                  {
+                    icon: <MonitorWeight />,
+                    label: "Weight",
+                    value: user?.weight || "N/A",
+                  },
+                ].map((item, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      px: 3,
+                      py: 0.8,
+                      borderRadius: "20px",
+                      color: "#20ADA0",
+                      fontSize: "0.85rem",
+                      fontWeight: "500",
+                      width: "80%",
+                      justifyContent: "space-between",
+                      border: "1px solid #20ADA0",
+                    }}
+                  >
+                    {/* Icon and Label */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        flex: 1,
+                      }}
+                    >
+                      {item.icon}
+                      <Typography
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: "0.85rem",
+                          minWidth: "100px",
+                          textAlign: "left",
+                        }}
+                      >
+                        {item.label}:
+                      </Typography>
+                    </Box>
+
+                    {/* Value or Link */}
+                    <Box sx={{ flex: 1, textAlign: "right" }}>
+                      {item.isLink ? (
+                        <Typography
+                          component="a"
+                          href={item.isLink}
+                          sx={{
+                            fontWeight: 500,
+                            fontSize: "0.85rem",
+                            color: "inherit",
+                            textDecoration: "none",
+                            whiteSpace: "nowrap", 
+                            "&:hover": { color: "white" },
+                          }}
+                        >
+                          {item.value}
+                        </Typography>
+                      ) : (
+                        <Typography
+                          sx={{
+                            fontWeight: 500,
+                            fontSize: "0.85rem",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {item.value}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+
+              {/* Address Section */}
+              <Box
+                sx={{
+                  textAlign: "left",
+                  mt: 2,
+                  background: "#f8fbff",
+                  borderRadius: "12px",
+                  p: 2,
+                  boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.05)",
+                }}
+              >
                 <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 2,
-                  }}
+                  sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
                 >
-                  <PhoneIcon sx={{ color: "#20ADA0", fontSize: "1.2rem" }} />
-                  <Typography>{user?.contact || "N/A"}</Typography>
-
-                  <IconButton
-                    onClick={() => {
-                      if (user?.contact) {
-                        navigator.clipboard.writeText(user?.contact);
-                        alert("Contact number copied to clipboard!");
-                      }
-                    }}
+                  <Box
                     sx={{
+                      width: "30px",
+                      height: "30px",
+                      borderRadius: "50%",
                       backgroundColor: "#20ADA0",
-                      color: "white",
-                      "&:hover": {
-                        backgroundColor: "#18a189",
-                      },
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
                     }}
                   >
-                    <ContentCopyIcon sx={{ fontSize: "11px" }} />
-                  </IconButton>
-                </Box>
-
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <EmailIcon sx={{ color: "#20ADA0", fontSize: "1.2rem" }} />
+                    <LocationOnIcon
+                      sx={{ color: "white", fontSize: "1.2rem" }}
+                    />
+                  </Box>
                   <Typography
-                    component="a"
-                    href={`mailto:${user?.email || ""}`}
-                    sx={{
-                      textDecoration: "none",
-                      color: "inherit",
-                      "&:hover": {
-                        color: "#20ADA0",
-                      },
-                    }}
+                    sx={{ fontWeight: 600, fontSize: "0.98rem", color: "#333" }}
                   >
-                    {user?.email || "N/A"}
+                    Address:
                   </Typography>
-                </Box>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <LocationOnIcon
-                    sx={{ color: "#20ADA0", fontSize: "1.2rem" }}
-                  />
                   <Typography
-                    component="a"
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                      "15 Trevelyan Avenue, London"
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{
-                      textDecoration: "none",
-                      color: "inherit",
-                      "&:hover": {
-                        color: "#20ADA0",
-                      },
-                    }}
+                    sx={{ fontWeight: 500, fontSize: "0.98rem", color: "#555" }}
                   >
-                    15 Trevelyan Avenue, London
+                    {user?.address || "N/A"}
                   </Typography>
                 </Box>
               </Box>
             </Box>
-          </Paper>
+
+            {/* Next Visit & Previous Visit */}
+            <Box
+              sx={{
+                background: "#e8f6ff",
+                borderRadius: "12px",
+                p: 2,
+                my: 2,
+                textAlign: "center",
+              }}
+            >
+              <Typography
+                variant="body1"
+                sx={{ fontWeight: "600", color: "#2C3E50", mb: 1 }}
+              >
+                Visit Information
+              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 2,
+                }}
+              >
+                {[
+                  {
+                    label: "Previous Visit :",
+                    value: previousVisit
+                      ? `${new Date(
+                          previousVisit.appointmentDate
+                        ).toLocaleDateString()} at ${
+                          previousVisit.appointmentTime
+                        }`
+                      : "N/A",
+                  },
+                  {
+                    label: "Next Visit :",
+                    value: nextVisit
+                      ? `${new Date(
+                          nextVisit.appointmentDate
+                        ).toLocaleDateString()} at ${nextVisit.appointmentTime}`
+                      : "N/A",
+                  },
+                ].map((item, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 1,
+                      px: 2,
+                      py: 1,
+                      borderRadius: "20px",
+                      background: "#20ADA0",
+                      color: "white",
+                      fontSize: "0.8rem",
+                      fontWeight: "500",
+                      boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.1)",
+                    }}
+                  >
+                    {item.icon}
+                    <Typography sx={{ fontWeight: 600, fontSize: "0.85rem" }}>
+                      {item.label}
+                    </Typography>
+                    <Typography sx={{ fontWeight: 500, fontSize: "0.85rem" }}>
+                      {item.value}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          </Box>
         </Grid>
 
         <Grid item xs={12} md={8}>
@@ -327,7 +530,7 @@ const UserProfile = () => {
               background: "rgba(255, 255, 255, 0.95)",
             }}
           >
-            {activeView === "overview" && <PatientOverview user={user} />}
+            {/* {activeView === "overview" && <PatientOverview user={user} />} */}
             {activeView === "appointments" && <AppointmentHistory />}
             {activeView === "tests" && <TestHistory />}
             {activeView === "billing" && <BillingHistory />}

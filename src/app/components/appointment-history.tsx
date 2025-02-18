@@ -19,8 +19,9 @@ import {
 } from "@mui/material";
 
 import {
-  Timeline as TimelineIcon,
+  Timeline ,
   EventAvailable as AppointmentIcon,
+  CalendarMonth,
 } from "@mui/icons-material";
 
 import { Utility } from "@/utils";
@@ -152,11 +153,7 @@ const AppointmentHistory: React.FC = () => {
             }}
           >
             <TableRow>
-              {[
-                "Doctor's Name",
-                "Appointment Time",
-                "Status",
-              ].map((header) => (
+              {["Doctor's Name", "Appointment Time", "Status"].map((header) => (
                 <TableCell
                   key={header}
                   sx={{
@@ -171,30 +168,55 @@ const AppointmentHistory: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedAppointments.map((appointment) => (
-              <TableRow
-                key={appointment._id}
-                hover
-                sx={{
-                  "&:last-child td, &:last-child th": { border: 0 },
-                  transition: "background-color 0.2s",
-                }}
-              >
-                <TableCell>{appointment?.doctorId?.username}</TableCell>
-                <TableCell>
-                  {appointment?.appointmentTime}
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    icon={<AppointmentIcon />}
-                    label={appointment?.status}
-                    color={getStatusColor(appointment?.status)}
-                    size="small"
-                    variant="outlined"
-                  />
+            {paginatedAppointments.length > 0 ? (
+              paginatedAppointments.map((appointment) => (
+                <TableRow
+                  key={appointment._id}
+                  hover
+                  sx={{
+                    "&:last-child td, &:last-child th": {
+                      borderBottom: "1px solid #ddd",
+                    },
+                    transition: "background-color 0.2s",
+                    textAlign: "center",
+                  }}
+                >
+                  <TableCell>
+                    {appointment?.doctorId?.username || "N/A"}
+                  </TableCell>
+                  <TableCell>{appointment?.appointmentTime || "N/A"}</TableCell>
+                  <TableCell>
+                    <Chip
+                      icon={<AppointmentIcon />}
+                      label={appointment?.status || "N/A"}
+                      color={getStatusColor(appointment?.status)}
+                      size="small"
+                      variant="outlined"
+                    />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={3} align="center">
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      gap: 0.5,
+
+                      borderRadius: "8px",
+
+                      color: "#20ADA0",
+                    }}
+                  >
+                    <CalendarMonth sx={{ fontSize: 18, color: "#20ADA0" }} />
+                    No Appointment Booked
+                  </Box>
                 </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
         <TablePagination
