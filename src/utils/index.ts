@@ -84,6 +84,7 @@ export const Utility = () => {
       payment: process.env.NEXT_PUBLIC_PAYMENT_URL as string,
       user: process.env.NEXT_PUBLIC_USER_URL as string,
       test: process.env.NEXT_PUBLIC_TESTS_URL as string,
+      testimonial: process.env.NEXT_PUBLIC_TESTIMONIAL_URL as string,
     };
 
     return urls[serviceName] || "";

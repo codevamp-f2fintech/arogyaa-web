@@ -1,46 +1,79 @@
 "use client";
 
 import React, { useState, useMemo, useCallback } from "react";
-import { Box, Typography, Grid, Paper, IconButton } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Grid,
+  Paper,
+  IconButton,
+  MenuItem,
+  Select,
+  TextField,
+  Button,
+} from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
 import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import FolderIcon from "@mui/icons-material/Folder";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
-import DashboardIcon from "@mui/icons-material/Dashboard";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
+import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
 import WcIcon from "@mui/icons-material/Wc";
 
 import { Utility } from "@/utils";
-import { fetcher } from "@/apis/apiClient";
+import { fetcher, modifier } from "@/apis/apiClient";
 import { PatientData } from "@/types/patient";
 
 import AppointmentHistory from "../components/appointment-history";
 import TestHistory from "../components/Test-history";
 import BillingHistory from "../components/Billing-history";
 import TreatmentHistory from "../components/Treatment-history";
+import SnackbarComponent from "../components/common/Snackbar";
 
 import {
   MonitorWeight,
   Straighten,
   Event as EventIcon,
-  HeightOutlined,
 } from "@mui/icons-material";
 
+interface Appointment {
+  _id: string;
+  appointmentDate: string;
+  appointmentTime: string;
+}
 const UserProfile = () => {
   const [user, setUser] = useState<PatientData>();
   const [profilePicture, setProfilePicture] = useState("/iconimg.jpg");
-  const { decodedToken } = Utility();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValues, setEditValues] = useState<{ [key: string]: string }>({});
+  const [isModified, setIsModified] = useState(false);
+  const { decodedToken, snackbarAndNavigate } = Utility();
   const patientId = decodedToken()?.id;
   const [activeView, setActiveView] = useState<
     "appointments" | "tests" | "billing" | "treatment"
   >("appointments");
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  
+
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const { snackbar } = useSelector((state: RootState) => state.snackbar);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  const dispatch: AppDispatch = useDispatch();
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditValues(user || {});
+  };
+
   const currentDate = new Date();
 
   const nextVisit = useMemo(() => {
@@ -71,9 +104,7 @@ const UserProfile = () => {
     );
   }, [appointments]);
 
-
   const quickActions = [
-  
     { icon: CalendarTodayIcon, label: "Appointments", value: "appointments" },
     { icon: FolderIcon, label: "Tests", value: "tests" },
     { icon: CheckCircleIcon, label: "Treatment", value: "treatment" },
@@ -83,21 +114,14 @@ const UserProfile = () => {
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          setProfilePicture(e.target.result as string); 
-        }
-      };
-      reader.readAsDataURL(file);
+      const fileUrl = URL.createObjectURL(file);
+      setImagePreview(fileUrl);
+      setProfilePicture(file);
+      setIsModified(true);
     }
   };
-  interface Appointment {
-    _id: string;
-    appointmentDate: string;
-    appointmentTime: string;
-  }
-  const fetchUserProfile = React.useCallback(async () => {
+
+  const fetchUserProfile = useCallback(async () => {
     if (patientId) {
       try {
         const { data: response } = await fetcher(
@@ -105,8 +129,7 @@ const UserProfile = () => {
           `get-patient-by-id/${patientId}`
         );
         setUser(response);
-
-      
+        setEditValues(response || {});
         if (response?.profilePicture) {
           setProfilePicture(response.profilePicture);
         }
@@ -125,13 +148,10 @@ const UserProfile = () => {
           "appointment",
           `get-patients-appointment/${patientId}?page=1`
         );
-        console.log("API Response:", response);
-        if (!response || !response.results) {
-          console.error("No valid data received from API.");
-          setAppointments([]);
-          return;
-        }
 
+        if (!response) {
+          throw new Error("No response from the API");
+        }
         setAppointments(response.results || []);
       } catch (error) {
         console.error("Error fetching appointments:", error);
@@ -140,12 +160,97 @@ const UserProfile = () => {
     }
   }, [patientId]);
 
+  const validateForm = () => {
+    const newErrors: any = {};
+    let isValid = true;
+    // Contact validation
+    if (!editValues.contact) {
+      newErrors.contact = "Contact is required.";
+      isValid = false;
+    } else if (!/^\d{10}$/.test(editValues.contact)) {
+      newErrors.contact = "Contact must be 10 digits long.";
+      isValid = false;
+    }
+    // Email validation
+    if (!editValues.email) {
+      newErrors.email = "Email address is required.";
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(editValues.email)) {
+      newErrors.email = "Email address is invalid.";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const updateUserProfile = useCallback(async () => {
+    if (!patientId || !isModified) return;
+
+    const isValid = validateForm();
+    if (!isValid) return;
+
+    try {
+      const headers = {
+        "Content-Type": "multipart/form-data",
+      };
+
+      const response = await modifier(
+        "patient",
+        "update-patient",
+        {
+          _id: patientId,
+          ...editValues,
+          profilePicture,
+        },
+        {
+          ...headers,
+        }
+      );
+
+      if (!response || response.error) {
+        throw new Error(response?.error || "No response from the API");
+      }
+
+      snackbarAndNavigate(
+        dispatch,
+        true,
+        "success",
+        "Profile updated successfully!"
+      );
+
+      setUser((prevUser) =>
+        prevUser ? { ...prevUser, ...editValues, profilePicture } : prevUser
+      );
+
+      setIsEditing(false);
+      setIsModified(false);
+    } catch (error) {
+      console.error("Error updating patient profile:", error);
+      snackbarAndNavigate(
+        dispatch,
+        true,
+        "error",
+        "Error updating profile. Please try again."
+      );
+    }
+  }, [patientId, editValues, profilePicture, dispatch]);
+
+  const handleInputChange = (field: string, value: string) => {
+    setEditValues((prevValues) => ({ ...prevValues, [field]: value }));
+    setIsModified(true);
+  };
+
+  const toggleEditMode = () => {
+    setIsEditing(!isEditing);
+  };
+
   React.useEffect(() => {
     fetchUserProfile();
     fetchAppointments();
   }, [fetchUserProfile, fetchAppointments]);
 
-  const MenuItem = ({
+  const CustomMenuItem = ({
     icon: Icon,
     label,
     value,
@@ -207,284 +312,437 @@ const UserProfile = () => {
         marginTop: "50px",
         minHeight: "100vh",
         background: "linear-gradient(135deg, #20ADA0 0%, #B6DADA 100%)",
-        padding: "2rem",
+        padding: "1.5rem",
       }}
     >
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={4}>
+      <Grid
+        container
+        spacing={3}
+        sx={{
+          flexWrap: "nowrap",
+        }}
+      >
+        <Grid item xs={12} md={5}>
           <Box
             sx={{
               background: "linear-gradient(145deg, #ffffff, #f8f9fa)",
-              p: 4,
+              p: 0.5,
               borderRadius: "16px",
               boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
               textAlign: "center",
+              position: "relative",
             }}
           >
-            {/* Profile Image */}
-            <Box sx={{ position: "relative", display: "inline-block", mb: 2 }}>
-              <Box
-                component="img"
-                src={profilePicture}
-                alt="Profile"
-                sx={{
-                  width: "120px",
-                  height: "120px",
-                  borderRadius: "50%",
-                  border: "3px solid #20ADA0",
-                  objectFit: "cover",
-                  boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
-                }}
-              />
-            </Box>
-
-            {/* User Name & Role */}
-            <Typography
-              variant="h5"
-              sx={{ fontWeight: "700", color: "#2C3E50", mb: 0.5 }}
-            >
-              {user?.username || "N/A"}
-            </Typography>
-
-            {/* Personal Information Section */}
-            <Box
-              sx={{
-                background: "#f1f8ff",
-                borderRadius: "12px",
-                p: 2,
-                my: 2,
-                textAlign: "center",
-              }}
-            >
-              <Typography
-                variant="body1"
-                sx={{ fontWeight: "600", color: "#2C3E50", mb: 1 }}
-              >
-                Personal Information
-              </Typography>
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr",
-                  gap: 2,
-                  justifyItems: "center",
-                  width: "100%",
-                }}
-              >
-                {[
-                  {
-                    icon: <PhoneIcon />,
-                    label: "Contact",
-                    value: user?.contact || "N/A",
-                    isLink: false,
-                  },
-                  {
-                    icon: <EmailIcon />,
-                    label: "Email",
-                    value: user?.email || "N/A",
-                    isLink: `mailto:${user?.email || ""}`,
-                  },
-                  {
-                    icon: <WcIcon />,
-                    label: "Gender",
-                    value: user?.gender || "N/A",
-                  },
-                  {
-                    icon: <Straighten />,
-                    label: "Height",
-                    value: user?.height || "N/A",
-                  },
-                  {
-                    icon: <MonitorWeight />,
-                    label: "Weight",
-                    value: user?.weight || "N/A",
-                  },
-                ].map((item, index) => (
-                  <Box
-                    key={index}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 2,
-                      px: 3,
-                      py: 0.8,
-                      borderRadius: "20px",
-                      color: "#20ADA0",
-                      fontSize: "0.85rem",
-                      fontWeight: "500",
-                      width: "80%",
-                      justifyContent: "space-between",
-                      border: "1px solid #20ADA0",
-                    }}
-                  >
-                    {/* Icon and Label */}
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1,
-                        flex: 1,
-                      }}
-                    >
-                      {item.icon}
-                      <Typography
-                        sx={{
-                          fontWeight: 600,
-                          fontSize: "0.85rem",
-                          minWidth: "100px",
-                          textAlign: "left",
-                        }}
-                      >
-                        {item.label}:
-                      </Typography>
-                    </Box>
-
-                    {/* Value or Link */}
-                    <Box sx={{ flex: 1, textAlign: "right" }}>
-                      {item.isLink ? (
-                        <Typography
-                          component="a"
-                          href={item.isLink}
-                          sx={{
-                            fontWeight: 500,
-                            fontSize: "0.85rem",
-                            color: "inherit",
-                            textDecoration: "none",
-                            whiteSpace: "nowrap", 
-                            "&:hover": { color: "white" },
-                          }}
-                        >
-                          {item.value}
-                        </Typography>
-                      ) : (
-                        <Typography
-                          sx={{
-                            fontWeight: 500,
-                            fontSize: "0.85rem",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {item.value}
-                        </Typography>
-                      )}
-                    </Box>
-                  </Box>
-                ))}
-              </Box>
-
-              {/* Address Section */}
-              <Box
-                sx={{
-                  textAlign: "left",
-                  mt: 2,
-                  background: "#f8fbff",
-                  borderRadius: "12px",
-                  p: 2,
-                  boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.05)",
-                }}
-              >
-                <Box
-                  sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
-                >
-                  <Box
-                    sx={{
-                      width: "30px",
-                      height: "30px",
-                      borderRadius: "50%",
-                      backgroundColor: "#20ADA0",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <LocationOnIcon
-                      sx={{ color: "white", fontSize: "1.2rem" }}
-                    />
-                  </Box>
-                  <Typography
-                    sx={{ fontWeight: 600, fontSize: "0.98rem", color: "#333" }}
-                  >
-                    Address:
-                  </Typography>
-                  <Typography
-                    sx={{ fontWeight: 500, fontSize: "0.98rem", color: "#555" }}
-                  >
-                    {user?.address || "N/A"}
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-
-            {/* Next Visit & Previous Visit */}
-            <Box
-              sx={{
-                background: "#e8f6ff",
-                borderRadius: "12px",
-                p: 2,
-                my: 2,
-                textAlign: "center",
-              }}
-            >
-              <Typography
-                variant="body1"
-                sx={{ fontWeight: "600", color: "#2C3E50", mb: 1 }}
-              >
-                Visit Information
-              </Typography>
+            {/* Edit Button */}
+            {isEditing ? (
               <Box
                 sx={{
                   display: "flex",
                   flexDirection: "column",
-                  alignItems: "center",
-                  gap: 2,
+                  position: "absolute",
+                  top: "10px",
+                  right: "10px",
+                  gap: 1,
                 }}
               >
-                {[
-                  {
-                    label: "Previous Visit :",
-                    value: previousVisit
-                      ? `${new Date(
-                          previousVisit.appointmentDate
-                        ).toLocaleDateString()} at ${
-                          previousVisit.appointmentTime
-                        }`
-                      : "N/A",
-                  },
-                  {
-                    label: "Next Visit :",
-                    value: nextVisit
-                      ? `${new Date(
-                          nextVisit.appointmentDate
-                        ).toLocaleDateString()} at ${nextVisit.appointmentTime}`
-                      : "N/A",
-                  },
-                ].map((item, index) => (
+                <Button
+                  onClick={updateUserProfile}
+                  sx={{
+                    backgroundColor: "#20ADA0",
+                    borderRadius: "50px",
+                    padding: "4px 20px",
+                    color: "white",
+                    "&:hover": {
+                      backgroundColor: "#20ADA0",
+                    },
+                  }}
+                >
+                  Save
+                </Button>
+                <Button
+                  onClick={handleCancelEdit}
+                  sx={{
+                    backgroundColor: "red",
+                    borderRadius: "50px",
+                    padding: "4px 20px",
+                    color: "white",
+                    "&:hover": {
+                      backgroundColor: "red",
+                    },
+                  }}
+                >
+                  Cancel
+                </Button>
+              </Box>
+            ) : (
+              <IconButton
+                onClick={toggleEditMode}
+                sx={{ position: "absolute", top: 10, right: 10 }}
+              >
+                <EditIcon />
+              </IconButton>
+            )}
+            <Box sx={{ position: "relative", display: "inline-block", mb: 2 }}>
+              <Box
+                sx={{
+                  width: "130px",
+                  height: "140px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "8px",
+                  border: "3px solid #20ADA0",
+                  boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+                  overflow: "hidden",
+                }}
+              >
+                <Box
+                  component="img"
+                  src={imagePreview || profilePicture}
+                  alt="Profile Image"
+                  sx={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+              </Box>
+
+              {isEditing && (
+                <IconButton
+                  component="label"
+                  sx={{
+                    position: "absolute",
+                    bottom: 5,
+                    right: 5,
+                    background: "white",
+                    boxShadow: 2,
+                    borderRadius: "50%",
+                    padding: "5px",
+                  }}
+                >
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                  />
+                  <PhotoCameraIcon fontSize="small" />
+                </IconButton>
+              )}
+            </Box>
+
+            <Box sx={{ textAlign: "center", mb: 1 }}>
+              {isEditing ? (
+                <TextField
+                  variant="outlined"
+                  size="small"
+                  sx={{
+                    fontSize: "1.25rem",
+                    fontWeight: "700",
+                    width: "50%",
+                    borderRadius: "12px",
+                    padding: "8px 16px",
+                    textAlign: "center",
+                    backgroundColor: "#fff",
+                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+                  }}
+                  value={editValues.username || ""}
+                  onChange={(e) =>
+                    handleInputChange("username", e.target.value)
+                  }
+                />
+              ) : (
+                <Typography
+                  variant="h5"
+                  sx={{ fontWeight: "700", color: "#2C3E50", mb: 0.5 }}
+                >
+                  {user?.username || "N/A"}
+                </Typography>
+              )}
+            </Box>
+
+            {/* User Information */}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                borderRadius: "12px",
+                p: 0.3,
+                my: 4,
+                width: "90%",
+                maxWidth: "500px",
+                textAlign: "center",
+                mx: "auto",
+                gap: 1,
+                // background: "#e8f6ff",
+                boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.05)",
+              }}
+            >
+              <Typography
+                variant="body1"
+                sx={{ fontWeight: "600", color: "#20ADA0", mb: 1 }}
+              >
+                Personal Information
+              </Typography>
+              {[
+                {
+                  icon: <PhoneIcon sx={{ color: "#20ADA0" }} />,
+                  label: "Contact",
+                  key: "contact",
+                },
+                {
+                  icon: <EmailIcon sx={{ color: "#20ADA0" }} />,
+                  label: "Email",
+                  key: "email",
+                },
+                {
+                  icon: <WcIcon sx={{ color: "#20ADA0" }} />,
+                  label: "Gender",
+                  key: "gender",
+                },
+                {
+                  icon: <CalendarMonthIcon sx={{ color: "#20ADA0" }} />,
+                  label: "Age",
+                  key: "age",
+                },
+                {
+                  icon: <Straighten sx={{ color: "#20ADA0" }} />,
+                  label: "Height",
+                  key: "height",
+                },
+                {
+                  icon: <MonitorWeight sx={{ color: "#20ADA0" }} />,
+                  label: "Weight",
+                  key: "weight",
+                },
+                {
+                  icon: <LocationOnIcon sx={{ color: "#20ADA0" }} />,
+                  label: "Address",
+                  key: "address",
+                },
+              ].map((item, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                    px: 3,
+                    py: 1,
+                    borderRadius: "20px",
+                    color: "#2C3E50",
+                    fontSize: "0.9rem",
+                    fontWeight: "500",
+                    width: "85%",
+                    maxWidth: "420px",
+                    justifyContent: "space-between",
+                    background: "#F1FAFA",
+                    boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.05)",
+                    border: "1px solid #20ADA0",
+                    textAlign: "left",
+                    transition: "0.3s ease-in-out",
+                  }}
+                >
+                  {/* Icon and Label */}
                   <Box
-                    key={index}
                     sx={{
                       display: "flex",
-                      flexDirection: "row",
                       alignItems: "center",
                       gap: 1,
-                      px: 2,
-                      py: 1,
-                      borderRadius: "20px",
-                      background: "#20ADA0",
-                      color: "white",
-                      fontSize: "0.8rem",
-                      fontWeight: "500",
-                      boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.1)",
+                      flex: 1,
                     }}
                   >
                     {item.icon}
-                    <Typography sx={{ fontWeight: 600, fontSize: "0.85rem" }}>
-                      {item.label}
-                    </Typography>
-                    <Typography sx={{ fontWeight: 500, fontSize: "0.85rem" }}>
-                      {item.value}
+                    <Typography
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: "0.9rem",
+                        minWidth: "60px",
+                      }}
+                    >
+                      {item.label}:
                     </Typography>
                   </Box>
-                ))}
+
+                  <Box
+                    sx={{
+                      flex: 2,
+                      textAlign: "left",
+                      mr: 1,
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    {isEditing ? (
+                      item.key === "gender" ? (
+                        <Select
+                          size="small"
+                          value={editValues[item.key] || ""}
+                          onChange={(e) =>
+                            handleInputChange(item.key, e.target.value)
+                          }
+                        >
+                          <MenuItem value="male">Male</MenuItem>
+                          <MenuItem value="female">Female</MenuItem>
+                          <MenuItem value="other">Other</MenuItem>
+                        </Select>
+                      ) : (
+                        <TextField
+                          size="small"
+                          value={editValues[item.key] || ""}
+                          onChange={(e) =>
+                            handleInputChange(item.key, e.target.value)
+                          }
+                          error={!!errors[item.key]}
+                          helperText={errors[item.key]}
+                        />
+                      )
+                    ) : (
+                      <>
+                        <Typography>{user?.[item.key] ?? "N/A"}</Typography>
+                        {item.key === "contact" && (
+                          <IconButton
+                            sx={{ ml: 8 }}
+                            onClick={() => {
+                              if (user?.contact) {
+                                navigator.clipboard.writeText(user.contact);
+                                snackbarAndNavigate(
+                                  dispatch,
+                                  true,
+                                  "success",
+                                  "Contact copied to clipboard!"
+                                );
+                              }
+                            }}
+                          >
+                            <ContentCopyIcon
+                              sx={{ color: "#20ADA0", fontSize: "15px" }}
+                            />
+                          </IconButton>
+                        )}
+                      </>
+                    )}
+                  </Box>
+                </Box>
+              ))}
+              {/* Next Visit & Previous Visit */}
+              <Box
+                sx={{
+                  p: 1,
+                  borderRadius: "16px",
+                  background: "linear-gradient(145deg, #ffffff, #f8f9fa)",
+                  color: "#2C3E50",
+                  fontSize: "0.95rem",
+                  fontWeight: "500",
+                  border: "1px solid #E0E0E0",
+                  boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.1)",
+                  width: "90%",
+                  maxWidth: "520px",
+                  transition: "all 0.3s ease-in-out",
+                  "&:hover": {
+                    transform: "translateY(-5px)",
+                    boxShadow: "0px 12px 24px rgba(0, 0, 0, 0.1)",
+                  },
+                }}
+              >
+                <Typography
+                  variant="body1"
+                  sx={{
+                    fontWeight: "700",
+                    color: "#20ADA0",
+                    mb: 2,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  Visit Information
+                </Typography>
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  {/* Previous Visit */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      px: 2,
+                      py: 1,
+                      borderRadius: "8px",
+                      backgroundColor: "#F1FAFA",
+                      border: "1px solid #E0E0E0",
+                      boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.05)",
+                      transition: "all 0.3s ease-in-out",
+                      "&:hover": {
+                        backgroundColor: "#E6F7F2",
+                        transform: "translateY(-2px)",
+                      },
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <EventIcon sx={{ color: "#20ADA0" }} />
+                      <Typography sx={{ fontWeight: 600, fontSize: "1rem" }}>
+                        Previous Visit:
+                      </Typography>
+                    </Box>
+                    <Typography
+                      sx={{
+                        fontSize: "0.95rem",
+                        fontWeight: "500",
+                        color: "#2C3E50",
+                      }}
+                    >
+                      {previousVisit
+                        ? `${new Date(
+                            previousVisit.appointmentDate
+                          ).toLocaleDateString()} at ${
+                            previousVisit.appointmentTime
+                          }`
+                        : "N/A"}
+                    </Typography>
+                  </Box>
+                  {/* Next Visit */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      px: 2,
+                      py: 1,
+                      borderRadius: "8px",
+                      backgroundColor: "#F1FAFA",
+                      border: "1px solid #E0E0E0",
+                      boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.05)",
+                      transition: "all 0.3s ease-in-out",
+                      "&:hover": {
+                        backgroundColor: "#E6F7F2",
+                        transform: "translateY(-2px)",
+                      },
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <EventIcon sx={{ color: "#20ADA0" }} />
+                      <Typography sx={{ fontWeight: 600, fontSize: "1rem" }}>
+                        Next Visit:
+                      </Typography>
+                    </Box>
+                    <Typography
+                      sx={{
+                        fontSize: "0.95rem",
+                        fontWeight: "500",
+                        color: "#2C3E50",
+                      }}
+                    >
+                      {nextVisit
+                        ? `${new Date(
+                            nextVisit.appointmentDate
+                          ).toLocaleDateString()} at ${
+                            nextVisit.appointmentTime
+                          }`
+                        : "N/A"}
+                    </Typography>
+                  </Box>
+                </Box>
               </Box>
             </Box>
           </Box>
@@ -512,7 +770,7 @@ const UserProfile = () => {
             <Grid container spacing={2} sx={{ justifyContent: "space-around" }}>
               {quickActions.map((action, index) => (
                 <Grid item xs={6} sm={4} md={2} key={index}>
-                  <MenuItem
+                  <CustomMenuItem
                     icon={action.icon}
                     label={action.label}
                     value={action.value}
@@ -530,7 +788,6 @@ const UserProfile = () => {
               background: "rgba(255, 255, 255, 0.95)",
             }}
           >
-            {/* {activeView === "overview" && <PatientOverview user={user} />} */}
             {activeView === "appointments" && <AppointmentHistory />}
             {activeView === "tests" && <TestHistory />}
             {activeView === "billing" && <BillingHistory />}
@@ -538,6 +795,11 @@ const UserProfile = () => {
           </Paper>
         </Grid>
       </Grid>
+      <SnackbarComponent
+        alerting={snackbar.snackbarAlert}
+        severity={snackbar.snackbarSeverity}
+        message={snackbar.snackbarMessage}
+      />
     </Box>
   );
 };

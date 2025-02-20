@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import useSWR from "swr";
 
@@ -12,18 +13,38 @@ import { Testimonial } from "@/types/testimonial";
  * @returns An object containing the fetched testimonials, loading state, and error state.
  */
 export const useGetTestimonial = (
-  initialData: Testimonial[],
-  pathKey: string
+  initialData: Testimonial | null,
+  pathKey: string,
+  page: number = 1,
+  limit: number = 5
 ) => {
-  const { data: swrData, error } = useSWR<Testimonial[]>(pathKey,
-    () => fetcher<Testimonial[]>('testimonial', pathKey),
+  const url = `${pathKey}?page=${page}&limit=${limit}`;
+  console.log(url,"url is")
+  const { data: swrData, error, isValidating, mutate } = useSWR<Testimonial | null>(
+    url,
+    () => fetcher<Testimonial>('testimonial', url),
     {
       fallbackData: initialData,
-      refreshInterval: initialData ? 3600000 : 0,
+      refreshInterval: 3600000,
       revalidateOnFocus: false,
-    });
+    }
+  );
+  const refetch = async (keyword?: string) => {
+    const refetchUrl = keyword ? `${url}&keyword=${keyword}` : url;
+    return await mutate(() => fetcher<Testimonial>('testimonial', refetchUrl));
+  };
 
-  return { data: swrData || [], swrLoading: !error && !swrData, error };
+  return {
+    value: swrData || {
+      results: [],
+      count: 0,
+      pages: 0,
+      errorMessage: null
+    },
+    swrLoading: !error && !swrData && isValidating,
+    error,
+    refetch
+  };
 };
 
 /**
