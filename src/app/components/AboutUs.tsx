@@ -2,14 +2,23 @@ import { Box, Grid, Paper, Typography } from "@mui/material";
 import en from "@/locales/en.json";
 import styles from "../page.module.css";
 
-const screens = {
-  sm: "600px",
-  md: "900px",
-  lg: "1200px",
-  xl: "1536px",
-};
-
 const AboutUs: React.FC = () => {
+  // Data for cards
+  const cardData = [
+    {
+      title: en.homepage.aboutUs.cardTitle1,
+      description: en.homepage.aboutUs.cardDescription1,
+    },
+    {
+      title: en.homepage.aboutUs.cardTitle2,
+      description: en.homepage.aboutUs.cardDescription2,
+    },
+    {
+      title: en.homepage.aboutUs.cardTitle3,
+      description: en.homepage.aboutUs.cardDescription3,
+    },
+  ];
+
   return (
     <Box className={styles.aboutUsContainer} sx={{ py: 6 }}>
       <Grid container spacing={4} alignItems="center">
@@ -19,23 +28,18 @@ const AboutUs: React.FC = () => {
           xs={12}
           md={5}
           className={styles.imageGrid}
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-          }}
+          sx={{ display: "flex", justifyContent: "center" }}
         >
           <Box
             component="img"
             className={styles.image}
-           alt="The house from the offer."
-            src={"../assets/images/online-doctor-with-white-coat.png"}
+            alt="Doctor in White Coat"
+            src="../assets/images/online-doctor-with-white-coat.png"
             sx={{
               width: "100%",
               maxWidth: { xs: "300px", sm: "400px", md: "100%" },
               borderRadius: "10px",
               boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-              [`@media (min-width: ${screens.sm})`]: { maxWidth: "400px" },
-              [`@media (min-width: ${screens.md})`]: { maxWidth: "100%" },
             }}
           />
         </Grid>
@@ -85,26 +89,14 @@ const AboutUs: React.FC = () => {
           <Grid
             container
             spacing={3}
-            className={styles.cardsGrid}
             sx={{
               marginTop: "24px",
               justifyContent: { xs: "center", md: "flex-start" },
             }}
           >
-            {[1, 2, 3].map((card, index) => (
-              <Grid
-                item
-                xs={12}
-                sm={6}
-                md={4}
-                key={index}
-                sx={{
-                  [`@media (min-width: ${screens.sm})`]: { flex: "0 0 50%" },
-                  [`@media (min-width: ${screens.md})`]: { flex: "0 0 33.33%" },
-                }}
-              >
+            {cardData.map((card, index) => (
+              <Grid item xs={12} sm={6} md={4} key={index}>
                 <Paper
-                  className={index === 0 ? styles.cardGreen : styles.cardWhite}
                   sx={{
                     padding: "20px",
                     borderRadius: "15px",
@@ -115,35 +107,37 @@ const AboutUs: React.FC = () => {
                       transform: "translateY(-10px)",
                       boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.2)",
                     },
+                    backgroundColor: index === 0 ? "#20ada0" : "#fff",
+                    color: index === 0 ? "#fff" : "#333",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    height: "200px", // Fixed height for all cards
                   }}
                 >
                   <Typography
                     variant="h5"
                     component="h5"
-                    className={styles.cardTitle}
                     sx={{
-                      color: index === 0 ? "#fff" : "#333",
                       fontSize: { xs: "1.2rem", md: "1.5rem" },
                       fontWeight: "600",
                       marginBottom: "8px",
                     }}
                   >
-                    {en.homepage.aboutUs[`cardTitle1`]}
+                    {card.title}
                   </Typography>
                   <Typography
                     variant="body2"
                     component="p"
-                    className={styles.cardDescription}
                     sx={{
-                      color: index === 0 ? "#fff" : "#555",
                       fontSize: { xs: "0.9rem", md: "1rem" },
                       lineHeight: "1.5",
+                      flexGrow: 1, // This will ensure the content stretches to fill space
                     }}
                   >
-                    {en.homepage.aboutUs[`cardDescription${card}`]}
+                    {card.description}
                   </Typography>
                 </Paper>
-                
               </Grid>
             ))}
           </Grid>

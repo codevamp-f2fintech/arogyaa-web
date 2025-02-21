@@ -17,7 +17,7 @@
     },
     "expertSpecialistSlider": {
       "title1": "Meet Our",
-      "title2": "Expert Specialist",
+      "title2": "Expert Specialists",
       "drName": "Dr. Nidhi",
       "field": "Physician",
       "experiance": "15 years of experiance",
@@ -33,12 +33,12 @@
       "title1": "About",
       "title2": "Arogya",
       "description": "Arogya is the largest multi-channel digital healthcare platform in India, created with a vision of eliminating flexibility blockages from the healthcare industry. We believe in making healthcare affordable to everyone by combining analytic excellence, affordable cost, and extensive research with advanced technology.",
-      "cardTitle1": "15 +",
-      "cardDescription1": "years of experienced Doctors",
-      "cardTitle2": "50 +",
-      "cardDescription2": "Specialities",
-      "cardTitle3": "24x7",
-      "cardDescription3": "Availability"
+      "cardTitle1": "30 +",
+      "cardDescription1": "We have 30 + best doctors",
+      "cardTitle2": "15 +",
+      "cardDescription2": "years of experienced Doctors",
+      "cardTitle3": "40 +",
+      "cardDescription3": "Specialists"
     },
     "testimonials": {
       "title1": " Feedback From",
@@ -54,13 +54,13 @@
     "title": "AROGYA",
     "the_best_medical": "The Best Medical and Treatment Center For You",
     "dated": "Arogya 2024",
-    "social": "Stay In Touch",
+    "social": "Stay In Touch" ,
     "button": "Subscribe",
     "copyright": "© Copyright 2024, All rights reserved with Arogya HealtCare",
     "contact_section": {
       "title": "Contact Us",
       "opening_hours": "Opening hours: 09:00 - 20:00",
-      "clinics": "Search for clinics",
+      "clinics": "Find Your Health Concerns",
       "hospitals": "Search for hospitals",
       "medicines": "Read about medicines"
     },

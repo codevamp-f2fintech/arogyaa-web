@@ -98,7 +98,7 @@ const FAQPage = () => {
           <Grid item xs={12} md={6}></Grid>
           <Grid item xs={12} md={6}></Grid>
           {/* FAQ Section */}
-          <FAQWrapper
+          <FAQWrapper id="faq"
             sx={{
               marginRight: "94px", // Add margin on the right
               borderRadius: "12px", // Apply a rounded border radius
@@ -150,12 +150,15 @@ const FAQPage = () => {
                 }}
               >
                 <Typography variant="h6">
-                  What are your working hours?
+                  Are your online doctors qualified?
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
                 <Typography>
-                  Our working hours are Monday to Friday, 9 AM to 6 PM.
+                  We follow a strict verification process for every doctor
+                  providing online medical services on Practo. Our team manually
+                  verifies necessary documents, registrations, and
+                  certifications for every doctor.
                 </Typography>
               </AccordionDetails>
             </Accordion>
@@ -269,13 +272,20 @@ const FAQPage = () => {
                 }}
               >
                 <Typography variant="h6">
-                  What services do you offer?
+                  For how long is the consultation valid?
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
                 <Typography>
-                  We offer a wide range of services including consultations,
-                  diagnostics, and treatments.
+                  In the case of a paid consult, you can follow-up with your
+                  doctor for up to 3 days. In case you opt for a free consult,
+                  follow-up questions are valid for one day only. Do you have a
+                  refund policy? We have a “take-it-easy” policy. If for any
+                  reason you’re not convinced with your online consultation, you
+                  can write to us at contact@1mgdoctors.com and we will review
+                  the consult with the doctor - seeking clarifications on your
+                  queries that were answered. 100% refund will be given in
+                  genuine cases.
                 </Typography>
               </AccordionDetails>
             </Accordion>

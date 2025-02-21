@@ -336,7 +336,7 @@ export default function ModernDoctorProfile() {
                     {results.map((doctor) => (
                       <ListItem key={doctor._id}>
                         <Link
-                          href={`/doctor/profile/${encodeURIComponent(doctor._id)}`}
+                          href={`/doctors/profile/${encodeURIComponent(doctor._id)}`}
                           passHref
                           style={{
                             textDecoration: "none",
