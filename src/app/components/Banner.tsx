@@ -201,7 +201,10 @@ const BannerComponent: React.FC = () => {
                       }}
                     >
                       <ListItemText
-                        primary={doctor.username || ""}
+                        primary={`${doctor.username || ""} - ${
+                          doctor.specializationIds?.[0]?.name ||
+                          "Specialty not available"
+                        }`}
                         sx={{
                           cursor: "pointer",
                           ":hover": {
@@ -243,7 +246,11 @@ const BannerComponent: React.FC = () => {
             }
           }
         `}</style>
-          <CardContent  className={`${styles.bannerCardContent} ${results.length > 0 ? styles.blurredContent : ''}`}>
+        <CardContent
+          className={`${styles.bannerCardContent} ${
+            results.length > 0 ? styles.blurredContent : ""
+          }`}
+        >
           <Typography
             variant="h5"
             component="span"

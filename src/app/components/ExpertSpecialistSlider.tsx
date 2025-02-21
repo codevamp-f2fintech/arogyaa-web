@@ -116,7 +116,7 @@ const ExpertSpecialistSlider: React.FC = () => {
         <Typography variant="h5" component="h5" className={styles.title1}>
           {en.homepage.expertSpecialistSlider.title1}
         </Typography>
-        <h1
+        <h1 id="docoters"
           style={{
             textAlign: "center",
             marginBottom: "20px",
@@ -229,7 +229,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                       }}
                       onClick={() =>
                         router.push(
-                          `/doctor/profile/${encodeURIComponent(doctor._id)}`
+                          `/doctors/profile/${encodeURIComponent(doctor._id)}`
                         )
                       }
                     />
@@ -249,7 +249,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                       }}
                       onClick={() =>
                         router.push(
-                          `/doctor/profile/${encodeURIComponent(doctor._id)}`
+                          `/doctors/profile/${encodeURIComponent(doctor._id)}`
                         )
                       }
                     >
@@ -377,7 +377,7 @@ const ExpertSpecialistSlider: React.FC = () => {
             className={styles.buttonWrapper}
             style={{ textAlign: "center", marginTop: "20px" }}
           >
-            <Link href={`/doctor`}>
+            <Link href={`/doctors`}>
               <Button
                 variant="contained"
                 className={styles.learnMoreButton}
