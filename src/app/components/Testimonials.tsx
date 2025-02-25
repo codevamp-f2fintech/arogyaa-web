@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -7,42 +8,33 @@ import {
   CardContent,
   Avatar,
   Rating,
-  IconButton,
 } from "@mui/material";
-import PlayCircleIcon from "@mui/icons-material/PlayCircle";
+import { FormatQuote, Person, Star } from "@mui/icons-material";
 import en from "@/locales/en.json";
 import styles from "../page.module.css";
+import { fetcher } from "@/apis/apiClient";
 
 const Testimonials = () => {
-  const dummyTestimonials = [
-    {
-      src: "/dr1.png",
-      description:
-        "The staff was friendly and very careful.They truly cared for all patients!",
-      name: "Dr. Tanmay Joshi",
+  const [testimonials, setTestimonials] = useState([]);
 
-      rating: 4.8,
-      video: "#",
-    },
-    {
-      src: "/assets/images/avatar2.jpg",
-      description:
-        "The facilities were top-notch, and the service exceeded my expectations.",
-      name: "Nayni Srividhya",
+  const fetchTestimonial = useCallback(async () => {
+    try {
+      const response = await fetcher("testimonial", "get-testimonials");
+      console.log("Fetched Testimonials:", response);
 
-      rating: 5,
-      video: "#",
-    },
-    {
-      src: "/assets/images/avatar3.jpg",
-      description:
-        "I had an amazing experience! The staff went above and beyond to help.",
-      name: "Dr. Medidi Sree",
+      if (response && response.results) {
+        setTestimonials(response.results);
+      } else {
+        setTestimonials([]); 
+      }
+    } catch (error) {
+      console.error("Error fetching testimonials:", error);
+    }
+  }, []);
 
-      rating: 4.9,
-      video: "#",
-    },
-  ];
+  useEffect(() => {
+    fetchTestimonial();
+  }, [fetchTestimonial]);
 
   return (
     <Box className={styles.testimonialsSection}>
@@ -55,9 +47,7 @@ const Testimonials = () => {
             textAlign: "center",
             marginBottom: "20px",
             marginTop: "2px",
-            // border: "2px solid blue",
             color: "black",
-            // fontFamily: "Roboto",
           }}
         >
           {en.homepage.testimonials.title2}
@@ -65,32 +55,60 @@ const Testimonials = () => {
       </Box>
 
       <Box className={styles.testimonialsContainer}>
-        {dummyTestimonials.map((testimonial, index) => (
-          <Card key={index} className={styles.testimonialCard}>
-            <CardContent>
-              <Box className={styles.testimonialHeader}>
-                <Avatar
-                  src={testimonial.src}
-                  alt={testimonial.name}
-                  className={styles.testimonialAvatar}
-                />
-                {/* <IconButton className={styles.playButton}>
-                  <PlayCircleIcon fontSize="large" />
-                </IconButton> */}
-              </Box>
-              <Typography
-                variant="body1"
-                className={styles.testimonialDescription}
-              >
-                “{testimonial.description}”
-              </Typography>
-              <Typography variant="h6" className={styles.testimonialName}>
-                {testimonial.name}
-              </Typography>
-              <Rating sx={{color:"#20ADA0"}} value={testimonial.rating} readOnly precision={0.1} />
-            </CardContent>
-          </Card>
-        ))}
+        {testimonials.length > 0 ? (
+          testimonials.map((testimonial, index) => (
+            <Card key={index} className={styles.testimonialCard}>
+              <CardContent>
+                {/* Avatar Section */}
+                <Box className={styles.testimonialHeader}>
+                  <Avatar
+                    src={testimonial?.patientId?.profilePicture || `https://ui-avatars.com/api/?name=${testimonial?.patientId?.username}`}
+                    alt={testimonial?.patientId?.username}
+                    className={styles.testimonialAvatar}
+                  />
+                </Box>
+
+                {/* Quote Icon for Review */}
+                <Box sx={{ display: "flex", justifyContent: "center" }}>
+                  <FormatQuote sx={{ fontSize: 30, color: "#20ADA0" }} />
+                </Box>
+
+                {/* Review Text */}
+                <Typography
+                  variant="body1"
+                  className={styles.testimonialDescription}
+                >
+                  “{testimonial.review}”
+                </Typography>
+
+                {/* Doctor's Name with Icon */}
+                <Typography
+                  variant="h6"
+                  className={styles.testimonialName}
+                  sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px" }}
+                >
+                 
+                  {testimonial.doctorId.username}
+                </Typography>
+
+                {/* Star Rating with Icon */}
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", mt: 1 }}>
+                 
+                  <Rating
+                    sx={{ color: "#20ADA0" }}
+                    value={testimonial.rating}
+                    readOnly
+                    precision={0.1}
+                  />
+                </Box>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <Typography variant="body1" sx={{ textAlign: "center", mt: 2 }}>
+            No testimonials available.
+          </Typography>
+        )}
       </Box>
     </Box>
   );

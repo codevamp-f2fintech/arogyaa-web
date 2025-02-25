@@ -27,7 +27,7 @@ import {
 } from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
 import { styled } from "@mui/system";
-import { creator } from "@/apis/apiClient";
+import { creator, fetcher } from "@/apis/apiClient";
 import { Utility } from "@/utils";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
@@ -72,6 +72,11 @@ const StyledAutocomplete = styled(Autocomplete)(({ theme }) => ({
   },
 }));
 
+interface Doctor {
+  id: string;
+  username: string;
+}
+
 const optionsType = [
   { label: "Arogyaa", value: "arogyaa" },
   { label: "Other", value: "other" },
@@ -98,6 +103,7 @@ const initialFormData = {
   type: "",
   status: "in progress",
   photo: null,
+  doctor: null,
 };
 
 const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
@@ -108,6 +114,9 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
   const dispatch: AppDispatch = useDispatch();
   const { snackbarAndNavigate, decodedToken } = Utility();
   const patientId = decodedToken()?.id;
+  const doctorId = decodedToken()?.id;
+    const [doctors, setDoctors] = useState<Doctor[]>([]);
+  
   const handleClose = (event: any, reason: string) => {
     if (reason !== "backdropClick") {
       onClose();
@@ -145,7 +154,24 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
       }));
     }
   };
+const fetchDoctors = async () => {
+    try {
+      const response = await fetcher("doctor", "get-doctors");
+      console.log("Doctors API Response:", response);
 
+      if (response && response.results) {
+        const formattedDoctors: Doctor[] = response.results.map((doc: any) => ({
+          id: doc._id,
+          username: doc.username || doc.email || `Doctor`,
+        }));
+
+        setDoctors(formattedDoctors);
+        console.log("Processed Doctors:", formattedDoctors);
+      }
+    } catch (error) {
+      console.error("Failed to fetch doctors", error);
+    }
+  };
   const handleCheckboxChange = (e) => {
     setFormData({ ...formData, isEmptyStomach: e.target.checked });
   };
@@ -161,36 +187,41 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
       [name]: value ? "" : prevErrors[name],
     }));
   };
-  const handleSubmit = async () => {
+ const handleSubmit = async () => {
     if (!validateForm()) return;
     try {
-      const headers = {
-        "Content-Type": "multipart/form-data",
-      };
+      const headers = { "Content-Type": "multipart/form-data" };
+      const selectedDoctor = doctors.find((doc) => doc.id === formData.doctor);
+      const doctorId = selectedDoctor ? selectedDoctor.id : null;
+
       const response = await creator(
         "treatment",
         "create-treatment",
         {
           ...formData,
           patientId,
+          doctorId,
         },
         headers
       );
+      console.log("API Response:", response);
+
       if (response.statusCode == 201) {
-        snackbarAndNavigate(dispatch, true, "success", " Created successfully");
+        snackbarAndNavigate(dispatch, true, "success", "Created successfully");
         fetchTreatments(response.data);
         onClose();
       }
     } catch (error) {
-      snackbarAndNavigate(
-        dispatch,
-        true,
-        "error",
-        "Failed to create treatment"
-      );
+      snackbarAndNavigate(dispatch, true, "error", "Failed to create treatment");
     }
   };
 
+   useEffect(() => {
+      if (formData.type === "arogyaa") {
+        fetchDoctors();
+      }
+    }, [formData.type]);
+    
   return (
     <Dialog
       open={open}
@@ -346,7 +377,34 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                 )}
               />
             </Grid>
-
+  {/* ✅ Doctor Selection Field */}
+          {formData.type === "arogyaa" && (
+            <Grid item xs={12} sm={4}>
+              <Autocomplete
+                options={doctors}
+                getOptionLabel={(option) => option.username}
+                value={
+                  doctors.find((doc) => doc.id === formData.doctor) || null
+                }
+                onChange={(event, newValue) => {
+                  setFormData({
+                    ...formData,
+                    doctor: newValue ? newValue.id : null,
+                  });
+                }}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                fullWidth
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Select Doctor"
+                    error={!!errors.doctor}
+                    helperText={errors.doctor}
+                  />
+                )}
+              />
+            </Grid>
+          )}
             <Grid item xs={12} sm={4}>
               <StyledAutocomplete
                 options={optionsStatus}

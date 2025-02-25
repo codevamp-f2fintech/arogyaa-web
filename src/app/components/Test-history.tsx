@@ -84,6 +84,7 @@ const TestHistory: React.FC = () => {
             page + 1
           }&limit=${rowsPerPage}`
         );
+        console.log(response, "test response");
         const results = response?.results || [];
         const count = response?.count || 0;
         const updatedResults = results.map((test: Test) => ({
@@ -181,8 +182,8 @@ const TestHistory: React.FC = () => {
       );
 
       console.log("Upload success:", response);
-      // Update the specific test with the new photo URL
-      const imageUrl = URL.createObjectURL(testImage); // Generate URL for preview
+
+      const imageUrl = URL.createObjectURL(testImage);
       setTests((prevTests) =>
         prevTests.map((test) =>
           test._id === selectedTestId ? { ...test, photo: imageUrl } : test
@@ -194,8 +195,6 @@ const TestHistory: React.FC = () => {
         "success",
         "Image uploaded successfully"
       );
-
-      // Close modal after successful upload
       handleCloseModal();
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -257,24 +256,30 @@ const TestHistory: React.FC = () => {
             sx={{
               backgroundColor: (theme) =>
                 alpha(theme.palette.primary.main, 0.05),
+              width: "auto",
             }}
           >
             <TableRow sx={{ textAlign: "center" }}>
-              {["Name", "Description", "Type", "Status", "Photo"].map(
-                (header) => (
-                  <TableCell
-                    key={header}
-                    sx={{
-                      fontWeight: 600,
-                      textTransform: "uppercase",
-                      color: "text.secondary",
-                      textAlign: "center",
-                    }}
-                  >
-                    {header}
-                  </TableCell>
-                )
-              )}
+              {[
+                "doctor's Name",
+                "Name",
+                "Description",
+                "Type",
+                "Status",
+                "Photo",
+              ].map((header) => (
+                <TableCell
+                  key={header}
+                  sx={{
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                    color: "text.secondary",
+                    textAlign: "center",
+                  }}
+                >
+                  {header}
+                </TableCell>
+              ))}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -284,11 +289,18 @@ const TestHistory: React.FC = () => {
                   key={test._id}
                   hover
                   sx={{
-                    "&:last-child td, &:last-child th": { borderBottom: "1px solid #ddd" },
+                    "&:last-child td, &:last-child th": {
+                      borderBottom: "1px solid #ddd",
+                    },
                     transition: "background-color 0.2s",
                     textAlign: "center",
                   }}
                 >
+                  <TableCell sx={{ textAlign: "center" }}>
+                    {capitalizeFirstLetter(
+                      test.doctorId?.username || "Unknown Doctor"
+                    )}
+                  </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
                     {capitalizeFirstLetter(test.name)}
                   </TableCell>
@@ -303,7 +315,7 @@ const TestHistory: React.FC = () => {
                     sx={{
                       width: 150,
                       textAlign: "center",
-                      verticalAlign: "middle", // Ensures alignment within the row
+                      verticalAlign: "middle",
                     }}
                   >
                     <Select
@@ -316,15 +328,15 @@ const TestHistory: React.FC = () => {
                       displayEmpty
                       sx={{
                         borderRadius: "20px",
-                        width: "100%", // Match the parent TableCell width
-                        height: "36px", // Consistent height for all rows
+                        width: "100%",
+                        height: "36px",
                         textAlign: "center",
                         "& .MuiOutlinedInput-notchedOutline": {
                           border: "none",
                         },
                         "& .MuiSelect-select": {
                           borderRadius: "20px",
-                          padding: "6px 14px !important", // Consistent padding
+                          padding: "6px 14px !important",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -366,7 +378,7 @@ const TestHistory: React.FC = () => {
                       MenuProps={{
                         PaperProps: {
                           sx: {
-                            width: 150, // Ensures dropdown menu matches Select width
+                            width: 150,
                             borderRadius: 2,
                             boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.08)",
                             mt: 1,

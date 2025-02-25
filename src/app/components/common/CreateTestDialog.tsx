@@ -26,7 +26,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 
 import { styled } from "@mui/system";
-import { creator } from "@/apis/apiClient";
+import { creator, fetcher } from "@/apis/apiClient";
 import { Utility } from "@/utils";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
@@ -50,6 +50,11 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
     },
   },
 }));
+
+interface Doctor {
+  id: string;
+  username: string;
+}
 
 const optionsCategory = [
   { label: "Blood Test", value: "blood_test" },
@@ -80,6 +85,7 @@ const initialFormData = {
   emptyStomach: false,
   status: "scheduled",
   type: null,
+  doctor: null,
   photo: null,
 };
 
@@ -90,10 +96,12 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
 }) => {
   const dispatch: AppDispatch = useDispatch();
   const { snackbarAndNavigate, decodedToken } = Utility();
-  
+
   const patientId = decodedToken()?.id;
+  const doctorId = decodedToken()?.id;
   const [formData, setFormData] = useState(initialFormData);
   const [errors, setErrors] = useState({} as Record<string, string>);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
 
   useEffect(() => {
     if (!open) {
@@ -101,7 +109,6 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
       setErrors({});
     }
   }, [open]);
-
 
   const validateForm = () => {
     let valid = true;
@@ -126,6 +133,24 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
     }
   };
 
+  const fetchDoctors = async () => {
+    try {
+      const response = await fetcher("doctor", "get-doctors");
+      console.log("Doctors API Response:", response);
+
+      if (response && response.results) {
+        const formattedDoctors: Doctor[] = response.results.map((doc: any) => ({
+          id: doc._id,
+          username: doc.username || doc.email || `Doctor`,
+        }));
+
+        setDoctors(formattedDoctors);
+        console.log("Processed Doctors:", formattedDoctors);
+      }
+    } catch (error) {
+      console.error("Failed to fetch doctors", error);
+    }
+  };
   const handleCheckboxChange = (e) => {
     setFormData({ ...formData, emptyStomach: e.target.checked });
   };
@@ -145,18 +170,21 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
   const handleSubmit = async () => {
     if (!validateForm()) return;
     try {
-      const headers = {
-        "Content-Type": "multipart/form-data",
-      };
+      const headers = { "Content-Type": "multipart/form-data" };
+      const selectedDoctor = doctors.find((doc) => doc.id === formData.doctor);
+      const doctorId = selectedDoctor ? selectedDoctor.id : null;
+
       const response = await creator(
         "test",
         "create-test",
         {
           ...formData,
           patientId,
+          doctorId,
         },
         headers
       );
+
       if (response.statusCode == 201) {
         snackbarAndNavigate(dispatch, true, "success", "Created successfully");
         fetchTests();
@@ -166,6 +194,13 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
       snackbarAndNavigate(dispatch, true, "error", "Failed to create test");
     }
   };
+
+
+  useEffect(() => {
+    if (formData.type === "doctor") {
+      fetchDoctors();
+    }
+  }, [formData.type]);
 
   return (
     <Dialog
@@ -203,6 +238,7 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
               }}
             />
           </Grid>
+
           <Grid item xs={12} sm={4}>
             <StyledTextField
               label="Description"
@@ -221,6 +257,7 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
               }}
             />
           </Grid>
+
           <Grid item xs={12} sm={4}>
             <FormControlLabel
               control={
@@ -234,7 +271,7 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
                 />
               }
               label="Empty Stomach"
-              sx={{ marginTop: 2 }} 
+              sx={{ marginTop: 2 }}
             />
           </Grid>
 
@@ -277,6 +314,7 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
               )}
             />
           </Grid>
+
           <Grid item xs={12} sm={4}>
             <Autocomplete
               options={optionsType}
@@ -294,76 +332,106 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
               renderInput={(params) => <TextField {...params} label="Type" />}
             />
           </Grid>
+
+          {/* ✅ New Doctor Selection Field */}
+          {formData.type === "doctor" && (
+            <Grid item xs={12} sm={4}>
+              <Autocomplete
+                options={doctors}
+                getOptionLabel={(option) => option.username}
+                value={
+                  doctors.find((doc) => doc.id === formData.doctor) || null
+                }
+                onChange={(event, newValue) => {
+                  setFormData({
+                    ...formData,
+                    doctor: newValue ? newValue.id : null,
+                  });
+                }}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                fullWidth
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Select Doctor"
+                    error={!!errors.doctor}
+                    helperText={errors.doctor}
+                  />
+                )}
+              />
+            </Grid>
+          )}
+
           <Grid item xs={12} sm={4}>
-              <Button
-                component="label"
-                variant="contained"
-                startIcon={<ImageIcon />}
+            <Button
+              component="label"
+              variant="contained"
+              startIcon={<ImageIcon />}
+              sx={{
+                borderRadius: "12px",
+                padding: "10px",
+                textAlign: "center",
+                backgroundColor: "#20ADA0",
+                cursor: "pointer",
+                width: "100%",
+                marginTop: 0.6,
+                "&:hover": { backgroundColor: "#20ADA0" },
+                transition: "0.3s",
+              }}
+            >
+              Upload Image
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                id="image-upload"
+                onChange={handleImageUpload}
+              />
+            </Button>
+
+            {formData.photo && (
+              <Box
                 sx={{
-                  borderRadius: "12px",
-                  padding: "10px",
-                  textAlign: "center",
-                  backgroundColor: "#20ADA0",
-                  cursor: "pointer",
+                  position: "relative",
                   width: "100%",
-                  marginTop: 0.6,
-                  "&:hover": { backgroundColor: "#20ADA0" },
-                  transition: "0.3s",
+                  maxHeight: "200px",
+                  marginTop: 2,
+                  borderRadius: 8,
+                  overflow: "hidden",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
                 }}
               >
-                Upload Image
-                <input
-                  type="file"
-                  hidden
-                  accept="image/*"
-                  id="image-upload"
-                  onChange={handleImageUpload}
-                />
-              </Button>
-
-              {formData.photo && (
-                <Box
-                  sx={{
-                    position: "relative",
+                <img
+                  src={URL.createObjectURL(formData.photo)}
+                  alt="Uploaded"
+                  style={{
                     width: "100%",
                     maxHeight: "200px",
-                    marginTop: 2,
+                    objectFit: "cover",
                     borderRadius: 8,
-                    overflow: "hidden",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
+                  }}
+                />
+
+                {/* Close Button */}
+                <IconButton
+                  onClick={() => setFormData({ ...formData, photo: null })}
+                  sx={{
+                    position: "absolute",
+                    top: 4,
+                    right: 8,
+                    color: "#20ADA0",
                   }}
                 >
-                  <img
-                    src={URL.createObjectURL(formData.photo)}
-                    alt="Uploaded"
-                    style={{
-                      width: "100%",
-                      maxHeight: "200px",
-                      objectFit: "cover",
-                      borderRadius: 8,
-                    }}
-                  />
-
-                  {/* Close Button */}
-                  <IconButton
-                    onClick={() => setFormData({ ...formData, photo: null })}
-                    sx={{
-                      position: "absolute",
-                      top: 4,
-                      right: 8,
-
-                      color: "#20ADA0",
-                    }}
-                  >
-                    <Close />
-                  </IconButton>
-                </Box>
-              )}
-            </Grid>
+                  <Close />
+                </IconButton>
+              </Box>
+            )}
+          </Grid>
         </Grid>
       </DialogContent>
+
       <DialogActions sx={{ justifyContent: "center" }}>
         <Button
           onClick={onClose}
