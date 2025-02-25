@@ -208,6 +208,14 @@ export default function ModernDoctorProfile() {
     }
   }, [searchParams, doctors?.results?.length]);
 
+  useEffect(() => {
+    const urlKeyword = searchParams.get("keyword") || "";
+    if (urlKeyword && urlKeyword !== keyword) {
+      setKeyword(urlKeyword);
+      debouncedSearch(urlKeyword);
+    }
+  }, [searchParams]);
+
   if (swrLoading) {
     return (
       <Container maxWidth="lg" sx={{ py: 8 }}>
@@ -496,12 +504,12 @@ export default function ModernDoctorProfile() {
               <InputLabel
                 id="fees-label"
                 sx={{
-                  backgroundColor: "#fff", 
+                  backgroundColor: "#fff",
                   px: 1,
                   transition: "all 0.3s ease-in-out",
                   "&.MuiInputLabel-shrink": {
-                    px: 1, 
-                    borderRadius: "2px", 
+                    px: 1,
+                    borderRadius: "2px",
                   },
                 }}
               >

@@ -38,6 +38,7 @@ import Cookies from "js-cookie";
 
 const ExpertSpecialistSlider: React.FC = () => {
   const [selectedDoctor, setSelectedDoctor] = useState<DoctorData | null>(null);
+  const [isModalOpen, setModalOpen] = useState(false);
   const { doctor, reduxLoading } = useSelector(
     (state: RootState) => state.doctors
   );
@@ -45,13 +46,12 @@ const ExpertSpecialistSlider: React.FC = () => {
   const router = useRouter();
   const { value: data, swrLoading } = useGetDoctors(null, "get-doctors", 1, 6);
 
-  const [isModalOpen, setModalOpen] = useState(false);
 
   const openModal = (doctor: DoctorData): void => {
     const userToken = Cookies.get("token");
     if (!userToken) {
       const encodedReturnUrl = encodeURIComponent(
-        `/doctor?autoBookDoctorId=${doctor._id}`
+        `/doctors?autoBookDoctorId=${doctor._id}`
       );
       router.push(`/signup?redirect=${encodedReturnUrl}`);
       return;
@@ -122,7 +122,6 @@ const ExpertSpecialistSlider: React.FC = () => {
             marginBottom: "20px",
             marginTop: "2px",
             color: "black",
-            // fontFamily: "Roboto",
           }}
         >
           {en.homepage.expertSpecialistSlider.title2}
@@ -207,7 +206,6 @@ const ExpertSpecialistSlider: React.FC = () => {
                       width: "100px",
                       height: "100px",
                       borderRadius: "50%",
-                      border: "4px solid white",
                       overflow: "hidden",
                       boxShadow: "0 4px 12px rgba(32, 173, 160, 0.2)",
                     }}

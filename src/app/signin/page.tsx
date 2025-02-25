@@ -2,20 +2,19 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Box,
   Button,
   Typography,
-  Grid,
   TextField,
   InputAdornment,
   IconButton,
   CircularProgress,
 } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
 import { Email, Lock, Visibility, VisibilityOff } from "@mui/icons-material";
-import * as Yup from "yup";
 import { Formik, Form } from "formik";
+import * as Yup from "yup";
 
 import SnackbarComponent from "../components/common/Snackbar";
 import { creator } from "@/apis/apiClient";
@@ -83,7 +82,7 @@ export default function Login() {
             true,
             "success",
             response?.message || "Login Successful",
-            () => router.push(decodedRedirect || '/doctor')
+            () => router.push(decodedRedirect || '/doctors')
           );
         } else if (response?.statusCode === 409) {
           snackbarAndNavigate(

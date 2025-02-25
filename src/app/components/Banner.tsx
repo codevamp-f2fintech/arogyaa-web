@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useCallback, useState } from "react";
-import styles from "../page.module.css";
 import SearchIcon from "@mui/icons-material/Search";
 import Link from "next/link";
 import {
@@ -16,13 +15,15 @@ import {
   CardContent,
 } from "@mui/material";
 
+import styles from "../page.module.css";
 import en from "@/locales/en.json";
 import { fetcher } from "@/apis/apiClient";
-import { Roboto } from "next/font/google";
+import { Utility } from "@/utils";
 
 const BannerComponent: React.FC = () => {
   const [keyword, setKeyword] = useState("");
   const [results, setResults] = useState([]);
+  const { capitalizeFirstLetter } = Utility();
 
   const debounce = (func: (...args: any[]) => void, delay: number) => {
     let timer: NodeJS.Timeout;
@@ -192,7 +193,7 @@ const BannerComponent: React.FC = () => {
                 {results.map((doctor: any, index: number) => (
                   <ListItem key={doctor._id || index}>
                     <Link
-                      href={`/doctor/profile/${doctor._id}`}
+                      href={`/doctors/profile/${doctor._id}`}
                       passHref
                       style={{
                         textDecoration: "none",
@@ -201,10 +202,10 @@ const BannerComponent: React.FC = () => {
                       }}
                     >
                       <ListItemText
-                        primary={`${doctor.username || ""} - ${
-                          doctor.specializationIds?.[0]?.name ||
-                          "Specialty not available"
-                        }`}
+                        primary={`${doctor.username || ""} - ${doctor.specializationIds && doctor.specializationIds.length > 0
+                          ? doctor.specializationIds.map((spec: any) => capitalizeFirstLetter(spec.name)).join(", ")  // Join specializations with commas
+                          : "Specialty not available"
+                          }`}
                         sx={{
                           cursor: "pointer",
                           ":hover": {
@@ -247,9 +248,8 @@ const BannerComponent: React.FC = () => {
           }
         `}</style>
         <CardContent
-          className={`${styles.bannerCardContent} ${
-            results.length > 0 ? styles.blurredContent : ""
-          }`}
+          className={`${styles.bannerCardContent} ${results.length > 0 ? styles.blurredContent : ""
+            }`}
         >
           <Typography
             variant="h5"

@@ -1,5 +1,6 @@
 import React from "react";
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Button, Grid, Typography } from "@mui/material";
+import { ArrowCircleRight } from "@mui/icons-material";
 
 interface SpecialistCardProps {
   icon: string;
@@ -26,7 +27,6 @@ const SpecialistCard: React.FC<SpecialistCardProps> = React.memo(
           transition: "all 0.3s ease",
           border: "1px solid #20ada0",
           "&:hover": {
-            // transform: "translateY(-8px)",
             boxShadow: "0 8px 30px rgba(0, 0, 0, 0.12)",
             "& .specialistIconWrapper": {
               transform: "rotate(180deg)",
@@ -55,7 +55,6 @@ const SpecialistCard: React.FC<SpecialistCardProps> = React.memo(
             alt="Add Icon"
             width={40}
             height={40}
-            // style={{ filter: "brightness(0) invert(1)" }}
           />
         </Box>
 
@@ -87,8 +86,9 @@ const SpecialistCard: React.FC<SpecialistCardProps> = React.memo(
           sx={{
             display: "flex",
             flexDirection: "column",
-            width: "100%",
+            alignItems: 'center',
             flexGrow: 1,
+            width: "100%",
           }}
         >
           <Typography
@@ -120,27 +120,29 @@ const SpecialistCard: React.FC<SpecialistCardProps> = React.memo(
           >
             {description}
           </Typography>
-          {/* <Button
-          variant="contained"
-          className="consultButton"
-          endIcon={<ArrowCircleRightIcon />}
-          onClick={onConsult}
-          sx={{
-            width: "80%",
-            py: 1.5,
-            borderRadius: 2,
-            textTransform: "none",
-            transition: "all 0.3s ease",
-            backgroundColor: "primary.main",
-            color: "common.white",
-            "&:hover": {
-              backgroundColor: "primary.dark",
-              transform: "translateY(-2px)",
-            },
-          }}
-        >
-          Consult Now
-        </Button> */}
+          <Button
+            variant="contained"
+            className="consultButton"
+            endIcon={<ArrowCircleRight />}
+            onClick={onConsult}
+            sx={{
+              width: '75%',
+              background: "#20ADA0 !important",
+              color: "white",
+              fontWeight: "bold",
+              borderRadius: "20px",
+              boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
+              transition: "all 0.3s ease",
+              display: "flex",
+              alignItems: "center",
+              "&:hover": {
+                backgroundColor: "primary.dark",
+                transform: "translateY(-2px)",
+              },
+            }}
+          >
+            Consult Now
+          </Button>
         </Box>
       </Grid>
     );

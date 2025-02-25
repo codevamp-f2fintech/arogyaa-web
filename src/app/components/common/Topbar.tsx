@@ -21,6 +21,7 @@ import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 import EventIcon from "@mui/icons-material/Event";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import Popover from "@mui/material/Popover";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
@@ -117,7 +118,7 @@ const Topbar = () => {
     <AppBar className={styles.appBar}>
       <Toolbar disableGutters>
         <AdbIcon
-          sx={{ display: { xs: "none", md: "flex", color: "#20ada0" }, mr: 0.1,mb:0.6}}
+          sx={{ display: { xs: "none", md: "flex", color: "#20ada0" }, mr: 0.1, mb: 0.6 }}
         />
         <Typography
           variant="h6"
@@ -214,10 +215,10 @@ const Topbar = () => {
           ))} */}
         </Box>
         <Box className={styles.appointmentButtonContainer}>
-          {pathname !== "/doctor" &&
-            !pathname.startsWith("/doctor/profile/") && (
+          {pathname !== "/doctors" &&
+            !pathname.startsWith("/doctors/profile/") && (
               <Button
-                onClick={() => router.push("/doctor")}
+                onClick={() => router.push("/doctors")}
                 variant="outlined"
                 className={styles.appointmentButton}
                 endIcon={<EventIcon />}
@@ -232,16 +233,33 @@ const Topbar = () => {
         </Box>
 
         {decodedToken()?.id ? (
-          <Box className={styles.avatarContainer}>
-            <IconButton className={styles.avatarButton}>
-              <Avatar
-                alt={capitalizeFirstLetter(decodedToken()?.patientName)}
-                src={decodedToken()?.patientName}
-                onClick={userPopover.handleOpen}
-                ref={userPopover.anchorRef}
-                sx={{ cursor: "pointer" }}
-              />
-            </IconButton>
+          <Box>
+            <Button
+              variant="contained"
+              onClick={userPopover.handleOpen}
+              ref={userPopover.anchorRef}
+              startIcon={
+                <PersonOutlineIcon
+                  sx={{
+                    fontSize: "18px",
+                  }}
+                />
+              }
+              sx={{
+                background: "#20ADA0 !important",
+                color: "white",
+                fontWeight: "bold",
+                borderRadius: "20px",
+                boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
+                transition: "all 0.3s ease",
+                display: "flex",
+                alignItems: "center",
+                textTransform: "capitalize",
+              }}
+            >
+              {capitalizeFirstLetter(decodedToken()?.patientName)}
+            </Button>
+
             <UserPopover
               anchorEl={userPopover.anchorRef.current}
               onClose={userPopover.handleClose}

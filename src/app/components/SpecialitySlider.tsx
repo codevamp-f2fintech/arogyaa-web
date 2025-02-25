@@ -45,9 +45,8 @@ const SpecialitySlider: React.FC = () => {
   }, []);
 
   const handleConsult = useCallback(
-    (id: string) => {
-      router.push("/doctor");
-      console.log(id, "consult click");
+    (specialtyName: string) => {
+      router.push(`/doctors?keyword=${encodeURIComponent(specialtyName)}`);
     },
     [router]
   );
@@ -93,7 +92,7 @@ const SpecialitySlider: React.FC = () => {
   );
 
   return (
-    <Container 
+    <Container
       maxWidth={false}
       sx={{
         maxWidth: "1400px",
@@ -181,8 +180,8 @@ const SpecialitySlider: React.FC = () => {
                     <SpecialistCard
                       icon={icon}
                       name={item.name}
-                      description={item.description.slice(0, 100) + "..."}
-                      onConsult={() => handleConsult(item._id)}
+                      description={item.description.slice(0, 90) + "..."}
+                      onConsult={() => handleConsult(item.name)}
                     />
                   </Paper>
                 </Box>

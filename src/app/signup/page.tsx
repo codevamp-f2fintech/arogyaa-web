@@ -61,6 +61,7 @@ const Signup = () => {
   const dispatch: AppDispatch = useDispatch();
   const router = useRouter();
   const searchParams = useSearchParams();
+
   const { snackbarAndNavigate } = Utility();
   const { createPatient } = useCreatePatient("/create-patient");
   const rawRedirect = searchParams.get("redirect");
@@ -162,7 +163,7 @@ const Signup = () => {
             true,
             "success",
             "Patient created successfully",
-            () => router.push(decodedRedirect || '/doctor'),
+            () => router.push(decodedRedirect || '/doctors'),
           );
         }
       } else {
@@ -263,7 +264,7 @@ const Signup = () => {
             color: "#449AC8",
           }}
         >
-          Please Fill In Patient Details
+          Please Fill In Patient Details {decodedRedirect ? 'To Book Appointment' : ''}
         </Typography>
         <form onSubmit={handleSubmit}>
           <Box
