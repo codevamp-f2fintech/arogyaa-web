@@ -65,7 +65,7 @@ const TreatmentHistory: React.FC = () => {
   >(null);
   const treatmentFileInputRef = useRef<HTMLInputElement>(null);
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
-  // global state for snackbar from Redux
+ 
   const { snackbar } = useSelector((state: RootState) => state.snackbar);
 
   const dispatch: AppDispatch = useDispatch();
@@ -257,21 +257,26 @@ const TreatmentHistory: React.FC = () => {
             }}
           >
             <TableRow sx={{ textAlign: "center" }}>
-              {["Name", "Description", "Status", "Type", "Photo"].map(
-                (header) => (
-                  <TableCell
-                    key={header}
-                    sx={{
-                      fontWeight: 600,
-                      textTransform: "uppercase",
-                      color: "text.secondary",
-                      textAlign: "center",
-                    }}
-                  >
-                    {header}
-                  </TableCell>
-                )
-              )}
+              {[
+                "doctor's Name",
+                "Name",
+                "Description",
+                "Status",
+                "Type",
+                "Photo",
+              ].map((header) => (
+                <TableCell
+                  key={header}
+                  sx={{
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                    color: "text.secondary",
+                    textAlign: "center",
+                  }}
+                >
+                  {header}
+                </TableCell>
+              ))}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -297,6 +302,9 @@ const TreatmentHistory: React.FC = () => {
                     textAlign: "center",
                   }}
                 >
+                  <TableCell sx={{ textAlign: "center" }}>
+                    {capitalizeFirstLetter(treatment.doctorId?.username)}
+                  </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
                     {capitalizeFirstLetter(treatment.name)}
                   </TableCell>
@@ -459,7 +467,7 @@ const TreatmentHistory: React.FC = () => {
                 </TableRow>
               ))
             ) : (
-              // Show "No Treatment History" when treatments array is empty
+           
               <TableRow>
                 <TableCell colSpan={9} align="center">
                   <Box

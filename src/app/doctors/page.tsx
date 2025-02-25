@@ -33,10 +33,12 @@ import {
 } from "@mui/material";
 import styles from "../page.module.css";
 import ChatIcon from "@mui/icons-material/Chat";
+import CloseIcon from "@mui/icons-material/Close";
 import WorkIcon from "@mui/icons-material/Work";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import VerifiedIcon from "@mui/icons-material/Verified";
 import BookAppointmentModal from "../components/common/BookAppointmentModal";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import SearchIcon from "@mui/icons-material/Search";
 import { useGetDoctors } from "@/hooks/doctor";
@@ -134,6 +136,7 @@ export default function ModernDoctorProfile() {
   const [results, setResults] = useState([]);
   const [keyword, setKeyword] = useState<string>("");
   const [debouncedKeyword, setDebouncedKeyword] = useState<string>("");
+  const [isTyping, setIsTyping] = useState(false);
   const [filters, setFilters] = useState({
     gender: "",
     experienceFilter: "",
@@ -157,6 +160,10 @@ export default function ModernDoctorProfile() {
     const value = e.target.value;
     setKeyword(value);
     debouncedSearch(value);
+  };
+  const handleClearSearch = () => {
+    setKeyword("");
+    setDebouncedKeyword("");
   };
 
   const handleFilterChange = (field: string, value: string) => {
@@ -189,7 +196,6 @@ export default function ModernDoctorProfile() {
     setModalOpen(false);
     setSelectedDoctor(null);
   };
-
 
   // 3) On mount (or after fetch), check if the URL has ?autoBookDoctorId=XXXX
   //    If the user is already logged in, automatically open the modal for that doctor
@@ -247,7 +253,7 @@ export default function ModernDoctorProfile() {
         maxWidth={false}
         sx={{
           py: 12,
-          background: "linear-gradient(135deg, #20ADA0 0%, #B6DADA 100%)",
+          background: "linear-gradient(135deg, #B6DADA 0%, #B6DADA 100%)",
         }}
       >
         {/* Search Bar */}
@@ -277,25 +283,13 @@ export default function ModernDoctorProfile() {
                 marginLeft: "auto",
               }}
             >
-              <InputBase
-                value={keyword}
-                onChange={handleChange}
-                className={styles.searchBarInput}
-                placeholder="Search for Doctors and Specialties"
-                inputProps={{ "aria-label": "search" }}
-                sx={{
-                  flex: 1,
-                  padding: "0.3rem 0.5rem",
-                  fontSize: { xs: "0.75rem", sm: "0.9rem" },
-                }}
-              />
               <IconButton
                 aria-label="search"
                 className={styles.searchBarButton}
                 sx={{
                   backgroundColor: "#20ADA0",
                   color: "#fff",
-                  borderRadius: "50%",
+                  borderRadius: "90%",
                   padding: "0.4rem",
                   "&:hover": {
                     backgroundColor: "#1A8575",
@@ -304,8 +298,33 @@ export default function ModernDoctorProfile() {
               >
                 <SearchIcon fontSize="small" />
               </IconButton>
+              <InputBase
+                value={keyword}
+                onChange={handleChange}
+                className={styles.searchBarInput}
+                placeholder="Search by Doctors and Specialties"
+                inputProps={{ "aria-label": "search" }}
+                sx={{
+                  flex: 1,
+                  padding: "0.3rem 0.5rem",
+                  fontSize: { xs: "0.75rem", sm: "0.9rem" },
+                }}
+              />
+              {keyword && (
+                <IconButton
+                  aria-label="clear"
+                  onClick={handleClearSearch}
+                  sx={{
+                    backgroundColor: "transparent",
+                    color: "#20ADA0",
+                    borderRadius: "50%",
+                    padding: "0.4rem",
+                  }}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              )}
             </Paper>
-
             <Box
               sx={{
                 position: "absolute",
@@ -344,7 +363,9 @@ export default function ModernDoctorProfile() {
                     {results.map((doctor) => (
                       <ListItem key={doctor._id}>
                         <Link
-                          href={`/doctors/profile/${encodeURIComponent(doctor._id)}`}
+                          href={`/doctors/profile/${encodeURIComponent(
+                            doctor._id
+                          )}`}
                           passHref
                           style={{
                             textDecoration: "none",
@@ -612,9 +633,22 @@ export default function ModernDoctorProfile() {
                     <Box sx={{ marginLeft: "15px", flex: 1 }}>
                       <Typography
                         variant="h6"
-                        sx={{ fontWeight: "bold", color: "#333" }}
+                        sx={{
+                          fontWeight: "bold",
+                          color: "#333",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                        }}
                       >
                         {doctor.username || "Doctor Name"}
+                        <VerifiedIcon
+                          sx={{
+                            color: "#20ADA0",
+                            marginLeft: "1px",
+                            fontSize: "20px",
+                          }}
+                        />
                       </Typography>
 
                       {/* Tags / Specialization */}
@@ -713,7 +747,13 @@ export default function ModernDoctorProfile() {
                   </Box>
 
                   {/* Actions Section */}
-                  <Box sx={{ display: "flex", backgroundColor: "#fefefe", borderTop: "1px solid #f0f0f0" }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      backgroundColor: "#fefefe",
+                      borderTop: "1px solid #f0f0f0",
+                    }}
+                  >
                     <Button
                       variant="outlined"
                       fullWidth
@@ -727,7 +767,9 @@ export default function ModernDoctorProfile() {
                         transition: "all 0.2s ease-in-out",
                       }}
                       onClick={() => {
-                        router.push(`/doctor/profile/${encodeURIComponent(doctor._id)}`);
+                        router.push(
+                          `/doctors/profile/${encodeURIComponent(doctor._id)}`
+                        );
                       }}
                     >
                       View Full Profile
@@ -765,7 +807,6 @@ export default function ModernDoctorProfile() {
               </Typography>
             </Grid>
           )}
-
         </Grid>
         <BookAppointmentModal
           isOpen={isModalOpen}

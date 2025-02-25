@@ -26,7 +26,6 @@ import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import EditIcon from "@mui/icons-material/Edit";
-import SaveIcon from "@mui/icons-material/Save";
 import WcIcon from "@mui/icons-material/Wc";
 
 import { Utility } from "@/utils";
@@ -340,7 +339,7 @@ const UserProfile = () => {
                   display: "flex",
                   flexDirection: "column",
                   position: "absolute",
-                  top: "10px",
+                  top: "20px",
                   right: "10px",
                   gap: 1,
                 }}
@@ -394,6 +393,7 @@ const UserProfile = () => {
                   border: "3px solid #20ADA0",
                   boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
                   overflow: "hidden",
+                  marginTop: "15px",
                 }}
               >
                 <Box
@@ -752,7 +752,7 @@ const UserProfile = () => {
           <Paper
             elevation={3}
             sx={{
-              p: 4,
+              p: 2,
               borderRadius: "20px",
               background: "rgba(255, 255, 255, 0.95)",
             }}
@@ -761,13 +761,14 @@ const UserProfile = () => {
               variant="h6"
               sx={{
                 mb: 3,
+                ml: 3,
                 color: "#2C3E50",
                 fontWeight: "700",
               }}
             >
               Quick Actions
             </Typography>
-            <Grid container spacing={2} sx={{ justifyContent: "space-around" }}>
+            <Grid container spacing={1} sx={{ justifyContent: "space-around" }}>
               {quickActions.map((action, index) => (
                 <Grid item xs={6} sm={4} md={2} key={index}>
                   <CustomMenuItem
@@ -782,7 +783,7 @@ const UserProfile = () => {
           <Paper
             elevation={3}
             sx={{
-              marginTop: "26px",
+              marginTop: "20px",
               p: 4,
               borderRadius: "20px",
               background: "rgba(255, 255, 255, 0.95)",

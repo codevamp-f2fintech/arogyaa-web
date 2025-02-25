@@ -1,7 +1,13 @@
 "use client";
 
 import { useRouter, useParams } from "next/navigation";
-import React, { useState, useEffect, ChangeEvent, MouseEvent } from "react";
+import React, {
+  useState,
+  useEffect,
+  ChangeEvent,
+  MouseEvent,
+  useCallback,
+} from "react";
 import {
   Box,
   Grid,
@@ -12,9 +18,11 @@ import {
   Tab,
   ThemeProvider,
   createTheme,
+  Rating,
 } from "@mui/material";
 import Cookies from "js-cookie";
-
+import StarIcon from "@mui/icons-material/Star";
+import { Create } from "@mui/icons-material";
 import PaymentIcon from "@mui/icons-material/Payment";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import VerifiedIcon from "@mui/icons-material/Verified";
@@ -26,13 +34,26 @@ import VideoCallIcon from "@mui/icons-material/VideoCall";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 
 import BookAppointmentModal from "../../../components/common/BookAppointmentModal";
+import CreateTestimonialDialog from "@/app/components/common/createTestimonialDialog";
 import { fetcher } from "@/apis/apiClient";
+import { Utility } from "@/utils";
 
 interface Qualification {
   _id: string;
   name: string;
 }
-
+interface Testimonial {
+  _id: string;
+  patientId: {
+    _id: string | string[];
+    username: string;
+    profilePicture?: string;
+  };
+  doctorId: string;
+  review: string;
+  rating: number;
+  createdAt: string;
+}
 interface AvailabilitySlot {
   day: string;
   startTime: string;
@@ -147,25 +168,92 @@ const DrProfile: React.FC = () => {
   const router = useRouter();
   const params = useParams();
   const doctorId = params?.id;
-  const [qualification, setQualification] = useState<string | null>(null);
+  const { decodedToken } = Utility();
+  const patientId = decodedToken()?.id; // Get the logged-in patient's ID
+
+  // const [qualification, setQualification] = useState<string | null>(null);
+
+  //testimonial
+
+  const [testimonialDialogOpen, setTestimonialDialogOpen] = useState(false);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+
+  const openTestimonialDialog = () => {
+    const userToken = Cookies.get("token"); // Check if user is logged in
+    if (!userToken) {
+      const encodedReturnUrl = encodeURIComponent(window.location.pathname); // Preserve the current URL
+      router.push(`/signup?redirect=${encodedReturnUrl}`);
+      return;
+    }
+
+    if (!doctorId) {
+      console.error("Doctor ID is missing!");
+      return;
+    }
+
+    console.log("Opening Testimonial Dialog...");
+    setTestimonialDialogOpen(true);
+  };
+
+  const closeTestimonialDialog = () => setTestimonialDialogOpen(false);
+
+  const existingReview =
+    testimonials.find(
+      (testimonial) => testimonial.patientId?._id === patientId
+    ) || null;
 
   useEffect(() => {
     if (doctorId) {
-      const fetchProfileData = async () => {
-        try {
-          const response: ProfileData = await fetcher(
-            "doctor",
-            `get-doctor-by-id/${doctorId}`
-          );
-          setProfileData(response);
-        } catch (error) {
-          console.error("Error fetching doctor data:", error);
-        }
-      };
       fetchProfileData();
+      fetchTestimonials();
+    }
+  }, [doctorId]);
+  // useEffect(() => {
+  //   if (doctorId) {
+  //     const fetchProfileData = async () => {
+  //       try {
+  //         const response: ProfileData = await fetcher(
+  //           "doctor",
+  //           `get-doctor-by-id/${doctorId}`
+  //         );
+  //         setProfileData(response);
+  //       } catch (error) {
+  //         console.error("Error fetching doctor data:", error);
+  //       }
+  //     };
+  //     fetchProfileData();
+  //   }
+  // }, [doctorId]);
+
+  const fetchProfileData = async () => {
+    try {
+      const response: ProfileData = await fetcher(
+        "doctor",
+        `get-doctor-by-id/${doctorId}`
+      );
+      setProfileData(response);
+    } catch (error) {
+      console.error("Error fetching doctor data:", error);
+    }
+  };
+  const fetchTestimonials = useCallback(async () => {
+    if (!doctorId) return;
+    try {
+      const response = await fetcher(
+        "testimonial",
+        `get-testimonial-by-doctor-id/${doctorId}`
+      );
+      console.log("Doctor ID:", doctorId);
+      console.log("Fetched Testimonials:", response?.data);
+      setTestimonials(response?.data || []);
+    } catch (error) {
+      console.error("Error fetching testimonials:", error);
     }
   }, [doctorId]);
 
+  useEffect(() => {
+    fetchTestimonials();
+  }, [fetchTestimonials]);
   const openModal = (): void => {
     const userToken = Cookies.get("token");
     if (!userToken) {
@@ -229,7 +317,7 @@ const DrProfile: React.FC = () => {
                   sx={{
                     display: "flex",
                     justifyContent: "center",
-                    flex: 1,
+                    flex: 2,
                     backgroundColor: "#20ada0",
                     alignItems: "center",
                     borderRadius: "10px",
@@ -250,6 +338,7 @@ const DrProfile: React.FC = () => {
                       borderRadius: "50%",
                       objectFit: "cover",
                       border: "5px",
+                      marginTop: "20px",
                     }}
                   />
 
@@ -258,7 +347,7 @@ const DrProfile: React.FC = () => {
                     sx={{
                       flex: 1,
                       marginLeft: "20px",
-                      marginTop: "40px",
+                      marginTop: "30px",
                       borderRadius: "30px",
                       backgroundColor: "#20ada0",
                     }}
@@ -398,7 +487,7 @@ const DrProfile: React.FC = () => {
                           marginRight: "8px",
                         }}
                       />
-                      <Typography variant="body2" sx={{ color: "#fff" }}>
+                      <Typography variant="body3" sx={{ color: "#fff" }}>
                         <strong>Hospital Affiliated:</strong>{" "}
                         {profileData.data?.hospitalAffiliations?.length > 0
                           ? profileData.data.hospitalAffiliations.join(", ")
@@ -422,7 +511,7 @@ const DrProfile: React.FC = () => {
                           marginRight: "8px",
                         }}
                       />
-                      <Typography variant="body2" sx={{ color: "#fff" }}>
+                      <Typography variant="body3" sx={{ color: "#fff" }}>
                         {profileData.data?.bio || "No bio available"}
                       </Typography>
                     </Box>
@@ -431,13 +520,89 @@ const DrProfile: React.FC = () => {
                     <Box
                       sx={{
                         display: "flex",
-                        justifyContent: "flex-end",
-                        alignItems: "center",
-                        marginTop: "-20px",
+                        flexDirection: "column",
+                        alignItems: "flex-end",
+                        marginTop: "-30px",
                         paddingBottom: "8px",
-                        mrhinBottom: "10px",
+                        gap: existingReview ? "0px" : "10px",
+                        marginRight: "10px",
                       }}
                     >
+                      {!existingReview && (
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            right: "45px",
+                            top: "70px",
+                            backgroundColor: "#fff",
+                            padding: "12px",
+                           borderRadius:"5px",
+                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                            textAlign: "center",
+                            width: "200px",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
+                          {/* Heading: Share Feedback */}
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              fontSize: "1rem",
+                              fontWeight: "bold",
+                              color: "#354C5C",
+                              marginBottom: "4px",
+                            }}
+                          >
+                            Share Your Feedback!
+                          </Typography>
+
+                          {/* Subtext */}
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              color: "#666",
+                              fontSize: "0.85rem",
+                              marginBottom: "12px",
+                            }}
+                          >
+                            Help others by sharing your experience.
+                          </Typography>
+
+                          {/* Leave a Review Button */}
+                          <Button
+                            variant="contained"
+                            onClick={openTestimonialDialog}
+                            startIcon={
+                              <Create
+                                sx={{
+                                  fontSize: "10px",
+                                  marginLeft: "5px",
+                                }}
+                              />
+                            }
+                            sx={{
+                              backgroundColor: "#20ADA0",
+                              color: "#fff",
+                             
+                              fontSize: "0.9rem",
+                              fontWeight: "600",
+                              paddingX: "8px",
+                              paddingY: "2px",
+                              boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)",
+                              transition: "transform 0.2s, box-shadow 0.2s",
+                              "&:hover": {
+                                transform: "scale(1.05)",
+                                backgroundColor: "#18a18c",
+                              },
+                            }}
+                          >
+                            Leave a Review
+                          </Button>
+                        </Box>
+                      )}
+
                       <Button
                         onClick={openModal}
                         variant="contained"
@@ -445,17 +610,17 @@ const DrProfile: React.FC = () => {
                           <LocalHospitalIcon sx={{ fontSize: "20px" }} />
                         }
                         sx={{
-                          marginRight: "10px",
                           paddingX: "22px",
-                          paddingY: "2px",
+                          paddingY: "1px",
                           color: "#20ADA0",
                           background: "#fff",
-                          borderRadius: "8px",
+                          marginTop: "20px",
+                         
                           boxShadow: "0px 3px 6px rgba(0, 0, 0, 0.2)",
                           fontSize: "1rem",
                           textTransform: "none",
                           transition: "transform 0.2s, box-shadow 0.2s",
-                         
+                          "&:hover": { backgroundColor: "#f5f7fa" },
                         }}
                       >
                         Book Appointment
@@ -463,76 +628,71 @@ const DrProfile: React.FC = () => {
                     </Box>
                   </Box>
                 </Box>
+
+                {/* Rating Section */}
+                {existingReview && (
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: "70px",
+                      right: "45px",
+                      backgroundColor: "#f8f9fa",
+                      width: "200px",
+                      padding: "12px",
+                      borderRadius: "10px",
+                      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      backgroundImage: 'url("/assets/images/vector_plus.png")',
+                      backgroundPosition: "center",
+                      backgroundRepeat: "no-repeat",
+                      backgroundSize: "90px",
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "1.3rem",
+                        textAlign: "center",
+                        color: "#333",
+                        fontWeight: "500",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Rating
+                    </Typography>
+
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "2rem",
+                        textAlign: "center",
+                        color: "#20ADA0",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {existingReview.rating}/5
+                    </Typography>
+                    <Rating
+                      value={Number(existingReview.rating)}
+                      readOnly
+                      precision={0.1}
+                    />
+                  </Box>
+                )}
                 <BookAppointmentModal
                   isOpen={isModalOpen}
                   onClose={closeModal}
                   data={profileData?.data}
                 />
-                {/* Rating Section */}
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: "60px",
-                    right: "60px",
-                    backgroundColor: "#f8f9fa",
-                    width: "170px",
-                    padding: "8px",
-                    borderRadius: "10px",
-                    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    backgroundImage: 'url("/assets/images/vector_plus.png")',
-                    backgroundPosition: "center",
-                    backgroundRepeat: "no-repeat",
-                    backgroundSize: "90px",
-                  }}
-                >
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontSize: "1.5rem",
-                      textAlign: "center",
-                      color: "#333",
-                      fontWeight: "500",
-                      marginBottom: "4px",
-                    }}
-                  >
-                    Rating
-                  </Typography>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontSize: "2rem",
-                      textAlign: "center",
-                      color: "#20ada0",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    5/5
-                  </Typography>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      marginTop: "4px",
-                    }}
-                  >
-                    {[...Array(5)].map((_, index) => (
-                      <Box
-                        key={index}
-                        component="img"
-                        alt="Star"
-                        src="/assets/images/star-fill.png"
-                        sx={{
-                          width: "24px",
-                          height: "24px",
-                          marginX: "2px",
-                        }}
-                      />
-                    ))}
-                  </Box>
-                </Box>
+                <CreateTestimonialDialog
+                  open={testimonialDialogOpen}
+                  onClose={closeTestimonialDialog}
+                  doctorId={doctorId}
+                  doctorName={profileData?.data?.username || "Unknown"}
+                  fetchTestimonials={fetchTestimonials}
+                />
               </Paper>
             </Grid>
 
@@ -738,70 +898,6 @@ const DrProfile: React.FC = () => {
                         Schedule a consultation today to receive expert medical
                         guidance.
                       </Typography>
-
-                      {/* Conditions Treated
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontSize: "1.5rem",
-                          fontWeight: "bold",
-                          color: "#20ada0",
-
-                          lineHeight: "1.8rem",
-                          marginBottom: "10px",
-                        }}
-                      >
-                        Conditions Treated
-                      </Typography>
-
-                      <Box
-                        component="ul"
-                        sx={{
-                          padding: 0,
-                          listStyleType: "none",
-                          display: "flex",
-                          flexWrap: "wrap",
-                          gap: "15px",
-                        }}
-                      >
-                        {[
-                          "Stress and anger management",
-                          "Sleep problems",
-                          "Communication and relationship problems",
-                          "Anxiety and Depressive disorders",
-                          "Schizophrenia and psychotic disorders, OCD, Bipolar disorders",
-                          "ADHD, Autism",
-                          "Childhood motor disorders",
-                          "Childhood emotional and mental wellbeing",
-                          "Career guidance",
-                        ].map((condition, index) => (
-                          <Box
-                            key={index}
-                            component="li"
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              fontSize: "0.9rem",
-                              fontWeight: "400",
-                              color: "#354c5c",
-                              lineHeight: "1.4rem",
-                              padding: "8px 12px",
-                              border: "1px solid #20ada0",
-                              borderRadius: "8px",
-                              backgroundColor: "#f9f9f9",
-                            }}
-                          >
-                            <DoneIcon
-                              sx={{
-                                fontSize: "18px",
-                                color: "#20ada0",
-                                marginRight: "8px",
-                              }}
-                            />
-                            {condition}
-                          </Box>
-                        ))}
-                      </Box> */}
                     </Box>
                   )}
 
@@ -1118,11 +1214,11 @@ const DrProfile: React.FC = () => {
                   {appointmentTabValue === 1 && (
                     <Box sx={{ textAlign: "center" }}>
                       <LocalHospitalIcon
-                       sx={{
-                        fontSize: "30px",
-                        color: "#20ADA0",
-                        marginBottom: "10px",
-                      }}
+                        sx={{
+                          fontSize: "30px",
+                          color: "#20ADA0",
+                          marginBottom: "10px",
+                        }}
                       />
                       <Typography
                         variant="h6"
@@ -1133,8 +1229,7 @@ const DrProfile: React.FC = () => {
                           marginBottom: "2px",
                         }}
                       >
-                     
-                     <Button
+                        <Button
                           onClick={openModal}
                           variant="contained"
                           startIcon={
