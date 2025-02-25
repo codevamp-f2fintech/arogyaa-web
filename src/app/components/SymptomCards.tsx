@@ -1,161 +1,310 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-
-import React, { useCallback, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-
-import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
+import React, { useState } from "react";
+import styles from "../page.module.css";
+import en from "@/locales/en.json";
+import { useRouter } from "next/navigation";
 import {
   Box,
-  Button,
-  CardMedia,
+  Card,
   CardContent,
-  Grid,
-  Paper,
   Typography,
+  Button,
+  Grid,
+  Container,
+  createTheme,
+  ThemeProvider,
+  Grow,
+  useMediaQuery,
+  Chip,
 } from "@mui/material";
+import EventIcon from "@mui/icons-material/Event";
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
+import VerifiedIcon from "@mui/icons-material/Verified";
+import PeopleIcon from "@mui/icons-material/People";
 
-import en from "@/locales/en.json";
-import styles from "../page.module.css";
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#20ADA0",
+      light: "#E6F6F4",
+      dark: "#188F84",
+      contrastText: "#FFFFFF",
+    },
+    secondary: {
+      main: "#F8FAFC",
+      light: "#FFFFFF",
+      dark: "#E2E8F0",
+    },
+    background: {
+      default: "#FFFFFF",
+      paper: "#FFFFFF",
+    },
+    text: {
+      primary: "#0F172A",
+      secondary: "#475569",
+    },
+  },
+  typography: {
+    fontFamily: '"Plus Jakarta Sans", "Inter", sans-serif',
+    h2: {
+      fontWeight: 800,
+      letterSpacing: "-0.02em",
+    },
+    h5: {
+      fontWeight: 700,
+      letterSpacing: "-0.01em",
+      lineHeight: 1.5,
+    },
+    body1: {
+      fontSize: "1rem",
+      lineHeight: 1.7,
+    },
+    button: {
+      fontWeight: 600,
+      letterSpacing: "0.02em",
+    },
+  },
+  components: {
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 32,
+          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          "&:hover": {
+            transform: "translateY(-8px)",
+            boxShadow: "0 20px 40px rgba(32, 173, 160, 0.15)",
+          },
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 100,
+          textTransform: "none",
+          fontSize: "1rem",
+          padding: "12px 24px",
+          boxShadow: "none",
+        },
+        contained: {
+          boxShadow: "0 8px 16px rgba(32, 173, 160, 0.2)",
+          "&:hover": {
+            boxShadow: "0 12px 20px rgba(32, 173, 160, 0.3)",
+          },
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+          height: 28,
+          fontSize: "0.875rem",
+          fontWeight: 600,
+        },
+      },
+    },
+  },
+  shape: {
+    borderRadius: 16,
+  },
+});
 
-import type { AppDispatch, RootState } from "@/redux/store";
-import { symptomsList } from "@/static-data";
-import { setSymptom, setLoading } from "@/redux/features/symptomsSlice";
-import { useGetSymptom } from "@/hooks/symptoms";
-import { useRouter } from "next/navigation";
+const symptoms = [
+  {
+    id: 1,
+    name: "Depression",
+    specialist: "Psychiatrist",
+    icon: "/assets/images/symptoms/depression.png",
+    description:
+      "Expert mental health care and support for emotional well-being",
+    patients: "1000+",
+    successRate: "95%",
+  },
+  {
+    id: 2,
+    name: "Pediatric",
+    specialist: "Pediatrician",
+    icon: "/assets/images/symptoms/child.png",
+    description: "Professional support for managing anxiety and stress",
+    patients: "1200+",
+    successRate: "92%",
+  },
+  {
+    id: 3,
+    name: "Skin",
+    specialist: "Sleep Specialist",
+    icon: "/assets/images/symptoms/skin.png",
+    description: "Specialized care for better sleep and rest patterns",
+    patients: "800+",
+    successRate: "90%",
+  },
+  {
+    id: 4,
+    name: "Fever",
+    specialist: "Physiotherapist",
+    icon: "/assets/images/symptoms/fever.png",
+    description: "Expert physical therapy for chronic pain management",
+    patients: "1500+",
+    successRate: "94%",
+  },
+  {
+    id: 5,
+    name: "Stomach Issue",
+    specialist: "Allergist",
+    icon: "/assets/images/symptoms/stomach.png",
+    description: "Comprehensive allergy testing and treatment",
+    patients: "900+",
+    successRate: "96%",
+  },
+  {
+    id: 6,
+    name: "Headache",
+    specialist: "Neurologist",
+    icon: "https://arogyaa.s3.eu-north-1.amazonaws.com/symptom/1738924736739-depression.png",
+    description: "Specialized care for migraines and chronic headaches",
+    patients: "1100+",
+    successRate: "91%",
+  },
+];
 
-const screens = {
-  sm: "600px",
-  md: "900px",
-  lg: "1200px",
-  xl: "1536px",
-  "2xl": "1920px",
-};
-
-const SymptomCards: React.FC = () => {
-  const dispatch: AppDispatch = useDispatch();
+const SymptomCards = () => {
   const router = useRouter();
-  const { symptom, reduxLoading } = useSelector(
-    (state: RootState) => state.symptoms
-  );
-  const [pageSize, setPageSize] = useState({
-    page: 1,
-    size: 6,
-  });
-
-  const {
-    value: data,
-    swrLoading,
-    error,
-  } = useGetSymptom(null, "get-symptoms", pageSize.page, pageSize.size);
-
-  // Update Redux store with fetched data
-  useEffect(() => {
-    if (data && data.results && data.results.length > 0) {
-      dispatch(setSymptom(data));
-    }
-  }, [data, dispatch]);
-
-  const handleFetchNext = useCallback(() => {
-    setPageSize((prevSize) => ({
-      ...prevSize,
-      page: prevSize.page + 1,
-      size: prevSize.size + 5,
-    }));
-  }, [dispatch]);
+  const [hoveredCard, setHoveredCard] = useState(null);
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
-    <Box className={styles.symptomBox}>
-      <Typography variant="h5" component="h5" className={styles.title1}>
-        {en.homepage.symptomCards.title1}
-      </Typography>
-      <h1
-        style={{
-          textAlign: "center",
-          marginBottom: "20px",
-          marginTop: "2px",
-          // border: "2px solid blue",
-          color: "black",
-          // fontFamily: "Roboto",
+    <ThemeProvider theme={theme}>
+      <Box
+        sx={{
+          background: "#FFFFFF",
+          minHeight: "100vh",
+          py: { xs: 8, md: 12 },
         }}
       >
-        {en.homepage.symptomCards.title2}
-      </h1>
-
-      <Grid container spacing={2}>
-        {symptom && symptom?.results?.length > 0 ? (
-          symptom.results.map((item) => (
-            <Grid
-              item
-              xs={12}
-              sm={6}
-              md={4}
-              lg={3}
-              xl={2}
-              key={item._id}
-              sx={{
-                [`@media (min-width: ${screens.sm})`]: { width: "50%" },
-                [`@media (min-width: ${screens.md})`]: { width: "33.33%" },
-                [`@media (min-width: ${screens.lg})`]: { width: "25%" },
-                [`@media (min-width: ${screens.xl})`]: { width: "16.66%" },
-              }}
-            >
-              <Paper elevation={3} className={styles.symptomPaper}>
-                <CardMedia
-                  component="img"
-                  className={styles.symptomCardMedia}
-                  image={item.icon}
-                  alt={item.icon}
-                />
-                <CardContent sx={{ textAlign: "center" }}>
-                  <Typography
-                    variant="h5"
-                    component="h5"
-                    className={styles.symptomCardTitle}
-                  >
-                    {item.name}
-                  </Typography>
-
-                  <Button
-                    variant="contained"
-                    className={styles.symptomButton}
-                    endIcon={<ArrowCircleRightIcon />}
-                    onClick={() => router.push("/doctor")}
-                  >
-                    Consult Now
-                  </Button>
-                </CardContent>
-              </Paper>
-            </Grid>
-          ))
-        ) : (
-          <div>No Symptoms Found</div>
-        )}
-      </Grid>
-
-      <Grid container spacing={2}>
-        <Grid item xs={12} sx={{ textAlign: "center", marginTop: "20px" }}>
-          {/* <Button
-            variant="contained"
-            // className={styles.gridButton}
-            endIcon={<ArrowCircleRightIcon />}
-            onClick={handleFetchNext}
+        <Container maxWidth="lg">
+          <Box
             sx={{
-              background: "#20ADA0",
-              color: "#fff",
-              padding: "10px 20px",
-              borderRadius: "30px",
-              transition: "all 0.3s ease",
-              "&:hover": {
-                background: "#20ADA0",
-              },
+              textAlign: "center",
+              mb: { xs: 6, md: 8 },
             }}
           >
-            {en.homepage.symptomCards.buttonText}
-          </Button> */}
-        </Grid>
-      </Grid>
-    </Box>
+            <Typography variant="h5" component="h5" className={styles.title1}>
+              {en.homepage.symptomCards.title1}
+            </Typography>
+            <Typography
+              variant="h2"
+              sx={{
+                textAlign: "center",
+                mb: { xs: 4, md: 6 },
+                fontSize: { xs: "2rem", sm: "2.5rem", md: "2.5rem" },
+                fontWeight: 600,
+                // fontFamily: "Roboto",
+                color: "black",
+                letterSpacing: "-0.5px",
+                lineHeight: 1.2,
+              }}
+            >
+              {en.homepage.symptomCards.title2}
+            </Typography>
+          </Box>
+
+          <Grid container spacing={4}>
+            {symptoms.map((symptom, index) => (
+              <Grid item xs={12} sm={6} md={4} key={symptom.id}>
+                <Grow
+                  in={true}
+                  timeout={(index + 1) * 300}
+                  style={{ transformOrigin: "center top" }}
+                >
+                  <Card
+                    sx={{
+                      height: "100%",
+                      background: "#FFFFFF",
+                      border: "1px solid rgba(32, 173, 160, 0.1)",
+                    }}
+                    onMouseEnter={() => setHoveredCard(symptom.id)}
+                    onMouseLeave={() => setHoveredCard(null)}
+                  >
+                    <CardContent sx={{ p: 4 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          mb: 3,
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            width: 64,
+                            height: 64,
+                            borderRadius: "24px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            background: theme.palette.primary.light,
+                            boxShadow: "0 12px 24px rgba(32, 173, 160, 0.1)",
+                          }}
+                        >
+                          <img
+                            src={symptom.icon}
+                            alt={symptom.name}
+                            style={{ width: 40, height: 40 }}
+                          />
+                        </Box>
+                        <Box sx={{ ml: 2 }}>
+                          <Typography
+                            variant="h5"
+                            sx={{
+                              color: "text.primary",
+                              mb: 1,
+                            }}
+                          >
+                            {symptom.name}
+                          </Typography>
+                        </Box>
+                      </Box>
+
+                      <Typography
+                        sx={{
+                          mb: 3,
+                          color: "text.secondary",
+                          fontSize: "1.1rem",
+                          lineHeight: 1.7,
+                        }}
+                      >
+                        {symptom.description}
+                      </Typography>
+
+                        <Button
+                        variant="contained"
+                        fullWidth
+                        onClick={() => router.push("/doctors")}
+                        startIcon={<EventIcon />}
+                        sx={{
+                          background:
+                            "linear-gradient(135deg, #20ADA0 0%, #188F84 100%)",
+                          color: "white",
+                          fontWeight: 600,
+                          fontSize: "1.1rem",
+                          py: 2,
+                          "&:hover": {
+                            background:
+                              "linear-gradient(135deg, #188F84 0%, #20ADA0 100%)",
+                          },
+                        }}
+                      >
+                        Consult Now
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Grow>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
+    </ThemeProvider>
   );
 };
 
