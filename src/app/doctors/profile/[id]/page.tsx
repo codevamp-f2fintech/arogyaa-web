@@ -29,6 +29,7 @@ import VerifiedIcon from "@mui/icons-material/Verified";
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
 import WorkIcon from "@mui/icons-material/Work";
+import EventIcon from "@mui/icons-material/Event";
 
 import VideoCallIcon from "@mui/icons-material/VideoCall";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
@@ -536,7 +537,7 @@ const DrProfile: React.FC = () => {
                             top: "70px",
                             backgroundColor: "#fff",
                             padding: "12px",
-                           borderRadius:"5px",
+                            borderRadius: "5px",
                             boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
                             textAlign: "center",
                             width: "200px",
@@ -585,7 +586,7 @@ const DrProfile: React.FC = () => {
                             sx={{
                               backgroundColor: "#20ADA0",
                               color: "#fff",
-                             
+
                               fontSize: "0.9rem",
                               fontWeight: "600",
                               paddingX: "8px",
@@ -606,16 +607,14 @@ const DrProfile: React.FC = () => {
                       <Button
                         onClick={openModal}
                         variant="contained"
-                        startIcon={
-                          <LocalHospitalIcon sx={{ fontSize: "20px" }} />
-                        }
+                        startIcon={<EventIcon sx={{ fontSize: "20px" }} />}
                         sx={{
                           paddingX: "22px",
                           paddingY: "1px",
                           color: "#20ADA0",
                           background: "#fff",
                           marginTop: "20px",
-                         
+
                           boxShadow: "0px 3px 6px rgba(0, 0, 0, 0.2)",
                           fontSize: "1rem",
                           textTransform: "none",
@@ -697,7 +696,15 @@ const DrProfile: React.FC = () => {
             </Grid>
 
             <Grid item xs={12} sm={8} md={8}>
-              <Box sx={{ width: "100%", background: "white" }}>
+              <Box
+                sx={{
+                  width: "100%",
+                  background: "white",
+                  display: "flex",
+                  flexDirection: "column",
+                  height: "100%",
+                }}
+              >
                 {/* Profile Tabs */}
                 <Tabs
                   value={tabValue}
@@ -710,6 +717,7 @@ const DrProfile: React.FC = () => {
                     "& .MuiTab-root": {
                       textTransform: "none",
                       backgroundColor: "#f0f0f5",
+                      height: "48px", 
                       "&.Mui-selected": {
                         backgroundColor: "#fff",
                         color: "#20ada0",
@@ -718,19 +726,19 @@ const DrProfile: React.FC = () => {
                         borderTop: "1px solid #20ada0",
                       },
                     },
+                    height: "48px", 
                   }}
                 >
                   <Tab label="Profile" />
-                  <Tab label="Clinic " />
+                  <Tab label="Clinic" />
                   <Tab label="Blog Post" />
                 </Tabs>
 
                 {/* Tab Content */}
-                <Box sx={{ p: 3 }}>
+                <Box sx={{ p: 3, flex: 1, overflowY: "auto" }}>
                   {tabValue === 0 && (
-                    <Box>
+                    <Box sx={{ height: "100%" }}>
                       {/* Profile Information */}
-
                       <Typography
                         variant="body1"
                         sx={{
@@ -771,6 +779,7 @@ const DrProfile: React.FC = () => {
                           .
                         </span>
                       </Typography>
+
                       {/* Qualification Section */}
                       <Box sx={{ marginTop: "15px" }}>
                         <Typography
@@ -902,7 +911,7 @@ const DrProfile: React.FC = () => {
                   )}
 
                   {tabValue === 1 && (
-                    <Box>
+                    <Box sx={{ height: "100%" }}>
                       <Grid container spacing={4}>
                         {/* Clinic Location */}
                         <Grid item xs={12} sm={6} md={4}>
@@ -1044,7 +1053,7 @@ const DrProfile: React.FC = () => {
                   )}
 
                   {tabValue === 2 && (
-                    <Box>
+                    <Box sx={{ height: "100%" }}>
                       <Box
                         sx={{
                           padding: "15px",
@@ -1232,9 +1241,7 @@ const DrProfile: React.FC = () => {
                         <Button
                           onClick={openModal}
                           variant="contained"
-                          startIcon={
-                            <LocalHospitalIcon sx={{ fontSize: "20px" }} />
-                          }
+                          startIcon={<EventIcon sx={{ fontSize: "20px" }} />}
                           sx={{
                             marginRight: "1px",
                             paddingX: "10px",

@@ -267,7 +267,7 @@ const TestHistory: React.FC = () => {
                 "Type",
                 "Status",
                 "Photo",
-              ].map((header) => (
+              ].map((header, index) => (
                 <TableCell
                   key={header}
                   sx={{
@@ -275,6 +275,7 @@ const TestHistory: React.FC = () => {
                     textTransform: "uppercase",
                     color: "text.secondary",
                     textAlign: "center",
+                    ...(header === "doctor's Name" && { whiteSpace: "nowrap" }),
                   }}
                 >
                   {header}
@@ -297,9 +298,7 @@ const TestHistory: React.FC = () => {
                   }}
                 >
                   <TableCell sx={{ textAlign: "center" }}>
-                    {capitalizeFirstLetter(
-                      test.doctorId?.username || "Unknown Doctor"
-                    )}
+                    {capitalizeFirstLetter(test.doctorId?.username || "N/A")}
                   </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
                     {capitalizeFirstLetter(test.name)}

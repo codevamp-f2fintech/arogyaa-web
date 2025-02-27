@@ -21,7 +21,8 @@ import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 import EventIcon from "@mui/icons-material/Event";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
-import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import Popover from "@mui/material/Popover";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
@@ -118,7 +119,11 @@ const Topbar = () => {
     <AppBar className={styles.appBar}>
       <Toolbar disableGutters>
         <AdbIcon
-          sx={{ display: { xs: "none", md: "flex", color: "#20ada0" }, mr: 0.1, mb: 0.6 }}
+          sx={{
+            display: { xs: "none", md: "flex", color: "#20ada0" },
+            mr: 0.1,
+            mb: 0.6,
+          }}
         />
         <Typography
           variant="h6"
@@ -219,12 +224,23 @@ const Topbar = () => {
             !pathname.startsWith("/doctors/profile/") && (
               <Button
                 onClick={() => router.push("/doctors")}
-                variant="outlined"
-                className={styles.appointmentButton}
-                endIcon={<EventIcon />}
+                variant="contained"
+                startIcon={<EventIcon />}
                 sx={{
+                  backgroundColor: "#20ADA0 !important",
+                  color: "white !important",
+                  fontWeight: "bold",
+                  borderRadius: "20px",
+                  boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
+                  transition: "all 0.3s ease",
+                  display: "flex",
+                  alignItems: "center",
                   textTransform: "capitalize",
-                  fontWeight: "600",
+                  padding: "5px 16px",
+                  "&:hover": {
+                    backgroundColor: "#1A8575 !important", 
+                    boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.3)",
+                  },
                 }}
               >
                 {en.topbar.appointment}
@@ -255,6 +271,11 @@ const Topbar = () => {
                 display: "flex",
                 alignItems: "center",
                 textTransform: "capitalize",
+                padding: "5px 16px",
+                "&:hover": {
+                  backgroundColor: "#1A8575 !important", 
+                  boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.3)",
+                },
               }}
             >
               {capitalizeFirstLetter(decodedToken()?.patientName)}
@@ -290,7 +311,7 @@ const Topbar = () => {
               sx={{
                 color: "inherit",
                 textDecoration: "none",
-                fontWeight: "bold",
+                fontWeight: "600px",
                 textTransform: "capitalize",
               }}
             >

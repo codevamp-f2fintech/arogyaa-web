@@ -65,7 +65,7 @@ const TreatmentHistory: React.FC = () => {
   >(null);
   const treatmentFileInputRef = useRef<HTMLInputElement>(null);
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
- 
+
   const { snackbar } = useSelector((state: RootState) => state.snackbar);
 
   const dispatch: AppDispatch = useDispatch();
@@ -261,10 +261,10 @@ const TreatmentHistory: React.FC = () => {
                 "doctor's Name",
                 "Name",
                 "Description",
-                "Status",
                 "Type",
+                "Status",
                 "Photo",
-              ].map((header) => (
+              ].map((header, index) => (
                 <TableCell
                   key={header}
                   sx={{
@@ -272,6 +272,7 @@ const TreatmentHistory: React.FC = () => {
                     textTransform: "uppercase",
                     color: "text.secondary",
                     textAlign: "center",
+                    ...(header === "doctor's Name" && { whiteSpace: "nowrap" }),
                   }}
                 >
                   {header}
@@ -303,7 +304,9 @@ const TreatmentHistory: React.FC = () => {
                   }}
                 >
                   <TableCell sx={{ textAlign: "center" }}>
-                    {capitalizeFirstLetter(treatment.doctorId?.username)}
+                    {capitalizeFirstLetter(
+                      treatment?.doctorId?.username || "N/A"
+                    )}
                   </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
                     {capitalizeFirstLetter(treatment.name)}
@@ -467,7 +470,6 @@ const TreatmentHistory: React.FC = () => {
                 </TableRow>
               ))
             ) : (
-           
               <TableRow>
                 <TableCell colSpan={9} align="center">
                   <Box
