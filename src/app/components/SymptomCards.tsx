@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import styles from "../page.module.css";
 import en from "@/locales/en.json";
 import { useRouter } from "next/navigation";
@@ -21,6 +21,7 @@ import EventIcon from "@mui/icons-material/Event";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import PeopleIcon from "@mui/icons-material/People";
+import { ArrowCircleRight } from "@mui/icons-material";
 
 const theme = createTheme({
   palette: {
@@ -83,7 +84,7 @@ const theme = createTheme({
           borderRadius: 100,
           textTransform: "none",
           fontSize: "1rem",
-          padding: "12px 24px",
+          // padding: "12px 24px",
           boxShadow: "none",
         },
         contained: {
@@ -172,6 +173,15 @@ const SymptomCards = () => {
   const router = useRouter();
   const [hoveredCard, setHoveredCard] = useState(null);
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const handleConsult = useCallback(
+    (symptomsName: string) => {
+      router.push(`/doctors?keyword=${encodeURIComponent(symptomsName)}`);
+    },
+    [router]
+  );
+
+  console.log(">>>",symptoms)
 
   return (
     <ThemeProvider theme={theme}>
@@ -276,21 +286,25 @@ const SymptomCards = () => {
                         {symptom.description}
                       </Typography>
 
-                        <Button
+                      <Button
                         variant="contained"
-                        fullWidth
-                        onClick={() => router.push("/doctors")}
-                        startIcon={<EventIcon />}
+                        className="consultButton"
+                        endIcon={<ArrowCircleRight />}
+                        onClick={() => handleConsult(symptom.name)}
                         sx={{
-                          background:
-                            "linear-gradient(135deg, #20ADA0 0%, #188F84 100%)",
+                          marginLeft: "38px",
+                          width: "75%",
+                          background: "#20ADA0 !important",
                           color: "white",
-                          fontWeight: 600,
-                          fontSize: "1.1rem",
-                          py: 2,
+                          fontWeight: "bold",
+                          borderRadius: "20px",
+                          boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
+                          transition: "all 0.3s ease",
+                          display: "flex",
+                          alignItems: "center",
                           "&:hover": {
-                            background:
-                              "linear-gradient(135deg, #188F84 0%, #20ADA0 100%)",
+                            backgroundColor: "primary.dark",
+                            transform: "translateY(-2px)",
                           },
                         }}
                       >
