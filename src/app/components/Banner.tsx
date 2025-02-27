@@ -14,7 +14,7 @@ import {
   ListItemText,
   CardContent,
 } from "@mui/material";
-
+import CloseIcon from "@mui/icons-material/Close";
 import styles from "../page.module.css";
 import en from "@/locales/en.json";
 import { fetcher } from "@/apis/apiClient";
@@ -68,6 +68,10 @@ const BannerComponent: React.FC = () => {
     setKeyword(keyword);
     debouncedFetchResults(keyword);
   };
+  const handleClear = () => {
+    setKeyword("");
+    setResults([]);
+  };
 
   return (
     <div className={styles.homeBanner}>
@@ -78,7 +82,6 @@ const BannerComponent: React.FC = () => {
           alt="The house from the offer."
           src={"/assets/images/dr1.png"}
         />
-
         <Box
           sx={{
             position: "absolute",
@@ -132,25 +135,13 @@ const BannerComponent: React.FC = () => {
               position: "relative",
             }}
           >
-            <InputBase
-              value={keyword}
-              onChange={handleChange}
-              className={styles.searchBarInput}
-              placeholder="Search for Doctors and Specialties"
-              inputProps={{ "aria-label": "search" }}
-              sx={{
-                flex: 1,
-                padding: "0.5rem",
-                fontSize: { xs: "0.9rem", sm: "1rem" },
-              }}
-            />
             <IconButton
               type="submit"
               aria-label="search"
-              className={styles.searchBarButton}
               sx={{
                 backgroundColor: "#20ADA0",
                 color: "#fff",
+                padding: "8px 8px",
                 borderRadius: "50%",
                 "&:hover": {
                   backgroundColor: "#1A8575",
@@ -159,19 +150,44 @@ const BannerComponent: React.FC = () => {
             >
               <SearchIcon />
             </IconButton>
+            <InputBase
+              value={keyword}
+              onChange={handleChange}
+              placeholder="Search by Doctors and Specialties"
+              inputProps={{ "aria-label": "search" }}
+              sx={{
+                flex: 1,
+                padding: "0.5rem",
+                fontSize: { xs: "0.9rem", sm: "1rem" },
+              }}
+            />
+            {keyword && (
+              <IconButton
+                onClick={handleClear}
+                sx={{
+                  color: "#555",
+                  "&:hover": {
+                    color: "#000",
+                  },
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
+            )}
           </Paper>
         </Box>
 
         {/* Display search results */}
         <Box
           sx={{
-            marginTop: "19.5rem",
+            marginTop: "21.4rem",
             marginLeft: "3rem",
             backgroundColor: "rgba(255, 255, 255, 0.90)",
             position: "relative",
             left: { xs: "0px", sm: "0px", md: "0px" },
             maxWidth: { xs: "60%", sm: "600px" },
-            borderRadius: "8px",
+            borderRadius: "23px",
+
             zIndex: 10,
             boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
             textAlign: "left",
@@ -202,10 +218,16 @@ const BannerComponent: React.FC = () => {
                       }}
                     >
                       <ListItemText
-                        primary={`${doctor.username || ""} - ${doctor.specializationIds && doctor.specializationIds.length > 0
-                          ? doctor.specializationIds.map((spec: any) => capitalizeFirstLetter(spec.name)).join(", ")  // Join specializations with commas
-                          : "Specialty not available"
-                          }`}
+                        primary={`${doctor.username || ""} - ${
+                          doctor.specializationIds &&
+                          doctor.specializationIds.length > 0
+                            ? doctor.specializationIds
+                                .map((spec: any) =>
+                                  capitalizeFirstLetter(spec.name)
+                                )
+                                .join(", ") // Join specializations with commas
+                            : "Specialty not available"
+                        }`}
                         sx={{
                           cursor: "pointer",
                           ":hover": {
@@ -248,8 +270,9 @@ const BannerComponent: React.FC = () => {
           }
         `}</style>
         <CardContent
-          className={`${styles.bannerCardContent} ${results.length > 0 ? styles.blurredContent : ""
-            }`}
+          className={`${styles.bannerCardContent} ${
+            results.length > 0 ? styles.blurredContent : ""
+          }`}
         >
           <Typography
             variant="h5"

@@ -34,6 +34,7 @@ import {
 import styles from "../page.module.css";
 import ChatIcon from "@mui/icons-material/Chat";
 import CloseIcon from "@mui/icons-material/Close";
+import EventIcon from "@mui/icons-material/Event";
 import WorkIcon from "@mui/icons-material/Work";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import VerifiedIcon from "@mui/icons-material/Verified";
@@ -41,9 +42,18 @@ import BookAppointmentModal from "../components/common/BookAppointmentModal";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import SearchIcon from "@mui/icons-material/Search";
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import { useGetDoctors } from "@/hooks/doctor";
 import { fetcher } from "@/apis/apiClient";
 import { DoctorData } from "@/types/doctor";
+import {
+  LocalActivityTwoTone,
+  LocalHospital,
+  LocalHospitalOutlined,
+  LocalHospitalSharp,
+  Person,
+  Person2Rounded,
+} from "@mui/icons-material";
 
 const theme = createTheme({
   palette: {
@@ -680,6 +690,60 @@ export default function ModernDoctorProfile() {
                           </Typography>
                         )}
                       </Box>
+                      {/* <Box sx={{ marginTop: "10px" }}>
+                        {doctor.availability &&
+                        doctor.availability.length > 0 ? (
+                          <Box
+                            sx={{
+                              display: "grid",
+                              gridTemplateColumns: "1fr 1fr",
+                              gap: "10px",
+                            }}
+                          >
+                            {doctor.availability.map(
+                              (slot, index) => (
+                                <Box
+                                  key={index}
+                                  sx={{
+                                    backgroundColor: "#f0f0f5",
+                                    padding: "10px",
+                                    borderRadius: "8px",
+                                    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                                  }}
+                                >
+                                  <Typography
+                                    variant="body2"
+                                    sx={{
+                                      fontSize: "0.9rem",
+                                      fontWeight: "600",
+                                      color: "#20ADA0",
+                                    }}
+                                  >
+                                    {slot.day}
+                                  </Typography>
+                                  <Typography
+                                    variant="body2"
+                                    sx={{
+                                      fontSize: "0.8rem",
+                                      fontWeight: "400",
+                                      color: "#354c5c",
+                                    }}
+                                  >
+                                    {slot.startTime} - {slot.endTime}
+                                  </Typography>
+                                </Box>
+                              )
+                            )}
+                          </Box>
+                        ) : (
+                          <Typography
+                            variant="body2"
+                            sx={{ color: "#888", fontSize: "0.9rem" }}
+                          >
+                            No Availability Listed
+                          </Typography>
+                        )}
+                      </Box> */}
 
                       {/* Location & Hospital */}
                       <Typography
@@ -757,6 +821,7 @@ export default function ModernDoctorProfile() {
                     <Button
                       variant="outlined"
                       fullWidth
+                      startIcon={<Person sx={{ fontSize: "20px" }} />}
                       sx={{
                         borderRadius: "0px",
                         textTransform: "none",
@@ -778,6 +843,7 @@ export default function ModernDoctorProfile() {
                     <Button
                       variant="contained"
                       fullWidth
+                      startIcon={<EventIcon sx={{ fontSize: "20px" }} />}
                       sx={{
                         borderRadius: "0px",
                         textTransform: "none",
