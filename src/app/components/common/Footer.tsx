@@ -1,340 +1,507 @@
 "use client";
 
 import React from "react";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Grid from "@mui/material/Unstable_Grid2";
-import AdbIcon from "@mui/icons-material/Adb";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import XIcon from "@mui/icons-material/X";
 import {
+  Box,
+  Typography,
+  Grid,
   Container,
   IconButton,
+  Stack,
+  TextField,
+  Button,
+  Paper,
+  Divider,
   useTheme,
   alpha,
-  Zoom,
   Tooltip,
 } from "@mui/material";
-
-import en from "@/locales/en.json";
+import {
+  Instagram as InstagramIcon,
+  Facebook as FacebookIcon,
+  LinkedIn,
+  Email,
+  Phone,
+  LocationOn,
+  MedicalServices,
+  LocalHospital,
+} from "@mui/icons-material";
+import XIcon from "@mui/icons-material/X";
 import Link from "next/link";
-import { LinkedIn } from "@mui/icons-material";
 
+// Theme configuration
+const THEME = {
+  colors: {
+    primary: "#20ADA0",
+    secondary: "#1A8F84",
+    text: {
+      dark: "#0a2540",
+      light: "#4a5568",
+    },
+  },
+};
+
+// Component for Footer Menu Items
+const FooterMenuItem = ({ label, route, icon }) => {
+  return (
+    <Typography
+      component={Link}
+      href={route}
+      sx={{
+        fontSize: "1.2rem",
+        mb: 2,
+        color: THEME.colors.text.light,
+        transition: "all 0.3s ease",
+        cursor: "pointer",
+        fontWeight: 500,
+        display: "flex",
+        alignItems: "center",
+        "&:hover": {
+          color: THEME.colors.primary,
+          transform: "translateX(8px)",
+        },
+      }}
+    >
+      {icon &&
+        React.cloneElement(icon, {
+          sx: { fontSize: 20, mr: 1, color: THEME.colors.primary },
+        })}
+      {label}
+    </Typography>
+  );
+};
+
+// Component for Social Media Button
+const SocialButton = ({ Icon, label, link }) => {
+  return (
+    <Tooltip title={label} arrow>
+      <IconButton
+        size="large"
+        component="a"
+        href={link}
+        target="_blank"
+        rel="noopener noreferrer"
+        sx={{
+          backgroundColor: "white",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+          border: `2px solid ${alpha(THEME.colors.primary, 0.2)}`,
+          "&:hover": {
+            backgroundColor: THEME.colors.primary,
+            borderColor: THEME.colors.primary,
+            "& .MuiSvgIcon-root": {
+              color: "white",
+            },
+          },
+          transition: "all 0.3s ease",
+        }}
+      >
+        <Icon
+          sx={{
+            color: THEME.colors.primary,
+            fontSize: 24,
+            transition: "all 0.3s ease",
+          }}
+        />
+      </IconButton>
+    </Tooltip>
+  );
+};
+
+// Component for Contact Info Item
+const ContactItem = ({ Icon, text }) => {
+  return (
+    <Stack direction="row" alignItems="center">
+      <Icon sx={{ color: THEME.colors.primary, mr: 2 }} />
+      <Typography
+        variant="body1"
+        sx={{ color: THEME.colors.text.light, fontWeight: 500 }}
+      >
+        {text}
+      </Typography>
+    </Stack>
+  );
+};
+
+// Main Footer Component
 const Footer = () => {
   const theme = useTheme();
 
-  // Updated color palette for white background and black text
-  const mainColor = "#ffffff";
-  const textColor = "#000000";
-  const logoColor = "#20ADA0";
-
-  const styles = {
-    mainFooter: {
-      backgroundColor: mainColor,
-      color: textColor,
-      pt: 4,
-      width: "-webkit-fill-available",
-      position: "relative",
-      boxShadow: "0px -2px 10px rgba(0,0,0,0.1)",
-    },
-    logoSection: {
-      display: "flex",
-      flexDirection: "column",
-      gap: 4,
-    },
-    logoBox: {
-      display: "flex",
-      alignItems: "center",
-      gap: 2,
-      mb: 3,
-      transition: "transform 0.3s ease",
-      "&:hover": {
-        transform: "scale(1.03)",
+  // Mock data - would typically come from a localization file
+  const content = {
+    title: "Arogya HealthCare",
+    tagline: "The Best Medical Care for Your Family",
+    address: "123 Healthcare Avenue, Medical District",
+    phone: "+1 (800) AROGYA-HEALTH",
+    email: "contact@arogyahealthcare.com",
+    sections: {
+      pages: {
+        title: "Pages",
+        items: [
+          { label: "Doctors", route: "/doctors", icon: <MedicalServices /> },
+          { label: "Clinics", route: "/clinics", icon: <LocalHospital /> },
+          { label: "About Us", route: "/about", icon: <MedicalServices /> },
+          {
+            label: "Our Services",
+            route: "/services",
+            icon: <MedicalServices />,
+          },
+        ],
+      },
+      support: {
+        title: "Support",
+        items: [
+          { label: "Appointments", route: "/appointments" },
+          { label: "Find a Doctor", route: "/find-doctor" },
+          { label: "Emergency Care", route: "/emergency" },
+          { label: "Patient Portal", route: "/portal" },
+        ],
       },
     },
-    logoIcon: {
-      fontSize: 56,
-      color: logoColor,
+    social: {
+      title: "Social",
+      items: [
+        {
+          Icon: InstagramIcon,
+          label: "Instagram",
+          link: "https://www.instagram.com",
+        },
+        {
+          Icon: FacebookIcon,
+          label: "Facebook",
+          link: "https://www.facebook.com",
+        },
+        { Icon: XIcon, label: "Twitter", link: "https://twitter.com" },
+        { Icon: LinkedIn, label: "LinkedIn", link: "https://www.linkedin.com" },
+      ],
     },
-    logoText: {
-      color: textColor,
-      textDecoration: "none",
-      fontSize: "2.2rem",
-      fontWeight: 700,
-      letterSpacing: 1.5,
+    newsletter: {
+      title: "Stay Updated",
+      description: "Subscribe to our newsletter for health tips and updates",
     },
-    mainTitle: {
-      fontSize: "1.8rem",
-      fontWeight: 500,
-      mb: 3,
-      color: textColor,
-      lineHeight: 1.5,
-    },
-    sectionTitle: {
-      fontSize: "1.4rem",
-      fontWeight: 600,
-      mb: 4,
-      color: textColor,
-      position: "relative",
-      "&::after": {
-        content: '""',
-        position: "absolute",
-        bottom: -12,
-        left: 0,
-        width: "60px",
-        height: "4px",
-        borderRadius: "2px",
-        backgroundColor: textColor,
-      },
-    },
-    menuItem: {
-      fontSize: "1.2rem",
-      mb: 3,
-      color: textColor,
-      transition: "all 0.3s ease",
-      cursor: "pointer",
-      display: "flex",
-      alignItems: "center",
-      "&:hover": {
-        color: alpha(textColor, 0.7),
-        transform: "translateX(10px)",
-      },
-      "&::before": {
-        content: '""',
-        width: "8px",
-        height: "8px",
-        borderRadius: "50%",
-        backgroundColor: textColor,
-        marginRight: "15px",
-        transition: "all 0.3s ease",
-        opacity: 0.7,
-      },
-      "&:hover::before": {
-        opacity: 1,
-        transform: "scale(1.3)",
-      },
-    },
-    socialSection: {
-      display: "flex",
-      flexDirection: "column",
-      gap: 4,
-    },
-    socialIcons: {
-      display: "flex",
-      gap: 3,
-      mb: 5,
-    },
-    iconButton: {
-      backgroundColor: textColor,
-      padding: "15px",
-      "&:hover": {
-        backgroundColor: alpha(textColor, 0.8),
-        transform: "translateY(-5px)",
-      },
-      transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-    },
-    bottomFooter: {
-      color: textColor,
-      mt: 4,
-      py: 4,
-      borderTop: "1px solid rgba(0,0,0,0.1)",
-    },
-    bottomLinks: {
-      display: "flex",
-      justifyContent: "flex-end",
-      gap: 5,
-      flexWrap: "wrap",
-    },
-    bottomLink: {
-      color: textColor,
-      cursor: "pointer",
-      transition: "all 0.3s ease",
-      position: "relative",
-      fontSize: "1.1rem",
-      "&:hover": {
-        color: alpha(textColor, 0.7),
-      },
-      "&::after": {
-        content: '""',
-        position: "absolute",
-        bottom: -4,
-        left: 0,
-        width: "0%",
-        height: "2px",
-        backgroundColor: textColor,
-        transition: "width 0.3s ease",
-      },
-      "&:hover::after": {
-        width: "100%",
-      },
-    },
+    copyright:
+      "© Copyright 2024, All rights reserved with Arogya HealthCare — Healing with Care",
+    bottomLinks: [
+      { label: "Privacy Policy", route: "/privacy" },
+      { label: "Terms of Service", route: "/terms" },
+      { label: "FAQ", route: "/faq" },
+      { label: "Sitemap", route: "/sitemap" },
+    ],
   };
 
+  // Section Title component
+  const SectionTitle = ({ children }) => (
+    <Typography
+      sx={{
+        fontSize: "1.5rem",
+        fontWeight: 700,
+        mb: 4,
+        color: THEME.colors.text.dark,
+        position: "relative",
+        "&::after": {
+          content: '""',
+          position: "absolute",
+          bottom: -12,
+          left: 0,
+          width: "60px",
+          height: "4px",
+          borderRadius: "4px",
+          backgroundColor: THEME.colors.primary,
+        },
+      }}
+    >
+      {children}
+    </Typography>
+  );
+
   return (
-    <>
-      <Box sx={styles.mainFooter}>
-        <Container
-          sx={{
-            width: "1900px",
-          }}
-        >
-          <Grid container spacing={8}>
-            <Grid xs={12} md={5}>
-              <Box sx={styles.logoSection}>
-                <Box sx={styles.logoBox}>
-                  <AdbIcon sx={styles.logoIcon} />
-                  <Typography
-                    variant="h6"
-                    component="a"
-                    href="/"
-                    sx={styles.logoText}
-                  >
-                    {en.footer.title}
-                  </Typography>
-                </Box>
-                <Typography sx={styles.mainTitle}>
-                  {en.footer.the_best_medical}
+    <Box
+      sx={{
+        backgroundColor: "#ffffff",
+        color: THEME.colors.text.dark,
+        pt: 8,
+        pb: 4,
+        width: "100%",
+        position: "relative",
+        boxShadow: "0px -5px 20px rgba(0,0,0,0.05)",
+        borderTop: `4px solid ${THEME.colors.primary}`,
+      }}
+    >
+      <Container maxWidth="xl">
+        <Grid container spacing={6}>
+          {/* Logo and About Section */}
+          <Grid item xs={12} md={4}>
+            <Stack spacing={3}>
+              {/* Logo */}
+              <Stack
+                direction="row"
+                alignItems="center"
+                spacing={1}
+                sx={{
+                  mb: 2,
+                  transition: "transform 0.3s ease",
+                  "&:hover": { transform: "scale(1.05)" },
+                }}
+              >
+                <LocalHospital
+                  sx={{
+                    fontSize: 60,
+                    color: THEME.colors.primary,
+                    mr: 2,
+                  }}
+                />
+                <Typography
+                  variant="h4"
+                  component={Link}
+                  href="/"
+                  sx={{
+                    color: THEME.colors.text.dark,
+                    textDecoration: "none",
+                    fontSize: "2.4rem",
+                    fontWeight: 800,
+                    letterSpacing: 1.5,
+                  }}
+                >
+                  {content.title}
                 </Typography>
-              </Box>
-            </Grid>
+              </Stack>
 
-            <Grid xs={12} md={4}>
-              <Typography sx={styles.sectionTitle}>
-                {en.footer.pages_section.title}
-              </Typography>
-              <Box sx={{ mt: 4 }}>
-                {[
-                  { label: en.footer.pages_section.doctors, route: "/doctors" },
-                  {
-                    label: en.footer.contact_section.clinics,
-                    route: "#healthConcerns",
+              {/* Main Tagline */}
+              <Typography
+                sx={{
+                  fontSize: "1.8rem",
+                  fontWeight: 500,
+                  mb: 4,
+                  color: THEME.colors.text.dark,
+                  lineHeight: 1.6,
+                  position: "relative",
+                  "&::after": {
+                    content: '""',
+                    position: "absolute",
+                    bottom: -15,
+                    left: 0,
+                    width: "80px",
+                    height: "3px",
+                    backgroundColor: THEME.colors.primary,
+                    borderRadius: "3px",
                   },
-                  // {
-                  //   label: en.footer.contact_section.hospitals,
-                  //   route: "/hospitals",
-                  // },
-                  // {
-                  //   label: en.footer.contact_section.medicines,
-                  //   route: "/medicines",
-                  // },
-                ].map((item, index) => (
-                  <Zoom
-                    in={true}
-                    style={{ transitionDelay: `${index * 100}ms` }}
-                    key={index}
-                  >
-                    {item.route ? (
-                      <Link href={item.route} passHref>
-                        <Typography sx={styles.menuItem} component="a">
-                          {item.label}
-                        </Typography>
-                      </Link>
-                    ) : (
-                      <Typography sx={styles.menuItem}>{item.label}</Typography>
-                    )}
-                  </Zoom>
-                ))}
-              </Box>
-            </Grid>
+                }}
+              >
+                {content.tagline}
+              </Typography>
 
-            <Grid xs={12} md={3}>
-              <Box sx={styles.socialSection}>
-                <Typography sx={styles.sectionTitle}>
-                  {en.footer.social}
-                </Typography>
-                <Box sx={styles.socialIcons}>
-                  {[
-                    {
-                      Icon: InstagramIcon,
-                      label: "Instagram",
-                      link: "https://www.instagram.com/f2fintech?igsh=bWdqemk4Ym1xYnhq",
+              {/* Contact Information */}
+              <Stack spacing={3} sx={{ mt: 2 }}>
+                <ContactItem Icon={LocationOn} text={content.address} />
+                <ContactItem Icon={Phone} text={content.phone} />
+                <ContactItem Icon={Email} text={content.email} />
+              </Stack>
+            </Stack>
+          </Grid>
+
+          {/* Pages Section */}
+          <Grid item xs={12} md={3}>
+            <SectionTitle>{content.sections.pages.title}</SectionTitle>
+            <Stack spacing={1} sx={{ mt: 3 }}>
+              {content.sections.pages.items.map((item, index) => (
+                <FooterMenuItem
+                  key={index}
+                  label={item.label}
+                  route={item.route}
+                  icon={item.icon}
+                />
+              ))}
+            </Stack>
+          </Grid>
+
+          {/* Support Section */}
+          <Grid item xs={12} md={2}>
+            <SectionTitle>{content.sections.support.title}</SectionTitle>
+            <Stack spacing={1} sx={{ mt: 3 }}>
+              {content.sections.support.items.map((item, index) => (
+                <FooterMenuItem
+                  key={index}
+                  label={item.label}
+                  route={item.route}
+                />
+              ))}
+            </Stack>
+          </Grid>
+
+          {/* Social Media and Newsletter Section */}
+          <Grid item xs={12} md={3}>
+            <SectionTitle>{content.social.title}</SectionTitle>
+
+            {/* Social Media Icons */}
+            <Stack direction="row" spacing={2} sx={{ mt: 3, mb: 4 }}>
+              {content.social.items.map((item, index) => (
+                <SocialButton
+                  key={index}
+                  Icon={item.Icon}
+                  label={item.label}
+                  link={item.link}
+                />
+              ))}
+            </Stack>
+
+            {/* Newsletter Subscription */}
+            <Paper
+              elevation={2}
+              sx={{
+                p: 3,
+                borderRadius: 3,
+                border: `1px solid ${alpha(THEME.colors.primary, 0.1)}`,
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  boxShadow: theme.shadows[4],
+                  transform: "translateY(-4px)",
+                },
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 600,
+                  color: THEME.colors.text.dark,
+                  mb: 1,
+                }}
+              >
+                {content.newsletter.title}
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: THEME.colors.text.light,
+                  mb: 2,
+                }}
+              >
+                {content.newsletter.description}
+              </Typography>
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                spacing={1}
+                component="form"
+              >
+                <TextField
+                  placeholder="Your email"
+                  variant="outlined"
+                  size="small"
+                  fullWidth
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      "&:hover fieldset": {
+                        borderColor: THEME.colors.primary,
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: THEME.colors.primary,
+                      },
                     },
-                    {
-                      Icon: FacebookIcon,
-                      label: "Facebook",
-                      link: "https://www.facebook.com/f2fintech/",
+                  }}
+                />
+                <Button
+                  variant="contained"
+                  sx={{
+                    backgroundColor: THEME.colors.primary,
+                    color: "white",
+                    fontWeight: 600,
+                    "&:hover": {
+                      backgroundColor: THEME.colors.secondary,
                     },
-                    {
-                      Icon: XIcon,
-                      label: "Twitter",
-                      link: "https://x.com/i/flow/login?redirect_after_login=%2Ff2fintech",
-                    },
-                    {
-                      Icon: LinkedIn,
-                      label: "LinkedIn",
-                      link: "https://www.linkedin.com/company/f2fintech/",
-                    },
-                  ].map(({ Icon, label, link }, index) => (
-                    <Tooltip
-                      title={label}
-                      key={index}
-                      TransitionComponent={Zoom}
-                    >
-                      <IconButton
-                        sx={{
-                          ...styles.iconButton,
-                          borderRadius: "50%",
-                          padding: "10px",
-                          transition: "all 0.3s ease",
-                          "&:hover": {
-                            backgroundColor: alpha(textColor, 0.8),
-                            transform: "scale(1.1)",
-                          },
-                        }}
-                        size="large"
-                        component="a"
-                        href={link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Icon sx={{ color: "#fff", fontSize: 28 }} />
-                      </IconButton>
-                    </Tooltip>
-                  ))}
+                  }}
+                >
+                  Subscribe
+                </Button>
+              </Stack>
+            </Paper>
+          </Grid>
+        </Grid>
+
+        {/* Bottom Footer with Copyright */}
+        <Box sx={{ mt: 8 }}>
+          <Divider
+            sx={{
+              mb: 4,
+              "&::before, &::after": {
+                borderColor: alpha(THEME.colors.text.dark, 0.1),
+              },
+            }}
+          >
+            <Box
+              sx={{
+                width: 100,
+                height: 4,
+                backgroundColor: THEME.colors.primary,
+                borderRadius: 2,
+              }}
+            />
+          </Divider>
+
+          <Grid container alignItems="center" spacing={3}>
+            <Grid item xs={12} md={6}>
+              <Typography
+                sx={{
+                  opacity: 0.9,
+                  fontWeight: 600,
+                  fontSize: "1.1rem",
+                  color: THEME.colors.text.light,
+                }}
+              >
+                {content.copyright.split("Arogya HealthCare")[0]}
+                <Box
+                  component="span"
+                  sx={{ color: THEME.colors.primary, mx: 1 }}
+                >
+                  Arogya HealthCare
                 </Box>
-              </Box>
+                {content.copyright.split("Arogya HealthCare")[1]}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Stack
+                direction="row"
+                spacing={4}
+                justifyContent={{ xs: "flex-start", md: "flex-end" }}
+                sx={{ mt: { xs: 2, md: 0 } }}
+              >
+                {content.bottomLinks.map((item, index) => (
+                  <Typography
+                    key={index}
+                    component={Link}
+                    href={item.route}
+                    sx={{
+                      color: THEME.colors.text.light,
+                      cursor: "pointer",
+                      transition: "all 0.3s ease",
+                      position: "relative",
+                      fontSize: "1.1rem",
+                      fontWeight: 500,
+                      "&:hover": {
+                        color: THEME.colors.primary,
+                        "&::after": {
+                          width: "100%",
+                        },
+                      },
+                      "&::after": {
+                        content: '""',
+                        position: "absolute",
+                        bottom: -4,
+                        left: 0,
+                        width: "0%",
+                        height: "2px",
+                        backgroundColor: THEME.colors.primary,
+                        transition: "width 0.3s ease",
+                        borderRadius: "1px",
+                      },
+                    }}
+                  >
+                    {item.label}
+                  </Typography>
+                ))}
+              </Stack>
             </Grid>
           </Grid>
-        </Container>
-        <Box sx={styles.bottomFooter}>
-          <Container maxWidth="xl">
-            <Grid container alignItems="center" spacing={3}>
-              <Grid xs={12} md={6}>
-                <Typography
-                  variant="body1"
-                  sx={{ opacity: 0.9, fontWeight: 500, fontSize: "1.1rem" }}
-                >
-                  © Copyright 2024, All rights reserved with Arogya HealthCare
-                </Typography>
-              </Grid>
-              <Grid xs={12} md={6}>
-                <Box sx={styles.bottomLinks}>
-                  {[
-                    {
-                      label: en.footer.pages_section.privacy,
-                      route: "/privacy",
-                    },
-                    { label: en.footer.pages_section.terms, route: "/terms" },
-                    { label: en.footer.pages_section.faq, route: "#faq" },
-                  ].map((item, index) => (
-                    <Link href={item.route || "#"} key={index} passHref>
-                      <Typography
-                        variant="body2"
-                        sx={styles.bottomLink}
-                        component="a"
-                      >
-                        {item.label}
-                      </Typography>
-                    </Link>
-                  ))}
-                </Box>
-              </Grid>
-            </Grid>
-          </Container>
         </Box>
-      </Box>
-    </>
+      </Container>
+    </Box>
   );
 };
 
