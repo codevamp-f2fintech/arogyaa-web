@@ -22,6 +22,7 @@ import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import PeopleIcon from "@mui/icons-material/People";
 import { ArrowCircleRight } from "@mui/icons-material";
+import { useGetSymptom } from "@/hooks/symptoms";
 
 const theme = createTheme({
   palette: {
@@ -111,68 +112,21 @@ const theme = createTheme({
   },
 });
 
-const symptoms = [
-  {
-    id: 1,
-    name: "Depression",
-    specialist: "Psychiatrist",
-    icon: "/assets/images/symptoms/depression.png",
-    description:
-      "Expert mental health care and support for emotional well-being",
-    patients: "1000+",
-    successRate: "95%",
-  },
-  {
-    id: 2,
-    name: "Pediatric",
-    specialist: "Pediatrician",
-    icon: "/assets/images/symptoms/child.png",
-    description: "Professional support for managing anxiety and stress",
-    patients: "1200+",
-    successRate: "92%",
-  },
-  {
-    id: 3,
-    name: "Skin",
-    specialist: "Sleep Specialist",
-    icon: "/assets/images/symptoms/skin.png",
-    description: "Specialized care for better sleep and rest patterns",
-    patients: "800+",
-    successRate: "90%",
-  },
-  {
-    id: 4,
-    name: "Fever",
-    specialist: "Physiotherapist",
-    icon: "/assets/images/symptoms/fever.png",
-    description: "Expert physical therapy for chronic pain management",
-    patients: "1500+",
-    successRate: "94%",
-  },
-  {
-    id: 5,
-    name: "Stomach Issue",
-    specialist: "Allergist",
-    icon: "/assets/images/symptoms/stomach.png",
-    description: "Comprehensive allergy testing and treatment",
-    patients: "900+",
-    successRate: "96%",
-  },
-  {
-    id: 6,
-    name: "Headache",
-    specialist: "Neurologist",
-    icon: "https://arogyaa.s3.eu-north-1.amazonaws.com/symptom/1738924736739-depression.png",
-    description: "Specialized care for migraines and chronic headaches",
-    patients: "1100+",
-    successRate: "91%",
-  },
-];
-
 const SymptomCards = () => {
   const router = useRouter();
   const [hoveredCard, setHoveredCard] = useState(null);
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const [pageSize, setPageSize] = useState({
+    page: 1,
+    size: 6,
+  });
+
+  const {
+    value: data,
+    swrLoading,
+    error,
+  } = useGetSymptom(null, "get-symptoms", pageSize.page, pageSize.size);
 
   const handleConsult = useCallback(
     (symptomsName: string) => {
@@ -181,7 +135,7 @@ const SymptomCards = () => {
     [router]
   );
 
-  console.log(">>>",symptoms)
+  console.log(">>>", data);
 
   return (
     <ThemeProvider theme={theme}>
@@ -220,8 +174,8 @@ const SymptomCards = () => {
           </Box>
 
           <Grid container spacing={4}>
-            {symptoms.map((symptom, index) => (
-              <Grid item xs={12} sm={6} md={4} key={symptom.id}>
+            {data?.results?.map((symptom, index) => (
+              <Grid item xs={12} sm={6} md={4} key={symptom._id}>
                 <Grow
                   in={true}
                   timeout={(index + 1) * 300}
@@ -229,11 +183,12 @@ const SymptomCards = () => {
                 >
                   <Card
                     sx={{
+                      border:"2px solid black",
                       height: "100%",
                       background: "#FFFFFF",
                       border: "1px solid rgba(32, 173, 160, 0.1)",
                     }}
-                    onMouseEnter={() => setHoveredCard(symptom.id)}
+                    onMouseEnter={() => setHoveredCard(symptom._id)}
                     onMouseLeave={() => setHoveredCard(null)}
                   >
                     <CardContent sx={{ p: 4 }}>
