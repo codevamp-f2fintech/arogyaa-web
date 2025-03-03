@@ -344,7 +344,7 @@ const Footer = () => {
             </Stack>
 
             {/* Newsletter Subscription */}
-            <Paper
+            {/* <Paper
               elevation={2}
               sx={{
                 p: 3,
@@ -411,7 +411,7 @@ const Footer = () => {
                   Subscribe
                 </Button>
               </Stack>
-            </Paper>
+            </Paper> */}  
           </Grid>
         </Grid>
 
@@ -450,7 +450,7 @@ const Footer = () => {
                   component="span"
                   sx={{ color: THEME.colors.primary, mx: 1 }}
                 >
-                  Arogya HealthCare
+                  Arogya
                 </Box>
                 {content.copyright.split("Arogya HealthCare")[1]}
               </Typography>

@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import en from "@/locales/en.json";
 import styles from "../page.module.css";
+import Link from "next/link";
 
 const AboutUs: React.FC = () => {
   const theme = useTheme();
@@ -22,6 +23,7 @@ const AboutUs: React.FC = () => {
     {
       title: en.homepage.aboutUs.cardTitle1,
       description: en.homepage.aboutUs.cardDescription1,
+      href: "/doctors",
     },
     {
       title: en.homepage.aboutUs.cardTitle2,
@@ -132,78 +134,81 @@ const AboutUs: React.FC = () => {
             <Grid container spacing={3}>
               {cardData.map((card, index) => (
                 <Grid item xs={12} sm={6} md={4} key={index}>
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      p: 3,
-                      height: "100%",
-                      minHeight: "220px",
-                      borderRadius: "16px",
-                      textAlign: "center",
-                      overflow: "hidden",
-                      position: "relative",
-                      transition: "all 0.3s ease",
-                      background:
-                        index === 0
-                          ? "linear-gradient(135deg, #20ada0 0%, #0d8b80 100%)"
-                          : "#fff",
-                      color: index === 0 ? "#fff" : "#333",
-                      boxShadow:
-                        index === 0
-                          ? "0 10px 20px rgba(32, 173, 160, 0.2)"
-                          : "0 8px 16px rgba(0, 0, 0, 0.06)",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      "&:hover": {
-                        transform: "translateY(-8px)",
+                  <Link href={card.href ? card.href : "#"}>
+                    <Paper
+                      elevation={0}
+                      sx={{
+                        cursor: "pointer",
+                        p: 3,
+                        height: "100%",
+                        minHeight: "220px",
+                        borderRadius: "16px",
+                        textAlign: "center",
+                        overflow: "hidden",
+                        position: "relative",
+                        transition: "all 0.3s ease",
+                        background:
+                          index === 0
+                            ? "linear-gradient(135deg, #20ada0 0%, #0d8b80 100%)"
+                            : "#fff",
+                        color: index === 0 ? "#fff" : "#333",
                         boxShadow:
                           index === 0
-                            ? "0 15px 30px rgba(32, 173, 160, 0.3)"
-                            : "0 15px 30px rgba(0, 0, 0, 0.1)",
-                      },
-                      "&::before":
-                        index !== 0
-                          ? {
-                              content: '""',
-                              position: "absolute",
-                              top: 0,
-                              left: 0,
-                              width: "6px",
-                              height: "40%",
-                              background:
-                                "linear-gradient(180deg, #20ada0 0%, transparent 100%)",
-                              borderRadius: "3px",
-                            }
-                          : {},
-                    }}
-                  >
-                    <Typography
-                      variant="h5"
-                      component="h3"
-                      sx={{
-                        fontSize: { xs: "1.3rem", md: "1.5rem" },
-                        fontWeight: 600,
-                        mb: 2,
-                        position: "relative",
-                        display: "inline-block",
-                        marginLeft: "auto",
-                        marginRight: "auto",
+                            ? "0 10px 20px rgba(32, 173, 160, 0.2)"
+                            : "0 8px 16px rgba(0, 0, 0, 0.06)",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        "&:hover": {
+                          transform: "translateY(-8px)",
+                          boxShadow:
+                            index === 0
+                              ? "0 15px 30px rgba(32, 173, 160, 0.3)"
+                              : "0 15px 30px rgba(0, 0, 0, 0.1)",
+                        },
+                        "&::before":
+                          index !== 0
+                            ? {
+                                content: '""',
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                width: "6px",
+                                height: "40%",
+                                background:
+                                  "linear-gradient(180deg, #20ada0 0%, transparent 100%)",
+                                borderRadius: "3px",
+                              }
+                            : {},
                       }}
                     >
-                      {card.title}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        fontSize: { xs: "0.95rem", md: "1.05rem" },
-                        lineHeight: 1.7,
-                        opacity: index === 0 ? 0.9 : 0.8,
-                      }}
-                    >
-                      {card.description}
-                    </Typography>
-                  </Paper>
+                      <Typography
+                        variant="h5"
+                        component="h3"
+                        sx={{
+                          fontSize: { xs: "1.3rem", md: "1.5rem" },
+                          fontWeight: 600,
+                          mb: 2,
+                          position: "relative",
+                          display: "inline-block",
+                          marginLeft: "auto",
+                          marginRight: "auto",
+                        }}
+                      >
+                        {card.title}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontSize: { xs: "0.95rem", md: "1.05rem" },
+                          lineHeight: 1.7,
+                          opacity: index === 0 ? 0.9 : 0.8,
+                        }}
+                      >
+                        {card.description}
+                      </Typography>
+                    </Paper>
+                  </Link>
                 </Grid>
               ))}
             </Grid>

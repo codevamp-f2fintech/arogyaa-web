@@ -135,8 +135,6 @@ const SymptomCards = () => {
     [router]
   );
 
-  console.log(">>>", data);
-
   return (
     <ThemeProvider theme={theme}>
       <Box
@@ -183,7 +181,6 @@ const SymptomCards = () => {
                 >
                   <Card
                     sx={{
-                      border:"2px solid black",
                       height: "100%",
                       background: "#FFFFFF",
                       border: "1px solid rgba(32, 173, 160, 0.1)",
@@ -240,34 +237,35 @@ const SymptomCards = () => {
                       >
                         {symptom.description}
                       </Typography>
-
-                      <Button
-                        variant="contained"
-                        className="consultButton"
-                        endIcon={<ArrowCircleRight />}
-                        onClick={() => handleConsult(symptom.name)}
-                        sx={{
-                          marginLeft: "38px",
-                          width: "75%",
-                          background: "#20ADA0 !important",
-                          color: "white",
-                          fontWeight: "bold",
-                          borderRadius: "20px",
-                          boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
-                          transition: "all 0.3s ease",
-                          display: "flex",
-                          alignItems: "center",
-                          "&:hover": {
-                            backgroundColor: "primary.dark",
-                            transform: "translateY(-2px)",
-                          },
-                        }}
-                      >
-                        Consult Now
-                      </Button>
                     </CardContent>
                   </Card>
                 </Grow>
+                <Button
+                  variant="contained"
+                  className="consultButton"
+                  endIcon={<ArrowCircleRight />}
+                  onClick={() => handleConsult(symptom.name)}
+                  sx={{
+                    position: "relative",
+                    bottom: 60,
+                    marginLeft: "45px",
+                    width: "75%",
+                    background: "#20ADA0 !important",
+                    color: "white",
+                    fontWeight: "bold",
+                    borderRadius: "20px",
+                    boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
+                    transition: "all 0.3s ease",
+                    display: "flex",
+                    alignItems: "center",
+                    "&:hover": {
+                      backgroundColor: "primary.dark",
+                      transform: "translateY(-2px)",
+                    },
+                  }}
+                >
+                  Consult Now
+                </Button>
               </Grid>
             ))}
           </Grid>

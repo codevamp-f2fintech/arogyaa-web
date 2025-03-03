@@ -52,6 +52,7 @@ const StyledBanner = styled(Box)(({ theme }) => ({
 }));
 
 const StyledImage = styled("img")(({ theme }) => ({
+  paddingLeft:"50px",
   position: "absolute",
   bottom: -10,
   left: 0,
@@ -85,7 +86,7 @@ const FAQPage = () => {
       <StyledBanner>
         <StyledImage
           alt="Doctor"
-          src="/assets/images/doctor-with-his-arms-crossed-white-background.png"
+          src="/assets/images/Questions-bro.png"
         />
         <Grid
           container
