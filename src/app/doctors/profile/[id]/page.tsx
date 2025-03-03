@@ -209,23 +209,7 @@ const DrProfile: React.FC = () => {
       fetchTestimonials();
     }
   }, [doctorId]);
-  // useEffect(() => {
-  //   if (doctorId) {
-  //     const fetchProfileData = async () => {
-  //       try {
-  //         const response: ProfileData = await fetcher(
-  //           "doctor",
-  //           `get-doctor-by-id/${doctorId}`
-  //         );
-  //         setProfileData(response);
-  //       } catch (error) {
-  //         console.error("Error fetching doctor data:", error);
-  //       }
-  //     };
-  //     fetchProfileData();
-  //   }
-  // }, [doctorId]);
-
+ 
   const fetchProfileData = async () => {
     try {
       const response: ProfileData = await fetcher(
@@ -795,7 +779,7 @@ const DrProfile: React.FC = () => {
                         >
                           <VerifiedIcon
                             sx={{
-                              color: "#FFD700",
+                              color: "#20ADA0",
                               fontSize: "20px",
                               marginRight: "5px",
                             }}

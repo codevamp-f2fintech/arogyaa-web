@@ -43,6 +43,9 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import SearchIcon from "@mui/icons-material/Search";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
+
+import SchoolIcon from "@mui/icons-material/School";
+import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import { useGetDoctors } from "@/hooks/doctor";
 import { fetcher } from "@/apis/apiClient";
 import { DoctorData } from "@/types/doctor";
@@ -271,12 +274,12 @@ export default function ModernDoctorProfile() {
           container
           spacing={2}
           sx={{
-            justifyContent: "flex-end",
+            justifyContent: "flex-start",
             alignItems: "center",
           }}
         >
-          {/* Search Bar on the Right */}
-          <Grid item xs={12} sm={4} md={4}>
+          {/* Search Bar on the Left */}
+          <Grid item xs={12} sm={8} md={8}>
             <Paper
               component="form"
               className={styles.searchBarWrapper}
@@ -290,7 +293,6 @@ export default function ModernDoctorProfile() {
                 borderRadius: "20px",
                 backgroundColor: "rgba(255, 255, 255, 0.90)",
                 position: "relative",
-                marginLeft: "auto",
               }}
             >
               <IconButton
@@ -312,7 +314,7 @@ export default function ModernDoctorProfile() {
                 value={keyword}
                 onChange={handleChange}
                 className={styles.searchBarInput}
-                placeholder="Search by Doctors and Specialties"
+                placeholder="Search by name and Specialties"
                 inputProps={{ "aria-label": "search" }}
                 sx={{
                   flex: 1,
@@ -335,238 +337,159 @@ export default function ModernDoctorProfile() {
                 </IconButton>
               )}
             </Paper>
+          </Grid>
+
+          {/* Filters on the Right */}
+          <Grid item xs={12} sm={4} md={4}>
             <Box
               sx={{
-                position: "absolute",
-                top: "160px",
-                width: "28vw",
-                mx: "30px",
-                my: "0px",
-                backgroundColor: "#fff",
-                color: "#000",
-                maxWidth: { xs: "100%", sm: "600px" },
-                borderRadius: "1px",
-                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                textAlign: "left",
-                overflow: "hidden",
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: "16px",
               }}
             >
-              <Collapse in={results.length > 0}>
-                {results.length > 0 ? (
-                  <List
-                    sx={{
-                      maxHeight: "180px",
-                      overflowY: "auto",
-                      padding: "8px",
-                      "::-webkit-scrollbar": {
-                        width: "8px",
-                      },
-                      "::-webkit-scrollbar-thumb": {
-                        backgroundColor: "#20ADA0",
-                        borderRadius: "4px",
-                      },
-                      "::-webkit-scrollbar-thumb:hover": {
-                        backgroundColor: "#1A8575",
-                      },
-                    }}
-                  >
-                    {results.map((doctor) => (
-                      <ListItem key={doctor._id}>
-                        <Link
-                          href={`/doctors/profile/${encodeURIComponent(
-                            doctor._id
-                          )}`}
-                          passHref
-                          style={{
-                            textDecoration: "none",
-                            color: "inherit",
-                            width: "100%",
-                          }}
-                        >
-                          <ListItemText
-                            primary={doctor.username}
-                            sx={{
-                              cursor: "pointer",
-                              "&:hover": {
-                                color: "black",
-                              },
-                            }}
-                          />
-                        </Link>
-                      </ListItem>
-                    ))}
-                  </List>
-                ) : (
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      margin: "1rem",
-                      color: "#555",
-                      fontSize: { xs: "0.9rem", sm: "1rem" },
-                      textAlign: "center",
-                    }}
-                  >
-                    No results found for "{keyword}"
-                  </Typography>
-                )}
-              </Collapse>
+              {/* Gender Filter */}
+              <FormControl
+                fullWidth
+                variant="outlined"
+                size="small"
+                sx={{
+                  background: "#fff",
+                  borderRadius: "30px",
+                  minWidth: 190,
+                }}
+              >
+                <InputLabel
+                  id="gender-label"
+                  sx={{
+                    backgroundColor: "#fff",
+                    px: 1,
+                    transition: "all 0.3s ease-in-out",
+                    "&.MuiInputLabel-shrink": {
+                      px: 1,
+                      borderRadius: "2px",
+                    },
+                  }}
+                >
+                  Gender
+                </InputLabel>
+                <Select
+                  labelId="gender-label"
+                  id="gender-select"
+                  value={filters.gender}
+                  onChange={(e) => handleFilterChange("gender", e.target.value)}
+                  label="Gender"
+                  sx={{
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderRadius: "40px",
+                    },
+                  }}
+                >
+                  <MenuItem value="">
+                    <em>All</em>
+                  </MenuItem>
+                  <MenuItem value="male">Male</MenuItem>
+                  <MenuItem value="female">Female</MenuItem>
+                  <MenuItem value="other">Other</MenuItem>
+                </Select>
+              </FormControl>
+
+              {/* Experience Filter */}
+              <FormControl
+                fullWidth
+                variant="outlined"
+                size="small"
+                sx={{
+                  background: "#fff",
+                  borderRadius: "30px",
+                  minWidth: 190,
+                }}
+              >
+                <InputLabel
+                  id="experience-label"
+                  sx={{
+                    backgroundColor: "#fff",
+                    px: 1,
+                    transition: "all 0.3s ease-in-out",
+                    "&.MuiInputLabel-shrink": {
+                      px: 1,
+                      borderRadius: "2px",
+                    },
+                  }}
+                >
+                  Experience
+                </InputLabel>
+                <Select
+                  labelId="experience-label"
+                  id="experience-select"
+                  value={filters.experienceFilter}
+                  onChange={(e) =>
+                    handleFilterChange("experienceFilter", e.target.value)
+                  }
+                  label="Experience"
+                  sx={{
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderRadius: "40px",
+                    },
+                  }}
+                >
+                  <MenuItem value="">
+                    <em>All</em>
+                  </MenuItem>
+                  <MenuItem value="above 5 years">5+ Years</MenuItem>
+                  <MenuItem value="above 10 years">10+ Years</MenuItem>
+                  <MenuItem value="above 15 years">15+ Years</MenuItem>
+                </Select>
+              </FormControl>
+
+              {/* Fees Filter */}
+              <FormControl
+                fullWidth
+                variant="outlined"
+                size="small"
+                sx={{
+                  background: "#fff",
+                  borderRadius: "30px",
+                  minWidth: 190,
+                }}
+              >
+                <InputLabel
+                  id="fees-label"
+                  sx={{
+                    backgroundColor: "#fff",
+                    px: 1,
+                    transition: "all 0.3s ease-in-out",
+                    "&.MuiInputLabel-shrink": {
+                      px: 1,
+                      borderRadius: "2px",
+                    },
+                  }}
+                >
+                  Fees
+                </InputLabel>
+                <Select
+                  labelId="fees-label"
+                  id="fees-select"
+                  value={filters.sortBy}
+                  onChange={(e) => handleFilterChange("sortBy", e.target.value)}
+                  label="Fees"
+                  sx={{
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderRadius: "40px",
+                    },
+                  }}
+                >
+                  <MenuItem value="">
+                    <em>All</em>
+                  </MenuItem>
+                  <MenuItem value="fee_high_to_low">High To Low</MenuItem>
+                  <MenuItem value="fee_low_to_high">Low To High</MenuItem>
+                </Select>
+              </FormControl>
             </Box>
           </Grid>
         </Grid>
 
-        {/* Filters */}
-        <Grid
-          container
-          spacing={2}
-          alignItems="center"
-          sx={{
-            justifyContent: "flex-start",
-            mb: 3,
-            marginTop: "-75px",
-          }}
-        >
-          {/* Gender Filter */}
-          <Grid item xs={4} sm={3} md={2}>
-            <FormControl
-              fullWidth
-              variant="outlined"
-              size="small"
-              sx={{
-                background: "#fff",
-                borderRadius: "30px",
-                minWidth: 120,
-              }}
-            >
-              <InputLabel
-                id="gender-label"
-                sx={{
-                  backgroundColor: "#fff",
-                  px: 1,
-                  transition: "all 0.3s ease-in-out",
-                  "&.MuiInputLabel-shrink": {
-                    px: 1,
-                    borderRadius: "2px",
-                  },
-                }}
-              >
-                Gender
-              </InputLabel>
-              <Select
-                labelId="gender-label"
-                id="gender-select"
-                value={filters.gender}
-                onChange={(e) => handleFilterChange("gender", e.target.value)}
-                label="Gender"
-                sx={{
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderRadius: "40px",
-                  },
-                }}
-              >
-                <MenuItem value="">
-                  <em>All</em>
-                </MenuItem>
-                <MenuItem value="male">Male</MenuItem>
-                <MenuItem value="female">Female</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-
-          {/* Experience Filter */}
-          <Grid item xs={4} sm={3} md={2}>
-            <FormControl
-              fullWidth
-              variant="outlined"
-              size="small"
-              sx={{
-                background: "#fff",
-                borderRadius: "30px",
-              }}
-            >
-              <InputLabel
-                id="experience-label"
-                sx={{
-                  backgroundColor: "#fff",
-                  px: 1,
-                  transition: "all 0.3s ease-in-out",
-                  "&.MuiInputLabel-shrink": {
-                    px: 1,
-                    borderRadius: "2px",
-                  },
-                }}
-              >
-                Experience
-              </InputLabel>
-              <Select
-                labelId="experience-label"
-                id="experience-select"
-                value={filters.experienceFilter}
-                onChange={(e) =>
-                  handleFilterChange("experienceFilter", e.target.value)
-                }
-                label="Experience"
-                sx={{
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderRadius: "40px",
-                  },
-                }}
-              >
-                <MenuItem value="">
-                  <em>All</em>
-                </MenuItem>
-                <MenuItem value="above 5 years">5+ Years</MenuItem>
-                <MenuItem value="above 10 years">10+ Years</MenuItem>
-                <MenuItem value="above 15 years">15+ Years</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-
-          {/* Fees Filter */}
-          <Grid item xs={4} sm={3} md={2}>
-            <FormControl
-              fullWidth
-              variant="outlined"
-              size="small"
-              sx={{
-                background: "#fff",
-                borderRadius: "30px",
-              }}
-            >
-              <InputLabel
-                id="fees-label"
-                sx={{
-                  backgroundColor: "#fff",
-                  px: 1,
-                  transition: "all 0.3s ease-in-out",
-                  "&.MuiInputLabel-shrink": {
-                    px: 1,
-                    borderRadius: "2px",
-                  },
-                }}
-              >
-                Fees
-              </InputLabel>
-              <Select
-                labelId="fees-label"
-                id="fees-select"
-                value={filters.sortBy}
-                onChange={(e) => handleFilterChange("sortBy", e.target.value)}
-                label="Fees"
-                sx={{
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderRadius: "40px",
-                  },
-                }}
-              >
-                <MenuItem value="">
-                  <em>All</em>
-                </MenuItem>
-                <MenuItem value="fee_high_to_low">High To Low</MenuItem>
-                <MenuItem value="fee_low_to_high">Low To High</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
         <Box
           sx={{
             position: "fixed",
@@ -661,106 +584,146 @@ export default function ModernDoctorProfile() {
                         />
                       </Typography>
 
-                      {/* Tags / Specialization */}
+                      {/* Qualification Section */}
                       <Box
                         sx={{
                           mt: 1,
                           display: "flex",
-                          flexWrap: "wrap",
-                          gap: "5px",
+                          flexDirection: "column",
+                          gap: "1px",
+                          borderRadius: "1px",
+                          padding: "8px",
+                          backgroundColor: "#f5f5f5",
+                          boxShadow: "3px 2px 2px rgba(0, 0, 0, 0.1)",
                         }}
                       >
-                        {doctor.tags?.length > 0 ? (
-                          doctor.tags.map((tag, index) => (
-                            <Chip
-                              key={index}
-                              label={tag}
-                              sx={{
-                                backgroundColor: "#20ADA0",
-                                color: "#fff",
-                                fontSize: "12px",
-                                borderRadius: "16px",
-                              }}
-                              size="small"
-                            />
-                          ))
-                        ) : (
-                          <Typography variant="body2" sx={{ color: "#888" }}>
-                            Specialization Not Available
-                          </Typography>
-                        )}
-                      </Box>
-                      {/* <Box sx={{ marginTop: "10px" }}>
-                        {doctor.availability &&
-                        doctor.availability.length > 0 ? (
+                        {/* Education and Qualifications Section */}
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                          }}
+                        >
+                          <SchoolIcon
+                            sx={{ color: "#20ADA0", fontSize: "30px" }}
+                          />{" "}
+                          {/* Qualification Icon */}
                           <Box
                             sx={{
-                              display: "grid",
-                              gridTemplateColumns: "1fr 1fr",
-                              gap: "10px",
+                              display: "flex",
+                              flexWrap: "wrap",
+                              gap: "8px",
+                              overflow: "hidden",
+                              flex: "1",
                             }}
                           >
-                            {doctor.availability.map(
-                              (slot, index) => (
+                            {doctor.qualificationIds?.length > 0 ? (
+                              doctor.qualificationIds.map((qual, index) => (
+                                <Typography
+                                  key={index}
+                                  variant="body2"
+                                  sx={{
+                                    backgroundColor: "#FFD700",
+                                    color: "#354C5C",
+                                    padding: "2px 10px",
+                                    borderRadius: "12px",
+                                    fontSize: "0.9rem",
+                                    fontWeight: "500",
+                                  }}
+                                >
+                                  {qual?.name || "Unnamed Qualification"}
+                                </Typography>
+                              ))
+                            ) : (
+                              <Typography
+                                variant="body2"
+                                sx={{ color: "#888" }}
+                              >
+                                Qualifications not available
+                              </Typography>
+                            )}
+                          </Box>
+                        </Box>
+
+                        {/* Tags / Specialization Section with LocalOfferIcon */}
+                        <Box sx={{ display: "flex", flexDirection: "column" }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexWrap: "wrap",
+                              gap: "4px",
+                              mt: 1, 
+                            }}
+                          >
+                            {doctor.tags?.length > 0 ? (
+                              doctor.tags.map((tag, index) => (
                                 <Box
                                   key={index}
                                   sx={{
-                                    backgroundColor: "#f0f0f5",
-                                    padding: "10px",
-                                    borderRadius: "8px",
-                                    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    backgroundColor: "#20ADA0",
+                                    color: "#fff",
+                                    padding: "4px 7px",
+                                    borderRadius: "16px",
+                                    fontSize: "12px",
                                   }}
                                 >
-                                  <Typography
-                                    variant="body2"
+                                  <LocalOfferIcon
                                     sx={{
-                                      fontSize: "0.9rem",
-                                      fontWeight: "600",
-                                      color: "#20ADA0",
+                                      fontSize: "16px",
+                                      marginRight: "6px",
                                     }}
-                                  >
-                                    {slot.day}
-                                  </Typography>
-                                  <Typography
-                                    variant="body2"
-                                    sx={{
-                                      fontSize: "0.8rem",
-                                      fontWeight: "400",
-                                      color: "#354c5c",
-                                    }}
-                                  >
-                                    {slot.startTime} - {slot.endTime}
-                                  </Typography>
+                                  />{" "}
+                                  {/* Tag Icon */}
+                                  <Typography variant="body2">{tag}</Typography>
                                 </Box>
-                              )
+                              ))
+                            ) : (
+                              <Typography
+                                variant="body2"
+                                sx={{ color: "#888" }}
+                              >
+                                Specialization Not Available
+                              </Typography>
                             )}
                           </Box>
-                        ) : (
-                          <Typography
-                            variant="body2"
-                            sx={{ color: "#888", fontSize: "0.9rem" }}
-                          >
-                            No Availability Listed
-                          </Typography>
-                        )}
-                      </Box> */}
+                        </Box>
 
-                      {/* Location & Hospital */}
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: "#666",
-                          mt: 1,
-                          display: "flex",
-                          alignItems: "center",
-                        }}
-                      >
-                        <LocationOnIcon
-                          sx={{ fontSize: 16, color: "#888", mr: 0.5 }}
-                        />
-                        {doctor.address || "Doctor Location"} |{" "}
-                        {doctor.hospitalAffiliations?.[0] || "Hospital Name"}
-                      </Typography>
+                        {/* Location and Hospital Affiliations */}
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: "#666",
+                            mt: 1,
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <LocationOnIcon
+                            sx={{ fontSize: 16, color: "#20ADA0", mr: 1 }}
+                          />
+                          {doctor.address || "Doctor Location"}
+                          <span style={{ marginLeft: "8px" }}>|</span>{" "}
+                          {doctor.hospitalAffiliations &&
+                          doctor.hospitalAffiliations.length > 0
+                            ? doctor.hospitalAffiliations.map(
+                                (hospital, index) => (
+                                  <span
+                                    key={index}
+                                    style={{ marginLeft: "8px" }}
+                                  >
+                                    {hospital}
+                                    {index <
+                                      doctor.hospitalAffiliations.length - 1 &&
+                                      " | "}
+                                  </span>
+                                )
+                              )
+                            : "Hospital Name"}
+                        </Typography>
+                      </Box>
                     </Box>
                   </Box>
 
@@ -867,7 +830,22 @@ export default function ModernDoctorProfile() {
               </Grid>
             ))
           ) : (
-            <Grid item xs={12}>
+            <Grid
+              item
+              xs={12}
+              style={{
+                height: "400px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexDirection: "column",
+
+                borderRadius: "12px",
+                marginLeft: "20px",
+
+                padding: "20px",
+              }}
+            >
               <Typography variant="h6" color="textSecondary" align="center">
                 No Doctors Found
               </Typography>
