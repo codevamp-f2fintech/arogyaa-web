@@ -21,7 +21,7 @@ import FolderIcon from "@mui/icons-material/Folder";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteIcon from "@mui/icons-material/Favorite";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
@@ -465,292 +465,295 @@ const UserProfile = () => {
 
             {/* User Information */}
             <Box
-  sx={{
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    borderRadius: "12px",
-    p: 0.3,
-    my: 4,
-    width: "90%",
-    maxWidth: "500px",
-    textAlign: "center",
-    mx: "auto",
-    gap: 1,
-    boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.05)",
-  }}
->
-  <Typography
-    variant="body1"
-    sx={{ fontWeight: "600", color: "#20ADA0", mb: 1 }}
-  >
-    Personal Information
-  </Typography>
-  {[
-    {
-      icon: <PhoneIcon sx={{ color: "#20ADA0" }} />,
-      label: "Contact",
-      key: "contact",
-    },
-    {
-      icon: <EmailIcon sx={{ color: "#20ADA0" }} />,
-      label: "Email",
-      key: "email",
-    },
-    {
-      icon: <WcIcon sx={{ color: "#20ADA0" }} />,
-      label: "Gender",
-      key: "gender",
-    },
-    {
-      icon: <CalendarMonthIcon sx={{ color: "#20ADA0" }} />,
-      label: "Age",
-      key: "age",
-    },
-    {
-      icon: <Straighten sx={{ color: "#20ADA0" }} />,
-      label: "Height",
-      key: "height",
-    },
-    {
-      icon: <MonitorWeight sx={{ color: "#20ADA0" }} />,
-      label: "Weight",
-      key: "weight",
-    },
-    {
-      icon: <LocationOnIcon sx={{ color: "#20ADA0" }} />,
-      label: "Address",
-      key: "address",
-    },
-    {
-      icon: <FavoriteIcon sx={{ color: "#20ADA0" }} />,
-      label: "Blood Group",
-      key: "bloodGroup",
-    },
-    {
-      icon: <EventIcon sx={{ color: "#20ADA0" }} />,
-      label: "Marital Status",
-      key: "maritalStatus",
-    },
-  ].map((item, index) => (
-    <Box
-      key={index}
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        gap: 2,
-        px: 3,
-        py: 1,
-        borderRadius: "20px",
-        color: "#2C3E50",
-        fontSize: "0.9rem",
-        fontWeight: "500",
-        width: "85%",
-        maxWidth: "420px",
-        justifyContent: "space-between",
-        background: "#F1FAFA",
-        boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.05)",
-        border: "1px solid #20ADA0",
-        textAlign: "left",
-        transition: "0.3s ease-in-out",
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          gap: 1,
-          flex: 1,
-        }}
-      >
-        {item.icon}
-        <Typography
-          sx={{
-            fontWeight: 600,
-            fontSize: "0.9rem",
-            minWidth: "60px",
-          }}
-        >
-          {item.label}:
-        </Typography>
-      </Box>
-
-      <Box
-        sx={{
-          flex: 2,
-          textAlign: "left",
-          mr: 1,
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
-        {isEditing ? (
-          item.key === "gender" ? (
-            <Select
-              size="small"
-              value={editValues[item.key] || ""}
-              onChange={(e) =>
-                handleInputChange(item.key, e.target.value)
-              }
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                borderRadius: "12px",
+                p: 0.3,
+                my: 4,
+                width: "90%",
+                maxWidth: "500px",
+                textAlign: "center",
+                mx: "auto",
+                gap: 1,
+                boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.05)",
+              }}
             >
-              <MenuItem value="Male">Male</MenuItem>
-              <MenuItem value="Female">Female</MenuItem>
-              <MenuItem value="Other">Other</MenuItem>
-            </Select>
-          ) : (
-            <TextField
-              size="small"
-              value={editValues[item.key] || ""}
-              onChange={(e) =>
-                handleInputChange(item.key, e.target.value)
-              }
-              error={!!errors[item.key]}
-              helperText={errors[item.key]}
-            />
-          )
-        ) : (
-          <>
-            <Typography>{user?.[item.key] ?? "N/A"}</Typography>
-            {item.key === "contact" && (
-              <IconButton
-                sx={{ ml: 8 }}
-                onClick={() => {
-                  if (user?.contact) {
-                    navigator.clipboard.writeText(user.contact);
-                    snackbarAndNavigate(
-                      dispatch,
-                      true,
-                      "success",
-                      "Contact copied to clipboard!"
-                    );
-                  }
+              <Typography
+                variant="body1"
+                sx={{ fontWeight: "600", color: "#20ADA0", mb: 1 }}
+              >
+                Personal Information
+              </Typography>
+              {[
+                {
+                  icon: <PhoneIcon sx={{ color: "#20ADA0" }} />,
+                  label: "Contact",
+                  key: "contact",
+                },
+                {
+                  icon: <EmailIcon sx={{ color: "#20ADA0" }} />,
+                  label: "Email",
+                  key: "email",
+                },
+                {
+                  icon: <WcIcon sx={{ color: "#20ADA0" }} />,
+                  label: "Gender",
+                  key: "gender",
+                },
+                {
+                  icon: <CalendarMonthIcon sx={{ color: "#20ADA0" }} />,
+                  label: "Age",
+                  key: "age",
+                },
+                {
+                  icon: <Straighten sx={{ color: "#20ADA0" }} />,
+                  label: "Height",
+                  key: "height",
+                },
+                {
+                  icon: <MonitorWeight sx={{ color: "#20ADA0" }} />,
+                  label: "Weight",
+                  key: "weight",
+                },
+                {
+                  icon: <LocationOnIcon sx={{ color: "#20ADA0" }} />,
+                  label: "Address",
+                  key: "address",
+                },
+                {
+                  icon: <FavoriteIcon sx={{ color: "#20ADA0" }} />,
+                  label: "Blood Group",
+                  key: "bloodGroup",
+                },
+                {
+                  icon: <EventIcon sx={{ color: "#20ADA0" }} />,
+                  label: "Marital Status",
+                  key: "maritalStatus",
+                },
+              ].map((item, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                    px: 3,
+                    py: 1,
+                    borderRadius: "20px",
+                    color: "#2C3E50",
+                    fontSize: "0.9rem",
+                    fontWeight: "500",
+                    width: "85%",
+                    maxWidth: "420px",
+                    justifyContent: "space-between",
+                    background: "#F1FAFA",
+                    boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.05)",
+                    border: "1px solid #20ADA0",
+                    textAlign: "left",
+                    transition: "0.3s ease-in-out",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      flex: 1,
+                    }}
+                  >
+                    {item.icon}
+                    <Typography
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: "0.9rem",
+                        minWidth: "60px",
+                      }}
+                    >
+                      {item.label}:
+                    </Typography>
+                  </Box>
+
+                  <Box
+                    sx={{
+                      flex: 2,
+                      textAlign: "left",
+                      mr: 1,
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    {isEditing ? (
+                      item.key === "gender" ? (
+                        <Select
+                          size="small"
+                          value={editValues[item.key] || ""}
+                          onChange={(e) =>
+                            handleInputChange(item.key, e.target.value)
+                          }
+                        >
+                          <MenuItem value="Male">Male</MenuItem>
+                          <MenuItem value="Female">Female</MenuItem>
+                          <MenuItem value="Other">Other</MenuItem>
+                        </Select>
+                      ) : item.key === "maritalStatus" ? (
+                        <Select
+                          size="small"
+                          value={editValues[item.key] || "Unmarried"}
+                          onChange={(e) =>
+                            handleInputChange(item.key, e.target.value)
+                          }
+                        >
+                          <MenuItem value="Married">Married</MenuItem>
+                          <MenuItem value="Unmarried">Unmarried</MenuItem>
+                        </Select>
+                      ) : (
+                        <TextField
+                          size="small"
+                          value={
+                            item.key === "bloodGroup"
+                              ? editValues[item.key] || "A+"
+                              : editValues[item.key] || ""
+                          }
+                          onChange={(e) =>
+                            handleInputChange(item.key, e.target.value)
+                          }
+                          error={!!errors[item.key]}
+                          helperText={errors[item.key]}
+                        />
+                      )
+                    ) : (
+                      <Typography>
+                        {user?.[item.key] ??
+                          (item.key === "maritalStatus"
+                            ? "Unmarried"
+                            : item.key === "bloodGroup"
+                            ? "A+"
+                            : "N/A")}
+                      </Typography>
+                    )}
+                  </Box>
+                </Box>
+              ))}
+              {/* Visit Information Section */}
+              <Box
+                sx={{
+                  p: 1,
+                  borderRadius: "16px",
+                  background: "linear-gradient(145deg, #ffffff, #f8f9fa)",
+                  color: "#2C3E50",
+                  fontSize: "0.95rem",
+                  fontWeight: "500",
+                  border: "1px solid #E0E0E0",
+                  boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.1)",
+                  width: "90%",
+                  maxWidth: "520px",
+                  transition: "all 0.3s ease-in-out",
+                  "&:hover": {
+                    transform: "translateY(-5px)",
+                    boxShadow: "0px 12px 24px rgba(0, 0, 0, 0.1)",
+                  },
                 }}
               >
-                <ContentCopyIcon
-                  sx={{ color: "#20ADA0", fontSize: "15px" }}
-                />
-              </IconButton>
-            )}
-          </>
-        )}
-      </Box>
-    </Box>
-  ))}
-  {/* Visit Information Section */}
-  <Box
-    sx={{
-      p: 1,
-      borderRadius: "16px",
-      background: "linear-gradient(145deg, #ffffff, #f8f9fa)",
-      color: "#2C3E50",
-      fontSize: "0.95rem",
-      fontWeight: "500",
-      border: "1px solid #E0E0E0",
-      boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.1)",
-      width: "90%",
-      maxWidth: "520px",
-      transition: "all 0.3s ease-in-out",
-      "&:hover": {
-        transform: "translateY(-5px)",
-        boxShadow: "0px 12px 24px rgba(0, 0, 0, 0.1)",
-      },
-    }}
-  >
-    <Typography
-      variant="body1"
-      sx={{
-        fontWeight: "700",
-        color: "#20ADA0",
-        mb: 2,
-        textTransform: "uppercase",
-        letterSpacing: "0.5px",
-      }}
-    >
-      Visit Information
-    </Typography>
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      {/* Previous Visit */}
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          px: 2,
-          py: 1,
-          borderRadius: "8px",
-          backgroundColor: "#F1FAFA",
-          border: "1px solid #E0E0E0",
-          boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.05)",
-          transition: "all 0.3s ease-in-out",
-          "&:hover": {
-            backgroundColor: "#E6F7F2",
-            transform: "translateY(-2px)",
-          },
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <EventIcon sx={{ color: "#20ADA0" }} />
-          <Typography sx={{ fontWeight: 600, fontSize: "1rem" }}>
-            Previous Visit:
-          </Typography>
-        </Box>
-        <Typography
-          sx={{
-            fontSize: "0.95rem",
-            fontWeight: "500",
-            color: "#2C3E50",
-          }}
-        >
-          {previousVisit
-            ? `${new Date(
-                previousVisit.appointmentDate
-              ).toLocaleDateString()} at ${previousVisit.appointmentTime}`
-            : "N/A"}
-        </Typography>
-      </Box>
-      {/* Next Visit */}
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          px: 2,
-          py: 1,
-          borderRadius: "8px",
-          backgroundColor: "#F1FAFA",
-          border: "1px solid #E0E0E0",
-          boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.05)",
-          transition: "all 0.3s ease-in-out",
-          "&:hover": {
-            backgroundColor: "#E6F7F2",
-            transform: "translateY(-2px)",
-          },
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <EventIcon sx={{ color: "#20ADA0" }} />
-          <Typography sx={{ fontWeight: 600, fontSize: "1rem" }}>
-            Next Visit:
-          </Typography>
-        </Box>
-        <Typography
-          sx={{
-            fontSize: "0.95rem",
-            fontWeight: "500",
-            color: "#2C3E50",
-          }}
-        >
-          {nextVisit
-            ? `${new Date(
-                nextVisit.appointmentDate
-              ).toLocaleDateString()} at ${nextVisit.appointmentTime}`
-            : "N/A"}
-        </Typography>
-      </Box>
-    </Box>
-  </Box>
-</Box>
-
+                <Typography
+                  variant="body1"
+                  sx={{
+                    fontWeight: "700",
+                    color: "#20ADA0",
+                    mb: 2,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  Visit Information
+                </Typography>
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  {/* Previous Visit */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      px: 2,
+                      py: 1,
+                      borderRadius: "8px",
+                      backgroundColor: "#F1FAFA",
+                      border: "1px solid #E0E0E0",
+                      boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.05)",
+                      transition: "all 0.3s ease-in-out",
+                      "&:hover": {
+                        backgroundColor: "#E6F7F2",
+                        transform: "translateY(-2px)",
+                      },
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <EventIcon sx={{ color: "#20ADA0" }} />
+                      <Typography sx={{ fontWeight: 600, fontSize: "1rem" }}>
+                        Previous Visit:
+                      </Typography>
+                    </Box>
+                    <Typography
+                      sx={{
+                        fontSize: "0.95rem",
+                        fontWeight: "500",
+                        color: "#2C3E50",
+                      }}
+                    >
+                      {previousVisit
+                        ? `${new Date(
+                            previousVisit.appointmentDate
+                          ).toLocaleDateString()} at ${
+                            previousVisit.appointmentTime
+                          }`
+                        : "N/A"}
+                    </Typography>
+                  </Box>
+                  {/* Next Visit */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      px: 2,
+                      py: 1,
+                      borderRadius: "8px",
+                      backgroundColor: "#F1FAFA",
+                      border: "1px solid #E0E0E0",
+                      boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.05)",
+                      transition: "all 0.3s ease-in-out",
+                      "&:hover": {
+                        backgroundColor: "#E6F7F2",
+                        transform: "translateY(-2px)",
+                      },
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <EventIcon sx={{ color: "#20ADA0" }} />
+                      <Typography sx={{ fontWeight: 600, fontSize: "1rem" }}>
+                        Next Visit:
+                      </Typography>
+                    </Box>
+                    <Typography
+                      sx={{
+                        fontSize: "0.95rem",
+                        fontWeight: "500",
+                        color: "#2C3E50",
+                      }}
+                    >
+                      {nextVisit
+                        ? `${new Date(
+                            nextVisit.appointmentDate
+                          ).toLocaleDateString()} at ${
+                            nextVisit.appointmentTime
+                          }`
+                        : "N/A"}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
           </Box>
         </Grid>
 
