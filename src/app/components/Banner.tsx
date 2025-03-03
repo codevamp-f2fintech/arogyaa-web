@@ -78,9 +78,12 @@ const BannerComponent: React.FC = () => {
       <div className={styles.bannerContent}>
         <Box
           component="img"
-          className={styles.bannerImage}
           alt="The house from the offer."
-          src={"/assets/images/dr1.png"}
+          src={"/assets/images/Doctors-bro.png"}
+          sx={{
+            width: "400px",
+            marginLeft:"700px"
+          }}
         />
         <Box
           sx={{

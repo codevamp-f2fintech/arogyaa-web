@@ -46,7 +46,6 @@ const ExpertSpecialistSlider: React.FC = () => {
   const router = useRouter();
   const { value: data, swrLoading } = useGetDoctors(null, "get-doctors", 1, 6);
 
-
   const openModal = (doctor: DoctorData): void => {
     const userToken = Cookies.get("token");
     if (!userToken) {
@@ -70,6 +69,8 @@ const ExpertSpecialistSlider: React.FC = () => {
       dispatch(setDoctor(data));
     }
   }, [data, dispatch]);
+
+  console.log("selectddoc", doctor);
 
   const sliderSettings = useMemo(
     () => ({
@@ -116,7 +117,8 @@ const ExpertSpecialistSlider: React.FC = () => {
         <Typography variant="h5" component="h5" className={styles.title1}>
           {en.homepage.expertSpecialistSlider.title1}
         </Typography>
-        <h1 id="docoters"
+        <h1
+          id="docoters"
           style={{
             textAlign: "center",
             marginBottom: "20px",
@@ -274,6 +276,19 @@ const ExpertSpecialistSlider: React.FC = () => {
                     >
                       <Chip
                         icon={<SchoolIcon sx={{ color: "#20ADA0" }} />}
+                        label={`${doctor.qualificationIds[0]?.name}`}
+                        variant="outlined"
+                        size="small"
+                        sx={{
+                          borderColor: "#20ADA0",
+                          "&:hover": {
+                            backgroundColor: "rgba(32, 173, 160, 0.05)",
+                            borderColor: "#20ADA0",
+                          },
+                        }}
+                      />
+                      <Chip
+                        icon={<SchoolIcon sx={{ color: "#20ADA0" }} />}
                         label={`${doctor.experience} Years Exp.`}
                         variant="outlined"
                         size="small"
@@ -345,6 +360,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                       onClick={() => openModal(doctor)}
                       startIcon={<EventIcon />}
                       sx={{
+                        bottom: "20px",
                         background: "#20ADA0",
                         borderRadius: "25px",
                         padding: "8px 24px",

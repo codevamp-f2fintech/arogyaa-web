@@ -62,6 +62,7 @@ const SpecialitySlider: React.FC = () => {
       autoplaySpeed: 3000,
       lazyLoad: "progressive",
       pauseOnHover: true,
+      autoplay: true,
       cssEase: "cubic-bezier(0.4, 0, 0.2, 1)",
       responsive: [
         {
@@ -118,37 +119,37 @@ const SpecialitySlider: React.FC = () => {
       </Typography>
 
       <Box
-        sx={{
-          ".slick-slide": {
-            px: 1.5,
-          },
-          ".slick-dots": {
-            bottom: -40,
-            "& li button:before": {
-              fontSize: 12,
-              color: "#20ada0",
-              opacity: 0.4,
-            },
-            "& li.slick-active button:before": {
-              opacity: 1,
-            },
-          },
-          ".slick-prev, .slick-next": {
-            zIndex: 1,
-            width: 40,
-            height: 40,
-            "&:before": {
-              fontSize: 40,
-              color: "#20ada0",
-            },
-          },
-          ".slick-prev": {
-            left: { xs: -20, md: -40 },
-          },
-          ".slick-next": {
-            right: { xs: -20, md: -40 },
-          },
-        }}
+        // sx={{
+        //   ".slick-slide": {
+        //     px: 1.5,
+        //   },
+        //   ".slick-dots": {
+        //     bottom: -40,
+        //     "& li button:before": {
+        //       fontSize: 12,
+        //       color: "#20ada0",
+        //       opacity: 0.4,
+        //     },
+        //     "& li.slick-active button:before": {
+        //       opacity: 1,
+        //     },
+        //   },
+        //   ".slick-prev, .slick-next": {
+        //     zIndex: 1,
+        //     width: 40,
+        //     height: 40,
+        //     "&:before": {
+        //       fontSize: 40,
+        //       color: "#20ada0",
+        //     },
+        //   },
+        //   ".slick-prev": {
+        //     left: { xs: -20, md: -40 },
+        //   },
+        //   ".slick-next": {
+        //     right: { xs: -20, md: -40 },
+        //   },
+        // }}
       >
         <Slider {...sliderSettings}>
           {speciality && speciality?.results?.length > 0 ? (
