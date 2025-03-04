@@ -595,6 +595,8 @@ export default function ModernDoctorProfile() {
                           padding: "8px",
                           backgroundColor: "#f5f5f5",
                           boxShadow: "3px 2px 2px rgba(0, 0, 0, 0.1)",
+                          height: "150px",
+                          width: "auto",
                         }}
                       >
                         {/* Education and Qualifications Section */}
@@ -653,7 +655,7 @@ export default function ModernDoctorProfile() {
                               display: "flex",
                               flexWrap: "wrap",
                               gap: "4px",
-                              mt: 1, 
+                              mt: 1,
                             }}
                           >
                             {doctor.tags?.length > 0 ? (
@@ -699,29 +701,53 @@ export default function ModernDoctorProfile() {
                             mt: 1,
                             display: "flex",
                             alignItems: "center",
+                            flexWrap: "wrap", // Ensures proper wrapping for long text
                           }}
                         >
                           <LocationOnIcon
                             sx={{ fontSize: 16, color: "#20ADA0", mr: 1 }}
                           />
                           {doctor.address || "Doctor Location"}
-                          <span style={{ marginLeft: "8px" }}>|</span>{" "}
+
+                          {/* Hospital Affiliations */}
                           {doctor.hospitalAffiliations &&
-                          doctor.hospitalAffiliations.length > 0
-                            ? doctor.hospitalAffiliations.map(
+                          doctor.hospitalAffiliations.length > 0 ? (
+                            <>
+                              <span style={{ margin: "0 8px" }}>||</span>{" "}
+                              {/* Separator before hospitals */}
+                              {doctor.hospitalAffiliations.map(
                                 (hospital, index) => (
-                                  <span
+                                  <Typography
                                     key={index}
-                                    style={{ marginLeft: "8px" }}
+                                    variant="body2"
+                                    sx={{
+                                      display: "inline",
+                                      color: "#333",
+                                      fontWeight: "500",
+                                    }}
                                   >
                                     {hospital}
                                     {index <
-                                      doctor.hospitalAffiliations.length - 1 &&
-                                      " | "}
-                                  </span>
+                                      doctor.hospitalAffiliations.length -
+                                        1 && (
+                                      <span
+                                        style={{
+                                          margin: "0 8px",
+                                          color: "#888",
+                                        }}
+                                      >
+                                        ||
+                                      </span>
+                                    )}
+                                  </Typography>
                                 )
-                              )
-                            : "Hospital Name"}
+                              )}
+                            </>
+                          ) : (
+                            <span style={{ marginLeft: "8px" }}>
+                              || Hospital Name
+                            </span>
+                          )}
                         </Typography>
                       </Box>
                     </Box>
@@ -733,7 +759,7 @@ export default function ModernDoctorProfile() {
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      padding: "12px 20px",
+                      padding: "7px 20px",
                       backgroundColor: "#fff",
                       borderTop: "1px solid #f0f0f0",
                       borderBottom: "1px solid #f0f0f0",
@@ -839,7 +865,6 @@ export default function ModernDoctorProfile() {
                 alignItems: "center",
                 justifyContent: "center",
                 flexDirection: "column",
-
                 borderRadius: "12px",
                 marginLeft: "20px",
 
