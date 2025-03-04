@@ -236,7 +236,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                   </Box>
 
                   {/* Enhanced Content */}
-                  <Box sx={{ mt: 8, p: 2, textAlign: "center" }}>
+                  <Box sx={{ mt: 6, p: 2, textAlign: "center" }}>
                     <Typography
                       variant="h6"
                       sx={{
@@ -268,65 +268,92 @@ const ExpertSpecialistSlider: React.FC = () => {
                     <Box
                       sx={{
                         display: "flex",
-                        justifyContent: "center",
+                        flexDirection: "column",
+                        alignItems: "center",
                         gap: 1,
                         mb: 2,
-                        flexWrap: "wrap",
                       }}
                     >
-                      <Chip
-                        icon={<SchoolIcon sx={{ color: "#20ADA0" }} />}
-                        label={`${doctor.qualificationIds[0]?.name}`}
-                        variant="outlined"
-                        size="small"
+                
+                      <Box
                         sx={{
-                          borderColor: "#20ADA0",
-                          "&:hover": {
-                            backgroundColor: "rgba(32, 173, 160, 0.05)",
-                            borderColor: "#20ADA0",
-                          },
+                          display: "flex",
+                          justifyContent: "center",
+                          gap: 1,
+                          flexWrap: "wrap", // Wrap if too long
                         }}
-                      />
-                      <Chip
-                        icon={<SchoolIcon sx={{ color: "#20ADA0" }} />}
-                        label={`${doctor.experience} Years Exp.`}
-                        variant="outlined"
-                        size="small"
+                      >
+                        {doctor.qualificationIds?.map(
+                          (qualification, index) => (
+                            <Chip
+                              key={index}
+                              icon={<SchoolIcon sx={{ color: "#20ADA0" }} />}
+                              label={qualification.name}
+                              variant="outlined"
+                              size="small"
+                              sx={{
+                                borderColor: "#20ADA0",
+                                "&:hover": {
+                                  backgroundColor: "rgba(32, 173, 160, 0.05)",
+                                  borderColor: "#20ADA0",
+                                },
+                              }}
+                            />
+                          )
+                        )}
+                      </Box>
+
+                      <Box
                         sx={{
-                          borderColor: "#20ADA0",
-                          "&:hover": {
-                            backgroundColor: "rgba(32, 173, 160, 0.05)",
-                            borderColor: "#20ADA0",
-                          },
+                          display: "flex",
+                          justifyContent: "center",
+                          gap: 1,
+                          flexWrap: "wrap",
                         }}
-                      />
-                      <Chip
-                        icon={<LocationOnIcon sx={{ color: "#20ADA0" }} />}
-                        label="Location"
-                        variant="outlined"
-                        size="small"
-                        sx={{
-                          borderColor: "#20ADA0",
-                          "&:hover": {
-                            backgroundColor: "rgba(32, 173, 160, 0.05)",
+                      >
+                        <Chip
+                          icon={<SchoolIcon sx={{ color: "#20ADA0" }} />}
+                          label={`${doctor.experience} Years Exp.`}
+                          variant="outlined"
+                          size="small"
+                          sx={{
                             borderColor: "#20ADA0",
-                          },
-                        }}
-                      />
+                            "&:hover": {
+                              backgroundColor: "rgba(32, 173, 160, 0.05)",
+                              borderColor: "#20ADA0",
+                            },
+                          }}
+                        />
+
+                        <Chip
+                          icon={<LocationOnIcon sx={{ color: "#20ADA0" }} />}
+                          label="Location"
+                          variant="outlined"
+                          size="small"
+                          sx={{
+                            borderColor: "#20ADA0",
+                            "&:hover": {
+                              backgroundColor: "rgba(32, 173, 160, 0.05)",
+                              borderColor: "#20ADA0",
+                            },
+                          }}
+                        />
+                      </Box>
                     </Box>
 
                     <Rating
-                      value={4.5}
-                      precision={0.5}
-                      readOnly
-                      size="small"
-                      sx={{
-                        mb: 2,
-                        "& .MuiRating-iconFilled": {
-                          color: "#20ADA0",
-                        },
-                      }}
-                    />
+  value={doctor.rating || 0} // Fetch rating from API, default to 0 if not available
+  precision={0.5}
+  readOnly
+  size="small"
+  sx={{
+    mb: 2,
+    "& .MuiRating-iconFilled": {
+      color: "#20ADA0",
+    },
+  }}
+/>
+
 
                     <Divider
                       sx={{
