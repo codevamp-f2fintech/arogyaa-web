@@ -196,7 +196,7 @@ export default function ModernDoctorProfile() {
     const userToken = Cookies.get("token");
     if (!userToken) {
       const encodedReturnUrl = encodeURIComponent(
-        `/doctor?autoBookDoctorId=${doctor._id}`
+        `/doctors?autoBookDoctorId=${doctor._id}`
       );
       router.push(`/signup?redirect=${encodedReturnUrl}`);
       return;

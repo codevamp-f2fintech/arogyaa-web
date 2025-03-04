@@ -209,7 +209,7 @@ const SymptomCards = () => {
                           }}
                         >
                           <img
-                            src={symptom.icon}
+                            src={symptom.icon || "/assets/images/online-doctor-with-white-coat.png"}
                             alt={symptom.name}
                             style={{ width: 40, height: 40 }}
                           />

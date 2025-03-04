@@ -243,7 +243,7 @@ const DrProfile: React.FC = () => {
     const userToken = Cookies.get("token");
     if (!userToken) {
       const encodedReturnUrl = encodeURIComponent(
-        `/doctor?autoBookDoctorId=${profileData?.data?._id}`
+        `/doctors?autoBookDoctorId=${profileData?.data?._id}`
       );
       router.push(`/signup?redirect=${encodedReturnUrl}`);
       return;
