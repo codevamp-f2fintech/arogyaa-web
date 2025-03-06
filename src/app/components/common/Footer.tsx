@@ -128,21 +128,22 @@ const Footer = () => {
 
   // Mock data - would typically come from a localization file
   const content = {
-    title: "Arogya HealthCare",
+    title: "Arogyaa",
     tagline: "The Best Medical Care for Your Family",
-    address: "123 Healthcare Avenue, Medical District",
-    phone: "+1 (800) AROGYA-HEALTH",
-    email: "contact@arogyahealthcare.com",
+    address:
+      "A-25, M-1 Arv Park, A-Block, Sector-63, Noida Utter Pradesh - 201301",
+    phone: "+918810600135",
+    email: "wecare@f2fintech.com",
     sections: {
       pages: {
         title: "Pages",
         items: [
           { label: "Doctors", route: "/doctors", icon: <MedicalServices /> },
-          { label: "Clinics", route: "/clinics", icon: <LocalHospital /> },
-          { label: "About Us", route: "/about", icon: <MedicalServices /> },
+          // { label: "Clinics", route: "/clinics", icon: <LocalHospital /> },
+          { label: "About Us", route: "#", icon: <MedicalServices /> },
           {
             label: "Our Services",
-            route: "/services",
+            route: "#specialitiesSection",
             icon: <MedicalServices />,
           },
         ],
@@ -150,10 +151,8 @@ const Footer = () => {
       support: {
         title: "Support",
         items: [
-          { label: "Appointments", route: "/appointments" },
-          { label: "Find a Doctor", route: "/find-doctor" },
-          { label: "Emergency Care", route: "/emergency" },
-          { label: "Patient Portal", route: "/portal" },
+          { label: "Appointments", route: "#" },
+          { label: "Emergency Care", route: "#" },
         ],
       },
     },
@@ -163,15 +162,23 @@ const Footer = () => {
         {
           Icon: InstagramIcon,
           label: "Instagram",
-          link: "https://www.instagram.com",
+          link: "https://www.instagram.com/f2fintech?igsh=YXgzdmRubmlwMTY4",
         },
         {
           Icon: FacebookIcon,
           label: "Facebook",
-          link: "https://www.facebook.com",
+          link: "https://www.facebook.com/share/1RQwbHLbyL/?mibextid=qi2Omg",
         },
-        { Icon: XIcon, label: "Twitter", link: "https://twitter.com" },
-        { Icon: LinkedIn, label: "LinkedIn", link: "https://www.linkedin.com" },
+        {
+          Icon: XIcon,
+          label: "Twitter",
+          link: "https://x.com/i/flow/login?redirect_after_login=%2Ff2fintech",
+        },
+        {
+          Icon: LinkedIn,
+          label: "LinkedIn",
+          link: "https://www.linkedin.com/posts/f2fintech_financialawareness-f2fintech-moneymantra-activity-7245737850351038464-EkBM?utm_source=share&utm_medium=member_android&rcm=ACoAADDeB8cBMnXt2Wdr6xQehwWWtg2UOGLWAIg",
+        },
       ],
     },
     newsletter: {
@@ -179,14 +186,18 @@ const Footer = () => {
       description: "Subscribe to our newsletter for health tips and updates",
     },
     copyright:
-      "© Copyright 2024, All rights reserved with Arogya HealthCare — Healing with Care",
+      "© Copyright 2024, All rights reserved with Arogyaa HealthCare — Healing with Care",
     bottomLinks: [
       { label: "Privacy Policy", route: "/privacy" },
       { label: "Terms of Service", route: "/terms" },
       { label: "FAQ", route: "/faq" },
-      { label: "Sitemap", route: "/sitemap" },
+      // { label: "Sitemap", route: "/sitemap" },
     ],
   };
+
+  const googleMapsLink = `https://www.google.com/maps/search/?q=${encodeURIComponent(
+    content.address
+  )}`;
 
   // Section Title component
   const SectionTitle = ({ children }) => (
@@ -291,7 +302,11 @@ const Footer = () => {
 
               {/* Contact Information */}
               <Stack spacing={3} sx={{ mt: 2 }}>
-                <ContactItem Icon={LocationOn} text={content.address} />
+                <ContactItem
+                  Icon={LocationOn}
+                  text={content.address}
+                  link={googleMapsLink}
+                />
                 <ContactItem Icon={Phone} text={content.phone} />
                 <ContactItem Icon={Email} text={content.email} />
               </Stack>
@@ -411,7 +426,7 @@ const Footer = () => {
                   Subscribe
                 </Button>
               </Stack>
-            </Paper> */}  
+            </Paper> */}
           </Grid>
         </Grid>
 
@@ -445,14 +460,14 @@ const Footer = () => {
                   color: THEME.colors.text.light,
                 }}
               >
-                {content.copyright.split("Arogya HealthCare")[0]}
+                {content.copyright.split("Arogyaa HealthCare")[0]}
                 <Box
                   component="span"
                   sx={{ color: THEME.colors.primary, mx: 1 }}
                 >
-                  Arogya
+                  Arogyaa
                 </Box>
-                {content.copyright.split("Arogya HealthCare")[1]}
+                {content.copyright.split("Arogyaa HealthCare")[1]}
               </Typography>
             </Grid>
             <Grid item xs={12} md={6}>

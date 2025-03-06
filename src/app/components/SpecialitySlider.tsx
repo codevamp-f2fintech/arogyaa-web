@@ -94,6 +94,7 @@ const SpecialitySlider: React.FC = () => {
 
   return (
     <Container
+    id="specialitiesSection" 
       maxWidth={false}
       sx={{
         maxWidth: "1400px",

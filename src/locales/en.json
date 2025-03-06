@@ -1,6 +1,6 @@
 {
   "topbar": {
-    "title": "AROGYA",
+    "title": "AROGYAA",
     "appointment": "Book Appointment"
   },
   "homepage": {
@@ -25,14 +25,14 @@
       "randomText": "Lorem Ipsum Lorem Ipsum"
     },
     "symptomCards": {
-      "title1": "Common",
+      "title1": " Pick your ",
       "title2": "Health Concerns",
       "buttonText": "View All"
     },
     "aboutUs": {
       "title1": "About",
-      "title2": "Arogya",
-      "description": "Arogya is the largest multi-channel digital healthcare platform in India, created with a vision of eliminating flexibility blockages from the healthcare industry. We believe in making healthcare affordable to everyone by combining analytic excellence, affordable cost, and extensive research with advanced technology.",
+      "title2": "Arogyaa",
+      "description": "Arogyaa is the largest multi-channel digital healthcare platform in India, created with a vision of eliminating flexibility blockages from the healthcare industry. We believe in making healthcare affordable to everyone by combining analytic excellence, affordable cost, and extensive research with advanced technology.",
       "cardTitle1": "30 +",
       "cardDescription1": "We have 30 + best doctors",
       "cardTitle2": "15 +",
@@ -51,12 +51,12 @@
     }
   },
   "footer": {
-    "title": "AROGYA",
+    "title": "AROGYAA",
     "the_best_medical": "The Best Medical and Treatment Center For You",
-    "dated": "Arogya 2024",
+    "dated": "Arogyaa 2024",
     "social": "Stay In Touch" ,
     "button": "Subscribe",
-    "copyright": "© Copyright 2024, All rights reserved with Arogya HealtCare",
+    "copyright": "© Copyright 2024, All rights reserved with Arogyaa HealtCare",
     "contact_section": {
       "title": "Contact Us",
       "opening_hours": "Opening hours: 09:00 - 20:00",
