@@ -46,6 +46,7 @@ const BannerComponent: React.FC = () => {
         "doctor",
         `get-doctors?keyword=${encodeURIComponent(searchTerm)}`
       );
+
       if (response && response.results && Array.isArray(response.results)) {
         setResults(response.results);
       } else {
@@ -82,7 +83,7 @@ const BannerComponent: React.FC = () => {
           src={"/assets/images/Doctors-bro.png"}
           sx={{
             width: "400px",
-            marginLeft:"700px"
+            marginLeft: "700px",
           }}
         />
         <Box
@@ -156,7 +157,7 @@ const BannerComponent: React.FC = () => {
             <InputBase
               value={keyword}
               onChange={handleChange}
-              placeholder="Search by Doctors and Specialties"
+              placeholder="Search by name, specialties and location"
               inputProps={{ "aria-label": "search" }}
               sx={{
                 flex: 1,
@@ -183,7 +184,7 @@ const BannerComponent: React.FC = () => {
         {/* Display search results */}
         <Box
           sx={{
-            marginTop: "21.4rem",
+            marginTop: "-3.9rem",
             marginLeft: "3rem",
             backgroundColor: "rgba(255, 255, 255, 0.90)",
             position: "relative",

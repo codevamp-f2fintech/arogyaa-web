@@ -103,6 +103,23 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
     }
   };
 
+  const getEmojiForRating = (rating: number) => {
+    switch (rating) {
+      case 1:
+        return "😠"; 
+      case 2:
+        return "😞"; 
+      case 3:
+        return "😐"; 
+      case 4:
+        return "🙂";
+      case 5:
+        return "😃"; 
+      default:
+        return "";
+    }
+  };
+
   return (
     <Dialog
       open={open}
@@ -179,6 +196,13 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
                 "& .MuiRating-iconHover": { color: "#FFA500" },
               }}
             />
+            <Typography
+              variant="h5"
+              sx={{ marginTop: "10px", fontSize: "2rem" }}
+            >
+              {getEmojiForRating(formData.rating)}
+            </Typography>
+
             {errors.rating && (
               <Typography color="error">{errors.rating}</Typography>
             )}
