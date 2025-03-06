@@ -70,8 +70,6 @@ const ExpertSpecialistSlider: React.FC = () => {
     }
   }, [data, dispatch]);
 
-  console.log("selectddoc", doctor);
-
   const sliderSettings = useMemo(
     () => ({
       dots: true,

@@ -66,7 +66,6 @@ const AboutUs: React.FC = () => {
               sx={{
                 width: "100%",
                 maxWidth: { xs: "280px", sm: "380px", md: "100%" },
-                height: "550px",
                 borderRadius: "20px",
                 boxShadow: "0 20px 40px rgba(32, 173, 160, 0.15)",
                 transition: "transform 0.5s ease",
@@ -140,8 +139,8 @@ const AboutUs: React.FC = () => {
                       sx={{
                         cursor: "pointer",
                         p: 3,
-                        height: "100%",
-                        minHeight: "220px",
+                        height: "85%",
+                        minHeight: "150px",
                         borderRadius: "16px",
                         textAlign: "center",
                         overflow: "hidden",
