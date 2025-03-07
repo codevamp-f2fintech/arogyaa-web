@@ -43,8 +43,9 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import SearchIcon from "@mui/icons-material/Search";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
-
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import SchoolIcon from "@mui/icons-material/School";
+import PhoneIcon from "@mui/icons-material/Phone";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import { useGetDoctors } from "@/hooks/doctor";
 import { fetcher } from "@/apis/apiClient";
@@ -150,6 +151,8 @@ export default function ModernDoctorProfile() {
   const [keyword, setKeyword] = useState<string>("");
   const [debouncedKeyword, setDebouncedKeyword] = useState<string>("");
   const [isTyping, setIsTyping] = useState(false);
+  const [visibleContactId, setVisibleContactId] = useState(null);
+
   const [filters, setFilters] = useState({
     gender: "",
     experienceFilter: "",
@@ -314,7 +317,7 @@ export default function ModernDoctorProfile() {
                 value={keyword}
                 onChange={handleChange}
                 className={styles.searchBarInput}
-                placeholder="Search by name and Specialties"
+                placeholder="Search by name, specialties and location"
                 inputProps={{ "aria-label": "search" }}
                 sx={{
                   flex: 1,
@@ -547,20 +550,114 @@ export default function ModernDoctorProfile() {
                   >
                     {/* Doctor Image */}
                     <Box
-                      component="img"
-                      alt="Doctor"
-                      src={
-                        doctor.profilePicture ||
-                        "/assets/images/online-doctor-with-white-coat.png"
-                      }
                       sx={{
-                        width: "80px",
-                        height: "80px",
-                        borderRadius: "50%",
-                        objectFit: "cover",
-                        border: "2px solid #20ADA0",
+                        position: "relative",
+                        display: "inline-block",
                       }}
-                    />
+                    >
+                      {/* Doctor Profile Picture */}
+                      <Box
+                        component="img"
+                        alt="Doctor"
+                        src={
+                          doctor.profilePicture ||
+                          "/assets/images/online-doctor-with-white-coat.png"
+                        }
+                        sx={{
+                          width: { xs: "60px", sm: "80px", md: "100px" },
+                          height: { xs: "60px", sm: "80px", md: "100px" },
+                          borderRadius: "50%",
+                          objectFit: "cover",
+                          border: "3px solid #20ADA0",
+                          boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                          transition: "transform 0.3s ease",
+                          "&:hover": {
+                            transform: "scale(1.05)",
+                          },
+                        }}
+                      />
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          gap: "4px", // Slightly increased spacing for better alignment
+                          marginTop: "6px",
+                        }}
+                      >
+                        <Button
+                          variant="contained"
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: "4px",
+                            background:
+                              "linear-gradient(135deg, #B3E5FC, #81D4FA)",
+                            color: "#0277BD",
+                            padding: "4px 8px", // Reduced padding
+                            minWidth: "40px", // Compact size
+                            borderRadius: "15px",
+                            fontWeight: "500",
+                            textTransform: "none",
+                            boxShadow: "0px 3px 8px rgba(0, 0, 0, 0.1)",
+                            transition: "all 0.3s ease",
+                            "&:hover": {
+                              background:
+                                "linear-gradient(135deg, #81D4FA, #4FC3F7)",
+                              transform: "scale(1.04)",
+                            },
+                          }}
+                          onClick={() =>
+                            setVisibleContactId((prev) =>
+                              prev === doctor._id ? null : doctor._id
+                            )
+                          } // Toggle only the clicked doctor
+                        >
+                          {visibleContactId === doctor._id ? (
+                            <Typography
+                              sx={{
+                                fontSize: "12px",
+                                fontWeight: "bold",
+                                color: "#0277BD",
+                              }}
+                            >
+                              {doctor.contact}
+                            </Typography>
+                          ) : (
+                            <PhoneIcon sx={{ fontSize: "18px" }} />
+                          )}
+                        </Button>
+
+                        {/* WhatsApp Chat Button */}
+                        {doctor.contact && (
+                          <Button
+                            variant="contained"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              backgroundColor: "#25D366",
+                              color: "#fff",
+                              padding: "4px 8px", // Reduced padding for compact size
+                              minWidth: "40px",
+                              borderRadius: "15px",
+                              fontWeight: "500",
+                              textTransform: "none",
+                              boxShadow: "0px 3px 8px rgba(0, 0, 0, 0.1)",
+                              transition: "all 0.3s ease",
+                            }}
+                            onClick={() =>
+                              window.open(
+                                `https://wa.me/${doctor.contact}`,
+                                "_blank"
+                              )
+                            }
+                          >
+                            <WhatsAppIcon sx={{ fontSize: "18px" }} />
+                          </Button>
+                        )}
+                      </Box>
+                    </Box>
 
                     {/* Doctor Info */}
                     <Box sx={{ marginLeft: "15px", flex: 1 }}>
@@ -648,7 +745,7 @@ export default function ModernDoctorProfile() {
                           </Box>
                         </Box>
 
-                        {/* Tags / Specialization Section with LocalOfferIcon */}
+                        {/* Tags / Specialization Section */}
                         <Box sx={{ display: "flex", flexDirection: "column" }}>
                           <Box
                             sx={{
@@ -752,6 +849,7 @@ export default function ModernDoctorProfile() {
                       </Box>
                     </Box>
                   </Box>
+                  {/* WhatsApp & Phone Icons Positioned Below the Profile Picture */}
 
                   {/* Details Section */}
                   <Box
@@ -867,7 +965,6 @@ export default function ModernDoctorProfile() {
                 flexDirection: "column",
                 borderRadius: "12px",
                 marginLeft: "20px",
-
                 padding: "20px",
               }}
             >

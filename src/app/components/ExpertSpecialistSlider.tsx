@@ -272,7 +272,6 @@ const ExpertSpecialistSlider: React.FC = () => {
                         mb: 2,
                       }}
                     >
-                
                       <Box
                         sx={{
                           display: "flex",
@@ -325,7 +324,7 @@ const ExpertSpecialistSlider: React.FC = () => {
 
                         <Chip
                           icon={<LocationOnIcon sx={{ color: "#20ADA0" }} />}
-                          label="Location"
+                          label={`${doctor.address}`}
                           variant="outlined"
                           size="small"
                           sx={{
@@ -340,18 +339,17 @@ const ExpertSpecialistSlider: React.FC = () => {
                     </Box>
 
                     <Rating
-  value={doctor.rating || 0} // Fetch rating from API, default to 0 if not available
-  precision={0.5}
-  readOnly
-  size="small"
-  sx={{
-    mb: 2,
-    "& .MuiRating-iconFilled": {
-      color: "#20ADA0",
-    },
-  }}
-/>
-
+                      value={doctor.rating || 0} 
+                      precision={0.5}
+                      readOnly
+                      size="small"
+                      sx={{
+                        mb: 2,
+                        "& .MuiRating-iconFilled": {
+                          color: "#20ADA0",
+                        },
+                      }}
+                    />
 
                     <Divider
                       sx={{
