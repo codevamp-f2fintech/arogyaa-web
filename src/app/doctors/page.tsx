@@ -876,7 +876,7 @@ export default function ModernDoctorProfile() {
                     >
                       <WorkIcon fontSize="small" sx={{ color: "#20ADA0" }} />
                       {doctor.experience
-                        ? `${doctor.experience} Years Experience`
+                        ? `${doctor.experience} Years of Experience`
                         : "Experience Not Available"}
                     </Typography>
                     <Typography

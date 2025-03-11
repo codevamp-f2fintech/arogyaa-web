@@ -224,7 +224,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
         setLoading(false);
       }
     },
-    [data?._id, createAppointment] 
+    [data?._id, createAppointment]
   );
 
   const priceWrapSx = {
@@ -713,30 +713,97 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         />
                         <Field name="video">
                           {({ field }) => (
-                            <Box>
+                            <Box
+                              sx={{
+                                mt: 2,
+                                p: 2,
+                                border: "1px solid #e0e0e0",
+                                borderRadius: "8px",
+                                backgroundColor: "#f8f8ff",
+                                boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+                                transition: "all 0.3s ease",
+                                "&:hover": {
+                                  boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                                  borderColor: "#20ADA0",
+                                },
+                              }}
+                            >
                               <Typography
+                                variant="h6"
                                 sx={{
                                   fontSize: "1rem",
-                                  fontWeight: 500,
+                                  fontWeight: 600,
                                   color: "#20ADA0",
-                                  marginBottom: "8px",
+                                  mb: 1,
+                                  display: "flex",
+                                  alignItems: "center",
                                 }}
                               >
+                                <BookOnlineIcon sx={{ mr: 1 }} />
                                 Upload a Video
                               </Typography>
+
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  mb: 2,
+                                  color: "#555",
+                                  backgroundColor: "rgba(32, 173, 160, 0.1)",
+                                  p: 1.5,
+                                  borderRadius: "4px",
+                                  borderLeft: "4px solid #20ADA0",
+                                  fontWeight: 400,
+                                }}
+                              >
+                                <strong>
+                                  Explain your symptoms in video (optional):
+                                </strong>{" "}
+                                "Record a short video explaining your symptoms,
+                                This will help your doctor prepare for your
+                                appointment."
+                              </Typography>
+
                               <TextField
                                 type="file"
                                 inputProps={{ accept: "video/*" }}
                                 onChange={(event) => {
                                   const file = event.target.files?.[0];
-                                  setFieldValue("videoUrl", file);
+                                  if (file && file.size > 50 * 1024 * 1024) {
+                                    // 50MB in bytes
+                                    alert(
+                                      "File size exceeds 50MB. Please upload a smaller file."
+                                    );
+                                  } else {
+                                    setFieldValue("videoUrl", file);
+                                  }
                                 }}
                                 fullWidth
+                                variant="outlined"
+                                placeholder="No file chosen"
+                                InputProps={{
+                                  startAdornment: (
+                                    <InputAdornment position="start">
+                                      <CalendarMonthIcon
+                                        sx={{ color: "#20ADA0" }}
+                                      />
+                                    </InputAdornment>
+                                  ),
+                                }}
                                 sx={{
-                                  "& input": {
-                                    background: "#fff",
+                                  "& .MuiOutlinedInput-root": {
+                                    backgroundColor: "#fff",
                                     borderRadius: "6px",
-                                    padding: "10px",
+                                    "&:hover .MuiOutlinedInput-notchedOutline":
+                                      {
+                                        borderColor: "#20ADA0",
+                                      },
+                                    "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                      {
+                                        borderColor: "#20ADA0",
+                                      },
+                                  },
+                                  "& input": {
+                                    padding: "12px 10px 12px 0",
                                   },
                                 }}
                                 error={
@@ -744,6 +811,13 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                                 }
                                 helperText={touched.videoUrl && errors.videoUrl}
                               />
+
+                              <Typography
+                                variant="caption"
+                                sx={{ display: "block", mt: 1, color: "#666" }}
+                              >
+                                Supported formats: MP4, MOV, AVI (max size 50MB)
+                              </Typography>
                             </Box>
                           )}
                         </Field>
