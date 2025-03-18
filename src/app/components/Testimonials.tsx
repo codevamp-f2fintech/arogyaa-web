@@ -78,7 +78,7 @@ const Testimonials = () => {
                   variant="body1"
                   className={styles.testimonialDescription}
                 >
-                  “{testimonial.review}”
+                  “{testimonial?.review}”
                 </Typography>
 
                 {/* Doctor's Name with Icon */}
@@ -88,7 +88,7 @@ const Testimonials = () => {
                   sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px" }}
                 >
                  
-                  {testimonial.doctorId.username}
+                  {testimonial?.doctorId?.username}
                 </Typography>
 
                 {/* Star Rating with Icon */}
@@ -96,7 +96,7 @@ const Testimonials = () => {
                  
                   <Rating
                     sx={{ color: "#20ADA0" }}
-                    value={testimonial.rating}
+                    value={testimonial?.rating}
                     readOnly
                     precision={0.1}
                   />

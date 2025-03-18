@@ -209,7 +209,7 @@ const DrProfile: React.FC = () => {
       fetchTestimonials();
     }
   }, [doctorId]);
- 
+
   const fetchProfileData = async () => {
     try {
       const response: ProfileData = await fetcher(
@@ -349,14 +349,29 @@ const DrProfile: React.FC = () => {
                       }}
                     >
                       {profileData.data?.username || "Doctor Name"}
-                      <VerifiedIcon
-                        sx={{
-                          background: "#20ADA0",
-                          color: "#fff",
-                          marginLeft: "10px",
-                          fontSize: "24px",
-                        }}
-                      />
+
+                      {/* Conditionally render Verified Badge */}
+                      {profileData.data?.isVerified && (
+                        <>
+                          <VerifiedIcon
+                            sx={{
+                              color: "#FFD700",
+                              marginLeft: "10px",
+                              fontSize: "24px",
+                            }}
+                          />
+                          <Typography
+                            sx={{
+                              fontSize: "14px",
+                              fontWeight: "500",
+                              color: "#FFD700",
+                              marginLeft: "5px",
+                            }}
+                          >
+                            Verified by Arogyaa
+                          </Typography>
+                        </>
+                      )}
                     </Typography>
                     {/* Specialties / Tags Section */}
                     <Box
@@ -701,7 +716,7 @@ const DrProfile: React.FC = () => {
                     "& .MuiTab-root": {
                       textTransform: "none",
                       backgroundColor: "#f0f0f5",
-                      height: "48px", 
+                      height: "48px",
                       "&.Mui-selected": {
                         backgroundColor: "#fff",
                         color: "#20ada0",
@@ -710,7 +725,7 @@ const DrProfile: React.FC = () => {
                         borderTop: "1px solid #20ada0",
                       },
                     },
-                    height: "48px", 
+                    height: "48px",
                   }}
                 >
                   <Tab label="Profile" />
