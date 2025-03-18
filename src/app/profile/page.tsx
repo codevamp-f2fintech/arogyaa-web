@@ -37,7 +37,7 @@ import TestHistory from "../components/Test-history";
 import BillingHistory from "../components/Billing-history";
 import TreatmentHistory from "../components/Treatment-history";
 import SnackbarComponent from "../components/common/Snackbar";
-
+import { useSearchParams } from "next/navigation";
 import {
   MonitorWeight,
   Straighten,
@@ -52,14 +52,22 @@ interface Appointment {
 const UserProfile = () => {
   const [user, setUser] = useState<PatientData>();
   const [profilePicture, setProfilePicture] = useState("/iconimg.jpg");
+  const searchParams = useSearchParams();
+  const view = searchParams.get("view");
+
   const [isEditing, setIsEditing] = useState(false);
   const [editValues, setEditValues] = useState<{ [key: string]: string }>({});
   const [isModified, setIsModified] = useState(false);
   const { decodedToken, snackbarAndNavigate } = Utility();
   const patientId = decodedToken()?.id;
   const [activeView, setActiveView] = useState<
-    "appointments" | "tests" | "billing" | "treatment"
-  >("appointments");
+    "appointments" | "tests" | "billings" | "treatments"
+  >(() => {
+    return (
+      (view as "appointments" | "tests" | "billings" | "treatments") ||
+      "appointments"
+    );
+  });
   const [appointments, setAppointments] = useState<Appointment[]>([]);
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -106,8 +114,8 @@ const UserProfile = () => {
   const quickActions = [
     { icon: CalendarTodayIcon, label: "Appointments", value: "appointments" },
     { icon: FolderIcon, label: "Tests", value: "tests" },
-    { icon: CheckCircleIcon, label: "Treatment", value: "treatment" },
-    { icon: CurrencyRupeeIcon, label: "Billing", value: "billing" },
+    { icon: CheckCircleIcon, label: "Treatments", value: "treatments" },
+    { icon: CurrencyRupeeIcon, label: "Billings", value: "billings" },
   ];
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -800,8 +808,8 @@ const UserProfile = () => {
           >
             {activeView === "appointments" && <AppointmentHistory />}
             {activeView === "tests" && <TestHistory />}
-            {activeView === "billing" && <BillingHistory />}
-            {activeView === "treatment" && <TreatmentHistory />}
+            {activeView === "billings" && <BillingHistory />}
+            {activeView === "treatments" && <TreatmentHistory />}
           </Paper>
         </Grid>
       </Grid>

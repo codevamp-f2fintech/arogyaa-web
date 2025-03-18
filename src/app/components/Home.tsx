@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 
 import Loader from "./common/Loader";
 import BannerComponent from "./Banner";
+import BannerComponentTest from "./BannerTest";
 
 const SpecialitySlider = dynamic(() => import("./SpecialitySlider"), { suspense: true });
 const ExpertSpecialistSlider = dynamic(() => import("./ExpertSpecialistSlider"), { suspense: true });
@@ -14,7 +15,8 @@ const BannerBottom = dynamic(() => import("./BannerBottom"), { suspense: true })
 const Home = () => {
   return (
     <Suspense fallback={<Loader />}>
-      <BannerComponent />
+      <BannerComponentTest/>
+      {/* <BannerComponent /> */}
       <SpecialitySlider />
       <ExpertSpecialistSlider />
       <SymptomCards />

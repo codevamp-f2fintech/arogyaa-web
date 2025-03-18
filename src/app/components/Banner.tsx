@@ -46,7 +46,7 @@ const BannerComponent: React.FC = () => {
         "doctor",
         `get-doctors?keyword=${encodeURIComponent(searchTerm)}`
       );
-
+    
       if (response && response.results && Array.isArray(response.results)) {
         setResults(response.results);
       } else {
