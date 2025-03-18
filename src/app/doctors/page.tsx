@@ -39,7 +39,6 @@ import WorkIcon from "@mui/icons-material/Work";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import BookAppointmentModal from "../components/common/BookAppointmentModal";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import SearchIcon from "@mui/icons-material/Search";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
@@ -672,13 +671,28 @@ export default function ModernDoctorProfile() {
                         }}
                       >
                         {doctor.username || "Doctor Name"}
-                        <VerifiedIcon
-                          sx={{
-                            color: "#20ADA0",
-                            marginLeft: "1px",
-                            fontSize: "20px",
-                          }}
-                        />
+
+                        {/* Show Verified Tick and Text if Doctor is Verified */}
+                        {doctor.isVerified && (
+                          <>
+                            <VerifiedIcon
+                              sx={{
+                                color: "#20ADA0", // Green color for verification
+                                marginLeft: "10px",
+                                fontSize: "24px",
+                              }}
+                            />
+                            <Typography
+                              sx={{
+                                fontSize: "14px",
+                                fontWeight: "500",
+                                color: "#20ADA0", // Green color for verification text
+                              }}
+                            >
+                              Verified by Arogyaa
+                            </Typography>
+                          </>
+                        )}
                       </Typography>
 
                       {/* Qualification Section */}

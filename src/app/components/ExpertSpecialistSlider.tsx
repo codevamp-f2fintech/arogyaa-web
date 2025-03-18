@@ -173,6 +173,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                       },
                     }}
                   >
+                    {/* Verify Badge */}
                     <Box
                       sx={{
                         position: "absolute",
@@ -182,17 +183,35 @@ const ExpertSpecialistSlider: React.FC = () => {
                         gap: "8px",
                       }}
                     >
-                      <IconButton
-                        size="small"
-                        sx={{
-                          backgroundColor: "rgba(255, 255, 255, 0.9)",
-                          "&:hover": { backgroundColor: "#FFFFFF" },
-                        }}
-                      >
-                        <VerifiedIcon
-                          sx={{ color: "#20ADA0", fontSize: "20px" }}
-                        />
-                      </IconButton>
+                      {doctor.isVerified && (
+                        <>
+                          {/* Verified by Arogyaa Text with Tick Mark */}
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <VerifiedIcon
+                              sx={{
+                                color: "white",
+                                fontSize: "20px",
+                                marginRight: "1px",
+                              }}
+                            />
+                            <Typography
+                              sx={{
+                                fontSize: "14px",
+                                fontWeight: "500",
+                                color: "white",
+                                // backgroundColor: "#20ADA0",
+                                padding: "4px 8px",
+                                borderRadius: "12px",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                            >
+                              Verified by Arogyaa
+                            </Typography>
+                          </Box>
+                        </>
+                      )}
                     </Box>
                   </Box>
 
@@ -339,7 +358,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                     </Box>
 
                     <Rating
-                      value={doctor.rating || 0} 
+                      value={doctor.rating || 0}
                       precision={0.5}
                       readOnly
                       size="small"
