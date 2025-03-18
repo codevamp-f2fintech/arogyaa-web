@@ -27,6 +27,9 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import EditIcon from "@mui/icons-material/Edit";
 import WcIcon from "@mui/icons-material/Wc";
+import MedicalInformationIcon from "@mui/icons-material/MedicalInformation";
+import HealingIcon from "@mui/icons-material/Healing";
+import MedicationIcon from "@mui/icons-material/Medication";
 
 import { Utility } from "@/utils";
 import { fetcher, modifier } from "@/apis/apiClient";
@@ -536,10 +539,21 @@ const UserProfile = () => {
                   key: "bloodGroup",
                 },
                 {
-                  icon: <EventIcon sx={{ color: "#20ADA0" }} />,
-                  label: "Marital Status",
-                  key: "maritalStatus",
+                  icon: <MedicalInformationIcon sx={{ color: "#20ADA0" }} />,
+                  label: "Medical History",
+                  key: "medicalHistory",
                 },
+                {
+                  icon: <HealingIcon sx={{ color: "#20ADA0" }} />,
+                  label: "Allergies",
+                  key: "allergies",
+                },
+                {
+                  icon: <MedicationIcon sx={{ color: "#20ADA0" }} />,
+                  label: "Current Medication",
+                  key: "currentMedication",
+                },
+               
               ].map((item, index) => (
                 <Box
                   key={index}
@@ -605,17 +619,6 @@ const UserProfile = () => {
                           <MenuItem value="Female">Female</MenuItem>
                           <MenuItem value="Other">Other</MenuItem>
                         </Select>
-                      ) : item.key === "maritalStatus" ? (
-                        <Select
-                          size="small"
-                          value={editValues[item.key] || "Unmarried"}
-                          onChange={(e) =>
-                            handleInputChange(item.key, e.target.value)
-                          }
-                        >
-                          <MenuItem value="Married">Married</MenuItem>
-                          <MenuItem value="Unmarried">Unmarried</MenuItem>
-                        </Select>
                       ) : (
                         <TextField
                           size="small"
@@ -634,9 +637,7 @@ const UserProfile = () => {
                     ) : (
                       <Typography>
                         {user?.[item.key] ??
-                          (item.key === "maritalStatus"
-                            ? "Unmarried"
-                            : item.key === "bloodGroup"
+                          ( item.key === "bloodGroup"
                             ? "A+"
                             : "N/A")}
                       </Typography>

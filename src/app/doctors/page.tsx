@@ -579,81 +579,84 @@ export default function ModernDoctorProfile() {
                         sx={{
                           display: "flex",
                           justifyContent: "center",
-                          gap: "4px", // Slightly increased spacing for better alignment
+                          gap: "4px",
                           marginTop: "6px",
                         }}
                       >
-                        <Button
-                          variant="contained"
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            gap: "4px",
-                            background:
-                              "linear-gradient(135deg, #B3E5FC, #81D4FA)",
-                            color: "#0277BD",
-                            padding: "4px 8px", // Reduced padding
-                            minWidth: "40px", // Compact size
-                            borderRadius: "15px",
-                            fontWeight: "500",
-                            textTransform: "none",
-                            boxShadow: "0px 3px 8px rgba(0, 0, 0, 0.1)",
-                            transition: "all 0.3s ease",
-                            "&:hover": {
-                              background:
-                                "linear-gradient(135deg, #81D4FA, #4FC3F7)",
-                              transform: "scale(1.04)",
-                            },
-                          }}
-                          onClick={() =>
-                            setVisibleContactId((prev) =>
-                              prev === doctor._id ? null : doctor._id
-                            )
-                          } // Toggle only the clicked doctor
-                        >
-                          {visibleContactId === doctor._id ? (
-                            <Typography
+                        {Cookies.get("token") && (
+                          <>
+                            <Button
+                              variant="contained"
                               sx={{
-                                fontSize: "12px",
-                                fontWeight: "bold",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: "4px",
+                                background:
+                                  "linear-gradient(135deg, #B3E5FC, #81D4FA)",
                                 color: "#0277BD",
+                                padding: "4px 8px",
+                                minWidth: "40px",
+                                borderRadius: "15px",
+                                fontWeight: "500",
+                                textTransform: "none",
+                                boxShadow: "0px 3px 8px rgba(0, 0, 0, 0.1)",
+                                transition: "all 0.3s ease",
+                                "&:hover": {
+                                  background:
+                                    "linear-gradient(135deg, #81D4FA, #4FC3F7)",
+                                  transform: "scale(1.04)",
+                                },
                               }}
+                              onClick={() =>
+                                setVisibleContactId((prev) =>
+                                  prev === doctor._id ? null : doctor._id
+                                )
+                              }
                             >
-                              {doctor.contact}
-                            </Typography>
-                          ) : (
-                            <PhoneIcon sx={{ fontSize: "18px" }} />
-                          )}
-                        </Button>
+                              {visibleContactId === doctor._id ? (
+                                <Typography
+                                  sx={{
+                                    fontSize: "12px",
+                                    fontWeight: "bold",
+                                    color: "#0277BD",
+                                  }}
+                                >
+                                  {doctor.contact}
+                                </Typography>
+                              ) : (
+                                <PhoneIcon sx={{ fontSize: "18px" }} />
+                              )}
+                            </Button>
 
-                        {/* WhatsApp Chat Button */}
-                        {doctor.contact && (
-                          <Button
-                            variant="contained"
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              backgroundColor: "#25D366",
-                              color: "#fff",
-                              padding: "4px 8px", // Reduced padding for compact size
-                              minWidth: "40px",
-                              borderRadius: "15px",
-                              fontWeight: "500",
-                              textTransform: "none",
-                              boxShadow: "0px 3px 8px rgba(0, 0, 0, 0.1)",
-                              transition: "all 0.3s ease",
-                            }}
-                            onClick={() =>
-                              window.open(
-                                `https://wa.me/${doctor.contact}`,
-                                "_blank"
-                              )
-                            }
-                          >
-                            <WhatsAppIcon sx={{ fontSize: "18px" }} />
-                          </Button>
+                            {doctor.contact && (
+                              <Button
+                                variant="contained"
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  backgroundColor: "#25D366",
+                                  color: "#fff",
+                                  padding: "4px 8px",
+                                  minWidth: "40px",
+                                  borderRadius: "15px",
+                                  fontWeight: "500",
+                                  textTransform: "none",
+                                  boxShadow: "0px 3px 8px rgba(0, 0, 0, 0.1)",
+                                  transition: "all 0.3s ease",
+                                }}
+                                onClick={() =>
+                                  window.open(
+                                    `https://wa.me/${doctor.contact}`,
+                                    "_blank"
+                                  )
+                                }
+                              >
+                                <WhatsAppIcon sx={{ fontSize: "18px" }} />
+                              </Button>
+                            )}
+                          </>
                         )}
                       </Box>
                     </Box>
@@ -811,54 +814,42 @@ export default function ModernDoctorProfile() {
                             color: "#666",
                             mt: 1,
                             display: "flex",
-                            alignItems: "center",
-                            flexWrap: "wrap", // Ensures proper wrapping for long text
+                            flexDirection: "column",
+                            alignItems: "flex-start",
                           }}
                         >
-                          <LocationOnIcon
-                            sx={{ fontSize: 16, color: "#20ADA0", mr: 1 }}
-                          />
-                          {doctor.address || "Doctor Location"}
-
-                          {/* Hospital Affiliations */}
-                          {doctor.hospitalAffiliations &&
-                          doctor.hospitalAffiliations.length > 0 ? (
-                            <>
-                              <span style={{ margin: "0 8px" }}>||</span>{" "}
-                              {/* Separator before hospitals */}
-                              {doctor.hospitalAffiliations.map(
-                                (hospital, index) => (
-                                  <Typography
-                                    key={index}
-                                    variant="body2"
-                                    sx={{
-                                      display: "inline",
-                                      color: "#333",
-                                      fontWeight: "500",
+                          {doctor.availability?.length > 0
+                            ? doctor.availability.map((slot, index) => (
+                                <Typography
+                                  key={index}
+                                  variant="body2"
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    mb: 0.5, // Adds spacing between items
+                                  }}
+                                >
+                                  <LocalHospitalIcon
+                                    fontSize="small"
+                                    color="primary"
+                                    sx={{ marginRight: "4px", flexShrink: 0 }}
+                                  />
+                                  <span
+                                    style={{
+                                      display: "inline-block",
+                                      whiteSpace: "normal",
                                     }}
                                   >
-                                    {hospital}
-                                    {index <
-                                      doctor.hospitalAffiliations.length -
-                                        1 && (
-                                      <span
-                                        style={{
-                                          margin: "0 8px",
-                                          color: "#888",
-                                        }}
-                                      >
-                                        ||
-                                      </span>
-                                    )}
-                                  </Typography>
-                                )
-                              )}
-                            </>
-                          ) : (
-                            <span style={{ marginLeft: "8px" }}>
-                              || Hospital Name
-                            </span>
-                          )}
+                                    {slot.hospital?.name || "Unknown Hospital"},{" "}
+                                    {slot.hospital?.location ||
+                                      "Unknown Location"}
+                                  </span>
+                                </Typography>
+                              ))
+                            : "Availability not available"}
                         </Typography>
                       </Box>
                     </Box>
@@ -940,7 +931,6 @@ export default function ModernDoctorProfile() {
                     >
                       View Full Profile
                     </Button>
-
                     <Button
                       variant="contained"
                       fullWidth
