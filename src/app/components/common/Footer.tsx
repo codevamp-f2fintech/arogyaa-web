@@ -192,14 +192,14 @@ const Footer = () => {
     bottomLinks: [
       {
         label: "Privacy Policy",
-        route: "/privacy-policy",
+        route: "/privacy",
         
       },
-      { label: "Terms & Conditions", route: "/terms-condition" },
+      { label: "Terms & Conditions", route: "/terms" },
       
           {
             label: "Refund Policy",
-            route: "/refund-policy",
+            route: "/refund",
          
           },
       // { label: "Sitemap", route: "/sitemap" },
