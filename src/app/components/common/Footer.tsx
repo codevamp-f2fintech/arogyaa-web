@@ -146,7 +146,6 @@ const Footer = () => {
             route: "#specialitiesSection",
             icon: <MedicalServices />,
           },
-         
         ],
       },
       support: {
@@ -154,7 +153,6 @@ const Footer = () => {
         items: [
           { label: "Appointments", route: "#" },
           { label: "Emergency Care", route: "#" },
-          
         ],
       },
     },
@@ -191,17 +189,19 @@ const Footer = () => {
       "© Copyright 2024, All rights reserved with Arogyaa HealthCare — Healing with Care",
     bottomLinks: [
       {
+        label: "Contact Us",
+        route: "/contact",
+      },
+      {
         label: "Privacy Policy",
         route: "/privacy",
-        
       },
       { label: "Terms & Conditions", route: "/terms" },
-      
-          {
-            label: "Refund Policy",
-            route: "/refund",
-         
-          },
+
+      {
+        label: "Refund Policy",
+        route: "/refund",
+      },
       // { label: "Sitemap", route: "/sitemap" },
     ],
   };
