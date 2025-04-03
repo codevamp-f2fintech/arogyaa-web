@@ -94,7 +94,7 @@ const SpecialitySlider: React.FC = () => {
 
   return (
     <Container
-    id="specialitiesSection" 
+      id="specialitiesSection"
       maxWidth={false}
       sx={{
         maxWidth: "1400px",
@@ -120,44 +120,41 @@ const SpecialitySlider: React.FC = () => {
       </Typography>
 
       <Box
-        // sx={{
-        //   ".slick-slide": {
-        //     px: 1.5,
-        //   },
-        //   ".slick-dots": {
-        //     bottom: -40,
-        //     "& li button:before": {
-        //       fontSize: 12,
-        //       color: "#20ada0",
-        //       opacity: 0.4,
-        //     },
-        //     "& li.slick-active button:before": {
-        //       opacity: 1,
-        //     },
-        //   },
-        //   ".slick-prev, .slick-next": {
-        //     zIndex: 1,
-        //     width: 40,
-        //     height: 40,
-        //     "&:before": {
-        //       fontSize: 40,
-        //       color: "#20ada0",
-        //     },
-        //   },
-        //   ".slick-prev": {
-        //     left: { xs: -20, md: -40 },
-        //   },
-        //   ".slick-next": {
-        //     right: { xs: -20, md: -40 },
-        //   },
-        // }}
+      // sx={{
+      //   ".slick-slide": {
+      //     px: 1.5,
+      //   },
+      //   ".slick-dots": {
+      //     bottom: -40,
+      //     "& li button:before": {
+      //       fontSize: 12,
+      //       color: "#20ada0",
+      //       opacity: 0.4,
+      //     },
+      //     "& li.slick-active button:before": {
+      //       opacity: 1,
+      //     },
+      //   },
+      //   ".slick-prev, .slick-next": {
+      //     zIndex: 1,
+      //     width: 40,
+      //     height: 40,
+      //     "&:before": {
+      //       fontSize: 40,
+      //       color: "#20ada0",
+      //     },
+      //   },
+      //   ".slick-prev": {
+      //     left: { xs: -20, md: -40 },
+      //   },
+      //   ".slick-next": {
+      //     right: { xs: -20, md: -40 },
+      //   },
+      // }}
       >
         <Slider {...sliderSettings}>
           {speciality && speciality?.results?.length > 0 ? (
             speciality.results.map((item) => {
-              const icon = icons.find(
-                (icon) => icon.title === item.name.toLowerCase()
-              )?.path;
               return (
                 <Box
                   key={item._id}
@@ -180,7 +177,7 @@ const SpecialitySlider: React.FC = () => {
                     }}
                   >
                     <SpecialistCard
-                      icon={icon}
+                      icon={item?.icon || ''}
                       name={item.name}
                       description={item.description.slice(0, 90) + "..."}
                       onConsult={() => handleConsult(item.name)}
