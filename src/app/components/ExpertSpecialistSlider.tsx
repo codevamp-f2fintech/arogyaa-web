@@ -343,7 +343,7 @@ const ExpertSpecialistSlider: React.FC = () => {
 
                         <Chip
                           icon={<LocationOnIcon sx={{ color: "#20ADA0" }} />}
-                          label={`${doctor.address}`}
+                          label={`${doctor.clinicAddress}`}
                           variant="outlined"
                           size="small"
                           sx={{

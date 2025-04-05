@@ -93,42 +93,64 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
     capitalizeFirstLetter,
     decodedToken,
     getIdsFromObject,
-    generateTimeSlots,
-    getTimeOfDaySlot,
+
+    // getTimeOfDaySlot,
     snackbarAndNavigate,
   } = Utility();
+  const [selectedHospital, setSelectedHospital] = useState<string | null>(null);
   // TRACK SELECTED DAY & TIME SLOT IN LOCAL STATE
   const [selectedDayName, setSelectedDayName] = useState<string | null>(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>("");
   // BUCKETS THAT WILL HOLD MORNING / AFTERNOON / EVENING / NIGHT SLOTS
-  const [timeBuckets, setTimeBuckets] = useState<{
-    morning: string[];
-    afternoon: string[];
-    evening: string[];
-    night: string[];
-  }>({ morning: [], afternoon: [], evening: [], night: [] });
-
+  const [timeBuckets, setTimeBuckets] = useState({
+    morning: [] as string[],
+    afternoon: [] as string[],
+    evening: [] as string[],
+    night: [] as string[],
+  });
   const { createAppointment } = useCreateAppointment("create-appointment");
 
   const { value: symptoms } = useGetSymptom(null, "get-symptoms", 1, 200);
 
+  // Reset hospital and other selections when a new doctor is selected
+  useEffect(() => {
+    setSelectedHospital(null); 
+    setSelectedDayName(null);
+    setTimeBuckets({ morning: [], afternoon: [], evening: [], night: [] });
+  }, [data]);
+
+  // Handle hospital change
+  const handleHospitalChange = (
+    event: React.ChangeEvent<{ value: unknown }>
+  ) => {
+    setSelectedHospital(event.target.value as string);
+    setSelectedDayName(null);
+    setTimeBuckets({ morning: [], afternoon: [], evening: [], night: [] });
+  };
+
   // Whenever selectedDayName changes, generate new time slots from data.availability
   useEffect(() => {
-    if (!selectedDayName || !data?.availability) {
+    if (!selectedDayName || !selectedHospital || !data?.availability) {
       setTimeBuckets({ morning: [], afternoon: [], evening: [], night: [] });
       return;
     }
 
     // Find the entry in availability that matches the chosen weekday
-    const dayAvailability = data.availability.find(
-      (slot) => slot.day?.toLowerCase() === selectedDayName.toLowerCase()
+    const hospitalAvailability = data.availability.filter(
+      (slot) => slot.hospital.name === selectedHospital
     );
+
+    const dayAvailability = hospitalAvailability.find(
+      (slot) => slot.day?.toLowerCase() === selectedDayName?.toLowerCase()
+    );
+
     if (!dayAvailability) {
       setTimeBuckets({ morning: [], afternoon: [], evening: [], night: [] });
       return;
     }
 
     // Generate discrete time slots from (startTime, endTime) in steps of 60 min
+
     const slots = generateTimeSlots(
       dayAvailability.startTime,
       dayAvailability.endTime,
@@ -140,12 +162,60 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
       evening: [] as string[],
       night: [] as string[],
     };
+
     slots.forEach((slotTime) => {
       const part = getTimeOfDaySlot(slotTime);
       buckets[part].push(slotTime);
     });
+
     setTimeBuckets(buckets);
-  }, [selectedDayName, data?.availability]);
+  }, [selectedDayName, selectedHospital, data?.availability]);
+
+  // Time slot generation function
+  const generateTimeSlots = (
+    startTime: string,
+    endTime: string,
+    interval: number
+  ) => {
+    const parseTime = (timeStr: string) => {
+      const [time, period] = timeStr.split(" ");
+      let [hours, minutes] = time.split(":");
+      hours = parseInt(hours);
+      minutes = parseInt(minutes);
+      if (period === "PM" && hours !== 12) hours += 12;
+      if (period === "AM" && hours === 12) hours = 0;
+      const date = new Date();
+      date.setHours(hours, minutes, 0, 0);
+      return date;
+    };
+
+    const start = parseTime(startTime);
+    const end = parseTime(endTime);
+    const slots = [];
+
+    while (start < end) {
+      const slotTime = new Date(start);
+      const formattedTime = slotTime.toTimeString().substr(0, 5);
+      slots.push(formattedTime);
+      start.setMinutes(start.getMinutes() + interval);
+    }
+
+    return slots;
+  };
+
+  // Time of day categorization
+  const getTimeOfDaySlot = (time: string) => {
+    const hour = parseInt(time.split(":")[0], 10);
+    if (hour >= 5 && hour < 12) return "morning";
+    if (hour >= 12 && hour < 17) return "afternoon";
+    if (hour >= 17 && hour < 21) return "evening";
+    return "night";
+  };
+
+  // const handleTimeSlotClick = (time: string, setFieldValue: Function) => {
+  //   setSelectedTimeSlot(time);
+  //   setFieldValue("appointmentTime", time);
+  // };
 
   // Define the snackbar close handler
   const handleSnackbarClose = (
@@ -181,13 +251,16 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
       try {
         setLoading(true);
 
+        // Ensure the hospitalName is being passed to the appointment data
         const appointmentData = {
           ...values,
           patientId,
           doctorId,
           status: "pending",
           symptomIds: getIdsFromObject(values.symptomIds),
+          hospitalName: selectedHospital,
         };
+
         const response = await createAppointment(appointmentData);
 
         console.log("Response received:", response);
@@ -224,7 +297,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
         setLoading(false);
       }
     },
-    [data?._id, createAppointment]
+    [data?._id, createAppointment, selectedHospital] 
   );
 
   const priceWrapSx = {
@@ -372,11 +445,21 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                     whiteSpace: "nowrap",
                   }}
                 >
-                  {data?.availability?.length > 0
-                    ? `Available on: ${data.availability
-                        .map((slot) => slot.day)
-                        .join(", ")}`
-                    : "No Days Available"}
+                  {selectedHospital
+                    ? (() => {
+                        const daysForSelectedHospital = data?.availability
+                          ?.filter(
+                            (slot) => slot.hospital.name === selectedHospital
+                          )
+                          .map((slot) => slot.day);
+                        return daysForSelectedHospital &&
+                          daysForSelectedHospital.length > 0
+                          ? `Available on: ${daysForSelectedHospital.join(
+                              ", "
+                            )}`
+                          : "No Days Available";
+                      })()
+                    : "Select a hospital to view available days"}
                 </Typography>
               </Box>
             </Box>
@@ -507,60 +590,80 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           gap: 1,
                         }}
                       >
-                        {/* === Date of Appointment === */}
-                        <Field
-                          fullWidth
-                          as={TextField}
-                          label="Date Of Appointment *"
-                          name="appointmentDate"
-                          type="date"
-                          value={
-                            values.appointmentDate
-                              ? dayjs(values.appointmentDate).format(
-                                  "YYYY-MM-DD"
-                                )
-                              : ""
-                          }
-                          onChange={(
-                            e: React.ChangeEvent<HTMLInputElement>
-                          ) => {
-                            const formattedDate = dayjs(e.target.value).format(
-                              "YYYY-MM-DD"
-                            );
-                            setFieldValue("appointmentDate", formattedDate);
-                            const dayName = dayjs(e.target.value).format(
-                              "dddd"
-                            );
-                            setSelectedDayName(dayName);
-                            setSelectedTimeSlot("");
-                            setFieldValue("appointmentTime", "");
-                          }}
-                          InputLabelProps={{ shrink: true }}
-                          sx={{
-                            marginBottom: "7px",
-                            "& input[type=date]": {
-                              background: "#fff",
-                              borderRadius: "6px",
-                              padding: "12px 12px",
-                            },
-                            "& input[type=date]::-webkit-calendar-picker-indicator":
-                              {
-                                zIndex: 3,
-                                cursor: "pointer",
+                        <Box sx={{ marginBottom: 3 }}>
+                          <FormControl fullWidth>
+                            <InputLabel>Hospital</InputLabel>
+                            <Select
+                              value={selectedHospital || ""}
+                              onChange={handleHospitalChange}
+                              label="Hospital"
+                            >
+                              {data?.availability.map((slot) => (
+                                <MenuItem
+                                  key={slot.hospital.name}
+                                  value={slot.hospital.name}
+                                >
+                                  {slot.hospital.name}, {slot.hospital.location}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        </Box>
+
+                        <Box sx={{ marginBottom: 2 }}>
+                          <Field
+                            fullWidth
+                            as={TextField}
+                            label="Date Of Appointment *"
+                            name="appointmentDate"
+                            type="date"
+                            value={
+                              values.appointmentDate
+                                ? dayjs(values.appointmentDate).format(
+                                    "YYYY-MM-DD"
+                                  )
+                                : ""
+                            }
+                            onChange={(
+                              e: React.ChangeEvent<HTMLInputElement>
+                            ) => {
+                              const formattedDate = dayjs(
+                                e.target.value
+                              ).format("YYYY-MM-DD");
+                              setFieldValue("appointmentDate", formattedDate);
+                              const dayName = dayjs(e.target.value).format(
+                                "dddd"
+                              );
+                              setSelectedDayName(dayName);
+                              setSelectedTimeSlot("");
+                              setFieldValue("appointmentTime", "");
+                            }}
+                            InputLabelProps={{ shrink: true }}
+                            sx={{
+                              "& input[type=date]": {
+                                background: "#fff",
+                                borderRadius: "6px",
+                                padding: "12px 12px",
                               },
-                            "& .MuiInputBase-root": {
-                              fontSize: "0.9rem",
-                            },
-                          }}
-                          inputProps={{ min: today }}
-                          error={
-                            touched.appointmentDate &&
-                            Boolean(errors.appointmentDate)
-                          }
-                          helperText={
-                            touched.appointmentDate && errors.appointmentDate
-                          }
-                        />
+                              "& input[type=date]::-webkit-calendar-picker-indicator":
+                                {
+                                  zIndex: 3,
+                                  cursor: "pointer",
+                                },
+                              "& .MuiInputBase-root": {
+                                fontSize: "0.9rem",
+                              },
+                            }}
+                            inputProps={{ min: today }}
+                            error={
+                              touched.appointmentDate &&
+                              Boolean(errors.appointmentDate)
+                            }
+                            helperText={
+                              touched.appointmentDate && errors.appointmentDate
+                            }
+                          />
+                        </Box>
 
                         {/*Display Message*/}
                         {!values.appointmentDate ? (
@@ -572,7 +675,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                               borderRadius: "6px",
                               padding: "3px",
                               color: "#20ADA0",
-                              marginBottom: "10px",
+                              marginBottom: "15px",
                               fontSize: "1rem",
                               fontWeight: 400,
                             }}
@@ -970,12 +1073,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                             <Typography className="tx3">
                               <span className="spntx1">Price</span>
                               <span className="spntx2">
-                                {values.appointmentDate &&
-                                values.appointmentTime &&
-                                values.symptomIds.length > 0 &&
-                                values.appointmentType
-                                  ? `₹${data?.consultationFee}`
-                                  : "--"}
+                                {`₹${data?.consultationFee}`}
                               </span>
                             </Typography>
                             <Typography className="tx4">
