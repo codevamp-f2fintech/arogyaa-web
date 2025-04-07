@@ -129,7 +129,8 @@ const Footer = () => {
   // Mock data - would typically come from a localization file
   const content = {
     title: "Arogyaa",
-    tagline: "The Best Medical Care for Your Family",
+    tagline:
+      "The Best Medical Care for Your Family(Owned By F2 Fintech Private Limited)",
     address:
       "A-25, M-1 Arv Park, A-Block, Sector-63, Noida Utter Pradesh - 201301",
     phone: "+918810600135",
@@ -291,7 +292,7 @@ const Footer = () => {
               <Typography
                 sx={{
                   fontSize: "1.8rem",
-                  fontWeight: 500,
+                  fontWeight: 100,
                   mb: 4,
                   color: THEME.colors.text.dark,
                   lineHeight: 1.6,
