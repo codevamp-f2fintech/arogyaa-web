@@ -132,7 +132,7 @@ const Footer = () => {
     tagline:
       "The Best Medical Care for Your Family(Owned By F2 Fintech Private Limited)",
     address:
-      "A-25, M-1 Arv Park, A-Block, Sector-63, Noida Utter Pradesh - 201301",
+      "A-25, M-1 Arv Park, A-Block, Sector-63, Noida, Uttar Pradesh - 201301",
     phone: "+918810600135",
     email: "wecare@f2fintech.com",
     sections: {
