@@ -82,6 +82,40 @@ const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 );
 
+const inputStyles = {
+  fontFamily: "Poppins",
+  backgroundColor: "white",
+  "& .MuiInputBase-root": {
+    fontFamily: "Poppins",
+    backgroundColor: "white",
+  },
+  "& .MuiInputLabel-root": {
+    color: "#29175E", 
+    fontFamily: "Poppins",
+    "&.Mui-focused": {
+      color: "#29175E", 
+    },
+  },
+  "& .MuiOutlinedInput-root": {
+    fontFamily: "Poppins",
+    "& fieldset": {
+      borderColor: "#29175E",
+    },
+    "&:hover fieldset": {
+      borderColor: "#29175E",
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: "#29175E",
+    },
+  },
+  input: {
+    fontFamily: "Poppins",
+  },
+  InputAdornment: {
+    color: "#7A4D9C", 
+  },
+};
+
 const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [showPaymentForm, setShowPaymentForm] = useState<boolean>(false);
@@ -114,7 +148,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
 
   // Reset hospital and other selections when a new doctor is selected
   useEffect(() => {
-    setSelectedHospital(null); 
+    setSelectedHospital(null);
     setSelectedDayName(null);
     setTimeBuckets({ morning: [], afternoon: [], evening: [], night: [] });
   }, [data]);
@@ -297,28 +331,29 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
         setLoading(false);
       }
     },
-    [data?._id, createAppointment, selectedHospital] 
+    [data?._id, createAppointment, selectedHospital]
   );
 
   const priceWrapSx = {
     "& .price_header_txt": {
       fontSize: "1.1rem",
       fontWeight: 600,
-      color: "#000",
-      lineHeight: "1.2rem",
-      padding: "15px 10px",
-      background: "#efefef",
+
+      color: "#fff",
+      lineHeight: "1.9rem",
+      padding: "2px 10px",
+      background: "#7A4D9C",
     },
     "& .tx1": {
       fontSize: "1.1rem",
       fontWeight: 500,
-      color: "#000",
+      color: "#29175E",
       marginTop: "10px",
     },
     "& .tx2": {
       fontSize: "1rem",
       fontWeight: "normal",
-      color: "#1f1f1f",
+      color: "#29175E",
       marginTop: "5px",
       paddingBottom: "10px",
     },
@@ -327,16 +362,16 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
       justifyContent: "space-between",
       alignItems: "center",
       padding: "10px 0px",
-      borderTop: "1px solid #bababa",
+      borderTop: "1px solid #29175E",
       "& .spntx1": {
         fontSize: "0.9rem",
         fontWeight: "normal",
-        color: "#000",
+        color: "#29175E",
       },
       "& .spntx2": {
         fontSize: "0.9rem",
         fontWeight: "normal",
-        color: "#000",
+        color: "#29175E",
       },
     },
     "& .tx4": {
@@ -348,12 +383,12 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
       "& .spntx1": {
         fontSize: "1rem",
         fontWeight: 500,
-        color: "#20ada0",
+        color: "#29175E",
       },
       "& .spntx2": {
         fontSize: "1rem",
         fontWeight: 500,
-        color: "#20ada0",
+        color: "#29175E",
       },
     },
     "& .prc_contnt": {
@@ -381,13 +416,13 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: "80%",
+            width: "90%",
             maxWidth: "1200px",
-            bgcolor: "background.paper",
-            border: "2px solid #fff",
+            background: "#fff",
+
             boxShadow: 24,
             borderRadius: "8px",
-            overflow: "hidden",
+            overflowY: "hidden",
           }}
         >
           {/* ===== ModalHeader ===== */}
@@ -415,12 +450,13 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                 sx={{
                   fontSize: "1.5rem",
                   fontWeight: 400,
-                  color: "#20ada0",
+                  color: "#29175E",
                   textAlign: "left",
                   whiteSpace: "nowrap",
                 }}
               >
-                Book With {capitalizeFirstLetter(data?.username) || "Doctor"}
+                Book Appointment With{" "}
+                {capitalizeFirstLetter(data?.username) || "Doctor"}
               </Typography>
 
               {/* Right: Available Days */}
@@ -428,20 +464,20 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                 sx={{
                   display: "flex",
                   alignItems: "center",
-                  backgroundColor: "#f8f8ff",
+                  backgroundColor: "#7A4D9C",
                   border: "1px solid #ccc",
                   padding: "5px 10px",
                   borderRadius: "8px",
                 }}
               >
                 <EventAvailableIcon
-                  sx={{ color: "#20ADA0", marginRight: "8px" }}
+                  sx={{ color: "#fff", marginRight: "8px" }}
                 />
                 <Typography
                   sx={{
                     fontSize: "1.1rem",
                     fontWeight: 400,
-                    color: "#20ADA0",
+                    color: "#fff",
                     whiteSpace: "nowrap",
                   }}
                 >
@@ -520,14 +556,14 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           fontWeight: 300,
                           lineHeight: "1.2rem",
                           padding: "8px 10px",
-                          border: "1px solid #20ada0",
+                          border: "1px solid #29175E",
                           borderRadius: "4px",
                           listStyle: "none",
                           marginRight: "10px",
                           cursor: "pointer",
                           color: "black",
                           "&:hover": {
-                            background: "#20ada0",
+                            background: "#7A4D9C",
                             color: "white",
                           },
                         },
@@ -555,7 +591,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         marginLeft: "15px",
                         fontSize: "0.7rem",
                         fontWeight: 500,
-                        color: "#20ada0",
+                        color: "#29175E",
                         padding: "0px 5px",
                       },
                       "& .fieldset_wrap": {
@@ -584,31 +620,37 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         sx={{
                           p: 1,
                           borderRadius: "8px",
-
                           display: "flex",
                           flexDirection: "column",
                           gap: 1,
                         }}
                       >
-                        <Box sx={{ marginBottom: 3 }}>
-                          <FormControl fullWidth>
-                            <InputLabel>Hospital</InputLabel>
-                            <Select
-                              value={selectedHospital || ""}
-                              onChange={handleHospitalChange}
-                              label="Hospital"
-                            >
-                              {data?.availability.map((slot) => (
-                                <MenuItem
-                                  key={slot.hospital.name}
-                                  value={slot.hospital.name}
-                                >
-                                  {slot.hospital.name}, {slot.hospital.location}
-                                </MenuItem>
-                              ))}
-                            </Select>
-                          </FormControl>
-                        </Box>
+                      <Box sx={{ marginBottom: 3 }}>
+  <FormControl fullWidth sx={inputStyles}>
+    <InputLabel
+      sx={{
+        color: "#29175E", 
+        "&.Mui-focused": {
+          color: "#29175E", 
+        },
+      }}
+    >
+      Hospital
+    </InputLabel>
+    <Select
+      value={selectedHospital || ""}
+      onChange={handleHospitalChange}
+      label="Hospital"
+      sx={inputStyles} 
+    >
+      {data?.availability.map((slot) => (
+        <MenuItem key={slot.hospital.name} value={slot.hospital.name}>
+          {slot.hospital.name}, {slot.hospital.location}
+        </MenuItem>
+      ))}
+    </Select>
+  </FormControl>
+</Box>
 
                         <Box sx={{ marginBottom: 2 }}>
                           <Field
@@ -638,8 +680,17 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                               setSelectedTimeSlot("");
                               setFieldValue("appointmentTime", "");
                             }}
-                            InputLabelProps={{ shrink: true }}
+                            InputLabelProps={{
+                              shrink: true,
+                              sx: {
+                                color: "#29175E", 
+                                "&.Mui-focused": {
+                                  color: "#29175E",
+                                },
+                              },
+                            }}
                             sx={{
+                              ...inputStyles,  
                               "& input[type=date]": {
                                 background: "#fff",
                                 borderRadius: "6px",
@@ -650,9 +701,6 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                                   zIndex: 3,
                                   cursor: "pointer",
                                 },
-                              "& .MuiInputBase-root": {
-                                fontSize: "0.9rem",
-                              },
                             }}
                             inputProps={{ min: today }}
                             error={
@@ -674,7 +722,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                               border: "1px solid #ccc",
                               borderRadius: "6px",
                               padding: "3px",
-                              color: "#20ADA0",
+                              color: "#29175E",
                               marginBottom: "15px",
                               fontSize: "1rem",
                               fontWeight: 400,
@@ -693,7 +741,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                               border: "1px solid #ccc",
                               borderRadius: "6px",
                               padding: "2px",
-                              color: "#20ADA0",
+                              color: "#29175E",
                               marginBottom: "10px",
                               fontSize: "1rem",
                               fontWeight: 500,
@@ -723,13 +771,17 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">
-                                <InfoIcon sx={{ color: "#20ADA0" }} />
+                                <InfoIcon sx={{ color: "#7A4D9C" }} />
                               </InputAdornment>
                             ),
                           }}
+                          InputLabelProps={{
+                            sx: {
+                              ...inputStyles["& .MuiInputLabel-root"],
+                            },
+                          }}
                           sx={{
-                            background: "#fff",
-                            borderRadius: "6px",
+                            ...inputStyles,
                             marginBottom: "2px",
                           }}
                         >
@@ -751,8 +803,8 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                             setFieldValue("symptomIds", value)
                           }
                           sx={{
-                            background: "#fff",
-                            borderRadius: "6px",
+                            ...inputStyles, 
+                            background: "#fff", 
                             padding: "4px 2px",
                           }}
                           renderInput={(params) => (
@@ -776,7 +828,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                                   <>
                                     <InputAdornment position="start">
                                       <AssignmentIcon
-                                        sx={{ color: "#20ADA0" }}
+                                        sx={{ color: "#7A4D9C" }}
                                       />
                                     </InputAdornment>
                                     {params.InputProps.startAdornment}
@@ -796,16 +848,17 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           autoComplete="off"
                           autoFocus
                           sx={{
-                            background: "#fff",
-                            borderRadius: "6px",
+                            ...inputStyles, 
+                            background: "#fff", 
+                            marginBottom: "2px", 
                             "&:hover": {
-                              boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.1)",
+                              boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.1)", 
                             },
                           }}
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">
-                                <AssignmentIcon sx={{ color: "#20ADA0" }} />
+                                <AssignmentIcon sx={{ color: "#7A4D9C" }} />
                               </InputAdornment>
                             ),
                           }}
@@ -814,12 +867,147 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           }
                           helperText={touched.description && errors.description}
                         />
+                      </Grid>
+                      {/* ===== Middle Section (Dynamic Time Slots) ===== */}
+                      <Field type="hidden" name="appointmentTime" />{" "}
+                      {/* Hidden Formik Field so Formik tracks appointmenttime errors*/}
+                      <Grid item xs={12} sm={4} md={4}>
+                        <Box sx={priceWrapSx}>
+                          <Box
+                            component="fieldset"
+                            className="fieldset_wrap"
+                            sx={{ marginTop: "-7px" }}
+                          >
+                            <legend className="fldset_lgend">
+                              Morning Slots
+                            </legend>
+                            <ul className="time_box">
+                              {timeBuckets.morning.map((time) => (
+                                <li
+                                  key={time}
+                                  onClick={() =>
+                                    handleTimeSlotClick(time, setFieldValue)
+                                  }
+                                  style={{
+                                    background:
+                                      selectedTimeSlot === time
+                                        ? "#29175E"
+                                        : "",
+                                    color:
+                                      selectedTimeSlot === time
+                                        ? "white"
+                                        : "black",
+                                  }}
+                                >
+                                  {time}
+                                </li>
+                              ))}
+                            </ul>
+                          </Box>
+
+                          <Box component="fieldset" className="fieldset_wrap">
+                            <legend className="fldset_lgend">
+                              Afternoon Slots
+                            </legend>
+                            <ul className="time_box">
+                              {timeBuckets.afternoon.map((time) => (
+                                <li
+                                  key={time}
+                                  onClick={() =>
+                                    handleTimeSlotClick(time, setFieldValue)
+                                  }
+                                  style={{
+                                    background:
+                                      selectedTimeSlot === time
+                                        ? "#29175E"
+                                        : "",
+                                    color:
+                                      selectedTimeSlot === time
+                                        ? "white"
+                                        : "black",
+                                  }}
+                                >
+                                  {time}
+                                </li>
+                              ))}
+                            </ul>
+                          </Box>
+
+                          <Box component="fieldset" className="fieldset_wrap">
+                            <legend className="fldset_lgend">
+                              Evening Slots
+                            </legend>
+                            <ul className="time_box">
+                              {timeBuckets.evening.map((time) => (
+                                <li
+                                  key={time}
+                                  onClick={() =>
+                                    handleTimeSlotClick(time, setFieldValue)
+                                  }
+                                  style={{
+                                    background:
+                                      selectedTimeSlot === time
+                                        ? "#29175E"
+                                        : "",
+                                    color:
+                                      selectedTimeSlot === time
+                                        ? "white"
+                                        : "black",
+                                  }}
+                                >
+                                  {time}
+                                </li>
+                              ))}
+                            </ul>
+                          </Box>
+
+                          <Box component="fieldset" className="fieldset_wrap">
+                            <legend className="fldset_lgend">
+                              Night Slots
+                            </legend>
+                            <ul className="time_box">
+                              {timeBuckets.night.map((time) => (
+                                <li
+                                  key={time}
+                                  onClick={() =>
+                                    handleTimeSlotClick(time, setFieldValue)
+                                  }
+                                  style={{
+                                    background:
+                                      selectedTimeSlot === time
+                                        ? "#29175E"
+                                        : "",
+                                    color:
+                                      selectedTimeSlot === time
+                                        ? "white"
+                                        : "black",
+                                  }}
+                                >
+                                  {time}
+                                </li>
+                              ))}
+                            </ul>
+                          </Box>
+                        </Box>
+
+                        {touched.appointmentTime && errors.appointmentTime && (
+                          <Typography
+                            color="error"
+                            variant="body2"
+                            paddingLeft="38px"
+                          >
+                            {errors.appointmentTime}
+                          </Typography>
+                        )}
+                      </Grid>
+                      {/* ===== Right Section (Price/Consultation/Payment Details) ===== */}
+                      <Grid item xs={12} sm={4} md={4}>
                         <Field name="video">
                           {({ field }) => (
                             <Box
                               sx={{
-                                mt: 2,
-                                p: 2,
+                                mt: 0,
+                                p: 1,
                                 border: "1px solid #e0e0e0",
                                 borderRadius: "8px",
                                 backgroundColor: "#f8f8ff",
@@ -827,7 +1015,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                                 transition: "all 0.3s ease",
                                 "&:hover": {
                                   boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-                                  borderColor: "#20ADA0",
+                                  borderColor: "#29175E",
                                 },
                               }}
                             >
@@ -836,7 +1024,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                                 sx={{
                                   fontSize: "1rem",
                                   fontWeight: 600,
-                                  color: "#20ADA0",
+                                  color: "#29175E",
                                   mb: 1,
                                   display: "flex",
                                   alignItems: "center",
@@ -849,12 +1037,13 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                               <Typography
                                 variant="body2"
                                 sx={{
-                                  mb: 2,
+                                  marginBottom: "10px",
+                                  mb: 0.6,
                                   color: "#555",
-                                  backgroundColor: "rgba(32, 173, 160, 0.1)",
-                                  p: 1.5,
+                                  backgroundColor: "29175E",
+                                  p: 0.8,
                                   borderRadius: "4px",
-                                  borderLeft: "4px solid #20ADA0",
+                                  borderLeft: "4px solid #29175E",
                                   fontWeight: 400,
                                 }}
                               >
@@ -887,7 +1076,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                                   startAdornment: (
                                     <InputAdornment position="start">
                                       <CalendarMonthIcon
-                                        sx={{ color: "#20ADA0" }}
+                                        sx={{ color: "#29175E" }}
                                       />
                                     </InputAdornment>
                                   ),
@@ -898,11 +1087,11 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                                     borderRadius: "6px",
                                     "&:hover .MuiOutlinedInput-notchedOutline":
                                       {
-                                        borderColor: "#20ADA0",
+                                        borderColor: "#29175E",
                                       },
                                     "&.Mui-focused .MuiOutlinedInput-notchedOutline":
                                       {
-                                        borderColor: "#20ADA0",
+                                        borderColor: "#29175E",
                                       },
                                   },
                                   "& input": {
@@ -917,150 +1106,20 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
 
                               <Typography
                                 variant="caption"
-                                sx={{ display: "block", mt: 1, color: "#666" }}
+                                sx={{
+                                  display: "block",
+                                  mt: 0.4,
+                                  color: "#666",
+                                }}
                               >
                                 Supported formats: MP4, MOV, AVI (max size 50MB)
                               </Typography>
                             </Box>
                           )}
                         </Field>
-                      </Grid>
-                      {/* ===== Middle Section (Dynamic Time Slots) ===== */}
-                      <Field type="hidden" name="appointmentTime" />{" "}
-                      {/* Hidden Formik Field so Formik tracks appointmenttime errors*/}
-                      <Grid item xs={12} sm={5} md={5}>
-                        <Box sx={priceWrapSx}>
-                          <Box
-                            component="fieldset"
-                            className="fieldset_wrap"
-                            sx={{ marginTop: "-7px" }}
-                          >
-                            <legend className="fldset_lgend">
-                              Morning Slots
-                            </legend>
-                            <ul className="time_box">
-                              {timeBuckets.morning.map((time) => (
-                                <li
-                                  key={time}
-                                  onClick={() =>
-                                    handleTimeSlotClick(time, setFieldValue)
-                                  }
-                                  style={{
-                                    background:
-                                      selectedTimeSlot === time
-                                        ? "#20ada0"
-                                        : "",
-                                    color:
-                                      selectedTimeSlot === time
-                                        ? "white"
-                                        : "black",
-                                  }}
-                                >
-                                  {time}
-                                </li>
-                              ))}
-                            </ul>
-                          </Box>
-
-                          <Box component="fieldset" className="fieldset_wrap">
-                            <legend className="fldset_lgend">
-                              Afternoon Slots
-                            </legend>
-                            <ul className="time_box">
-                              {timeBuckets.afternoon.map((time) => (
-                                <li
-                                  key={time}
-                                  onClick={() =>
-                                    handleTimeSlotClick(time, setFieldValue)
-                                  }
-                                  style={{
-                                    background:
-                                      selectedTimeSlot === time
-                                        ? "#20ada0"
-                                        : "",
-                                    color:
-                                      selectedTimeSlot === time
-                                        ? "white"
-                                        : "black",
-                                  }}
-                                >
-                                  {time}
-                                </li>
-                              ))}
-                            </ul>
-                          </Box>
-
-                          <Box component="fieldset" className="fieldset_wrap">
-                            <legend className="fldset_lgend">
-                              Evening Slots
-                            </legend>
-                            <ul className="time_box">
-                              {timeBuckets.evening.map((time) => (
-                                <li
-                                  key={time}
-                                  onClick={() =>
-                                    handleTimeSlotClick(time, setFieldValue)
-                                  }
-                                  style={{
-                                    background:
-                                      selectedTimeSlot === time
-                                        ? "#20ada0"
-                                        : "",
-                                    color:
-                                      selectedTimeSlot === time
-                                        ? "white"
-                                        : "black",
-                                  }}
-                                >
-                                  {time}
-                                </li>
-                              ))}
-                            </ul>
-                          </Box>
-
-                          <Box component="fieldset" className="fieldset_wrap">
-                            <legend className="fldset_lgend">
-                              Night Slots
-                            </legend>
-                            <ul className="time_box">
-                              {timeBuckets.night.map((time) => (
-                                <li
-                                  key={time}
-                                  onClick={() =>
-                                    handleTimeSlotClick(time, setFieldValue)
-                                  }
-                                  style={{
-                                    background:
-                                      selectedTimeSlot === time
-                                        ? "#20ada0"
-                                        : "",
-                                    color:
-                                      selectedTimeSlot === time
-                                        ? "white"
-                                        : "black",
-                                  }}
-                                >
-                                  {time}
-                                </li>
-                              ))}
-                            </ul>
-                          </Box>
-                        </Box>
-
-                        {touched.appointmentTime && errors.appointmentTime && (
-                          <Typography
-                            color="error"
-                            variant="body2"
-                            paddingLeft="38px"
-                          >
-                            {errors.appointmentTime}
-                          </Typography>
-                        )}
-                      </Grid>
-                      {/* ===== Right Section (Price/Consultation/Payment Details) ===== */}
-                      <Grid item xs={12} sm={3} md={3}>
+                        <br />
                         <Box
-                          sx={{ ...priceWrapSx, border: "1px solid #b1b1b1" }}
+                          sx={{ ...priceWrapSx, border: "1px solid #7A4D9C" }}
                         >
                           <Typography className="price_header_txt">
                             Consultation Details
@@ -1115,11 +1174,11 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         sx={{
                           minWidth: "150px",
                           color: "#fff",
-                          background: "#20ADA0",
+                          background: "#29175E",
                           borderRadius: "4px",
                           marginLeft: "20px",
                           ":hover": {
-                            bgcolor: "#20ADA0",
+                            bgcolor: "#7A4D9C",
                             color: "white",
                           },
                         }}
@@ -1133,11 +1192,11 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         sx={{
                           minWidth: "150px",
                           color: "#fff",
-                          background: "#20ADA0",
+                          background: "#29175E",
                           borderRadius: "4px",
                           marginLeft: "20px",
                           ":hover": {
-                            bgcolor: "#20ADA0",
+                            bgcolor: "#7A4D9C",
                             color: "white",
                           },
                         }}

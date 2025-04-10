@@ -8,13 +8,11 @@ import {
   Button,
   Chip,
   Divider,
-  IconButton,
   Paper,
   Rating,
   Typography,
 } from "@mui/material";
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import EventIcon from "@mui/icons-material/Event";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import SchoolIcon from "@mui/icons-material/School";
@@ -428,7 +426,6 @@ const ExpertSpecialistSlider: React.FC = () => {
               </div>
             ))}
           </Slider>
-
           <Box
             className={styles.buttonWrapper}
             style={{ textAlign: "center", marginTop: "20px" }}
