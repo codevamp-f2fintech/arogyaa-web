@@ -8,11 +8,13 @@ import {
   Button,
   Chip,
   Divider,
+  IconButton,
   Paper,
   Rating,
   Typography,
 } from "@mui/material";
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import EventIcon from "@mui/icons-material/Event";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import SchoolIcon from "@mui/icons-material/School";
@@ -67,6 +69,8 @@ const ExpertSpecialistSlider: React.FC = () => {
       dispatch(setDoctor(data));
     }
   }, [data, dispatch]);
+
+  console.log("selectddoc", doctor);
 
   const sliderSettings = useMemo(
     () => ({
@@ -171,7 +175,6 @@ const ExpertSpecialistSlider: React.FC = () => {
                       },
                     }}
                   >
-                    {/* Verify Badge */}
                     <Box
                       sx={{
                         position: "absolute",
@@ -181,35 +184,17 @@ const ExpertSpecialistSlider: React.FC = () => {
                         gap: "8px",
                       }}
                     >
-                      {doctor.isVerified && (
-                        <>
-                          {/* Verified by Arogyaa Text with Tick Mark */}
-                          <Box sx={{ display: "flex", alignItems: "center" }}>
-                            <VerifiedIcon
-                              sx={{
-                                color: "white",
-                                fontSize: "20px",
-                                marginRight: "1px",
-                              }}
-                            />
-                            <Typography
-                              sx={{
-                                fontSize: "14px",
-                                fontWeight: "500",
-                                color: "white",
-                                // backgroundColor: "#20ADA0",
-                                padding: "4px 8px",
-                                borderRadius: "12px",
-                                display: "inline-flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                              }}
-                            >
-                              Verified by Arogyaa
-                            </Typography>
-                          </Box>
-                        </>
-                      )}
+                      <IconButton
+                        size="small"
+                        sx={{
+                          backgroundColor: "rgba(255, 255, 255, 0.9)",
+                          "&:hover": { backgroundColor: "#FFFFFF" },
+                        }}
+                      >
+                        <VerifiedIcon
+                          sx={{ color: "#20ADA0", fontSize: "20px" }}
+                        />
+                      </IconButton>
                     </Box>
                   </Box>
 
@@ -341,7 +326,7 @@ const ExpertSpecialistSlider: React.FC = () => {
 
                         <Chip
                           icon={<LocationOnIcon sx={{ color: "#20ADA0" }} />}
-                          label={`${doctor.clinicAddress}`}
+                          label="Location"
                           variant="outlined"
                           size="small"
                           sx={{
@@ -356,7 +341,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                     </Box>
 
                     <Rating
-                      value={doctor.rating || 0}
+                      value={doctor.rating || 0} // Fetch rating from API, default to 0 if not available
                       precision={0.5}
                       readOnly
                       size="small"
@@ -426,6 +411,7 @@ const ExpertSpecialistSlider: React.FC = () => {
               </div>
             ))}
           </Slider>
+
           <Box
             className={styles.buttonWrapper}
             style={{ textAlign: "center", marginTop: "20px" }}

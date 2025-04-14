@@ -1,11 +1,19 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { CssBaseline, Container, Typography, Box, Button, useTheme, useMediaQuery } from '@mui/material';
+import React from "react";
+import {
+  CssBaseline,
+  Container,
+  Typography,
+  Box,
+  Button,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
 
 const NotFoundPage = () => {
   const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
     <React.Fragment>
@@ -13,43 +21,54 @@ const NotFoundPage = () => {
       <Container
         maxWidth="xl"
         sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100vh',
-          backgroundColor: '#f5f5f5',
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          background:
+            "linear-gradient(180deg, rgba(85,65,138,1) 0%, rgba(93,73,147,1) 100%)",
+          backgroundSize: "cover",
         }}
       >
         <Box
           sx={{
-            display: 'flex',
-            flexDirection: isSmallScreen ? 'column' : 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '#edf7fd',
-            borderRadius: '16px',
+            display: "flex",
+            flexDirection: isSmallScreen ? "column" : "row",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "#edf7fd",
+            borderRadius: "16px",
             padding: theme.spacing(4),
             boxShadow: 3,
-            maxWidth: '800px',
-            width: '90%',
+            maxWidth: "900px",
+            width: "90%",
+            margin: "0 auto",
+            transition: "all 0.3s ease-in-out", 
+            "&:hover": {
+              transform: "scale(1.03)",
+              boxShadow: 8, 
+            },
           }}
         >
           {/* Left Side: Illustration */}
           <Box
             sx={{
               flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               marginBottom: isSmallScreen ? theme.spacing(2) : 0,
+              height: isSmallScreen ? "auto" : "400px", 
+              overflow: "hidden", 
             }}
           >
             <img
-              src="./img/plug.png"
-              alt="Plug Illustration"
+              src="404img.webp"
               style={{
-                maxWidth: '100%',
-                height: 'auto',
+                maxWidth: "100%",
+                height: "100%", 
+                objectFit: "cover", 
+                borderRadius: "12px", 
               }}
             />
           </Box>
@@ -58,29 +77,52 @@ const NotFoundPage = () => {
           <Box
             sx={{
               flex: 1,
-              textAlign: isSmallScreen ? 'center' : 'left',
+              textAlign: isSmallScreen ? "center" : "left",
               paddingLeft: isSmallScreen ? 0 : theme.spacing(4),
             }}
           >
-            <Typography variant="h2" component="h1" sx={{ fontWeight: 'bold', color: '#449ac8' }}>
-              404<br /> Page Not Found
+            <Typography
+              variant="h2"
+              component="h1"
+              sx={{
+                fontWeight: "bold",
+                fontFamily: "Poppins",
+                color: "#b497d6",
+                fontSize: isSmallScreen ? "1.5rem" : "2.9rem", 
+                marginBottom: theme.spacing(2),
+                // textShadow: "3px 3px 6px rgba(0, 0, 0, 0.3)",
+              }}
+            >
+              404 Page Not Found
             </Typography>
-            <Typography variant="body1" sx={{ marginTop: theme.spacing(2), color: '#555' }}>
-              The page you are looking for does not exist.
+            <Typography
+              variant="body1"
+              sx={{
+                fontFamily: "Poppins",
+                marginTop: theme.spacing(2),
+                color: "#555",
+                fontSize: isSmallScreen ? "1rem" : "1.25rem",
+                lineHeight: 1.8,
+              }}
+            >
+              Please check the URL or go back to the homepage.
             </Typography>
             <Button
               href="/"
-              variant="outlined"
+              variant="contained"
               sx={{
                 marginTop: theme.spacing(4),
-                paddingX: theme.spacing(3),
+                paddingX: theme.spacing(4),
                 paddingY: theme.spacing(1.5),
-                borderColor: '#449ac8',
-                color: '#449ac8',
-                '&:hover': {
-                  borderColor: '#3171b8',
-                  backgroundColor: 'rgba(68, 154, 200, 0.04)',
+                borderRadius: "30px",
+                backgroundColor: "#b497d6",
+                fontFamily: "Poppins",
+                color: "#fff",
+                "&:hover": {
+                  backgroundColor: "#29175e",
+                  transform: "scale(1.05)",
                 },
+                transition: "all 0.3s ease-in-out", 
               }}
             >
               Go Back Home

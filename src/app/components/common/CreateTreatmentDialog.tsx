@@ -100,6 +100,7 @@ const initialFormData = {
   frequency: "",
   duration: "",
   isEmptyStomach: false,
+  isFollowUp: false,
   type: "",
   status: "in progress",
   photo: null,
@@ -173,7 +174,7 @@ const fetchDoctors = async () => {
     }
   };
   const handleCheckboxChange = (e) => {
-    setFormData({ ...formData, isEmptyStomach: e.target.checked });
+    setFormData({ ...formData, isEmptyStomach: e.target.checked,isFollowUp: e.target.checked });
   };
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -348,7 +349,23 @@ const fetchDoctors = async () => {
                 }
                 label="Empty Stomach"
               />
+                <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formData.isFollowUp}
+                    onChange={handleCheckboxChange}
+                    sx={{
+                      color: formData.isFollowUp ? "#20ADA0" : "default",
+                      "&.Mui-checked": {
+                        color: "#20ADA0",
+                      },
+                    }}
+                  />
+                }
+                label="Is Follow Up?"
+              />
             </Grid>
+           
 
             <Grid item xs={12} sm={4}>
               <StyledAutocomplete
