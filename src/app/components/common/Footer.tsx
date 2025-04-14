@@ -32,11 +32,12 @@ import Link from "next/link";
 // Theme configuration
 const THEME = {
   colors: {
-    primary: "#20ADA0",
-    secondary: "#1A8F84",
+    primary: "#29175e",
+    secondary: "#50c878",
+    // accent: "#FF7E5D",
     text: {
-      dark: "#0a2540",
-      light: "#4a5568",
+      dark: "#29175e",
+      light: "#29175e",
     },
   },
 };
@@ -48,8 +49,8 @@ const FooterMenuItem = ({ label, route, icon }) => {
       component={Link}
       href={route}
       sx={{
-        fontSize: "1.2rem",
-        mb: 2,
+        fontSize: "1rem",
+        mb: 1.5,
         color: THEME.colors.text.light,
         transition: "all 0.3s ease",
         cursor: "pointer",
@@ -58,13 +59,17 @@ const FooterMenuItem = ({ label, route, icon }) => {
         alignItems: "center",
         "&:hover": {
           color: THEME.colors.primary,
-          transform: "translateX(8px)",
+          transform: "translateX(5px)",
         },
       }}
     >
       {icon &&
         React.cloneElement(icon, {
-          sx: { fontSize: 20, mr: 1, color: THEME.colors.primary },
+          sx: {
+            fontSize: 18,
+            mr: 1.5,
+            color: THEME.colors.accent,
+          },
         })}
       {label}
     </Typography>
@@ -76,20 +81,21 @@ const SocialButton = ({ Icon, label, link }) => {
   return (
     <Tooltip title={label} arrow>
       <IconButton
-        size="large"
+        size="medium"
         component="a"
         href={link}
         target="_blank"
         rel="noopener noreferrer"
         sx={{
-          backgroundColor: "white",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-          border: `2px solid ${alpha(THEME.colors.primary, 0.2)}`,
+          backgroundColor: "#c1b4e2",
+          boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
+          border: `1px solid ${alpha(THEME.colors.primary, 0.2)}`,
           "&:hover": {
-            backgroundColor: THEME.colors.primary,
-            borderColor: THEME.colors.primary,
+            backgroundColor: "#29175e",
+            transform: "translateY(-3px)",
+            boxShadow: `0 6px 12px ${alpha(THEME.colors.primary, 0.2)}`,
             "& .MuiSvgIcon-root": {
-              color: "white",
+              color: "#c1b4e2",
             },
           },
           transition: "all 0.3s ease",
@@ -98,7 +104,7 @@ const SocialButton = ({ Icon, label, link }) => {
         <Icon
           sx={{
             color: THEME.colors.primary,
-            fontSize: 24,
+            fontSize: 20,
             transition: "all 0.3s ease",
           }}
         />
@@ -108,13 +114,36 @@ const SocialButton = ({ Icon, label, link }) => {
 };
 
 // Component for Contact Info Item
-const ContactItem = ({ Icon, text }) => {
+const ContactItem = ({ Icon, text, link }) => {
   return (
-    <Stack direction="row" alignItems="center">
-      <Icon sx={{ color: THEME.colors.primary, mr: 2 }} />
+    <Stack direction="row" alignItems="flex-start" spacing={2}>
+      <Box
+        sx={{
+          backgroundColor: alpha(THEME.colors.primary, 0.1),
+          borderRadius: "50%",
+          width: 36,
+          height: 36,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+        }}
+      >
+        <Icon sx={{ color: THEME.colors.primary, fontSize: 18 }} />
+      </Box>
       <Typography
         variant="body1"
-        sx={{ color: THEME.colors.text.light, fontWeight: 500 }}
+        component={link ? "a" : "p"}
+        href={link}
+        target="_blank"
+        sx={{
+          color: THEME.colors.text.light,
+          fontWeight: 500,
+          lineHeight: 1.5,
+          "&:hover": {
+            color: link ? THEME.colors.primary : "inherit",
+          },
+        }}
       >
         {text}
       </Typography>
@@ -140,7 +169,6 @@ const Footer = () => {
         title: "Pages",
         items: [
           { label: "Doctors", route: "/doctors", icon: <MedicalServices /> },
-          // { label: "Clinics", route: "/clinics", icon: <LocalHospital /> },
           { label: "About Us", route: "#", icon: <MedicalServices /> },
           {
             label: "Our Services",
@@ -158,7 +186,7 @@ const Footer = () => {
       },
     },
     social: {
-      title: "Social",
+      title: "Follow Us",
       items: [
         {
           Icon: InstagramIcon,
@@ -198,12 +226,10 @@ const Footer = () => {
         route: "/privacy",
       },
       { label: "Terms & Conditions", route: "/terms" },
-
       {
         label: "Refund Policy",
         route: "/refund",
       },
-      // { label: "Sitemap", route: "/sitemap" },
     ],
   };
 
@@ -214,21 +240,24 @@ const Footer = () => {
   // Section Title component
   const SectionTitle = ({ children }) => (
     <Typography
+      variant="h6"
       sx={{
-        fontSize: "1.5rem",
+        fontSize: "1.1rem",
         fontWeight: 700,
-        mb: 4,
+        mb: 3,
         color: THEME.colors.text.dark,
+        textTransform: "uppercase",
+        letterSpacing: 1,
         position: "relative",
         "&::after": {
           content: '""',
           position: "absolute",
-          bottom: -12,
+          bottom: -8,
           left: 0,
-          width: "60px",
-          height: "4px",
-          borderRadius: "4px",
-          backgroundColor: THEME.colors.primary,
+          width: "40px",
+          height: "3px",
+          borderRadius: "3px",
+          backgroundColor: THEME.colors.accent,
         },
       }}
     >
@@ -238,40 +267,53 @@ const Footer = () => {
 
   return (
     <Box
+      component="footer"
       sx={{
-        backgroundColor: "#ffffff",
+        background: "rgb(188,174,224)",
+        background:
+          "linear-gradient(180deg, rgba(188,174,224,1) 0%, rgba(255,255,255,1) 100%)",
         color: THEME.colors.text.dark,
         pt: 8,
         pb: 4,
         width: "100%",
         position: "relative",
-        boxShadow: "0px -5px 20px rgba(0,0,0,0.05)",
-        borderTop: `4px solid ${THEME.colors.primary}`,
+        // borderTop: `1px solid ${alpha(THEME.colors.primary, 0.1)}`,
       }}
     >
       <Container maxWidth="xl">
         <Grid container spacing={6}>
           {/* Logo and About Section */}
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={5}>
             <Stack spacing={3}>
               {/* Logo */}
               <Stack
                 direction="row"
                 alignItems="center"
-                spacing={1}
+                spacing={2}
                 sx={{
-                  mb: 2,
+                  mb: 1,
                   transition: "transform 0.3s ease",
-                  "&:hover": { transform: "scale(1.05)" },
+                  "&:hover": { transform: "scale(1.02)" },
                 }}
               >
-                <LocalHospital
+                <Box
                   sx={{
-                    fontSize: 60,
-                    color: THEME.colors.primary,
-                    mr: 2,
+                    backgroundColor: alpha(THEME.colors.primary, 0.1),
+                    borderRadius: "12px",
+                    width: 60,
+                    height: 60,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
-                />
+                >
+                  <LocalHospital
+                    sx={{
+                      fontSize: 36,
+                      color: THEME.colors.primary,
+                    }}
+                  />
+                </Box>
                 <Typography
                   variant="h4"
                   component={Link}
@@ -279,9 +321,9 @@ const Footer = () => {
                   sx={{
                     color: THEME.colors.text.dark,
                     textDecoration: "none",
-                    fontSize: "2.4rem",
+                    fontSize: "2rem",
                     fontWeight: 800,
-                    letterSpacing: 1.5,
+                    letterSpacing: 0.5,
                   }}
                 >
                   {content.title}
@@ -313,7 +355,7 @@ const Footer = () => {
               </Typography>
 
               {/* Contact Information */}
-              <Stack spacing={3} sx={{ mt: 2 }}>
+              <Stack spacing={2.5} sx={{ mt: 1 }}>
                 <ContactItem
                   Icon={LocationOn}
                   text={content.address}
@@ -326,9 +368,9 @@ const Footer = () => {
           </Grid>
 
           {/* Pages Section */}
-          <Grid item xs={12} md={3}>
+          <Grid item xs={6} md={2}>
             <SectionTitle>{content.sections.pages.title}</SectionTitle>
-            <Stack spacing={1} sx={{ mt: 3 }}>
+            <Stack spacing={1.5}>
               {content.sections.pages.items.map((item, index) => (
                 <FooterMenuItem
                   key={index}
@@ -341,9 +383,9 @@ const Footer = () => {
           </Grid>
 
           {/* Support Section */}
-          <Grid item xs={12} md={2}>
+          <Grid item xs={6} md={2}>
             <SectionTitle>{content.sections.support.title}</SectionTitle>
-            <Stack spacing={1} sx={{ mt: 3 }}>
+            <Stack spacing={1.5}>
               {content.sections.support.items.map((item, index) => (
                 <FooterMenuItem
                   key={index}
@@ -354,12 +396,22 @@ const Footer = () => {
             </Stack>
           </Grid>
 
-          {/* Social Media and Newsletter Section */}
+          {/* Social Media Section */}
           <Grid item xs={12} md={3}>
             <SectionTitle>{content.social.title}</SectionTitle>
+            <Typography
+              variant="body1"
+              sx={{
+                color: THEME.colors.text.light,
+                mb: 3,
+                fontSize: "0.95rem",
+              }}
+            >
+              Connect with us on social media for updates and health tips.
+            </Typography>
 
             {/* Social Media Icons */}
-            <Stack direction="row" spacing={2} sx={{ mt: 3, mb: 4 }}>
+            <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
               {content.social.items.map((item, index) => (
                 <SocialButton
                   key={index}
@@ -369,76 +421,6 @@ const Footer = () => {
                 />
               ))}
             </Stack>
-
-            {/* Newsletter Subscription */}
-            {/* <Paper
-              elevation={2}
-              sx={{
-                p: 3,
-                borderRadius: 3,
-                border: `1px solid ${alpha(THEME.colors.primary, 0.1)}`,
-                transition: "all 0.3s ease",
-                "&:hover": {
-                  boxShadow: theme.shadows[4],
-                  transform: "translateY(-4px)",
-                },
-              }}
-            >
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: 600,
-                  color: THEME.colors.text.dark,
-                  mb: 1,
-                }}
-              >
-                {content.newsletter.title}
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  color: THEME.colors.text.light,
-                  mb: 2,
-                }}
-              >
-                {content.newsletter.description}
-              </Typography>
-              <Stack
-                direction={{ xs: "column", sm: "row" }}
-                spacing={1}
-                component="form"
-              >
-                <TextField
-                  placeholder="Your email"
-                  variant="outlined"
-                  size="small"
-                  fullWidth
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      "&:hover fieldset": {
-                        borderColor: THEME.colors.primary,
-                      },
-                      "&.Mui-focused fieldset": {
-                        borderColor: THEME.colors.primary,
-                      },
-                    },
-                  }}
-                />
-                <Button
-                  variant="contained"
-                  sx={{
-                    backgroundColor: THEME.colors.primary,
-                    color: "white",
-                    fontWeight: 600,
-                    "&:hover": {
-                      backgroundColor: THEME.colors.secondary,
-                    },
-                  }}
-                >
-                  Subscribe
-                </Button>
-              </Stack>
-            </Paper> */}
           </Grid>
         </Grid>
 
@@ -447,35 +429,28 @@ const Footer = () => {
           <Divider
             sx={{
               mb: 4,
-              "&::before, &::after": {
-                borderColor: alpha(THEME.colors.text.dark, 0.1),
-              },
+              borderColor: alpha(THEME.colors.text.dark, 0.1),
             }}
-          >
-            <Box
-              sx={{
-                width: 100,
-                height: 4,
-                backgroundColor: THEME.colors.primary,
-                borderRadius: 2,
-              }}
-            />
-          </Divider>
+          />
 
           <Grid container alignItems="center" spacing={3}>
             <Grid item xs={12} md={6}>
               <Typography
                 sx={{
-                  opacity: 0.9,
-                  fontWeight: 600,
-                  fontSize: "1.1rem",
+                  opacity: 0.8,
+                  fontWeight: 500,
+                  fontSize: "0.9rem",
                   color: THEME.colors.text.light,
                 }}
               >
                 {content.copyright.split("Arogyaa HealthCare")[0]}
                 <Box
                   component="span"
-                  sx={{ color: THEME.colors.primary, mx: 1 }}
+                  sx={{
+                    color: THEME.colors.primary,
+                    mx: 0.5,
+                    fontWeight: 600,
+                  }}
                 >
                   Arogyaa
                 </Box>
@@ -484,9 +459,10 @@ const Footer = () => {
             </Grid>
             <Grid item xs={12} md={6}>
               <Stack
-                direction="row"
-                spacing={4}
+                direction={{ xs: "column", sm: "row" }}
+                spacing={{ xs: 1, sm: 3 }}
                 justifyContent={{ xs: "flex-start", md: "flex-end" }}
+                flexWrap="wrap"
                 sx={{ mt: { xs: 2, md: 0 } }}
               >
                 {content.bottomLinks.map((item, index) => (
@@ -498,25 +474,10 @@ const Footer = () => {
                       color: THEME.colors.text.light,
                       cursor: "pointer",
                       transition: "all 0.3s ease",
-                      position: "relative",
-                      fontSize: "1.1rem",
+                      fontSize: "0.9rem",
                       fontWeight: 500,
                       "&:hover": {
                         color: THEME.colors.primary,
-                        "&::after": {
-                          width: "100%",
-                        },
-                      },
-                      "&::after": {
-                        content: '""',
-                        position: "absolute",
-                        bottom: -4,
-                        left: 0,
-                        width: "0%",
-                        height: "2px",
-                        backgroundColor: THEME.colors.primary,
-                        transition: "width 0.3s ease",
-                        borderRadius: "1px",
                       },
                     }}
                   >

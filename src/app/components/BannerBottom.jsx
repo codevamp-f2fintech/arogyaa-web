@@ -1,300 +1,295 @@
 "use client";
 
 import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import {
-  Box,
   Accordion,
   AccordionSummary,
   AccordionDetails,
   Typography,
-  Grid,
-  useTheme,
-  useMediaQuery,
+  Box,
+  Container,
 } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { styled, keyframes, alpha } from "@mui/material/styles";
 
-const moveImageVertical = keyframes`
-  0% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(20px); // Move 20px down
-  }
-  100% {
-    transform: translateY(0); // Return to original position
-  }
-`;
-
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
-
-const StyledBanner = styled(Box)(({ theme }) => ({
-  minHeight: "50vh", // Reduced height
-  position: "relative",
-  padding: theme.spacing(6, 2),
-  background: `linear-gradient(60deg, rgba(86,159,157,1) 29%, rgba(60,137,133,1) 100%)`,
-  borderRadius: theme.shape.borderRadius * 2,
-  overflow: "hidden",
-  boxShadow: `0 10px 40px ${alpha("#20ADA0", 0.1)}`,
-  animation: `${fadeIn} 0.6s ease-out`,
-  [theme.breakpoints.up("md")]: {
-    padding: theme.spacing(8, 4),
+const faqs = [
+  {
+    question: "Are your online doctors qualified?",
+    answer:
+      "We follow a strict verification process for every doctor providing online medical services on Practo. Our team manually verifies necessary documents, registrations, and certifications for every doctor.",
   },
-}));
-
-const StyledImage = styled("img")(({ theme }) => ({
-  paddingLeft:"50px",
-  position: "absolute",
-  bottom: -10,
-  left: 0,
-  height: "100%",
-  objectFit: "contain",
-  opacity: 0.95,
-  filter: "drop-shadow(0 10px 20px rgba(0,0,0,0.15))",
-  animation: `${moveImageVertical} 5s ease-in-out infinite`,
-  [theme.breakpoints.down("md")]: {
-    display: "none",
+  {
+    question: "How can I schedule an appointment?",
+    answer:
+      "You can schedule an appointment through our online portal or by calling our office.",
   },
-}));
+  {
+    question: "What insurance do you accept?",
+    answer:
+      "We accept a variety of insurance providers. Please contact us for more information.",
+  },
+  {
+    question: "For how long is the consultation valid?",
+    answer:
+      'In the case of a paid consult, you can follow-up with your doctor for up to 3 days. In case you opt for a free consult, follow-up questions are valid for one day only. Do you have a refund policy? We have a "take-it-easy" policy. If for any reason you\'re not convinced with your online consultation, you can write to us at contact wecare@f2fintech.com and we will review the consult with the doctor - seeking clarifications on your queries that were answered. 100% refund will be given in genuine cases.',
+  },
+];
 
-const FAQWrapper = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(4),
-  backgroundColor: theme.palette.background.default,
-}));
-
-const FAQPage = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const [expanded, setExpanded] = useState(false);
-
-  const handleChange = (panel) => (event, isExpanded) => {
-    setExpanded(isExpanded ? panel : false);
-  };
+export default function FAQpage() {
+  const [openIndex, setOpenIndex] = useState(null);
 
   return (
-    <Box>
-      {/* Banner Section */}
-      <StyledBanner>
-        <StyledImage
-          alt="Doctor"
-          src="/assets/images/Questions-bro.png"
-        />
-        <Grid
-          container
-          spacing={4}
+    <Box
+      sx={{
+        position: "relative",
+        background: "rgb(175,159,219)",
+        background:
+          "linear-gradient(180deg, rgba(175,159,219,1) 0%, rgba(190,176,225,1) 100%)",
+        color: "#29175e",
+        minHeight: "100vh",
+        width: "100%",
+        padding: { xs: "20px", md: "40px 60px" },
+        overflow: "hidden",
+      }}
+    >
+      <Container maxWidth="xl" sx={{ position: "relative", zIndex: 2 }}>
+        <Box
           sx={{
-            alignItems: "center",
-            justifyContent: "flex-end",
+            display: "flex",
+            flexDirection: {
+              xs: "column",
+              md: "row",
+            },
+            justifyContent: "space-between",
+            alignItems: { xs: "flex-start", md: "center" },
+            gap: { xs: 4, md: 8 },
+            py: 4,
           }}
         >
-          <Grid item xs={12} md={6}></Grid>
-          <Grid item xs={12} md={6}></Grid>
-          {/* FAQ Section */}
-          <FAQWrapper id="faq"
+          <Box
             sx={{
-              marginRight: "94px", // Add margin on the right
-              borderRadius: "12px", // Apply a rounded border radius
-              width: "600px",
-              backgroundColor: "#E5F9F5", // Light background with the color combination
-              padding: "16px", // Add some padding for better spacing
+              width: { xs: "100%", md: "45%" },
+              animation: "fadeIn 0.8s ease-out",
+              "@keyframes fadeIn": {
+                "0%": { opacity: 0, transform: "translateY(20px)" },
+                "100%": { opacity: 1, transform: "translateY(0)" },
+              },
             }}
           >
             <Typography
-              variant="h4"
+              variant="h3"
               sx={{
-                display: "flex",
-                justifyContent: "center",
-                mb: 3,
-                fontWeight: 700,
-                color: "#20ADA0", // Color for the heading
+                fontWeight: "bold",
+                fontSize: { xs: "2rem", md: "3.5rem" },
+                mb: 1,
+                color: "black",
               }}
             >
-              FAQ
+              Questions?
             </Typography>
-
-            {/* Accordion 1 */}
-            <Accordion
-              expanded={expanded === "panel1"}
-              onChange={handleChange("panel1")}
+            <Typography
+              variant="h3"
               sx={{
-                backgroundColor: "#ffffff", // Accordion background
-                border: "1px solid #20ADA0", // Border with color combination
-                boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)", // Add shadow to accordion
-                "&:hover": {
-                  backgroundColor: "#F2F9F8", // Change background color on hover
-                  transform: "translateY(-5px)", // Move accordion up on hover
-                  transition: "transform 0.3s ease, background-color 0.3s ease", // Smooth transition
-                },
+                fontWeight: "bold",
+                fontSize: { xs: "2rem", md: "2.8rem" },
+                mb: 3,
+                color: "#29175e",
               }}
             >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1-content"
-                id="panel1-header"
+              Your Health, Made Easy
+            </Typography>
+            <Typography
+              sx={{
+                color: "#29175e",
+                fontSize: "1.1rem",
+                fontWeight: 550,
+                fontFamily: "Poppins",
+                lineHeight: 1.6,
+                mb: 2,
+              }}
+            >
+              We get it—healthcare terms can be confusing. That's why we’ve made
+              our FAQs easy to understand.
+            </Typography>
+            <Typography
+              sx={{
+                color: "#29175e",
+                fontSize: "1.1rem",
+                fontWeight: 550,
+                fontFamily: "Poppins",
+                lineHeight: 1.6,
+              }}
+            >
+              Need more help? Cassie, our AI assistant, is always here to guide
+              you!
+            </Typography>
+          </Box>
+
+          <Box
+            sx={{
+              width: { xs: "100%", md: "50%" },
+              animation: "slideIn 0.8s ease-out",
+              "@keyframes slideIn": {
+                "0%": { opacity: 0, transform: "translateX(20px)" },
+                "100%": { opacity: 1, transform: "translateX(0)" },
+              },
+            }}
+          >
+            {faqs.map((faq, index) => (
+              <Accordion
+                key={index}
+                expanded={openIndex === index}
+                onChange={() =>
+                  setOpenIndex(openIndex === index ? null : index)
+                }
                 sx={{
-                  backgroundColor: "#F2F9F8", // Accordion header background
-                  color: "#20ADA0", // Text color in the header
-                  fontWeight: "bold", // Make the text bold
-                  "&:hover": {
-                    color: "#ffffff", // Change text color on hover
-                    backgroundColor: "#20ADA0", // Change header background color on hover
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  color: "#29175e",
+                  borderRadius: "8px",
+                  mb: 2,
+                  overflow: "hidden",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                  transition: "all 0.3s ease",
+                  "&:before": {
+                    display: "none",
+                  },
+                  "&.Mui-expanded": {
+                    backgroundColor: "rgba(255, 255, 255, 0.15)",
+                    transform: "scale(1.01)",
+                    boxShadow: "0 6px 16px rgba(0,0,0,0.15)",
                   },
                 }}
               >
-                <Typography variant="h6">
-                  Are your online doctors qualified?
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Typography>
-                  We follow a strict verification process for every doctor
-                  providing online medical services on Practo. Our team manually
-                  verifies necessary documents, registrations, and
-                  certifications for every doctor.
-                </Typography>
-              </AccordionDetails>
-            </Accordion>
+                <AccordionSummary
+                  expandIcon={
+                    <ChevronDown
+                      style={{
+                        color: "#29175e",
+                        transition: "transform 0.3s ease",
+                        transform:
+                          openIndex === index
+                            ? "rotate(180deg)"
+                            : "rotate(0deg)",
+                      }}
+                    />
+                  }
+                  sx={{
+                    padding: "16px 24px",
+                    "&:hover": {
+                      backgroundColor: "rgba(255, 255, 255, 0.05)",
+                    },
+                    "& .MuiAccordionSummary-content": {
+                      transition: "all 0.3s ease",
+                    },
+                    "& .MuiAccordionSummary-content.Mui-expanded": {
+                      transform: "translateX(8px)",
+                    },
+                  }}
+                >
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: "#29175e",
+                      fontSize: "1.1rem",
+                      fontWeight: 550,
+                      fontFamily: "Poppins",
+                      lineHeight: 1.6,
+                      transition: "all 0.3s ease",
+                    }}
+                  >
+                    {faq.question}
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails
+                  sx={{
+                    padding: "0px 24px 20px",
+                    backgroundColor: "rgba(255, 255, 255, 0.05)",
+                    animation:
+                      openIndex === index
+                        ? "fadeInContent 0.5s ease-in-out"
+                        : "none",
+                    "@keyframes fadeInContent": {
+                      "0%": { opacity: 0, transform: "translateY(-10px)" },
+                      "100%": { opacity: 1, transform: "translateY(0)" },
+                    },
+                  }}
+                >
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: "#29175e",
+                      fontSize: "1rem",
+                      fontWeight: 535,
+                      fontFamily: "Poppins",
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    {faq.answer}
+                  </Typography>
+                </AccordionDetails>
+              </Accordion>
+            ))}
+          </Box>
+        </Box>
+      </Container>
 
-            {/* Accordion 2 */}
-            <Accordion
-              expanded={expanded === "panel2"}
-              onChange={handleChange("panel2")}
-              sx={{
-                backgroundColor: "#ffffff", // Accordion background
-                border: "1px solid #20ADA0", // Border with color combination
-                "&:hover": {
-                  backgroundColor: "#F2F9F8", // Change background color on hover
-                  transform: "translateY(-5px)", // Move accordion up on hover
-                  transition: "transform 0.3s ease, background-color 0.3s ease", // Smooth transition
-                },
-              }}
-            >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel2-content"
-                id="panel2-header"
-                sx={{
-                  backgroundColor: "#F2F9F8", // Accordion header background
-                  color: "#20ADA0", // Text color in the header
-                  fontWeight: "bold", // Make the text bold
-                  "&:hover": {
-                    color: "#ffffff", // Change text color on hover
-                    backgroundColor: "#20ADA0", // Change header background color on hover
-                  },
-                }}
-              >
-                <Typography variant="h6">
-                  How can I schedule an appointment?
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Typography>
-                  You can schedule an appointment through our online portal or
-                  by calling our office.
-                </Typography>
-              </AccordionDetails>
-            </Accordion>
+      {/* Floating circles decoration similar to the website */}
+      <Box
+        sx={{
+          position: "absolute",
+          right: "15%",
+          top: "60%",
+          width: "100px",
+          height: "100px",
+          borderRadius: "50%",
+          background: "rgba(255, 255, 255, 0.07)",
+          filter: "blur(30px)",
+          animation: "float 6s infinite ease-in-out 1s",
+        }}
+      />
+      <Box
+        sx={{
+          position: "absolute",
+          left: "20%",
+          bottom: "10%",
+          width: "120px",
+          height: "120px",
+          borderRadius: "50%",
+          background: "rgba(255, 255, 255, 0.06)",
+          filter: "blur(35px)",
+          animation: "float 7s infinite ease-in-out 0.5s",
+        }}
+      />
 
-            {/* Accordion 3 */}
-            <Accordion
-              expanded={expanded === "panel3"}
-              onChange={handleChange("panel3")}
-              sx={{
-                backgroundColor: "#ffffff", // Accordion background
-                border: "1px solid #20ADA0", // Border with color combination
-                "&:hover": {
-                  backgroundColor: "#F2F9F8", // Change background color on hover
-                  transform: "translateY(-5px)", // Move accordion up on hover
-                  transition: "transform 0.3s ease, background-color 0.3s ease", // Smooth transition
-                },
-              }}
-            >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel3-content"
-                id="panel3-header"
-                sx={{
-                  backgroundColor: "#F2F9F8", // Accordion header background
-                  color: "#20ADA0", // Text color in the header
-                  fontWeight: "bold", // Make the text bold
-                  "&:hover": {
-                    color: "#ffffff", // Change text color on hover
-                    backgroundColor: "#20ADA0", // Change header background color on hover
-                  },
-                }}
-              >
-                <Typography variant="h6">
-                  What insurance do you accept?
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Typography>
-                  We accept a variety of insurance providers. Please contact us
-                  for more information.
-                </Typography>
-              </AccordionDetails>
-            </Accordion>
-
-            {/* Accordion 4 */}
-            <Accordion
-              expanded={expanded === "panel4"}
-              onChange={handleChange("panel4")}
-              sx={{
-                backgroundColor: "#ffffff", // Accordion background
-                border: "1px solid #20ADA0", // Border with color combination
-                "&:hover": {
-                  backgroundColor: "#F2F9F8", // Change background color on hover
-                  transform: "translateY(-5px)", // Move accordion up on hover
-                  transition: "transform 0.3s ease, background-color 0.3s ease", // Smooth transition
-                },
-              }}
-            >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel4-content"
-                id="panel4-header"
-                sx={{
-                  backgroundColor: "#F2F9F8", // Accordion header background
-                  color: "#20ADA0", // Text color in the header
-                  fontWeight: "bold", // Make the text bold
-                  "&:hover": {
-                    color: "#ffffff", // Change text color on hover
-                    backgroundColor: "#20ADA0", // Change header background color on hover
-                  },
-                }}
-              >
-                <Typography variant="h6">
-                  For how long is the consultation valid?
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Typography>
-                  In the case of a paid consult, you can follow-up with your
-                  doctor for up to 3 days. In case you opt for a free consult,
-                  follow-up questions are valid for one day only. Do you have a
-                  refund policy? We have a “take-it-easy” policy. If for any
-                  reason you’re not convinced with your online consultation, you
-                  can write to us at contact@1mgdoctors.com and we will review
-                  the consult with the doctor - seeking clarifications on your
-                  queries that were answered. 100% refund will be given in
-                  genuine cases.
-                </Typography>
-              </AccordionDetails>
-            </Accordion>
-          </FAQWrapper>
-        </Grid>
-      </StyledBanner>
+      {/* Feature badges similar to the ones in the image */}
+      <Box
+        sx={{
+          display: { xs: "none", md: "flex" },
+          position: "absolute",
+          bottom: "40px",
+          right: "40px",
+          gap: "12px",
+          zIndex: 3,
+        }}
+      >
+        <Box
+          sx={{
+            backgroundColor: "rgba(255, 255, 255, 0.2)",
+            borderRadius: "20px",
+            padding: "8px 16px",
+            fontSize: "0.9rem",
+            fontWeight: "500",
+            color: "#29175e",
+            backdropFilter: "blur(5px)",
+            transition: "all 0.3s ease",
+            "&:hover": {
+              backgroundColor: "rgba(255, 255, 255, 0.3)",
+              transform: "translateY(-3px)",
+            },
+          }}
+        >
+          24/7 Support
+        </Box>
+      </Box>
     </Box>
   );
-};
-
-export default FAQPage;
+}

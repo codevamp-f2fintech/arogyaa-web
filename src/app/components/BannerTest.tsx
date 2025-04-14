@@ -10,7 +10,6 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import ScienceIcon from "@mui/icons-material/Science";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 
-import Link from "next/link";
 import {
   Box,
   Button,
@@ -234,6 +233,7 @@ const BannerComponentTest: React.FC = () => {
           <Paper
             sx={{
               mb: "70px",
+              mb: "70px",
               display: "flex",
               alignItems: "center",
               padding: "4px 15px",
@@ -327,8 +327,8 @@ const BannerComponentTest: React.FC = () => {
             {results.length > 0 && (
               <Box
                 sx={{
-                  position: "absolute", 
-                  bottom: "2px", 
+                  position: "absolute",
+                  bottom: "2px",
                   left: 0,
                   right: 0,
                   backgroundColor: "white",
@@ -337,7 +337,7 @@ const BannerComponentTest: React.FC = () => {
                   padding: "1px 10px",
                   width: "100%",
                   maxWidth: "100vw",
-                  overflowY: "auto", 
+                  overflowY: "auto",
                   maxHeight: "300px",
                   zIndex: 10,
                 }}
@@ -368,7 +368,7 @@ const BannerComponentTest: React.FC = () => {
                             color: "#333",
                             ":hover": {
                               color: "#20ADA0",
-                              backgroundColor: "#f4f4f4", 
+                              backgroundColor: "#f4f4f4",
                             },
                           }}
                         />
@@ -391,7 +391,7 @@ const BannerComponentTest: React.FC = () => {
                     justifyContent: "center",
                     gap: "50px",
                     mt: 30,
-                    width: "100%",  
+                    width: "100%",
                     maxWidth: "1200px",
                   }}
                 >

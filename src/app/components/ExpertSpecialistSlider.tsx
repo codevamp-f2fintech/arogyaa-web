@@ -13,6 +13,7 @@ import {
   Rating,
   Typography,
 } from "@mui/material";
+import Tooltip from "@mui/material/Tooltip"; // Tooltip ko import karo
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import EventIcon from "@mui/icons-material/Event";
@@ -20,6 +21,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import SchoolIcon from "@mui/icons-material/School";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
+import { motion } from "framer-motion";
 
 import Slider from "react-slick";
 import { useDispatch, useSelector } from "react-redux";
@@ -74,7 +76,8 @@ const ExpertSpecialistSlider: React.FC = () => {
 
   const sliderSettings = useMemo(
     () => ({
-      dots: true,
+      dots: false,
+      arrows: false,
       infinite: true, // This ensures the slider will loop infinitely
       speed: 500,
       slidesToShow: 4,
@@ -112,25 +115,68 @@ const ExpertSpecialistSlider: React.FC = () => {
   );
 
   return (
-    <Box className={styles.expertSpecialistSlider}>
+    <Box
+      sx={{
+        background:
+          "linear-gradient(180deg, rgba(93,73,147,1) 0%, rgba(93,73,147,1) 100%)!important",
+        width: "100vw",
+        px: 4,
+        py: 1,
+      }}
+      // background: 'linear-gradient(180deg, rgba(93,73,147,1) 0%, rgba(104,82,164,1) 100%)',
+
+      className={styles.expertSpecialistSlider}
+    >
       <Box className={styles.sliderHeading}>
-        <Typography variant="h5" component="h5" className={styles.title1}>
+        <Typography
+          style={{
+            textAlign: "center",
+            marginBottom: "20px",
+            fontSize: "1.8rem",
+            marginTop: "2px",
+            color: "#fff",
+            fontFamily: "Poppins",
+            letterSpacing: "0.5px",
+            lineHeight: "1.2",
+          }}
+          variant="h5"
+          component="h5"
+          className={styles.title1}
+        >
           {en.homepage.expertSpecialistSlider.title1}
         </Typography>
-        <h1
+        <motion.div
           id="docoters"
           style={{
             textAlign: "center",
             marginBottom: "20px",
+            fontSize: "2.5rem",
+            fontWeight: 550,
             marginTop: "2px",
-            color: "black",
+            color: "#fff !important",
+            fontFamily: "Poppins",
+            letterSpacing: "0.5px",
+            lineHeight: "1.2",
+          }}
+          animate={{
+            color: ["#fff", "#fff", "#b497d6"],
+            textShadow: [
+              "0 0 10px rgba(180,151,214,0.5)",
+              "0 0 20px rgba(180,151,214,0.8)",
+              "0 0 10px rgba(180,151,214,0.5)",
+            ],
+          }}
+          transition={{
+            duration: 3,
+            repeat: Number.POSITIVE_INFINITY,
+            repeatType: "reverse",
           }}
         >
           {en.homepage.expertSpecialistSlider.title2}
-        </h1>
+        </motion.div>
       </Box>
 
-      {reduxLoading || swrLoading ? (
+      {reduxLoading ? (
         <Loader />
       ) : (
         <>
@@ -141,17 +187,22 @@ const ExpertSpecialistSlider: React.FC = () => {
                   elevation={3}
                   sx={{
                     m: 1,
-                    height: "435px",
+                    height: "490px",
                     borderRadius: "16px",
                     overflow: "hidden",
                     position: "relative",
                     transition: "all 0.3s ease",
-                    backgroundColor: "#FFFFFF",
+                    backgroundColor: "#b497d6",
                     "&:hover": {
                       transform: "translateY(-8px)",
                       boxShadow: "0 12px 24px rgba(32, 173, 160, 0.15)",
                       "& .doctor-image": {
                         transform: "scale(1.05)",
+                      },
+                      // Yeh hover effect sirf typography par apply hoga
+                      "& .verified-badge-text": {
+                        opacity: 1, // Jab hover ho, opacity 1 ho jayegi
+                        visibility: "visible", // Ensure visibility
                       },
                     },
                   }}
@@ -160,8 +211,9 @@ const ExpertSpecialistSlider: React.FC = () => {
                   <Box
                     sx={{
                       height: "100px",
-                      background:
-                        "linear-gradient(135deg, #20ADA0 0%, #0D847A 100%)",
+                      // background:
+                      //   "radial-gradient(circle at left top, #160F41 , #2E1966)",
+                      backgroundColor: "#b497d6",
                       position: "relative",
                       "&::after": {
                         content: '""',
@@ -170,8 +222,8 @@ const ExpertSpecialistSlider: React.FC = () => {
                         left: 0,
                         right: 0,
                         height: "40px",
-                        background:
-                          "linear-gradient(180deg, transparent 0%, rgba(32, 173, 160, 0.1) 100%)",
+                        // background:
+                        //   "radial-gradient(circle at left top, #160F41 , #2E1966)",
                       },
                     }}
                   >
@@ -240,12 +292,14 @@ const ExpertSpecialistSlider: React.FC = () => {
                     <Typography
                       variant="h6"
                       sx={{
-                        color: "#2C3E50",
+                        color: "#ffffff",
+                        fontSize: "auto",
                         fontWeight: "600",
                         mb: 1,
+                        minHeight: "12vh",
                         cursor: "pointer",
                         transition: "color 0.2s ease",
-                        "&:hover": { color: "#20ADA0" },
+                        "&:hover": { color: "#29175e" },
                       }}
                       onClick={() =>
                         router.push(
@@ -254,14 +308,14 @@ const ExpertSpecialistSlider: React.FC = () => {
                       }
                     >
                       {doctor.username}
-                      <LocalHospitalIcon
+                      {/* <LocalHospitalIcon
                         sx={{
                           fontSize: "16px",
                           ml: 1,
-                          color: "#20ADA0",
+                          color: "#29175e",
                           verticalAlign: "text-top",
                         }}
-                      />
+                      /> */}
                     </Typography>
 
                     {/* Enhanced Chips */}
@@ -282,19 +336,27 @@ const ExpertSpecialistSlider: React.FC = () => {
                           flexWrap: "wrap", // Wrap if too long
                         }}
                       >
+                        {/* // qualification// */}
                         {doctor.qualificationIds?.map(
                           (qualification, index) => (
                             <Chip
                               key={index}
-                              icon={<SchoolIcon sx={{ color: "#20ADA0" }} />}
+                              icon={
+                                <SchoolIcon
+                                  sx={{ color: "#29175e !important" }}
+                                />
+                              }
                               label={qualification.name}
                               variant="outlined"
                               size="small"
                               sx={{
-                                borderColor: "#20ADA0",
+                                borderColor: "#29175e",
+                                color: "#29175e",
+                                fontWeight: 550,
+                                fontFamily: "Poppins",
                                 "&:hover": {
                                   backgroundColor: "rgba(32, 173, 160, 0.05)",
-                                  borderColor: "#20ADA0",
+                                  borderColor: "#29175e",
                                 },
                               }}
                             />
@@ -310,33 +372,68 @@ const ExpertSpecialistSlider: React.FC = () => {
                           flexWrap: "wrap",
                         }}
                       >
+                        {/* expreince  */}
                         <Chip
-                          icon={<SchoolIcon sx={{ color: "#20ADA0" }} />}
+                          icon={
+                            <SchoolIcon sx={{ color: "#29175e!important" }} />
+                          }
                           label={`${doctor.experience} Years Exp.`}
                           variant="outlined"
                           size="small"
                           sx={{
-                            borderColor: "#20ADA0",
+                            borderColor: "#29175e",
+                            color: "#29175e",
+                            fontWeight: 550,
+                            fontFamily: "Poppins",
                             "&:hover": {
                               backgroundColor: "rgba(32, 173, 160, 0.05)",
-                              borderColor: "#20ADA0",
+                              borderColor: "#29175e",
                             },
                           }}
                         />
-
-                        <Chip
-                          icon={<LocationOnIcon sx={{ color: "#20ADA0" }} />}
-                          label="Location"
-                          variant="outlined"
-                          size="small"
+                        <Tooltip
+                          title={doctor.clinicAddress}
+                          arrow
                           sx={{
-                            borderColor: "#20ADA0",
-                            "&:hover": {
-                              backgroundColor: "rgba(32, 173, 160, 0.05)",
-                              borderColor: "#20ADA0",
+                            "& .MuiTooltip-tooltip": {
+                              backgroundColor: "#ffd700", // Background color
+                              color: "#29175e", // Text color
+                              fontSize: "0.875rem", // Font size
+                              fontFamily: "'Poppins', sans-serif", // Font family
+                              fontWeight: 500, // Font weight
+                              padding: "8px 12px", // Padding
+                              borderRadius: "4px", // Border radius
+                              boxShadow: "0px 2px 4px rgba(0,0,0,0.1)", // Box shadow
+                              maxWidth: "300px", // Maximum width
+                              border: "1px solid #e0e0e0", // Border
+                            },
+                            "& .MuiTooltip-arrow": {
+                              color: "#f2f2f2", // Arrow color to match tooltip background
                             },
                           }}
-                        />
+                        >
+                          <Chip
+                            icon={
+                              <LocationOnIcon
+                                sx={{ color: "#29175e !important" }}
+                              />
+                            }
+                            label={`${doctor.clinicAddress}`}
+                            variant="outlined"
+                            size="small"
+                            sx={{
+                              borderColor: "#29175e",
+                              color: "#29175e",
+                              width: "10vw",
+                              fontWeight: 550,
+                              fontFamily: "Poppins",
+                              "&:hover": {
+                                backgroundColor: "rgba(32, 173, 160, 0.05)",
+                                borderColor: "#29175e",
+                              },
+                            }}
+                          />
+                        </Tooltip>
                       </Box>
                     </Box>
 
@@ -365,15 +462,19 @@ const ExpertSpecialistSlider: React.FC = () => {
                     <Typography
                       variant="body2"
                       sx={{
-                        color: "#7F8C8D",
-                        mb: 2,
-                        height: "48px",
+                        color: "#fff",
+                        height: "auto",
                         overflow: "hidden",
                         display: "-webkit-box",
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: "vertical",
                         lineHeight: 1.5,
                         px: 1,
+                        fontFamily: "Poppins",
+                        width: "100%", // Adjusted width for responsiveness
+                        textAlign: "center", // Centers the text horizontally
+                        margin: "0 auto", // Ensures it is centered in the parent
+                        fontWeight: 500,
                       }}
                     >
                       {doctor.bio}
@@ -385,8 +486,9 @@ const ExpertSpecialistSlider: React.FC = () => {
                       onClick={() => openModal(doctor)}
                       startIcon={<EventIcon />}
                       sx={{
-                        bottom: "20px",
-                        background: "#20ADA0",
+                        // bottom: "-50px",
+                        marginTop: "20px",
+                        background: "#29175e",
                         borderRadius: "25px",
                         padding: "8px 24px",
                         textTransform: "none",
@@ -395,7 +497,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                         boxShadow: "0 4px 12px rgba(32, 173, 160, 0.2)",
                         mb: 2,
                         "&:hover": {
-                          background: "#10897F",
+                          background: "#29175e",
                           boxShadow: "0 6px 16px rgba(32, 173, 160, 0.3)",
                           transform: "translateY(-2px)",
                         },
@@ -418,6 +520,27 @@ const ExpertSpecialistSlider: React.FC = () => {
           >
             <Link href={`/doctors`}>
               <Button
+                sx={{
+                  // bottom: "-50px",
+                  marginTop: "20px",
+                  background: "#29175e !important",
+                  borderRadius: "25px",
+                  padding: "8px 20px",
+                  height: "7.5vh",
+                  textTransform: "none",
+                  fontWeight: "600",
+                  transition: "all 0.3s ease",
+                  boxShadow: "0 4px 12px rgba(32, 173, 160, 0.2)",
+                  mb: 2,
+                  "&:hover": {
+                    background: "#29175e",
+                    // boxShadow: "0 6px 16px rgba(32, 173, 160, 0.3)",
+                    transform: "translateY(-2px)",
+                  },
+                  "&:active": {
+                    transform: "translateY(0)",
+                  },
+                }}
                 variant="contained"
                 className={styles.learnMoreButton}
                 endIcon={<ArrowCircleRightIcon />}

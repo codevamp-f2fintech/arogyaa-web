@@ -27,6 +27,9 @@ const Testimonials = dynamic(() => import("./Testimonials"), {
 const BannerBottom = dynamic(() => import("./BannerBottom"), {
   suspense: true,
 });
+const ConditionMarquee = dynamic(() => import("./marqueSec/Marque"), {
+  suspense: true,
+});
 
 const Home = () => {
   const [location, setLocation] = useState<{
@@ -88,13 +91,16 @@ const Home = () => {
 
   return (
     <Suspense fallback={<Loader />}>
-      <BannerComponentTest/>
+      <BannerComponentTest />
       {/* <BannerComponent /> */}
-      <SpecialitySlider />
       <ExpertSpecialistSlider />
       <SymptomCards />
+      <SpecialitySlider />
       <AboutUs />
       <Testimonials />
+
+      {/* <ConditionMarquee /> */}
+
       <BannerBottom />
     </Suspense>
   );
