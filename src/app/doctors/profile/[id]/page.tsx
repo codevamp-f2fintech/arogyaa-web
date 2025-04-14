@@ -275,13 +275,13 @@ const DrProfile: React.FC = () => {
     setAppointmentTabValue(newValue);
   };
 
-  const handleClinicTabClick = (
-    event: MouseEvent<HTMLButtonElement>,
-    newValue: number
-  ): void => {
-    setAppointmentTabValue(newValue);
-    setTabValue(1);
-  };
+  // const handleClinicTabClick = (
+  //   event: MouseEvent<HTMLButtonElement>,
+  //   newValue: number
+  // ): void => {
+  //   setAppointmentTabValue(newValue);
+  //   setTabValue(1);
+  // };
 
   return (
     <ThemeProvider theme={theme}>

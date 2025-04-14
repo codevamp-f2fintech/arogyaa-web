@@ -1,43 +1,33 @@
 "use client";
-
 import React, { useState, useCallback } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
 import CloseIcon from "@mui/icons-material/Close";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import LocalPharmacyIcon from "@mui/icons-material/LocalPharmacy";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import ScienceIcon from "@mui/icons-material/Science";
-import PersonIcon from "@mui/icons-material/Person";
-import BoltIcon from "@mui/icons-material/Bolt";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 
 import Link from "next/link";
 import {
   Box,
+  Button,
   Paper,
   InputBase,
   Typography,
   IconButton,
   Container,
-  Divider,
+  Chip,
+  Stack,
   ListItem,
   List,
   ListItemText,
-  Chip,
-  Button,
 } from "@mui/material";
 import { motion } from "framer-motion";
 import { fetcher } from "@/apis/apiClient";
 import { Utility } from "@/utils";
-
-const popularSearches = [
-  "Cardiology",
-  "Orthopedics",
-  "Gynecologists",
-  "Physiotherapists",
-];
 
 const BannerComponentTest: React.FC = () => {
   const [keyword, setKeyword] = useState<string>("");
@@ -78,11 +68,21 @@ const BannerComponentTest: React.FC = () => {
       setResults([]);
     }
   };
+  const getIconColor = (index) => {
+    const colors = ["#fff", "#fff", "#fff", "#fff"];
+    return colors[index % colors.length]; // It will cycle through colors
+  };
 
   const debouncedFetchResults = useCallback(
     debounce(fetchDoctorResults, 500),
     []
   );
+  const features = [
+    "100% Expert Doctors",
+    "Medicine & Instrument",
+    "From Scientific Journal",
+    "Instant Operation",
+  ];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const keyword = e.target.value;
@@ -108,19 +108,51 @@ const BannerComponentTest: React.FC = () => {
     <Box
       sx={{
         display: "flex",
-        flexDirection: "column",
+        flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
         textAlign: "center",
         minHeight: "100vh",
         position: "relative",
         padding: "40px 20px",
-        backgroundImage: "url('/blur1.png')",
+        background:
+          "linear-gradient(180deg, rgba(85,65,138,1) 0%, rgba(93,73,147,1) 100%)",
         backgroundSize: "cover",
         backgroundPosition: "center",
+        overflow: "hidden",
       }}
     >
-      <Box sx={{ position: "relative", zIndex: 2 }}>
+      {/* Animated background elements */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.1 }}
+        transition={{ duration: 2 }}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "url('/pattern.png')",
+          backgroundSize: "cover",
+          zIndex: 1,
+        }}
+      />
+
+      {/* Floating particles */}
+
+      <Box
+        sx={{
+          flex: 1,
+          position: "relative",
+          zIndex: 2,
+          height: "70vh",
+          justifyContent: "center",
+          display: "flex",
+          alignItems: "center",
+          flexDirection: "column",
+        }}
+      >
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -128,215 +160,411 @@ const BannerComponentTest: React.FC = () => {
         >
           <Typography
             variant="h3"
-            sx={{
-              fontWeight: "bold",
+            style={{
+              textAlign: "center",
+              marginBottom: "20px",
+              fontSize: "40px",
+              marginTop: "2px",
+              fontWeight: 600,
               color: "#fff",
-              textShadow: "2px 2px 20px rgba(0, 0, 0, 0.6)",
-              mb: "15px",
+              fontFamily: "Poppins",
+              letterSpacing: "0.5px",
+              lineHeight: "1.2",
+              textShadow: "0 4px 8px rgba(0,0,0,0.2)",
             }}
           >
             Welcome to{" "}
-            <span style={{ color: "#20ADA0", fontSize: "50px" }}>Arogyaa</span>
+            <motion.span
+              style={{ color: "#b497d6", fontSize: "50px" }}
+              animate={{
+                color: ["#b497d6", "#d4c1e9", "#b497d6"],
+                textShadow: [
+                  "0 0 10px rgba(180,151,214,0.5)",
+                  "0 0 20px rgba(180,151,214,0.8)",
+                  "0 0 10px rgba(180,151,214,0.5)",
+                ],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Number.POSITIVE_INFINITY,
+                repeatType: "reverse",
+              }}
+            >
+              Arogyaa
+            </motion.span>
           </Typography>
-          <Typography
-            variant="h5"
-            sx={{
-              fontWeight: "500",
-              color: "#fff",
-              textShadow: "2px 2px 15px rgba(0, 0, 0, 0.6)",
-            }}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.3 }}
           >
-            <span style={{ color: "#fff", fontWeight: "bold" }}>
-              Find & Book
-            </span>{" "}
-            Healthcare Services Instantly
-          </Typography>
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: "500",
+                color: "#fff",
+                textShadow: "2px 2px 15px rgba(0, 0, 0, 0.6)",
+                mb: "20px",
+                mt: "20px",
+              }}
+            >
+              <motion.span
+                style={{ color: "#fff", fontWeight: "bold" }}
+                whileHover={{ scale: 1.05 }}
+              >
+                Find & Book
+              </motion.span>{" "}
+              Healthcare Services Instantly
+            </Typography>
+          </motion.div>
         </motion.div>
 
-        {/* Search Bar */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.5 }}
-          style={{ width: "100%", maxWidth: "1000px", marginTop: "15px" }}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            width: "100%",
+            maxWidth: "1000px",
+            marginTop: "15px",
+          }}
         >
           <Paper
             sx={{
+              mb: "70px",
               display: "flex",
               alignItems: "center",
-              width: "100%",
               padding: "4px 15px",
               borderRadius: "50px",
               background: "#fff",
+              width: "33vw",
+              justifyContent: "space-between",
               boxShadow: "0px 4px 15px rgba(0,0,0,0.1)",
+              gap: 0,
+              overflow: "hidden",
             }}
           >
-            {/* <Box sx={{ display: "flex", alignItems: "center", flex: 1 }}>
-              <IconButton sx={{ color: "#20ADA0" }}>
-                <LocationOnIcon sx={{ fontSize: "1.6rem" }} />
-              </IconButton>
-              <InputBase
-                value="Noida"
-                sx={{ fontWeight: "bold", color: "#20ADA0", minWidth: "80px" }}
-                disabled
-              />
-            </Box> */}
-
-            {/* <Divider
-              sx={{ height: 28, mx: 1.5, backgroundColor: "#20ADA0" }}
-              orientation="vertical"
-            /> */}
-
             <InputBase
               value={keyword}
               onChange={handleChange}
-              placeholder="Search by name, specialties and location.."
-              sx={{ flex: 3, color: "#20ADA0" }}
+              placeholder="Search by name, specialties, location.."
+              sx={{
+                flex: 1,
+                minWidth: 0,
+                color: "#29175e",
+                fontWeight: 310,
+                fontSize: ".9rem",
+                fontFamily: "Poppins",
+                zIndex: 10,
+              }}
             />
-            {keyword ? (
-              <IconButton onClick={handleClear} sx={{ color: "#20ADA0" }}>
-                <CloseIcon />
-              </IconButton>
-            ) : (
-              <IconButton sx={{ color: "#20ADA0" }}>
-                <SearchIcon />
-              </IconButton>
-            )}
-          </Paper>
-        </motion.div>
 
-        {/* Search Results */}
-        {results.length > 0 && (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 0,
+              }}
+            >
+              <Button
+                startIcon={
+                  <LocationOnIcon
+                    sx={{
+                      fontSize: "10px",
+                      color: "#29175e",
+                      marginRight: "-4px",
+                    }}
+                  />
+                }
+                sx={{
+                  textTransform: "none",
+                  fontSize: "0.8rem",
+                  fontWeight: 500,
+                  fontFamily: "Poppins",
+                  borderRadius: "20px",
+                  backgroundColor: "#b497d6",
+                  color: "#29175e",
+                  px: 1.3,
+                  py: 0.3,
+                  "& .MuiButton-startIcon": {
+                    marginRight: "4px",
+                  },
+                  "&:hover": {
+                    backgroundColor: "#29175e",
+                  },
+                }}
+              >
+                Near Me
+              </Button>
+
+              {keyword ? (
+                <IconButton onClick={handleClear} sx={{ color: "#29175e" }}>
+                  <CloseIcon />
+                </IconButton>
+              ) : (
+                <IconButton sx={{ color: "#29175e" }}>
+                  <SearchIcon />
+                </IconButton>
+              )}
+              {/* Search or Clear Icon */}
+            </Box>
+          </Paper>
+
           <Box
             sx={{
-              mt: "5px",
-              backgroundColor: "white",
-              borderRadius: "10px",
-              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-              padding: "8px",
-              width: "100%",
-              maxWidth: "100vw",
+              position: "absolute",
+              bottom: 0,
+              width: "65%",
+              padding: "12px 0",
+              textAlign: "center",
+              justifyContent: "center",
+              zIndex: 5,
+              mb: "10px",
             }}
           >
-            <List sx={{ padding: "0px" }}>
-              {results.map((doctor: any, index: number) => (
-                <ListItem
-                  key={doctor._id || index}
-                  sx={{ padding: "6px 10px" }}
+            {results.length > 0 && (
+              <Box
+                sx={{
+                  position: "absolute", 
+                  bottom: "2px", 
+                  left: 0,
+                  right: 0,
+                  backgroundColor: "white",
+                  borderRadius: "10px",
+                  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                  padding: "1px 10px",
+                  width: "100%",
+                  maxWidth: "100vw",
+                  overflowY: "auto", 
+                  maxHeight: "300px",
+                  zIndex: 10,
+                }}
+              >
+                <List
+                  sx={{ padding: "0px", maxHeight: "250px", overflowY: "auto" }}
                 >
-                  <Link href={`/doctors/profile/${doctor._id}`} passHref>
-                    <ListItemText
-                      primary={`${doctor.username || "Unknown"} - ${
-                        doctor.specializationIds
-                          ?.map((spec: any) => capitalizeFirstLetter(spec.name))
-                          .join(", ") || "Specialty not available"
-                      }`}
+                  {results.map((doctor: any, index: number) => (
+                    <ListItem
+                      key={doctor._id || index}
                       sx={{
+                        padding: "10px 15px",
                         cursor: "pointer",
-                        ":hover": { color: "#20ADA0" },
-                        fontSize: "0.9rem",
+                        transition: "background-color 0.3s",
                       }}
-                    />
-                  </Link>
-                </ListItem>
-              ))}
-            </List>
-          </Box>
-        )}
+                    >
+                      <Link href={`/doctors/profile/${doctor._id}`} passHref>
+                        <ListItemText
+                          primary={`${doctor.username || "Unknown"} - ${
+                            doctor.specializationIds
+                              ?.map((spec: any) =>
+                                capitalizeFirstLetter(spec.name)
+                              )
+                              .join(", ") || "Specialty not available"
+                          }`}
+                          sx={{
+                            fontSize: "0.9rem",
+                            color: "#333",
+                            ":hover": {
+                              color: "#20ADA0",
+                              backgroundColor: "#f4f4f4", 
+                            },
+                          }}
+                        />
+                      </Link>
+                    </ListItem>
+                  ))}
+                </List>
+              </Box>
+            )}
 
-        {/* Popular Searches */}
+            <Container>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0, delay: 0 }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    gap: "50px",
+                    mt: 30,
+                    width: "100%",  
+                    maxWidth: "1200px",
+                  }}
+                >
+                  {[
+                    {
+                      icon: <CalendarMonthIcon />,
+                      text: "View Appointment",
+                      link: "/profile?view=appointments",
+                    },
+                    {
+                      icon: <ScienceIcon />,
+                      text: "View Test",
+                      link: "/profile?view=tests",
+                    },
+                    {
+                      icon: <AssignmentIcon />,
+                      text: "View Treatment",
+                      link: "/profile?view=treatments",
+                    },
+                    {
+                      icon: <LocalPharmacyIcon />,
+                      text: "Billing Details",
+                      link: "/profile?view=billings",
+                    },
+                  ].map((item, index) => (
+                    <motion.div
+                      key={index}
+                      whileHover={{
+                        scale: 1.1,
+                        y: -5,
+                      }}
+                      whileTap={{ scale: 0.95 }}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{
+                        opacity: 1,
+                        y: 0,
+                        transition: { delay: 0.9 + index * 0.1 },
+                      }}
+                    >
+                      <Box
+                        onClick={() => handleNavigation(item.link)}
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          cursor: "pointer",
+                          color: "#b497d6",
+                          height: "60px",
+                          width: "75px",
+                          background: "rgba(255, 255, 255, 0.1)",
+                          backdropFilter: "blur(5px)",
+                          padding: "15px",
+                          borderRadius: "12px",
+                          transition: "all 0.3s ease",
+                          "&:hover": {
+                            background: "rgba(255, 255, 255, 0.2)",
+                            boxShadow: "0 8px 15px rgba(0,0,0,0.1)",
+                          },
+                        }}
+                      >
+                        <motion.div
+                          whileHover={{
+                            rotate: [0, -10, 10, -10, 0],
+                            transition: { duration: 0.5 },
+                          }}
+                          style={{
+                            fontSize: "25px",
+                            marginBottom: "8px",
+                            color: getIconColor(index),
+                          }}
+                        >
+                          {item.icon}
+                        </motion.div>
+                        <motion.span
+                          style={{
+                            color: "#fff",
+                            fontSize: "14px",
+                            fontFamily: "Poppins",
+                            fontWeight: 550,
+                            marginTop: "10px",
+                          }}
+                          animate={{
+                            color: ["#fff", "#fff", "#b497d6"],
+                            textShadow: [
+                              "0 0 10px rgba(180,151,214,0.5)",
+                              "0 0 20px rgba(180,151,214,0.8)",
+                              "0 0 10px rgba(180,151,214,0.5)",
+                            ],
+                          }}
+                          transition={{
+                            duration: 3,
+                            repeat: Number.POSITIVE_INFINITY,
+                            repeatType: "reverse",
+                          }}
+                        >
+                          {item.text}
+                        </motion.span>
+                      </Box>
+                    </motion.div>
+                  ))}
+                </Box>
+              </motion.div>
+            </Container>
+          </Box>
+        </motion.div>
+      </Box>
+
+      <Box
+        component={motion.div}
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 1, delay: 0.3 }}
+        sx={{
+          flex: 1,
+          position: "relative",
+          height: "400px",
+          overflow: "hidden",
+          borderRadius: "20px",
+          // boxShadow: "0 15px 30px rgba(0,0,0,0.2)",
+          margin: "0 20px",
+        }}
+      >
+        <motion.div
+          initial={{ scale: 1.1 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 1.5 }}
+          style={{
+            width: "100%",
+            height: "100%",
+            backgroundImage: "url('homePage.png')",
+            backgroundSize: "cover",
+            backgroundPosition: "top center",
+          }}
+        />
 
         <Box
           sx={{
-            mt: "3px",
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            // background: "linear-gradient(to top, rgba(0,0,0,0.7), transparent)",
+            padding: "20px",
             display: "flex",
-            gap: "7px",
             justifyContent: "center",
           }}
         >
-          <Typography
-            sx={{
-              mt: "3px",
-              display: "flex",
-              gap: "7px",
-              justifyContent: "center",
-              color: "#fff",
-            }}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1.2 }}
           >
-            popular searches:
-          </Typography>
-          {popularSearches.map((search, index) => (
-            <Button
-              key={index}
-              startIcon={<BoltIcon sx={{ marginRight: "-9px" }} />}
-              sx={{
-                color: "white",
-                padding: "2px 1px",
-                "&:hover": { backgroundColor: "#20ADA0" },
-              }}
-            >
-              {search}
-            </Button>
-          ))}
-        </Box>
-      </Box>
-      <Box
-        sx={{
-          position: "absolute",
-          bottom: 0,
-          width: "100%",
-          background: "#20ADA0",
-          padding: "12px 0",
-          textAlign: "center",
-          zIndex: 5,
-        }}
-      >
-        <Container>
-          <Box sx={{ display: "flex", justifyContent: "center", gap: "40px" }}>
-            {[
-              {
-                icon: <CalendarMonthIcon />,
-                text: "View Appointment",
-                link: "/profile?view=appointments",
-              },
-              {
-                icon: <ScienceIcon />,
-                text: "View Test",
-                link: "/profile?view=tests",
-              },
-              {
-                icon: <AssignmentIcon />,
-                text: "View Treatment",
-                link: "/profile?view=treatments",
-              },
-              {
-                icon: <LocalPharmacyIcon />,
-                text: "Billing Details",
-                link: "/profile?view=billings",
-              },
-            ].map((item, index) => (
-              <motion.div key={index} whileHover={{ scale: 1.1 }}>
-                <Box
-                  onClick={() => handleNavigation(item.link)}
+            <Stack direction="row" spacing={1} justifyContent="center">
+              {features.map((feature, index) => (
+                <Chip
+                  key={index}
+                  label={feature}
                   sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    cursor: "pointer",
-                    color: "#fff",
+                    background: "#29175e",
+                    color: "white",
+                    fontWeight: 550,
+                    backdropFilter: "blur(5px)",
+                    fontSize: "12px",
+                    fontFamily: "Poppins",
+                    boxShadow: "none !important",
                   }}
-                >
-                  {item.icon}
-                  <Typography
-                    sx={{ fontWeight: "500", marginTop: "5px", color: "#fff" }}
-                  >
-                    {item.text}
-                  </Typography>
-                </Box>
-              </motion.div>
-            ))}
-          </Box>
-        </Container>
+                  component={motion.div}
+                  whileHover={{ scale: 1.1 }}
+                />
+              ))}
+            </Stack>
+          </motion.div>
+        </Box>
       </Box>
     </Box>
   );
