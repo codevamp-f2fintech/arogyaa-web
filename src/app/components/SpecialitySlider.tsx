@@ -5,15 +5,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { Box, Button, Grid, Paper, Typography, Container } from "@mui/material";
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 import { useRouter } from "next/navigation";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import en from "@/locales/en.json";
+import { useTheme } from "@mui/material/styles";
 import { AppDispatch, RootState } from "@/redux/store";
 import { icons } from "@/static-data";
 import { useGetSpeciality } from "@/hooks/speciality";
 import { setSpeciality } from "@/redux/features/specialitySlice";
 import Loader from "./common/Loader";
 import SpecialistCard from "./SpecialistCard";
+import { motion } from "framer-motion";
+
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import en from "@/locales/en.json";
 
 const SpecialitySlider: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -53,7 +56,7 @@ const SpecialitySlider: React.FC = () => {
 
   const sliderSettings = useMemo(
     () => ({
-      dots: true,
+      dots: false,
       arrows: true,
       infinite: true,
       speed: 500,
@@ -91,16 +94,21 @@ const SpecialitySlider: React.FC = () => {
     }),
     []
   );
+  const theme = useTheme();
+  console.log("color", theme.palette.secondary.main);
 
   return (
     <Container
       id="specialitiesSection"
       maxWidth={false}
       sx={{
+        background: "rgb(104,82,164)",
+        background:
+          "linear-gradient(180deg, rgba(104,82,164,1) 0%, rgba(126,107,177,1) 100%)!important",
+
         maxWidth: "1400px",
         px: { xs: 2, sm: 4, md: 6 },
         py: { xs: 4, sm: 6, md: 8 },
-        background: "#f9f6f6",
       }}
     >
       <Typography
@@ -110,13 +118,39 @@ const SpecialitySlider: React.FC = () => {
           mb: { xs: 4, md: 6 },
           fontSize: { xs: "2rem", sm: "2.5rem", md: "2.5rem" },
           fontWeight: 600,
-          // fontFamily: "Roboto",
+          fontFamily: "Poppins",
           color: "black",
-          letterSpacing: "-0.5px",
+          letterSpacing: "-0.10px",
           lineHeight: 1.2,
         }}
       >
-        {en.homepage.specialitySlider.title}
+        {en.homepage.specialitySlider.title} {/* This is shown first */}
+        <motion.span
+          style={{
+            mb: { xs: 4, md: 6 },
+            fontSize: "2.5rem",
+            fontWeight: 600,
+            fontFamily: "Poppins",
+            color: "black",
+            letterSpacing: "-0.10px",
+            lineHeight: 1.2,
+          }}
+          animate={{
+            color: ["#fff", "#fff", "#b497d6"],
+            textShadow: [
+              "0 0 10px rgba(180,151,214,0.5)",
+              "0 0 20px rgba(180,151,214,0.8)",
+              "0 0 10px rgba(180,151,214,0.5)",
+            ],
+          }}
+          transition={{
+            duration: 3,
+            repeat: Number.POSITIVE_INFINITY,
+            repeatType: "reverse",
+          }}
+        >
+          {en.homepage.specialitySlider.title2} {/* This is shown at the end */}
+        </motion.span>
       </Typography>
 
       <Box
@@ -177,7 +211,7 @@ const SpecialitySlider: React.FC = () => {
                     }}
                   >
                     <SpecialistCard
-                      icon={item?.icon || ''}
+                      icon={item?.icon || ""}
                       name={item.name}
                       description={item.description.slice(0, 90) + "..."}
                       onConsult={() => handleConsult(item.name)}

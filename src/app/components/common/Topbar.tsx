@@ -99,6 +99,7 @@ const Topbar = () => {
   };
 
   const [visibleNotifications, setVisibleNotifications] = useState(5);
+  const [appBarBg, setAppBarBg] = useState("#56428b");
 
   const markAsRead = (index: number) => {
     const notificationToMove = notifications[index];
@@ -112,15 +113,42 @@ const Topbar = () => {
     setVisibleNotifications((prev) => prev + 5);
   };
 
+  const handleScroll = () => {
+    if (window.scrollY < 100) {
+      console.log("chnage color");
+      setAppBarBg("#56428b");
+    } else {
+      setAppBarBg("transparent");
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
 
   return (
-    <AppBar className={styles.appBar}>
+    <AppBar
+      className={styles.appBar}
+      sx={{
+        backgroundColor: appBarBg,
+        boxShadow: "none",
+        transition: "background-color 0.3s ease",
+        // "&.MuiAppBar-root": {
+        //   // Additional custom styles for the AppBar root
+        //   backgroundColor: "#56428b", // This will override the transparent background if not scrolled
+        // },
+      }}
+    >
       <Toolbar disableGutters>
         <AdbIcon
           sx={{
-            display: { xs: "none", md: "flex", color: "#20ada0" },
+            display: { xs: "none", md: "flex", color: "#fff" },
             mr: 0.1,
             mb: 0.6,
           }}
@@ -133,10 +161,10 @@ const Topbar = () => {
           sx={{
             mr: 2,
             display: { xs: "none", md: "flex" },
-            fontFamily: "monospace",
+            fontFamily: "Poppins",
             fontWeight: 700,
             letterSpacing: ".3rem",
-            color: "#000",
+            color: "#fff",
             textDecoration: "none",
           }}
         >
@@ -227,8 +255,8 @@ const Topbar = () => {
                 variant="contained"
                 startIcon={<EventIcon />}
                 sx={{
-                  backgroundColor: "#20ADA0 !important",
-                  color: "white !important",
+                  backgroundColor: "#5d4993 !important",
+                  color: "#fff !important",
                   fontWeight: "bold",
                   borderRadius: "20px",
                   boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
@@ -238,7 +266,8 @@ const Topbar = () => {
                   textTransform: "capitalize",
                   padding: "5px 16px",
                   "&:hover": {
-                    backgroundColor: "#1A8575 !important", 
+                    backgroundColor: "#af9fdb !important",
+                    color: "#29175e",
                     boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.3)",
                   },
                 }}
@@ -262,7 +291,7 @@ const Topbar = () => {
                 />
               }
               sx={{
-                background: "#20ADA0 !important",
+                backgroundColor: "#5d4993 !important",
                 color: "white",
                 fontWeight: "bold",
                 borderRadius: "20px",
@@ -273,7 +302,7 @@ const Topbar = () => {
                 textTransform: "capitalize",
                 padding: "5px 16px",
                 "&:hover": {
-                  backgroundColor: "#1A8575 !important", 
+                  backgroundColor: "#af9fdb !important",
                   boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.3)",
                 },
               }}
@@ -291,10 +320,10 @@ const Topbar = () => {
           <Button
             variant="contained"
             sx={{
-              background: "#20ADA0 !important",
+              backgroundColor: "#5d4993",
               color: "white",
               fontWeight: "bold",
-              padding: "6px 20px",
+              padding: "6px 16px", // Adjust padding to make it more compact
               marginLeft: "4px",
               borderRadius: "20px",
               fontSize: "14px",
@@ -303,25 +332,24 @@ const Topbar = () => {
               display: "flex",
               alignItems: "center",
               gap: "8px",
+              "&:hover": {
+                backgroundColor: "#af9fdb",
+              },
             }}
           >
             <Link
               href="/signin"
               underline="none"
               sx={{
-                color: "inherit",
+                color: "white", // Ensures the text is white, not overridden by background
                 textDecoration: "none",
-                fontWeight: "600px",
+                fontWeight: "600",
                 textTransform: "capitalize",
               }}
             >
               Login
             </Link>
-            <PersonAddAltOutlinedIcon
-              sx={{
-                fontSize: "18px",
-              }}
-            />
+            <PersonAddAltOutlinedIcon sx={{ fontSize: "18px" }} />
           </Button>
         )}
         {/* <Box>

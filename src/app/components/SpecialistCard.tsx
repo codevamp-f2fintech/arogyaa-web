@@ -16,7 +16,7 @@ const SpecialistCard: React.FC<SpecialistCardProps> = React.memo(
         item
         sx={{
           position: "relative",
-          backgroundColor: "#ffffff",
+          backgroundColor: "#b497d6",
           borderRadius: 2,
           boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
           padding: 3,
@@ -25,7 +25,7 @@ const SpecialistCard: React.FC<SpecialistCardProps> = React.memo(
           flexDirection: "column",
           alignItems: "center",
           transition: "all 0.3s ease",
-          border: "1px solid #20ada0",
+          border: "1px solid #b497d6",
           "&:hover": {
             boxShadow: "0 8px 30px rgba(0, 0, 0, 0.12)",
             "& .specialistIconWrapper": {
@@ -47,7 +47,7 @@ const SpecialistCard: React.FC<SpecialistCardProps> = React.memo(
             alignItems: "center",
             justifyContent: "center",
             transition: "transform 0.3s ease",
-            filter: "drop-shadow(0px 0px 0px black)"
+            filter: "drop-shadow(0px 0px 0px black)",
           }}
         >
           <img
@@ -86,7 +86,7 @@ const SpecialistCard: React.FC<SpecialistCardProps> = React.memo(
           sx={{
             display: "flex",
             flexDirection: "column",
-            alignItems: 'center',
+            alignItems: "center",
             flexGrow: 1,
             width: "100%",
           }}
@@ -95,7 +95,7 @@ const SpecialistCard: React.FC<SpecialistCardProps> = React.memo(
             variant="h5"
             sx={{
               fontWeight: 600,
-              color: "#20ada0",
+              color: "#29175e",
               mb: 1,
               textAlign: "center",
             }}
@@ -106,7 +106,7 @@ const SpecialistCard: React.FC<SpecialistCardProps> = React.memo(
           <Typography
             variant="body1"
             sx={{
-              color: "text.secondary",
+              color: "#29175e",
               textAlign: "center",
               flexGrow: 1,
               width: "100%",
@@ -126,8 +126,8 @@ const SpecialistCard: React.FC<SpecialistCardProps> = React.memo(
             endIcon={<ArrowCircleRight />}
             onClick={onConsult}
             sx={{
-              width: '75%',
-              background: "#20ADA0 !important",
+              width: "75%",
+              background: "#29175e !important",
               color: "white",
               fontWeight: "bold",
               borderRadius: "20px",

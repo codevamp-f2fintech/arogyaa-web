@@ -39,6 +39,7 @@ import { DoctorData } from "@/types/doctor";
 import { useCreateAppointment } from "@/hooks/appointment";
 import { useGetSymptom } from "@/hooks/symptoms";
 import { Utility } from "@/utils";
+import { fontFamily } from "@mui/system";
 
 dayjs.extend(customParseFormat);
 
@@ -90,10 +91,10 @@ const inputStyles = {
     backgroundColor: "white",
   },
   "& .MuiInputLabel-root": {
-    color: "#29175E", 
+    color: "#29175E",
     fontFamily: "Poppins",
     "&.Mui-focused": {
-      color: "#29175E", 
+      color: "#29175E",
     },
   },
   "& .MuiOutlinedInput-root": {
@@ -112,7 +113,7 @@ const inputStyles = {
     fontFamily: "Poppins",
   },
   InputAdornment: {
-    color: "#7A4D9C", 
+    color: "#7A4D9C",
   },
 };
 
@@ -418,8 +419,10 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
             transform: "translate(-50%, -50%)",
             width: "90%",
             maxWidth: "1200px",
-            background: "#fff",
-
+            background: "rgb(188,174,224)",
+            background:
+              "linear-gradient(180deg, rgba(188,174,224,1) 0%, rgba(255,255,255,1) 100%)",
+            border: "1px solid red",
             boxShadow: 24,
             borderRadius: "8px",
             overflowY: "hidden",
@@ -448,11 +451,12 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
               {/* Left: Book with Doctor */}
               <Typography
                 sx={{
-                  fontSize: "1.5rem",
-                  fontWeight: 400,
-                  color: "#29175E",
+                  fontSize: "1.35rem",
+                  fontWeight: 600,
+                  color: "#29175e",
                   textAlign: "left",
                   whiteSpace: "nowrap",
+                  fontFamily: "Poppins",
                 }}
               >
                 Book Appointment With{" "}
@@ -471,7 +475,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                 }}
               >
                 <EventAvailableIcon
-                  sx={{ color: "#fff", marginRight: "8px" }}
+                  sx={{ color: "#b497d6", marginRight: "8px" }}
                 />
                 <Typography
                   sx={{
@@ -587,7 +591,6 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         color: "rgba(0, 0, 0, 0.6)",
                       },
                       "& .fldset_lgend": {
-                        background: "white",
                         marginLeft: "15px",
                         fontSize: "0.7rem",
                         fontWeight: 500,
@@ -600,7 +603,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         paddingTop: "10px",
                         borderColor: "#efefef",
                         marginBottom: "10px",
-                        border: "1px solid #efefef",
+                        border: "1px solid #b1b1b1",
                       },
                       "& .MuiPickersTextField": {
                         width: "100%",
@@ -625,32 +628,35 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           gap: 1,
                         }}
                       >
-                      <Box sx={{ marginBottom: 3 }}>
-  <FormControl fullWidth sx={inputStyles}>
-    <InputLabel
-      sx={{
-        color: "#29175E", 
-        "&.Mui-focused": {
-          color: "#29175E", 
-        },
-      }}
-    >
-      Hospital
-    </InputLabel>
-    <Select
-      value={selectedHospital || ""}
-      onChange={handleHospitalChange}
-      label="Hospital"
-      sx={inputStyles} 
-    >
-      {data?.availability.map((slot) => (
-        <MenuItem key={slot.hospital.name} value={slot.hospital.name}>
-          {slot.hospital.name}, {slot.hospital.location}
-        </MenuItem>
-      ))}
-    </Select>
-  </FormControl>
-</Box>
+                        <Box sx={{ marginBottom: 3 }}>
+                          <FormControl fullWidth sx={inputStyles}>
+                            <InputLabel
+                              sx={{
+                                color: "#29175E",
+                                "&.Mui-focused": {
+                                  color: "#29175E",
+                                },
+                              }}
+                            >
+                              Hospital
+                            </InputLabel>
+                            <Select
+                              value={selectedHospital || ""}
+                              onChange={handleHospitalChange}
+                              label="Hospital"
+                              sx={inputStyles}
+                            >
+                              {data?.availability.map((slot) => (
+                                <MenuItem
+                                  key={slot.hospital.name}
+                                  value={slot.hospital.name}
+                                >
+                                  {slot.hospital.name}, {slot.hospital.location}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        </Box>
 
                         <Box sx={{ marginBottom: 2 }}>
                           <Field
@@ -683,14 +689,14 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                             InputLabelProps={{
                               shrink: true,
                               sx: {
-                                color: "#29175E", 
+                                color: "#29175E",
                                 "&.Mui-focused": {
                                   color: "#29175E",
                                 },
                               },
                             }}
                             sx={{
-                              ...inputStyles,  
+                              ...inputStyles,
                               "& input[type=date]": {
                                 background: "#fff",
                                 borderRadius: "6px",
@@ -718,14 +724,15 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           <Typography
                             sx={{
                               textAlign: "center",
-                              backgroundColor: "#f8f8ff",
+                              backgroundColor: "#fff",
                               border: "1px solid #ccc",
                               borderRadius: "6px",
                               padding: "3px",
                               color: "#29175E",
                               marginBottom: "15px",
                               fontSize: "1rem",
-                              fontWeight: 400,
+                              fontWeight: 450,
+                              fontFamily: "Poppins",
                             }}
                           >
                             Choose an appointment date.
@@ -755,12 +762,29 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         <TextField
                           fullWidth
                           select
-                          label="Appointment Type*"
+                          label="Appointment Type *"
                           name="appointmentType"
                           value={values.appointmentType}
-                          onChange={(e) =>
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             setFieldValue("appointmentType", e.target.value)
                           }
+                          sx={{
+                            marginBottom: "7px",
+                            "& input": {
+                              background: "#fff",
+                              borderRadius: "6px",
+                              padding: "12px 12px",
+                              fontFamily: "Poppins",
+                            },
+                            "& .MuiInputBase-root": {
+                              fontSize: "0.9rem",
+                              color: "black !important", // Change color to black for input text
+                              fontFamily: "Poppins",
+                            },
+                            "& .MuiFormLabel-root": {
+                              color: "black !important", // Change color to black for label text
+                            },
+                          }}
                           error={
                             touched.appointmentType &&
                             Boolean(errors.appointmentType)
@@ -776,6 +800,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                             ),
                           }}
                           InputLabelProps={{
+                            shrink: true,
                             sx: {
                               ...inputStyles["& .MuiInputLabel-root"],
                             },
@@ -803,8 +828,8 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                             setFieldValue("symptomIds", value)
                           }
                           sx={{
-                            ...inputStyles, 
-                            background: "#fff", 
+                            ...inputStyles,
+                            background: "#fff",
                             padding: "4px 2px",
                           }}
                           renderInput={(params) => (
@@ -848,11 +873,20 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           autoComplete="off"
                           autoFocus
                           sx={{
-                            ...inputStyles, 
-                            background: "#fff", 
-                            marginBottom: "2px", 
+                            ...inputStyles,
+                            background: "#fff",
+                            marginBottom: "2px",
                             "&:hover": {
-                              boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.1)", 
+                              boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.1)",
+                            },
+                            "& .MuiFormLabel-root": {
+                              fontSize: "1rem",
+                              color: "#000 !important",
+                              // fontWeight: "bold",
+                            },
+                            "& .MuiInputLabel-root": {
+                              fontSize: "1rem",
+                              color: "#29175e",
                             },
                           }}
                           InputProps={{
@@ -1121,11 +1155,22 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         <Box
                           sx={{ ...priceWrapSx, border: "1px solid #7A4D9C" }}
                         >
-                          <Typography className="price_header_txt">
+                          <Typography
+                            sx={{
+                              color: "#29175e !important",
+                              backgroundColor: "transparent !important",
+                            }}
+                            className="price_header_txt"
+                          >
                             Consultation Details
                           </Typography>
                           <Box className="prc_contnt">
-                            <Typography className="tx1">
+                            <Typography
+                              sx={{
+                                color: "#29175e !important",
+                              }}
+                              className="tx1"
+                            >
                               {capitalizeFirstLetter(data?.username) ||
                                 "Doctor"}
                             </Typography>
@@ -1135,8 +1180,18 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                                 {`₹${data?.consultationFee}`}
                               </span>
                             </Typography>
-                            <Typography className="tx4">
-                              <span className="spntx1">Total</span>
+                            <Typography
+                              sx={{
+                                color: "#29175e !important",
+                              }}
+                              className="tx4"
+                            >
+                              <span
+                                style={{ color: "#29175e" }}
+                                className="spntx1"
+                              >
+                                Total
+                              </span>
                               <span className="spntx2">
                                 {values.appointmentDate &&
                                 values.appointmentTime &&
@@ -1177,9 +1232,13 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           background: "#29175E",
                           borderRadius: "4px",
                           marginLeft: "20px",
+                          textTransform: "none",
+                          transition:
+                            "transform 0.2s, box-shadow 0.2s, background-color 0.3s, color 0.3s",
                           ":hover": {
                             bgcolor: "#7A4D9C",
                             color: "white",
+                            transform: "scale(1.05)",
                           },
                         }}
                       >
@@ -1195,6 +1254,9 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           background: "#29175E",
                           borderRadius: "4px",
                           marginLeft: "20px",
+                          textTransform: "none",
+                          transition:
+                            "transform 0.2s, box-shadow 0.2s, background-color 0.3s, color 0.3s",
                           ":hover": {
                             bgcolor: "#7A4D9C",
                             color: "white",
