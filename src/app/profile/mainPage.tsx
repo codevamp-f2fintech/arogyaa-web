@@ -19,7 +19,7 @@ import {
   Straighten,
   Event as EventIcon,
 } from "@mui/icons-material";
-import { AppDispatch, RootState } from "@/redux/store";
+import type { AppDispatch, RootState } from "@/redux/store";
 import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
@@ -29,7 +29,6 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import EditIcon from "@mui/icons-material/Edit";
 import WcIcon from "@mui/icons-material/Wc";
@@ -39,7 +38,7 @@ import MedicationIcon from "@mui/icons-material/Medication";
 
 import { Utility } from "@/utils";
 import { fetcher, modifier } from "@/apis/apiClient";
-import { PatientData } from "@/types/patient";
+import type { PatientData } from "@/types/patient";
 
 import AppointmentHistory from "../components/appointment-history";
 import TestHistory from "../components/Test-history";
@@ -285,7 +284,7 @@ const UserProfile = () => {
         transition: "all 0.3s ease",
         background:
           activeView === value
-            ? "linear-gradient(135deg, #20ADA0 0%, #B6DADA 100%)"
+            ? "linear-gradient(135deg, #56428B 0%, #B497D6 100%)"
             : "#fff",
         "&:hover": {
           transform: "translateY(-5px)",
@@ -296,7 +295,7 @@ const UserProfile = () => {
           fontWeight: activeView === value ? "700" : "500",
         },
         "& .MuiSvgIcon-root": {
-          color: activeView === value ? "white" : "#20ADA0",
+          color: activeView === value ? "white" : "#B497D6",
         },
       }}
       onClick={() => setActiveView(value as typeof activeView)}
@@ -325,8 +324,7 @@ const UserProfile = () => {
       sx={{
         marginTop: "50px",
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #20ADA0 0%, #B6DADA 100%)",
-
+        background: "#56428B",
         padding: "1.5rem",
       }}
     >
@@ -363,12 +361,12 @@ const UserProfile = () => {
                 <Button
                   onClick={updateUserProfile}
                   sx={{
-                    backgroundColor: "#20ADA0",
+                    backgroundColor: "#56428B",
                     borderRadius: "50px",
                     padding: "4px 20px",
                     color: "white",
                     "&:hover": {
-                      backgroundColor: "#20ADA0",
+                      backgroundColor: "#483980",
                     },
                   }}
                 >
@@ -406,7 +404,7 @@ const UserProfile = () => {
                   alignItems: "center",
                   justifyContent: "center",
                   borderRadius: "8px",
-                  border: "3px solid #20ADA0",
+                  border: "3px solid #56428B",
                   boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
                   overflow: "hidden",
                   marginTop: "15px",
@@ -497,7 +495,7 @@ const UserProfile = () => {
             >
               <Typography
                 variant="body1"
-                sx={{ fontWeight: "600", color: "#20ADA0", mb: 1 }}
+                sx={{ fontWeight: "600", color: "#B497D6", mb: 1 }}
               >
                 Personal Information
               </Typography>
@@ -543,7 +541,9 @@ const UserProfile = () => {
                   key: "bloodGroup",
                 },
                 {
-                  icon: <MedicalInformationIcon sx={{ color: "#20ADA0",gap:2}} />,
+                  icon: (
+                    <MedicalInformationIcon sx={{ color: "#20ADA0", gap: 2 }} />
+                  ),
                   label: "Medical History",
                   key: "medicalHistory",
                 },
@@ -573,9 +573,9 @@ const UserProfile = () => {
                     width: "85%",
                     maxWidth: "420px",
                     justifyContent: "space-between",
-                    background: "#F1FAFA",
+                    background: "#F8F5FF",
                     boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.05)",
-                    border: "1px solid #20ADA0",
+                    border: "1px solid #B497D6",
                     textAlign: "left",
                     transition: "0.3s ease-in-out",
                   }}
@@ -588,7 +588,9 @@ const UserProfile = () => {
                       flex: 1,
                     }}
                   >
-                    {item.icon}
+                    {React.cloneElement(item.icon, {
+                      sx: { color: "#B497D6" },
+                    })}
                     <Typography
                       sx={{
                         fontWeight: 600,
@@ -670,7 +672,7 @@ const UserProfile = () => {
                   variant="body1"
                   sx={{
                     fontWeight: "700",
-                    color: "#20ADA0",
+                    color: "#B497D6",
                     mb: 2,
                     textTransform: "uppercase",
                     letterSpacing: "0.5px",
@@ -688,18 +690,18 @@ const UserProfile = () => {
                       px: 2,
                       py: 1,
                       borderRadius: "8px",
-                      backgroundColor: "#F1FAFA",
+                      backgroundColor: "#F8F5FF",
                       border: "1px solid #E0E0E0",
                       boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.05)",
                       transition: "all 0.3s ease-in-out",
                       "&:hover": {
-                        backgroundColor: "#E6F7F2",
+                        backgroundColor: "#EFE6FF",
                         transform: "translateY(-2px)",
                       },
                     }}
                   >
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <EventIcon sx={{ color: "#20ADA0" }} />
+                      <EventIcon sx={{ color: "#B497D6" }} />
                       <Typography sx={{ fontWeight: 600, fontSize: "1rem" }}>
                         Previous Visit:
                       </Typography>
@@ -718,7 +720,6 @@ const UserProfile = () => {
                             previousVisit.appointmentTime
                           }| ${previousVisit.hospitalName ?? "Hospital N/A"}`
                         : "N/A"}
-                        
                     </Typography>
                   </Box>
                   {/* Next Visit */}
@@ -730,18 +731,18 @@ const UserProfile = () => {
                       px: 2,
                       py: 1,
                       borderRadius: "8px",
-                      backgroundColor: "#F1FAFA",
+                      backgroundColor: "#F8F5FF",
                       border: "1px solid #E0E0E0",
                       boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.05)",
                       transition: "all 0.3s ease-in-out",
                       "&:hover": {
-                        backgroundColor: "#E6F7F2",
+                        backgroundColor: "#EFE6FF",
                         transform: "translateY(-2px)",
                       },
                     }}
                   >
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <EventIcon sx={{ color: "#20ADA0" }} />
+                      <EventIcon sx={{ color: "#B497D6" }} />
                       <Typography sx={{ fontWeight: 600, fontSize: "1rem" }}>
                         Next Visit:
                       </Typography>

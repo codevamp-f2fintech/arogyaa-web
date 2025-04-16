@@ -1,5 +1,7 @@
 "use client";
-import React, { useEffect, useState } from "react";
+
+import type React from "react";
+import { useEffect, useState } from "react";
 import {
   Autocomplete,
   Dialog,
@@ -30,24 +32,24 @@ import { styled } from "@mui/system";
 import { creator, fetcher } from "@/apis/apiClient";
 import { Utility } from "@/utils";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/redux/store";
+import type { AppDispatch } from "@/redux/store";
 
 const StyledTextField = styled(TextField)({
   "& label": {
-    color: "#20ADA0",
+    color: "#56428B",
   },
   "& label.Mui-focused": {
-    color: "#20ADA0",
+    color: "#56428B",
   },
   "& .MuiOutlinedInput-root": {
     "& fieldset": {
-      borderColor: "#20ADA0",
+      borderColor: "#B497D6",
     },
     "&:hover fieldset": {
-      borderColor: "#20ADA0",
+      borderColor: "#56428B",
     },
     "&.Mui-focused fieldset": {
-      borderColor: "#20ADA0",
+      borderColor: "#56428B",
     },
   },
 });
@@ -55,20 +57,20 @@ const StyledTextField = styled(TextField)({
 const StyledAutocomplete = styled(Autocomplete)(({ theme }) => ({
   "& .MuiOutlinedInput-root": {
     "& fieldset": {
-      borderColor: "#20ADA0",
+      borderColor: "#B497D6",
     },
     "&:hover fieldset": {
-      borderColor: "#20ADA0",
+      borderColor: "#56428B",
     },
     "&.Mui-focused fieldset": {
-      borderColor: "#20ADA0",
+      borderColor: "#56428B",
     },
   },
   "& .MuiInputLabel-root": {
-    color: "#20ADA0",
+    color: "#56428B",
   },
   "& .Mui-focused .MuiInputLabel-root": {
-    color: "#20ADA0",
+    color: "#56428B",
   },
 }));
 
@@ -116,8 +118,8 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
   const { snackbarAndNavigate, decodedToken } = Utility();
   const patientId = decodedToken()?.id;
   const doctorId = decodedToken()?.id;
-    const [doctors, setDoctors] = useState<Doctor[]>([]);
-  
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+
   const handleClose = (event: any, reason: string) => {
     if (reason !== "backdropClick") {
       onClose();
@@ -133,7 +135,7 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
   }, [open]);
 
   const validateForm = () => {
-    let valid = true;
+    const valid = true;
     const newErrors = {
       name: formData.name ? "" : "Name is required",
       description: formData.description ? "" : "Description is required",
@@ -146,8 +148,8 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
     setErrors(newErrors);
     return !Object.values(newErrors).some((error) => error !== "");
   };
-  const handleImageUpload = (event) => {
-    const file = event.target.files[0];
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (file) {
       setFormData((prevData) => ({
         ...prevData,
@@ -155,7 +157,7 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
       }));
     }
   };
-const fetchDoctors = async () => {
+  const fetchDoctors = async () => {
     try {
       const response = await fetcher("doctor", "get-doctors");
       console.log("Doctors API Response:", response);
@@ -173,10 +175,11 @@ const fetchDoctors = async () => {
       console.error("Failed to fetch doctors", error);
     }
   };
-  const handleCheckboxChange = (e) => {
-    setFormData({ ...formData, isEmptyStomach: e.target.checked,isFollowUp: e.target.checked });
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setFormData({ ...formData, [name]: checked });
   };
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -188,7 +191,7 @@ const fetchDoctors = async () => {
       [name]: value ? "" : prevErrors[name],
     }));
   };
- const handleSubmit = async () => {
+  const handleSubmit = async () => {
     if (!validateForm()) return;
     try {
       const headers = { "Content-Type": "multipart/form-data" };
@@ -213,16 +216,21 @@ const fetchDoctors = async () => {
         onClose();
       }
     } catch (error) {
-      snackbarAndNavigate(dispatch, true, "error", "Failed to create treatment");
+      snackbarAndNavigate(
+        dispatch,
+        true,
+        "error",
+        "Failed to create treatment"
+      );
     }
   };
 
-   useEffect(() => {
-      if (formData.type === "arogyaa") {
-        fetchDoctors();
-      }
-    }, [formData.type]);
-    
+  useEffect(() => {
+    if (formData.type === "arogyaa") {
+      fetchDoctors();
+    }
+  }, [formData.type]);
+
   return (
     <Dialog
       open={open}
@@ -231,13 +239,13 @@ const fetchDoctors = async () => {
       maxWidth="lg"
       sx={{ borderRadius: "50px" }}
     >
-      <Box sx={{ backgroundColor: "#f5f5f5", borderRadius: 4, padding: 2 }}>
-        <DialogTitle sx={{ color: "#20ADA0" }}>
+      <Box sx={{ backgroundColor: "#F8F5FF", borderRadius: 4, padding: 2 }}>
+        <DialogTitle sx={{ color: "#56428B" }}>
           <Typography variant="h6">Create Treatment</Typography>
           <IconButton
             onClick={onClose}
             sx={{
-              color: "#20ADA0",
+              color: "#56428B",
               position: "absolute",
               top: 6,
               right: 0,
@@ -261,7 +269,7 @@ const fetchDoctors = async () => {
                 required
                 placeholder="Enter treatment name(e.g.,paracetamol)"
                 InputProps={{
-                  startAdornment: <ListAlt sx={{ color: "#20ADA0", mr: 2 }} />,
+                  startAdornment: <ListAlt sx={{ color: "#56428B", mr: 2 }} />,
                 }}
               />
             </Grid>
@@ -278,7 +286,7 @@ const fetchDoctors = async () => {
                 placeholder="Enter description(e.g.,For fever)"
                 InputProps={{
                   startAdornment: (
-                    <Description sx={{ color: "#20ADA0", mr: 2 }} />
+                    <Description sx={{ color: "#56428B", mr: 2 }} />
                   ),
                 }}
               />
@@ -296,7 +304,7 @@ const fetchDoctors = async () => {
                 placeholder="Enter quantity(e.g.,1 capsule)"
                 InputProps={{
                   startAdornment: (
-                    <Inventory sx={{ color: "#20ADA0", mr: 2 }} />
+                    <Inventory sx={{ color: "#56428B", mr: 2 }} />
                   ),
                 }}
               />
@@ -313,7 +321,7 @@ const fetchDoctors = async () => {
                 helperText={errors.frequency}
                 placeholder="Enter frequency(e.g.,twice a day)"
                 InputProps={{
-                  startAdornment: <Repeat sx={{ color: "#20ADA0", mr: 2 }} />,
+                  startAdornment: <Repeat sx={{ color: "#56428B", mr: 2 }} />,
                 }}
               />
             </Grid>
@@ -329,7 +337,7 @@ const fetchDoctors = async () => {
                 helperText={errors.duration}
                 placeholder="Enter duration(e.g.,7 days)"
                 InputProps={{
-                  startAdornment: <Timer sx={{ color: "#20ADA0", mr: 2 }} />,
+                  startAdornment: <Timer sx={{ color: "#56428B", mr: 2 }} />,
                 }}
               />
             </Grid>
@@ -338,26 +346,36 @@ const fetchDoctors = async () => {
                 control={
                   <Checkbox
                     checked={formData.isEmptyStomach}
-                    onChange={handleCheckboxChange}
+                    onChange={(e) =>
+                      handleCheckboxChange({
+                        ...e,
+                        target: { ...e.target, name: "isEmptyStomach" },
+                      })
+                    }
                     sx={{
-                      color: formData.isEmptyStomach ? "#20ADA0" : "default",
+                      color: formData.isEmptyStomach ? "#56428B" : "default",
                       "&.Mui-checked": {
-                        color: "#20ADA0",
+                        color: "#56428B",
                       },
                     }}
                   />
                 }
                 label="Empty Stomach"
               />
-                <FormControlLabel
+              <FormControlLabel
                 control={
                   <Checkbox
                     checked={formData.isFollowUp}
-                    onChange={handleCheckboxChange}
+                    onChange={(e) =>
+                      handleCheckboxChange({
+                        ...e,
+                        target: { ...e.target, name: "isFollowUp" },
+                      })
+                    }
                     sx={{
-                      color: formData.isFollowUp ? "#20ADA0" : "default",
+                      color: formData.isFollowUp ? "#56428B" : "default",
                       "&.Mui-checked": {
-                        color: "#20ADA0",
+                        color: "#56428B",
                       },
                     }}
                   />
@@ -365,7 +383,6 @@ const fetchDoctors = async () => {
                 label="Is Follow Up?"
               />
             </Grid>
-           
 
             <Grid item xs={12} sm={4}>
               <StyledAutocomplete
@@ -394,34 +411,36 @@ const fetchDoctors = async () => {
                 )}
               />
             </Grid>
-  {/* ✅ Doctor Selection Field */}
-          {formData.type === "arogyaa" && (
-            <Grid item xs={12} sm={4}>
-              <Autocomplete
-                options={doctors}
-                getOptionLabel={(option) => option.username}
-                value={
-                  doctors.find((doc) => doc.id === formData.doctor) || null
-                }
-                onChange={(event, newValue) => {
-                  setFormData({
-                    ...formData,
-                    doctor: newValue ? newValue.id : null,
-                  });
-                }}
-                isOptionEqualToValue={(option, value) => option.id === value.id}
-                fullWidth
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Select Doctor"
-                    error={!!errors.doctor}
-                    helperText={errors.doctor}
-                  />
-                )}
-              />
-            </Grid>
-          )}
+            {/* Doctor Selection Field */}
+            {formData.type === "arogyaa" && (
+              <Grid item xs={12} sm={4}>
+                <StyledAutocomplete
+                  options={doctors}
+                  getOptionLabel={(option) => option.username}
+                  value={
+                    doctors.find((doc) => doc.id === formData.doctor) || null
+                  }
+                  onChange={(event, newValue) => {
+                    setFormData({
+                      ...formData,
+                      doctor: newValue ? newValue.id : null,
+                    });
+                  }}
+                  isOptionEqualToValue={(option, value) =>
+                    option.id === value.id
+                  }
+                  fullWidth
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Select Doctor"
+                      error={!!errors.doctor}
+                      helperText={errors.doctor}
+                    />
+                  )}
+                />
+              </Grid>
+            )}
             <Grid item xs={12} sm={4}>
               <StyledAutocomplete
                 options={optionsStatus}
@@ -454,11 +473,11 @@ const fetchDoctors = async () => {
                   borderRadius: "12px",
                   padding: "10px",
                   textAlign: "center",
-                  backgroundColor: "#20ADA0",
+                  backgroundColor: "#56428B",
                   cursor: "pointer",
                   width: "100%",
                   marginTop: 0.6,
-                  "&:hover": { backgroundColor: "#20ADA0" },
+                  "&:hover": { backgroundColor: "#483980" },
                   transition: "0.3s",
                 }}
               >
@@ -487,7 +506,9 @@ const fetchDoctors = async () => {
                   }}
                 >
                   <img
-                    src={URL.createObjectURL(formData.photo)}
+                    src={
+                      URL.createObjectURL(formData.photo) || "/placeholder.svg"
+                    }
                     alt="Uploaded"
                     style={{
                       width: "100%",
@@ -504,8 +525,7 @@ const fetchDoctors = async () => {
                       position: "absolute",
                       top: 4,
                       right: 8,
-
-                      color: "#20ADA0",
+                      color: "#56428B",
                     }}
                   >
                     <Close />
@@ -534,13 +554,12 @@ const fetchDoctors = async () => {
           <Button
             onClick={handleSubmit}
             variant="contained"
-            color="primary"
             startIcon={<CheckCircle />}
             sx={{
               borderRadius: 50,
               padding: "8px 20px",
-              backgroundColor: "#20ADA0",
-              "&:hover": { backgroundColor: "#1B8D80" },
+              backgroundColor: "#56428B",
+              "&:hover": { backgroundColor: "#483980" },
             }}
           >
             Create

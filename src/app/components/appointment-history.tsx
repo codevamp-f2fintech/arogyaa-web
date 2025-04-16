@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react"
 import {
   Container,
   Table,
@@ -9,95 +9,85 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
   Paper,
   TablePagination,
   Alert,
   Box,
   Chip,
   alpha,
-} from "@mui/material";
+} from "@mui/material"
 
-import {
-  Timeline ,
-  EventAvailable as AppointmentIcon,
-  CalendarMonth,
-} from "@mui/icons-material";
+import { EventAvailable as AppointmentIcon, CalendarMonth } from "@mui/icons-material"
 
-import { Utility } from "@/utils";
-import { fetcher } from "@/apis/apiClient";
+import { Utility } from "@/utils"
+import { fetcher } from "@/apis/apiClient"
 
 interface Appointment {
-  _id: string;
-  patientId: string;
-  doctorId: string;
-  appointmentTime: string;
-  status: string;
+  _id: string
+  patientId: string
+  doctorId: string
+  appointmentTime: string
+  status: string
 }
 
 const AppointmentHistory: React.FC = () => {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [totalCount, setTotalCount] = useState(0);
-  const [error, setError] = useState<string | null>(null);
+  const [appointments, setAppointments] = useState<Appointment[]>([])
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(5)
+  const [totalCount, setTotalCount] = useState(0)
+  const [error, setError] = useState<string | null>(null)
 
-  const { decodedToken } = Utility();
-  const patientId = decodedToken()?.id;
+  const { decodedToken } = Utility()
+  const patientId = decodedToken()?.id
 
   const fetchAppointments = React.useCallback(async () => {
     if (patientId) {
       try {
-        const response = await fetcher(
-          "appointment",
-          `get-patients-appointment/${patientId}?page=1`
-        );
-        const results = response?.results || [];
-        const count = response?.count || 0;
-        setAppointments(results);
-        setTotalCount(count);
-        setError(null);
+        const response = await fetcher("appointment", `get-patients-appointment/${patientId}?page=1`)
+        const results = response?.results || []
+        const count = response?.count || 0
+        setAppointments(results)
+        setTotalCount(count)
+        setError(null)
       } catch (error) {
-        console.error("Error fetching appointments:", error);
-        setError(error instanceof Error ? error.message : String(error));
-        setAppointments([]);
-        setTotalCount(0);
+        console.error("Error fetching appointments:", error)
+        setError(error instanceof Error ? error.message : String(error))
+        setAppointments([])
+        setTotalCount(0)
       }
     }
-  }, [patientId, page, rowsPerPage]);
+  }, [patientId, page, rowsPerPage])
 
   useEffect(() => {
-    fetchAppointments();
-  }, [fetchAppointments]);
+    fetchAppointments()
+  }, [fetchAppointments])
 
   const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
+    setPage(newPage)
+  }
 
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(Number.parseInt(event.target.value, 10))
+    setPage(0)
+  }
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "completed":
-        return "success";
+        return "success"
       case "pending":
-        return "warning";
+        return "warning"
       case "cancelled":
-        return "error";
+        return "error"
       default:
-        return "default";
+        return "default"
     }
-  };
+  }
 
   const paginatedAppointments = useMemo(() => {
-    const startIndex = page * rowsPerPage;
-    return appointments.slice(startIndex, startIndex + rowsPerPage);
-  }, [appointments, page, rowsPerPage]);
+    const startIndex = page * rowsPerPage
+    return appointments.slice(startIndex, startIndex + rowsPerPage)
+  }, [appointments, page, rowsPerPage])
 
   return (
     <Container maxWidth="lg">
@@ -148,8 +138,7 @@ const AppointmentHistory: React.FC = () => {
         <Table>
           <TableHead
             sx={{
-              backgroundColor: (theme) =>
-                alpha(theme.palette.primary.main, 0.05),
+              backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.05),
             }}
           >
             <TableRow>
@@ -181,9 +170,7 @@ const AppointmentHistory: React.FC = () => {
                     textAlign: "center",
                   }}
                 >
-                  <TableCell>
-                    {appointment?.doctorId?.username || "N/A"}
-                  </TableCell>
+                  <TableCell>{appointment?.doctorId?.username || "N/A"}</TableCell>
                   <TableCell>{appointment?.appointmentTime || "N/A"}</TableCell>
                   <TableCell>
                     <Chip
@@ -205,14 +192,12 @@ const AppointmentHistory: React.FC = () => {
                       justifyContent: "center",
                       alignItems: "center",
                       gap: 0.5,
-
                       borderRadius: "8px",
-
-                      color: "#20ADA0",
+                      color: "#B497D6", // Changed from #20ADA0
                     }}
                   >
-                    <CalendarMonth sx={{ fontSize: 18, color: "#20ADA0" }} />
-                    No Appointment Booked
+                    <CalendarMonth sx={{ fontSize: 18, color: "#B497D6" }} /> // Changed from #20ADA0 No Appointment
+                    Booked
                   </Box>
                 </TableCell>
               </TableRow>
@@ -235,7 +220,7 @@ const AppointmentHistory: React.FC = () => {
         />
       </TableContainer>
     </Container>
-  );
-};
+  )
+}
 
-export default AppointmentHistory;
+export default AppointmentHistory

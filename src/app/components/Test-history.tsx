@@ -30,7 +30,7 @@ import {
 import { fetcher, modifier } from "@/apis/apiClient";
 import { Utility } from "@/utils";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/redux/store";
+import type { AppDispatch, RootState } from "@/redux/store";
 import SnackbarComponent from "./common/Snackbar";
 import ImagePicker from "./common/ImagePicker";
 import { AddCircle, AssignmentLate, Visibility } from "@mui/icons-material";
@@ -114,7 +114,7 @@ const TestHistory: React.FC = () => {
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+    setRowsPerPage(Number.parseInt(event.target.value, 10));
     setPage(0);
   };
 
@@ -220,7 +220,7 @@ const TestHistory: React.FC = () => {
         <Button
           onClick={() => setOpenCreateDialog(true)}
           sx={{
-            background: "#20ADA0 !important",
+            background: "#56428B !important",
             color: "white",
             fontWeight: "bold",
             padding: "6px 15px",
@@ -411,7 +411,7 @@ const TestHistory: React.FC = () => {
                         sx={{ position: "relative", display: "inline-block" }}
                       >
                         <img
-                          src={test.photo}
+                          src={test.photo || "/placeholder.svg"}
                           alt={test.name}
                           style={{
                             width: "50px",
@@ -430,7 +430,7 @@ const TestHistory: React.FC = () => {
                           }}
                           onClick={() => handleOpenViewImageModal(test.photo)}
                         >
-                          <Visibility sx={{ color: "#20ADA0" }} />
+                          <Visibility sx={{ color: "#B497D6" }} />
                         </IconButton>
                       </Box>
                     ) : (
@@ -439,14 +439,14 @@ const TestHistory: React.FC = () => {
                         sx={{
                           display: "block",
                           margin: "0 auto",
-                          background: "#20ADA0",
+                          background: "#56428B",
                           color: "white",
                           fontWeight: "bold",
                           textDecoration: "none",
                           borderRadius: "4px",
                           padding: "5px 10px",
                           "&:hover": {
-                            background: "#178F84",
+                            background: "#483980",
                             boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
                           },
                           transition: "all 0.3s ease",
@@ -467,13 +467,11 @@ const TestHistory: React.FC = () => {
                       justifyContent: "center",
                       alignItems: "center",
                       gap: 0.5,
-
                       borderRadius: "8px",
-
-                      color: "#20ADA0",
+                      color: "#B497D6",
                     }}
                   >
-                    <AssignmentLate sx={{ fontSize: 18, color: "#20ADA0" }} />
+                    <AssignmentLate sx={{ fontSize: 18, color: "#B497D6" }} />
                     No Test History
                   </Box>
                 </TableCell>
@@ -547,7 +545,7 @@ const TestHistory: React.FC = () => {
 
           {viewImageUrl && (
             <img
-              src={viewImageUrl}
+              src={viewImageUrl || "/placeholder.svg"}
               alt="Preview"
               style={{ maxWidth: "90%", maxHeight: "90%" }}
               onClick={(e) => e.stopPropagation()}

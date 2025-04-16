@@ -1,5 +1,6 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import type React from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Alert,
   Box,
@@ -29,7 +30,7 @@ import {
 import { fetcher, modifier } from "@/apis/apiClient";
 import { Utility } from "@/utils";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/redux/store";
+import type { AppDispatch, RootState } from "@/redux/store";
 import SnackbarComponent from "./common/Snackbar";
 import ImagePicker from "./common/ImagePicker";
 import CreateTreatmentDialog from "./common/CreateTreatmentDialog";
@@ -111,7 +112,7 @@ const TreatmentHistory: React.FC = () => {
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+    setRowsPerPage(Number.parseInt(event.target.value, 10));
     setPage(0);
   };
 
@@ -218,7 +219,7 @@ const TreatmentHistory: React.FC = () => {
         <Button
           onClick={() => setOpenCreateDialog(true)}
           sx={{
-            background: "#20ADA0 !important",
+            background: "#56428B !important",
             color: "white",
             fontWeight: "bold",
             padding: "6px 15px",
@@ -424,7 +425,7 @@ const TreatmentHistory: React.FC = () => {
                         sx={{ position: "relative", display: "inline-block" }}
                       >
                         <img
-                          src={treatment.photo}
+                          src={treatment.photo || "/placeholder.svg"}
                           alt={treatment.name}
                           style={{
                             width: "50px",
@@ -441,7 +442,7 @@ const TreatmentHistory: React.FC = () => {
                             handleOpenViewImageModal(treatment.photo)
                           }
                         >
-                          <Visibility sx={{ color: "#20ADA0" }} />
+                          <Visibility sx={{ color: "#B497D6" }} />
                         </IconButton>
                       </Box>
                     ) : (
@@ -450,14 +451,14 @@ const TreatmentHistory: React.FC = () => {
                         sx={{
                           display: "block",
                           margin: "0 auto",
-                          background: "#20ADA0",
+                          background: "#56428B",
                           color: "white",
                           fontWeight: "bold",
                           textDecoration: "none",
                           borderRadius: "4px",
                           padding: "5px 10px",
                           "&:hover": {
-                            background: "#178F84",
+                            background: "#483980",
                             boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
                           },
                           transition: "all 0.3s ease",
@@ -478,13 +479,11 @@ const TreatmentHistory: React.FC = () => {
                       justifyContent: "center",
                       alignItems: "center",
                       gap: 0.5,
-
                       borderRadius: "8px",
-
-                      color: "#20ADA0",
+                      color: "#B497D6",
                     }}
                   >
-                    <LocalHospital sx={{ fontSize: 18, color: "#20ADA0" }} />
+                    <LocalHospital sx={{ fontSize: 18, color: "#B497D6" }} />
                     No Treatment History
                   </Box>
                 </TableCell>
@@ -580,7 +579,7 @@ const TreatmentHistory: React.FC = () => {
 
             {viewImageUrl && (
               <img
-                src={viewImageUrl}
+                src={viewImageUrl || "/placeholder.svg"}
                 alt="Preview"
                 style={{
                   maxWidth: "90%",
