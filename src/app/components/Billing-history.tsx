@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import type React from "react";
+import { useState, useEffect } from "react";
 import {
   Container,
   Table,
@@ -13,7 +14,6 @@ import {
   TablePagination,
   Chip,
   alpha,
-
   Box,
 } from "@mui/material";
 import {
@@ -87,24 +87,24 @@ const BillingHistory: React.FC = () => {
       case "card":
         return (
           <CreditCard
-            sx={{ color: "#20ADA0", fontSize: 20, marginRight: 0.2 }}
+            sx={{ color: "#B497D6", fontSize: 20, marginRight: 0.2 }}
           />
         );
       case "upi":
         return (
           <AccountBalanceWallet
-            sx={{ color: "#20ADA0", fontSize: 20, marginRight: 0.2 }}
+            sx={{ color: "#B497D6", fontSize: 20, marginRight: 0.2 }}
           />
         );
       case "net_banking":
         return (
           <AccountBalance
-            sx={{ color: "#20ADA0", fontSize: 20, marginRight: 0.2 }}
+            sx={{ color: "#B497D6", fontSize: 20, marginRight: 0.2 }}
           />
         );
       default:
         return (
-          <Payment sx={{ color: "#20ADA0", fontSize: 20, marginRight: 0.2 }} />
+          <Payment sx={{ color: "#B497D6", fontSize: 20, marginRight: 0.2 }} />
         );
     }
   };
@@ -113,29 +113,29 @@ const BillingHistory: React.FC = () => {
       case "USD":
         return (
           <AttachMoney
-            sx={{ color: "#20ADA0", fontSize: 16, marginRight: 0.5 }}
+            sx={{ color: "#B497D6", fontSize: 16, marginRight: 0.5 }}
           />
         );
       case "INR":
         return (
           <CurrencyRupee
-            sx={{ color: "#20ADA0", fontSize: 16, marginRight: 0.5 }}
+            sx={{ color: "#B497D6", fontSize: 16, marginRight: 0.5 }}
           />
         );
       case "EUR":
         return (
-          <Euro sx={{ color: "#20ADA0", fontSize: 16, marginRight: 0.5 }} />
+          <Euro sx={{ color: "#B497D6", fontSize: 16, marginRight: 0.5 }} />
         );
       case "BTC":
         return (
           <CurrencyBitcoin
-            sx={{ color: "#20ADA0", fontSize: 10, marginRight: 1 }}
+            sx={{ color: "#B497D6", fontSize: 10, marginRight: 1 }}
           />
         );
       default:
         return (
           <AttachMoney
-            sx={{ color: "#20ADA0", fontSize: 10, marginRight: 1 }}
+            sx={{ color: "#B497D6", fontSize: 10, marginRight: 1 }}
           />
         );
     }
@@ -181,7 +181,7 @@ const BillingHistory: React.FC = () => {
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+    setRowsPerPage(Number.parseInt(event.target.value, 10));
     setPage(0);
   };
 
@@ -261,7 +261,7 @@ const BillingHistory: React.FC = () => {
                         borderRadius: "8px",
                         fontWeight: 700,
                         fontSize: "1rem",
-                        color: "#20ADA0",
+                        color: "#56428B",
                         backgroundColor:
                           bill.amount >= 500
                             ? "rgba(46, 125, 50, 0.1)"
@@ -290,10 +290,10 @@ const BillingHistory: React.FC = () => {
 
                       borderRadius: "8px",
 
-                      color: "#20ADA0",
+                      color: "#B497D6",
                     }}
                   >
-                    <ReceiptLong sx={{ fontSize: 18, color: "#20ADA0" }} />
+                    <ReceiptLong sx={{ fontSize: 18, color: "#B497D6" }} />
                     No Billing History
                   </Box>
                 </TableCell>

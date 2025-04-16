@@ -1,5 +1,7 @@
 "use client";
-import React, { useEffect, useState } from "react";
+
+import type React from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -17,7 +19,6 @@ import {
 } from "@mui/material";
 import {
   Image as ImageIcon,
-  AddCircle,
   Close,
   Description,
   ListAlt,
@@ -29,24 +30,24 @@ import { styled } from "@mui/system";
 import { creator, fetcher } from "@/apis/apiClient";
 import { Utility } from "@/utils";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/redux/store";
+import type { AppDispatch } from "@/redux/store";
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
   "& label": {
-    color: "#20ADA0",
+    color: "#56428B",
   },
   "& label.Mui-focused": {
-    color: "#20ADA0",
+    color: "#56428B",
   },
   "& .MuiOutlinedInput-root": {
     "& fieldset": {
-      borderColor: "#20ADA0",
+      borderColor: "#B497D6",
     },
     "&:hover fieldset": {
-      borderColor: "#20ADA0",
+      borderColor: "#56428B",
     },
     "&.Mui-focused fieldset": {
-      borderColor: "#20ADA0",
+      borderColor: "#56428B",
     },
   },
 }));
@@ -111,7 +112,7 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
   }, [open]);
 
   const validateForm = () => {
-    let valid = true;
+    const valid = true;
     const newErrors = {
       name: formData.name ? "" : "Name is required",
       description: formData.description ? "" : "Description is required",
@@ -123,8 +124,8 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
     return !Object.values(newErrors).some((error) => error !== "");
   };
 
-  const handleImageUpload = (event) => {
-    const file = event.target.files[0];
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (file) {
       setFormData((prevData) => ({
         ...prevData,
@@ -151,11 +152,11 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
       console.error("Failed to fetch doctors", error);
     }
   };
-  const handleCheckboxChange = (e) => {
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, emptyStomach: e.target.checked });
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -195,7 +196,6 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
     }
   };
 
-
   useEffect(() => {
     if (formData.type === "doctor") {
       fetchDoctors();
@@ -211,10 +211,12 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
       sx={{ borderRadius: "50px" }}
     >
       <DialogTitle>
-        <Typography variant="h6">Create Test</Typography>
+        <Typography variant="h6" sx={{ color: "#56428B" }}>
+          Create Test
+        </Typography>
         <IconButton
           onClick={onClose}
-          sx={{ position: "absolute", top: 6, right: 0 }}
+          sx={{ position: "absolute", top: 6, right: 0, color: "#56428B" }}
         >
           <Close />
         </IconButton>
@@ -234,7 +236,7 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
               required
               placeholder="Enter test name"
               InputProps={{
-                startAdornment: <ListAlt sx={{ color: "#20ADA0", mr: 2 }} />,
+                startAdornment: <ListAlt sx={{ color: "#56428B", mr: 2 }} />,
               }}
             />
           </Grid>
@@ -252,7 +254,7 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
               placeholder="Enter description"
               InputProps={{
                 startAdornment: (
-                  <Description sx={{ color: "#20ADA0", mr: 2 }} />
+                  <Description sx={{ color: "#56428B", mr: 2 }} />
                 ),
               }}
             />
@@ -265,8 +267,8 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
                   checked={formData.emptyStomach}
                   onChange={handleCheckboxChange}
                   sx={{
-                    color: formData.emptyStomach ? "#20ADA0" : "default",
-                    "&.Mui-checked": { color: "#20ADA0" },
+                    color: formData.emptyStomach ? "#56428B" : "default",
+                    "&.Mui-checked": { color: "#56428B" },
                   }}
                 />
               }
@@ -290,7 +292,11 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
               }}
               fullWidth
               renderInput={(params) => (
-                <TextField {...params} label="Category" variant="outlined" />
+                <StyledTextField
+                  {...params}
+                  label="Category"
+                  variant="outlined"
+                />
               )}
             />
           </Grid>
@@ -310,7 +316,11 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
               }}
               fullWidth
               renderInput={(params) => (
-                <TextField {...params} label="Status" variant="outlined" />
+                <StyledTextField
+                  {...params}
+                  label="Status"
+                  variant="outlined"
+                />
               )}
             />
           </Grid>
@@ -329,11 +339,13 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
                 });
               }}
               fullWidth
-              renderInput={(params) => <TextField {...params} label="Type" />}
+              renderInput={(params) => (
+                <StyledTextField {...params} label="Type" />
+              )}
             />
           </Grid>
 
-          {/* ✅ New Doctor Selection Field */}
+          {/* Doctor Selection Field */}
           {formData.type === "doctor" && (
             <Grid item xs={12} sm={4}>
               <Autocomplete
@@ -351,7 +363,7 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
                 isOptionEqualToValue={(option, value) => option.id === value.id}
                 fullWidth
                 renderInput={(params) => (
-                  <TextField
+                  <StyledTextField
                     {...params}
                     label="Select Doctor"
                     error={!!errors.doctor}
@@ -371,11 +383,11 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
                 borderRadius: "12px",
                 padding: "10px",
                 textAlign: "center",
-                backgroundColor: "#20ADA0",
+                backgroundColor: "#56428B",
                 cursor: "pointer",
                 width: "100%",
                 marginTop: 0.6,
-                "&:hover": { backgroundColor: "#20ADA0" },
+                "&:hover": { backgroundColor: "#483980" },
                 transition: "0.3s",
               }}
             >
@@ -404,7 +416,9 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
                 }}
               >
                 <img
-                  src={URL.createObjectURL(formData.photo)}
+                  src={
+                    URL.createObjectURL(formData.photo) || "/placeholder.svg"
+                  }
                   alt="Uploaded"
                   style={{
                     width: "100%",
@@ -421,7 +435,7 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
                     position: "absolute",
                     top: 4,
                     right: 8,
-                    color: "#20ADA0",
+                    color: "#56428B",
                   }}
                 >
                   <Close />
@@ -451,13 +465,12 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
         <Button
           onClick={handleSubmit}
           variant="contained"
-          color="primary"
           startIcon={<CheckCircle />}
           sx={{
             borderRadius: 50,
             padding: "8px 20px",
-            backgroundColor: "#20ADA0",
-            "&:hover": { backgroundColor: "#1B8D80" },
+            backgroundColor: "#56428B",
+            "&:hover": { backgroundColor: "#483980" },
           }}
         >
           Create

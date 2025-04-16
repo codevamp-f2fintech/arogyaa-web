@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useCallback } from "react";
+import type React from "react";
 import {
   Dialog,
   DialogActions,
@@ -20,7 +20,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { Cancel } from "@mui/icons-material";
 import SnackbarComponent from "./Snackbar";
 import { Utility } from "@/utils";
-import { AppDispatch, RootState } from "@/redux/store";
+import type { AppDispatch, RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
 
 interface ImagePickerProps {
@@ -74,7 +74,7 @@ const ImagePicker: React.FC<ImagePickerProps> = ({
       <DialogTitle
         sx={{
           textAlign: "center",
-          bgcolor: "#20ADA0 ",
+          bgcolor: "#56428B",
           color: "white",
           py: 2.5,
         }}
@@ -119,7 +119,7 @@ const ImagePicker: React.FC<ImagePickerProps> = ({
                 justifyContent: "center",
                 cursor: "pointer",
                 border: "2px dashed",
-                borderColor: isHovering ? "#82CBC6" : "grey.300",
+                borderColor: isHovering ? "#B497D6" : "grey.300",
                 borderRadius: 4,
                 transition: "all 0.3s ease",
                 bgcolor: isHovering ? "primary.50" : "background.paper",
@@ -133,14 +133,14 @@ const ImagePicker: React.FC<ImagePickerProps> = ({
                   <CloudUploadIcon
                     sx={{
                       fontSize: 64,
-                      color: isHovering ? "#20ADA0" : "grey.400",
+                      color: isHovering ? "#56428B" : "grey.400",
                       mb: 2,
                       transition: "color 0.3s ease",
                     }}
                   />
                   <Typography
                     variant="h6"
-                    color={isHovering ? "#20ADA0" : "text.secondary"}
+                    color={isHovering ? "#56428B" : "text.secondary"}
                     gutterBottom
                   >
                     Drop your image here
@@ -262,12 +262,12 @@ const ImagePicker: React.FC<ImagePickerProps> = ({
           sx={{
             minWidth: "150px",
             color: "#fff",
-            background: "#20ADA0",
+            background: "#56428B",
             borderRadius: "4px",
             marginLeft: "20px",
             "&:hover": {
               color: "#fff",
-              bgcolor: "#198A80        ",
+              bgcolor: "#483980",
             },
           }}
           startIcon={<Cancel sx={{ fontSize: 22 }} />}
@@ -284,13 +284,13 @@ const ImagePicker: React.FC<ImagePickerProps> = ({
             textTransform: "none",
             color: "white",
             borderRadius: "4px",
-            bgcolor: "#20ADA0",
+            bgcolor: "#56428B",
             fontWeight: "500",
             minWidth: "150px",
             boxShadow: 2,
             "&:hover": {
               color: "#fff",
-              bgcolor: "#198A80",
+              bgcolor: "#483980",
             },
           }}
         >
