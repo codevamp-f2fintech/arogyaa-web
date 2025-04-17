@@ -1,4 +1,7 @@
 @import "@fontsource/dm-sans";
+@import "@fontsource/poppins"; /* Default weight 400 (Normal) */
+@import "@fontsource/poppins/500.css"; /* Medium (500) */
+@import "@fontsource/poppins/700.css"; /* Bold (700) */
 
 *,
 *::before,
@@ -12,6 +15,9 @@
   --font-mono: ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono",
     "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro",
     "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
+
+  --font-sans: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial;
 
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
@@ -82,24 +88,27 @@
 }
 
 * {
-  /* box-sizing: border-box; */
   padding: 0;
   margin: 0;
+  font-family: "Poppins", sans-serif;
 }
 
 html,
 body {
+  font-family: "Poppins";
   scroll-behavior: smooth;
   max-width: 100vw;
   box-sizing: border-box;
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: scroll;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
   flex-direction: column;
   background-color: #56428b !important;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 a {
@@ -107,12 +116,13 @@ a {
   text-decoration: none;
 }
 
+::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}
+
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
   }
-}
-body,
-.container {
-  overflow-x: hidden;
 }

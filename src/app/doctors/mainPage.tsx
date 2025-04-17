@@ -548,7 +548,8 @@ export default function DoctorListing() {
                       display: "flex",
                       alignItems: "center",
                       padding: "20px",
-                      backgroundColor: "#29175e",
+                      backgroundColor: "#5d4993",
+                      borderRadius: "10px",
                     }}
                   >
                     {/* Doctor Image */}
@@ -571,7 +572,7 @@ export default function DoctorListing() {
                           height: { xs: "60px", sm: "80px", md: "100px" },
                           borderRadius: "50%",
                           objectFit: "cover",
-                          border: "3px solid #2ecc71",
+                          border: "3px solid #29175e",
                           boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
                           transition: "transform 0.3s ease",
                           "&:hover": {
@@ -712,7 +713,7 @@ export default function DoctorListing() {
                           borderRadius: "1px",
                           padding: "8px",
                           backgroundColor: "transparent",
-                          boxShadow: "3px 2px 2px rgba(0, 0, 0, 0.1)",
+                          // boxShadow: "3px 2px 2px rgba(0, 0, 0, 0.1)",
                           height: "25vh",
                           width: "auto",
                         }}
@@ -783,7 +784,7 @@ export default function DoctorListing() {
                                   sx={{
                                     display: "flex",
                                     alignItems: "center",
-                                    backgroundColor: "#2ecc71",
+                                    backgroundColor: "#29175e",
                                     color: "#fff",
                                     padding: "4px 7px",
                                     borderRadius: "16px",
@@ -867,9 +868,10 @@ export default function DoctorListing() {
                       justifyContent: "space-between",
                       alignItems: "center",
                       padding: "7px 20px",
-                      backgroundColor: "#29175e",
+                      backgroundColor: "#5d4993",
                       borderTop: "1px solid #f0f0f0",
-                      borderBottom: "1px solid #f0f0f0",
+                      borderRadius: "10px",
+                      // borderBottom: "1px solid #f0f0f0",
                     }}
                   >
                     <Typography
@@ -910,7 +912,7 @@ export default function DoctorListing() {
                   <Box
                     sx={{
                       display: "flex",
-                      backgroundColor: "#29175e",
+                      background: "transparent",
                       color: "transparent",
                     }}
                   >
@@ -919,13 +921,19 @@ export default function DoctorListing() {
                       fullWidth
                       startIcon={<Person sx={{ fontSize: "20px" }} />}
                       sx={{
-                        borderRadius: "0px",
+                        borderRadius: "10px",
                         textTransform: "none",
-                        background: "#29175e",
+                        backgroundColor: "#29175e",
                         color: "white",
                         fontWeight: "600",
                         borderRight: "1px solid #f0f0f0",
+                        border: "1px solid white", // Added border for white outline
                         transition: "all 0.2s ease-in-out",
+                        "&:hover": {
+                          border: "1px solid white",
+                          backgroundColor: "#af9fdb",
+                          color: "#29175e",
+                        },
                       }}
                       onClick={() => {
                         router.push(
@@ -935,22 +943,23 @@ export default function DoctorListing() {
                     >
                       View Full Profile
                     </Button>
+
                     <Button
                       variant="contained"
                       fullWidth
                       startIcon={<EventIcon sx={{ fontSize: "20px" }} />}
                       sx={{
-                        borderRadius: "0px",
+                        borderRadius: "10px",
                         textTransform: "none",
-                        background: "#2ecc71",
-                        transform: "scale(1.02)",
-                        color: "#333",
+                        background: "#29175e",
+                        color: "#fff",
                         fontWeight: "600",
+                        border: "1px solid white", // Added border for white outline
                         transition: "all 0.3s ease-in-out",
                         "&:hover": {
-                          background: "#2ecc71",
-                          color: "#fff",
-                          transform: "scale(1.02)",
+                          background: "#af9fdb",
+                          border: "1px solid white",
+                          color: "#29175e",
                         },
                       }}
                       onClick={() => openModal(doctor)}

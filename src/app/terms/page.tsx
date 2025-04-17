@@ -22,12 +22,12 @@ const TermsAndConditions = () => {
       <Container maxWidth="lg" sx={{ mt: 6, padding: "20px" }}>
         <Box
           sx={{
-            backgroundColor: "#ffffff",
+            backgroundColor: "#29175e",
             borderRadius: "80px",
             boxShadow: 3,
             padding: "40px",
             marginTop: "15px",
-            border: "3px solid #20ADA0",
+            border: "3px solid #fff",
           }}
         >
           <Typography
@@ -35,7 +35,7 @@ const TermsAndConditions = () => {
             align="center"
             sx={{
               fontWeight: "bold",
-              color: "#20ADA0",
+              color: "#fff",
               marginBottom: "30px",
               fontSize: "36px",
               textTransform: "uppercase",
@@ -48,18 +48,18 @@ const TermsAndConditions = () => {
             variant="h5"
             sx={{
               fontWeight: "bold",
-              color: "#20ADA0",
+              color: "#fff",
               marginBottom: "10px",
               display: "flex",
               alignItems: "center",
             }}
           >
-            <InfoIcon sx={{ marginRight: 1 }} /> Overview
+            <InfoIcon sx={{ marginRight: 1, color: "#b497d6" }} /> Overview
           </Typography>
           <Typography
             variant="body1"
             paragraph
-            sx={{ lineHeight: 1.8, color: "#34495E" }}
+            sx={{ lineHeight: 1.8, color: "#fff" }}
           >
             These Terms and Conditions govern your use of our services and
             platform. By accessing or using our services, you agree to comply
@@ -72,18 +72,19 @@ const TermsAndConditions = () => {
             variant="h5"
             sx={{
               fontWeight: "bold",
-              color: "#20ADA0",
+              color: "#fff",
               marginBottom: "10px",
               display: "flex",
               alignItems: "center",
             }}
           >
-            <InfoIcon sx={{ marginRight: 1 }} /> Acceptance of Terms
+            <InfoIcon sx={{ marginRight: 1, color: "#b497d6" }} /> Acceptance of
+            Terms
           </Typography>
           <Typography
             variant="body1"
             paragraph
-            sx={{ lineHeight: 1.8, color: "#34495E" }}
+            sx={{ lineHeight: 1.8, color: "#fff" }}
           >
             By using our platform and services, you agree to the following terms
             and conditions. If you do not agree with these terms, you should
@@ -96,18 +97,19 @@ const TermsAndConditions = () => {
             variant="h5"
             sx={{
               fontWeight: "bold",
-              color: "#20ADA0",
+              color: "#fff",
               marginBottom: "10px",
               display: "flex",
               alignItems: "center",
             }}
           >
-            <InfoIcon sx={{ marginRight: 1 }} /> User Responsibilities
+            <InfoIcon sx={{ marginRight: 1, color: "#b497d6" }} /> User
+            Responsibilities
           </Typography>
           <Typography
             variant="body1"
             paragraph
-            sx={{ lineHeight: 1.8, color: "#34495E" }}
+            sx={{ lineHeight: 1.8, color: "#fff" }}
           >
             As a user, you agree to use the services responsibly and comply with
             all applicable laws and regulations. You are solely responsible for
@@ -120,24 +122,30 @@ const TermsAndConditions = () => {
             variant="h5"
             sx={{
               fontWeight: "bold",
-              color: "#20ADA0",
+              color: "#fff",
               marginBottom: "10px",
               display: "flex",
               alignItems: "center",
             }}
           >
-            <InfoIcon sx={{ marginRight: 1 }} /> Prohibited Activities
+            <InfoIcon sx={{ marginRight: 1, color: "#b497d6" }} /> Prohibited
+            Activities
           </Typography>
           <Typography
             variant="body1"
             paragraph
-            sx={{ lineHeight: 1.8, color: "#34495E" }}
+            sx={{ lineHeight: 1.8, color: "#fff" }}
           >
             Users are prohibited from engaging in the following activities:
             <ul>
               <li>Posting harmful or unlawful content.</li>
-              <li>Attempting to interfere with the proper functioning of the platform.</li>
-              <li>Engaging in fraudulent activities or illegal transactions.</li>
+              <li>
+                Attempting to interfere with the proper functioning of the
+                platform.
+              </li>
+              <li>
+                Engaging in fraudulent activities or illegal transactions.
+              </li>
             </ul>
           </Typography>
 
@@ -147,18 +155,19 @@ const TermsAndConditions = () => {
             variant="h5"
             sx={{
               fontWeight: "bold",
-              color: "#20ADA0",
+              color: "#fff",
               marginBottom: "10px",
               display: "flex",
               alignItems: "center",
             }}
           >
-            <InfoIcon sx={{ marginRight: 1 }} /> Limitation of Liability
+            <InfoIcon sx={{ marginRight: 1, color: "#b497d6" }} /> Limitation of
+            Liability
           </Typography>
           <Typography
             variant="body1"
             paragraph
-            sx={{ lineHeight: 1.8, color: "#34495E" }}
+            sx={{ lineHeight: 1.8, color: "#fff" }}
           >
             Our platform is provided on an "as-is" basis. We are not liable for
             any indirect, incidental, or consequential damages arising from the
@@ -171,18 +180,18 @@ const TermsAndConditions = () => {
             variant="h5"
             sx={{
               fontWeight: "bold",
-              color: "#20ADA0",
+              color: "#fff",
               marginBottom: "10px",
               display: "flex",
               alignItems: "center",
             }}
           >
-            <InfoIcon sx={{ marginRight: 1 }} /> Termination
+            <InfoIcon sx={{ marginRight: 1, color: "#b497d6" }} /> Termination
           </Typography>
           <Typography
             variant="body1"
             paragraph
-            sx={{ lineHeight: 1.8, color: "#34495E" }}
+            sx={{ lineHeight: 1.8, color: "#fff" }}
           >
             We reserve the right to terminate or suspend your access to our
             platform if you violate any of the terms and conditions outlined
@@ -195,18 +204,19 @@ const TermsAndConditions = () => {
             variant="h5"
             sx={{
               fontWeight: "bold",
-              color: "#20ADA0",
+              color: "#fff",
               marginBottom: "10px",
               display: "flex",
               alignItems: "center",
             }}
           >
-            <InfoIcon sx={{ marginRight: 1 }} /> Changes to Terms
+            <InfoIcon sx={{ marginRight: 1, color: "#b497d6" }} /> Changes to
+            Terms
           </Typography>
           <Typography
             variant="body1"
             paragraph
-            sx={{ lineHeight: 1.8, color: "#34495E" }}
+            sx={{ lineHeight: 1.8, color: "#fff" }}
           >
             We may update these terms from time to time. Any changes will be
             posted on this page, and your continued use of the platform will be
@@ -219,18 +229,16 @@ const TermsAndConditions = () => {
             variant="h5"
             sx={{
               fontWeight: "bold",
-              color: "#20ADA0",
+              color: "#fff",
               marginBottom: "10px",
               display: "flex",
               alignItems: "center",
             }}
           >
-            <InfoIcon sx={{ marginRight: 1 }} /> Contact Details
+            <InfoIcon sx={{ marginRight: 1, color: "#b497d6" }} /> Contact
+            Details
           </Typography>
-          <Typography
-            variant="body1"
-            sx={{ lineHeight: 1.8, color: "#34495E" }}
-          >
+          <Typography variant="body1" sx={{ lineHeight: 1.8, color: "#fff" }}>
             If you have any questions or concerns about these Terms and
             Conditions, please contact us at:
           </Typography>
@@ -238,13 +246,13 @@ const TermsAndConditions = () => {
             variant="body1"
             sx={{
               lineHeight: 0.5,
-              color: "#34495E",
+              color: "#fff",
               display: "flex",
               alignItems: "center",
               justifyContent: "start",
             }}
           >
-            <Email sx={{ marginRight: 1, color: "#20ADA0" }} />
+            <Email sx={{ marginRight: 1, color: "#b497d6" }} />
             arogyaa.f2@gmail.com
           </Typography>
         </Box>

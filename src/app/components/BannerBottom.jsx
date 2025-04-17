@@ -40,7 +40,6 @@ export default function FAQpage() {
   return (
     <Box
       sx={{
-        position: "relative",
         background: "rgb(175,159,219)",
         background:
           "linear-gradient(180deg, rgba(175,159,219,1) 0%, rgba(190,176,225,1) 100%)",
@@ -49,188 +48,197 @@ export default function FAQpage() {
         width: "100%",
         padding: { xs: "20px", md: "40px 60px" },
         overflow: "hidden",
+        display: "flex",
+        flexDirection: {
+          xs: "column",
+          md: "row",
+          sm: "column",
+        },
       }}
     >
-      <Container maxWidth="xl" sx={{ position: "relative", zIndex: 2 }}>
-        <Box
+      <Box
+        sx={{
+          width: { xs: "100%", sm: "90%", md: "45%" },
+          animation: "fadeIn 0.8s ease-out",
+          "@keyframes fadeIn": {
+            "0%": { opacity: 0, transform: "translateY(20px)" },
+            "100%": { opacity: 1, transform: "translateY(0)" },
+          },
+          padding: { xs: "15px", sm: "20px", md: "30px" }, // Adjust padding for mobile and tablet
+          boxSizing: "border-box", // Ensures padding is considered in the width
+          display: "flex",
+          flexDirection: "column", // Ensuring column direction for mobile
+          alignItems: "center", // Center content on mobile
+          justifyContent: "center", // Center vertically on mobile
+        }}
+      >
+        <Typography
+          variant="h3"
           sx={{
-            display: "flex",
-            flexDirection: {
-              xs: "column",
-              md: "row",
-            },
-            justifyContent: "space-between",
-            alignItems: { xs: "flex-start", md: "center" },
-            gap: { xs: 4, md: 8 },
-            py: 4,
+            fontWeight: "bold",
+            fontSize: { xs: "1.8rem", sm: "2rem", md: "3.5rem" }, // Adjusted font size for mobile and tablet
+            mb: 1,
+            color: "black",
+            textAlign: "center", // Centered the text on smaller screens
           }}
         >
-          <Box
-            sx={{
-              width: { xs: "100%", md: "45%" },
-              animation: "fadeIn 0.8s ease-out",
-              "@keyframes fadeIn": {
-                "0%": { opacity: 0, transform: "translateY(20px)" },
-                "100%": { opacity: 1, transform: "translateY(0)" },
-              },
-            }}
-          >
-            <Typography
-              variant="h3"
-              sx={{
-                fontWeight: "bold",
-                fontSize: { xs: "2rem", md: "3.5rem" },
-                mb: 1,
-                color: "black",
-              }}
-            >
-              Questions?
-            </Typography>
-            <Typography
-              variant="h3"
-              sx={{
-                fontWeight: "bold",
-                fontSize: { xs: "2rem", md: "2.8rem" },
-                mb: 3,
-                color: "#29175e",
-              }}
-            >
-              Your Health, Made Easy
-            </Typography>
-            <Typography
-              sx={{
-                color: "#29175e",
-                fontSize: "1.1rem",
-                fontWeight: 550,
-                fontFamily: "Poppins",
-                lineHeight: 1.6,
-                mb: 2,
-              }}
-            >
-              We get it—healthcare terms can be confusing. That's why we’ve made
-              our FAQs easy to understand.
-            </Typography>
-            <Typography
-              sx={{
-                color: "#29175e",
-                fontSize: "1.1rem",
-                fontWeight: 550,
-                fontFamily: "Poppins",
-                lineHeight: 1.6,
-              }}
-            >
-              Need more help? Cassie, our AI assistant, is always here to guide
-              you!
-            </Typography>
-          </Box>
+          Questions?
+        </Typography>
+        <Typography
+          variant="h3"
+          sx={{
+            fontWeight: "bold",
+            fontSize: { xs: "2rem", sm: "2.5rem", md: "2.8rem" }, // Adjusted font size for mobile and tablet
+            mb: 3,
+            color: "#29175e",
+            textAlign: "center", // Centered the text on smaller screens
+          }}
+        >
+          Your Health, Made Easy
+        </Typography>
+        <Typography
+          sx={{
+            color: "#29175e",
+            fontSize: { xs: "1rem", sm: "1.1rem" }, // Adjusted font size for mobile and tablet
+            fontWeight: 550,
+            fontFamily: "Poppins",
+            lineHeight: 1.6,
+            mb: 2,
+            textAlign: "center", // Centered the text on smaller screens
+            width: { xs: "80vw", md: "auto" },
+          }}
+        >
+          We get it—healthcare terms can be confusing. That's why we’ve made our
+          FAQs easy to understand.
+        </Typography>
+        <Typography
+          sx={{
+            color: "#29175e",
+            fontSize: { xs: "1rem", sm: "1.1rem" }, // Adjusted font size for mobile and tablet
+            fontWeight: 550,
+            fontFamily: "Poppins",
+            lineHeight: 1.6,
+            textAlign: "center",
+            width: { xs: "80vw", md: "auto" },
+          }}
+        >
+          Need more help? Cassie, our AI assistant, is always here to guide you!
+        </Typography>
+      </Box>
 
-          <Box
+      <Box
+        sx={{
+          width: { xs: "100%", sm: "90%", md: "50%" }, // Adjust width for mobile, tablet, and desktop
+          animation: "slideIn 0.8s ease-out",
+          "@keyframes slideIn": {
+            "0%": { opacity: 0, transform: "translateX(20px)" },
+            "100%": { opacity: 1, transform: "translateX(0)" },
+          },
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: { xs: "15px", sm: "20px", md: "30px" }, // Adjust padding for mobile, tablet, and desktop
+          boxSizing: "border-box", // Ensures padding is considered in the width
+        }}
+      >
+        {faqs.map((faq, index) => (
+          <Accordion
+            key={index}
+            expanded={openIndex === index}
+            onChange={() => setOpenIndex(openIndex === index ? null : index)}
             sx={{
-              width: { xs: "100%", md: "50%" },
-              animation: "slideIn 0.8s ease-out",
-              "@keyframes slideIn": {
-                "0%": { opacity: 0, transform: "translateX(20px)" },
-                "100%": { opacity: 1, transform: "translateX(0)" },
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
+              color: "#29175e",
+              borderRadius: "8px",
+              mb: 2,
+              overflow: "hidden",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+              transition: "all 0.3s ease",
+              flexDirection: "row",
+              width: {
+                xs: "25%", // Full width on mobile
+                sm: "80%", // 80% width on small screens
+                md: "auto", // Auto width on medium screens and above
+              },
+              "&:before": {
+                display: "none",
+              },
+              "&.Mui-expanded": {
+                backgroundColor: "rgba(255, 255, 255, 0.15)",
+                transform: "scale(1.01)",
+                boxShadow: "0 6px 16px rgba(0,0,0,0.15)",
               },
             }}
           >
-            {faqs.map((faq, index) => (
-              <Accordion
-                key={index}
-                expanded={openIndex === index}
-                onChange={() =>
-                  setOpenIndex(openIndex === index ? null : index)
-                }
-                sx={{
-                  backgroundColor: "rgba(255, 255, 255, 0.1)",
-                  color: "#29175e",
-                  borderRadius: "8px",
-                  mb: 2,
-                  overflow: "hidden",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            <AccordionSummary
+              expandIcon={
+                <ChevronDown
+                  style={{
+                    color: "#29175e",
+                    transition: "transform 0.3s ease",
+                    transform:
+                      openIndex === index ? "rotate(180deg)" : "rotate(0deg)",
+                  }}
+                />
+              }
+              sx={{
+                padding: { xs: "12px 16px", sm: "16px 24px" }, // Adjust padding for mobile and tablet
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.05)",
+                },
+                "& .MuiAccordionSummary-content": {
                   transition: "all 0.3s ease",
-                  "&:before": {
-                    display: "none",
-                  },
-                  "&.Mui-expanded": {
-                    backgroundColor: "rgba(255, 255, 255, 0.15)",
-                    transform: "scale(1.01)",
-                    boxShadow: "0 6px 16px rgba(0,0,0,0.15)",
-                  },
+                },
+                "& .MuiAccordionSummary-content.Mui-expanded": {
+                  transform: "translateX(8px)",
+                },
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{
+                  color: "#29175e",
+                  fontSize: { xs: "1rem", sm: "1.1rem" }, // Adjust font size for mobile and tablet
+                  fontWeight: 550,
+                  fontFamily: "Poppins",
+                  lineHeight: 1.6,
+                  transition: "all 0.3s ease",
                 }}
               >
-                <AccordionSummary
-                  expandIcon={
-                    <ChevronDown
-                      style={{
-                        color: "#29175e",
-                        transition: "transform 0.3s ease",
-                        transform:
-                          openIndex === index
-                            ? "rotate(180deg)"
-                            : "rotate(0deg)",
-                      }}
-                    />
-                  }
-                  sx={{
-                    padding: "16px 24px",
-                    "&:hover": {
-                      backgroundColor: "rgba(255, 255, 255, 0.05)",
-                    },
-                    "& .MuiAccordionSummary-content": {
-                      transition: "all 0.3s ease",
-                    },
-                    "& .MuiAccordionSummary-content.Mui-expanded": {
-                      transform: "translateX(8px)",
-                    },
-                  }}
-                >
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      color: "#29175e",
-                      fontSize: "1.1rem",
-                      fontWeight: 550,
-                      fontFamily: "Poppins",
-                      lineHeight: 1.6,
-                      transition: "all 0.3s ease",
-                    }}
-                  >
-                    {faq.question}
-                  </Typography>
-                </AccordionSummary>
-                <AccordionDetails
-                  sx={{
-                    padding: "0px 24px 20px",
-                    backgroundColor: "rgba(255, 255, 255, 0.05)",
-                    animation:
-                      openIndex === index
-                        ? "fadeInContent 0.5s ease-in-out"
-                        : "none",
-                    "@keyframes fadeInContent": {
-                      "0%": { opacity: 0, transform: "translateY(-10px)" },
-                      "100%": { opacity: 1, transform: "translateY(0)" },
-                    },
-                  }}
-                >
-                  <Typography
-                    variant="body1"
-                    sx={{
-                      color: "#29175e",
-                      fontSize: "1rem",
-                      fontWeight: 535,
-                      fontFamily: "Poppins",
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    {faq.answer}
-                  </Typography>
-                </AccordionDetails>
-              </Accordion>
-            ))}
-          </Box>
-        </Box>
-      </Container>
+                {faq.question}
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails
+              sx={{
+                padding: { xs: "0px 16px 15px", sm: "0px 24px 20px" }, // Adjust padding for mobile and tablet
+                backgroundColor: "rgba(255, 255, 255, 0.05)",
+                animation:
+                  openIndex === index
+                    ? "fadeInContent 0.5s ease-in-out"
+                    : "none",
+                "@keyframes fadeInContent": {
+                  "0%": { opacity: 0, transform: "translateY(-10px)" },
+                  "100%": { opacity: 1, transform: "translateY(0)" },
+                },
+              }}
+            >
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "#29175e",
+                  fontSize: { xs: "0.9rem", sm: "1rem" }, // Adjust font size for mobile and tablet
+                  fontWeight: 535,
+                  fontFamily: "Poppins",
+                  lineHeight: 1.6,
+                }}
+              >
+                {faq.answer}
+              </Typography>
+            </AccordionDetails>
+          </Accordion>
+        ))}
+      </Box>
 
       {/* Floating circles decoration similar to the website */}
       <Box
@@ -261,7 +269,7 @@ export default function FAQpage() {
       />
 
       {/* Feature badges similar to the ones in the image */}
-      <Box
+      {/* <Box
         sx={{
           display: { xs: "none", md: "flex" },
           position: "absolute",
@@ -279,6 +287,7 @@ export default function FAQpage() {
             fontSize: "0.9rem",
             fontWeight: "500",
             color: "#29175e",
+            marginRight: "2.5rem",
             backdropFilter: "blur(5px)",
             transition: "all 0.3s ease",
             "&:hover": {
@@ -289,7 +298,7 @@ export default function FAQpage() {
         >
           24/7 Support
         </Box>
-      </Box>
+      </Box> */}
     </Box>
   );
 }

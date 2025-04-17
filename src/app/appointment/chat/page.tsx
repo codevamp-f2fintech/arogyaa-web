@@ -23,7 +23,7 @@ import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import DeleteIcon from "@mui/icons-material/Delete";
-import SearchIcon from '@mui/icons-material/Search';
+import SearchIcon from "@mui/icons-material/Search";
 import { useGetDoctors } from "@/hooks/doctor";
 interface Message {
   sender: string;
@@ -35,13 +35,8 @@ const Chat: React.FC = () => {
   const {
     value: doctorList,
     swrLoading,
-    error
-  } = useGetDoctors(
-    null,
-    "get-doctors",
-    1,
-    6
-  );
+    error,
+  } = useGetDoctors(null, "get-doctors", 1, 6);
   useEffect(() => {
     if (doctorList && doctorList.results && doctorList.results.length > 0) {
       setSelectedDoctor(doctorList.results[0].username);
@@ -208,8 +203,10 @@ const Chat: React.FC = () => {
       <Box
         sx={{
           display: "flex",
-          height: "100vh",
-          backgroundColor: darkMode ? "#121212" : "#eef2f5",
+          height: "100%",
+          background: "rgb(175,159,219)",
+          background:
+            "linear-gradient(180deg, rgba(175,159,219,1) 0%, rgba(190,176,225,1) 100%)",
           marginTop: "64px",
         }}
       >
@@ -218,14 +215,19 @@ const Chat: React.FC = () => {
           sx={{
             width: "300px",
             padding: 2,
-            background: darkMode
-              ? "#1d1d1d"
-              : "linear-gradient(to right, #20ada0, #1d8a7b)",
-            color: "#fff",
+            background: "rgb(175,159,219)",
+            background:
+              "linear-gradient(180deg, rgba(175,159,219,1) 0%, rgba(190,176,225,1) 100%)",
             boxShadow: "2px 0 5px rgba(0,0,0,0.1)",
           }}
         >
-          <Typography variant="h5" gutterBottom>
+          <Typography
+            sx={{
+              color: "#29175e",
+            }}
+            variant="h5"
+            gutterBottom
+          >
             Doctors
           </Typography>
           <List>
@@ -243,10 +245,15 @@ const Chat: React.FC = () => {
                         : "transparent",
                     borderRadius: "8px",
                     marginBottom: 1,
+                    border: "1px solid #29175e",
                   }}
                 >
                   <Avatar
-                    sx={{ marginRight: 1, bgcolor: "#fff", color: "#00f2fe" }}
+                    sx={{
+                      marginRight: 1,
+                      bgcolor: "#29175e",
+                      color: "#fff",
+                    }}
                   >
                     <LocalHospitalIcon />
                   </Avatar>
@@ -255,7 +262,10 @@ const Chat: React.FC = () => {
               ))}
           </List>
           <Divider sx={{ borderColor: "rgba(255,255,255,0.5)" }} />
-          <Typography variant="h6" sx={{ marginTop: 2, marginBottom: 1 }}>
+          <Typography
+            variant="h6"
+            sx={{ marginTop: 2, marginBottom: 1, color: "#29175e" }}
+          >
             Role
           </Typography>
           <List>
@@ -266,7 +276,7 @@ const Chat: React.FC = () => {
               sx={{ borderRadius: "8px" }}
             >
               <Avatar
-                sx={{ marginRight: 1, bgcolor: "#fff", color: "#4facfe" }}
+                sx={{ marginRight: 1, bgcolor: "#29175e", color: "#fff" }}
               >
                 <PersonIcon />
               </Avatar>
@@ -279,7 +289,7 @@ const Chat: React.FC = () => {
               sx={{ borderRadius: "8px" }}
             >
               <Avatar
-                sx={{ marginRight: 1, bgcolor: "#fff", color: "#4facfe" }}
+                sx={{ marginRight: 1, bgcolor: "#29175e", color: "#fff" }}
               >
                 <LocalHospitalIcon />
               </Avatar>
@@ -288,21 +298,30 @@ const Chat: React.FC = () => {
           </List>
         </Box>
 
-        <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
           {/* Header */}
           <Box
             sx={{
               padding: 2,
               background: darkMode ? "#333" : "#20ada0",
-              color: "#fff",
+              color: "#29175e",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
+              background: "rgb(175,159,219)",
+              background:
+                "linear-gradient(180deg, rgba(175,159,219,1) 0%, rgba(190,176,225,1) 100%)",
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Avatar
-                sx={{ marginRight: 2, bgcolor: "#fff", color: "#6a11cb" }}
+                sx={{ marginRight: 2, bgcolor: "#29175e", color: "#fff" }}
               >
                 {role === "patient" ? "P" : "D"}
               </Avatar>
@@ -317,11 +336,11 @@ const Chat: React.FC = () => {
             </Box>
 
             <Box sx={{ display: "flex", alignItems: "center" }}>
-              <IconButton sx={{ color: "#fff" }}>
+              {/* <IconButton sx={{ color: "black" }}>
                 <Typography
                   variant="caption"
                   sx={{
-                    background: "#ff1744",
+                    background: "black",
                     color: "#fff",
                     borderRadius: "50%",
                     padding: "2px 6px",
@@ -331,15 +350,18 @@ const Chat: React.FC = () => {
                     right: "-5px",
                   }}
                 ></Typography>
-              </IconButton>
+              </IconButton> */}
 
-              <IconButton sx={{ color: "#fff" }} onClick={handleToggleTheme}>
+              {/* <IconButton sx={{ color: "#fff" }} onClick={handleToggleTheme}>
                 {darkMode ? <LightModeIcon /> : <DarkModeIcon />}
-              </IconButton>
+              </IconButton> */}
 
               <IconButton
                 onClick={handleMenuClick}
-                sx={{ color: "#fff", marginLeft: 2 }}
+                sx={{
+                  color: "#29175e",
+                  marginLeft: 2,
+                }}
               >
                 <Typography sx={{ marginRight: 1 }}>
                   {role === "patient" ? "Patient" : "Doctor"}
@@ -351,12 +373,25 @@ const Chat: React.FC = () => {
                 open={Boolean(anchorEl)}
                 onClose={handleMenuClose}
               >
-                <MenuItem onClick={() => console.log("Profile clicked")}>
+                <MenuItem
+                  sx={{
+                    color: "#000",
+                  }}
+                  onClick={() => console.log("Profile clicked")}
+                >
                   Profile
                 </MenuItem>
 
-                <MenuItem onClick={handleDeleteAllMessages}>
-                  <DeleteIcon fontSize="small" sx={{ marginRight: 1 }} />
+                <MenuItem
+                  sx={{
+                    color: "#000",
+                  }}
+                  onClick={handleDeleteAllMessages}
+                >
+                  <DeleteIcon
+                    fontSize="small"
+                    sx={{ marginRight: 1, color: "red" }}
+                  />
                   Delete All Chat
                 </MenuItem>
               </Menu>
@@ -384,7 +419,7 @@ const Chat: React.FC = () => {
               >
                 <Avatar
                   sx={{
-                    bgcolor: msg.sender === patientId ? "#20ada0" : "#20ada0",
+                    bgcolor: msg.sender === patientId ? "red" : "red",
                     marginRight: msg.sender === patientId ? "10px" : "0",
                     marginLeft: msg.sender === patientId ? "0" : "10px",
                   }}
@@ -399,7 +434,7 @@ const Chat: React.FC = () => {
                       msg.sender === patientId
                         ? "linear-gradient(to right, #e1e4ed, #cfd9df)"
                         : "linear-gradient(to right, #d3e0ea, #cfd9df )",
-                    color: darkMode ? "#fff" : "#333",
+                    color: darkMode ? "red" : "red",
                     borderRadius: "12px",
                   }}
                 >
@@ -437,13 +472,31 @@ const Chat: React.FC = () => {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleTyping}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "&:hover fieldset": {
+                    borderColor: "#29175e", // Change border color on hover
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#b497d6", // Change border color on focus (click)
+                  },
+                  "& .MuiInputBase-input": {
+                    color: "#29175e", // Change text color (typed text)
+                  },
+                },
+                "& .MuiInputBase-input::placeholder": {
+                  color: "#29175e", // Change placeholder text color
+                  opacity: 1, // Ensure the opacity is 1 for visibility
+                },
+              }}
             />
+
             <Button
               variant="contained"
               color="primary"
               sx={{
                 marginLeft: 2,
-                backgroundColor: darkMode ? "#4caf50" : "#4caf50",
+                backgroundColor: "#29175e",
                 color: "#fff",
                 borderRadius: "5px",
                 padding: "10px 20px",
@@ -451,7 +504,7 @@ const Chat: React.FC = () => {
                 textTransform: "none",
                 boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
                 "&:hover": {
-                  backgroundColor: darkMode ? "#388e3c" : "#45a049",
+                  backgroundColor: "#b497d6",
                   boxShadow: "0px 6px 8px rgba(0, 0, 0, 0.2)",
                 },
               }}

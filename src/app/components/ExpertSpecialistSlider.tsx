@@ -229,7 +229,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                   elevation={3}
                   sx={{
                     m: 1,
-                    height: "490px",
+                    height: { md: "490px", xs: "520px" },
                     borderRadius: "16px",
                     overflow: "hidden",
                     position: "relative",
@@ -610,7 +610,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                   background: "#29175e !important",
                   borderRadius: "25px",
                   padding: "8px 20px",
-                  height: "7.5vh",
+                  height: { xs: "6vh", md: "7.5vh" },
                   textTransform: "none",
                   fontWeight: "600",
                   transition: "all 0.3s ease",

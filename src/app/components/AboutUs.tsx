@@ -227,10 +227,10 @@ const AboutUs: React.FC = () => {
                 mt: 3,
                 mb: 4,
                 textAlign: { xs: "justify", md: "left" },
-                width: { md: "90%", xs: "30%" },
+                width: { md: "90%", xs: "25%" },
                 fontFamily: "'DM Sans', sans-serif",
                 marginLeft: {
-                  xs: "50vh",
+                  xs: "60vh",
                   md: "0",
                   sm: "0",
                 },

@@ -20,12 +20,12 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
 
 const StyledTextField = styled(TextField)({
-  "& label": { color: "#20ADA0" },
-  "& label.Mui-focused": { color: "#20ADA0" },
+  "& label": { color: "#29175e" },
+  "& label.Mui-focused": { color: "#2ecc71" },
   "& .MuiOutlinedInput-root": {
-    "& fieldset": { borderColor: "#20ADA0", borderRadius: "10px" },
-    "&:hover fieldset": { borderColor: "#178F84" },
-    "&.Mui-focused fieldset": { borderColor: "#178F84" },
+    "& fieldset": { borderColor: "#29175e", borderRadius: "10px" },
+    "&:hover fieldset": { borderColor: "#29175e" },
+    "&.Mui-focused fieldset": { borderColor: "#29175e" },
   },
 });
 
@@ -106,15 +106,15 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
   const getEmojiForRating = (rating: number) => {
     switch (rating) {
       case 1:
-        return "😠"; 
+        return "😠";
       case 2:
-        return "😞"; 
+        return "😞";
       case 3:
-        return "😐"; 
+        return "😐";
       case 4:
         return "🙂";
       case 5:
-        return "😃"; 
+        return "😃";
       default:
         return "";
     }
@@ -130,17 +130,20 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
         "& .MuiPaper-root": {
           borderRadius: "12px",
           padding: "10px",
-          backgroundColor: "#ffffff",
+          background: "rgb(188,174,224)",
+          background:
+            "linear-gradient(180deg, rgba(188,174,224,1) 0%, rgba(255,255,255,1) 100%)",
         },
       }}
     >
       {/* Header */}
       <DialogTitle
         sx={{
-          color: "#20ADA0",
           textAlign: "center",
           fontWeight: "bold",
           fontSize: "1.5rem",
+          color: "#29175e",
+          fontFamily: "Poppins",
         }}
       >
         Rate Your Experience
@@ -150,7 +153,7 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
       <IconButton
         onClick={onClose}
         sx={{
-          color: "#20ADA0",
+          color: "#29175e",
           position: "absolute",
           top: 8,
           right: 8,
@@ -167,7 +170,8 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
             <Typography
               variant="h6"
               sx={{
-                color: "#20ADA0",
+                color: "#29175e",
+                fontFamily: "Poppins",
                 fontWeight: "bold",
                 marginBottom: "2px",
                 fontSize: "20px",
@@ -177,7 +181,12 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
             </Typography>
             <Typography
               variant="body2"
-              sx={{ color: "black", fontSize: "0.9rem" }}
+              sx={{
+                color: "black",
+                fontSize: ".9rem",
+                fontFamily: "Poppins",
+                fontWeight: "500",
+              }}
             >
               How was your experience? Your feedback helps others.
             </Typography>
@@ -238,11 +247,11 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
           sx={{
             minWidth: "100px",
             color: "#fff",
-            background: "#20ADA0",
+            background: "#29175e",
             borderRadius: "4px",
             marginLeft: "20px",
             ":hover": {
-              bgcolor: "#20ADA0",
+              bgcolor: "#b497d6",
               color: "white",
             },
           }}
@@ -260,11 +269,11 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
           sx={{
             minWidth: "100px",
             color: "#fff",
-            background: "#20ADA0",
+            background: "#29175e",
             borderRadius: "4px",
             marginLeft: "20px",
             ":hover": {
-              bgcolor: "#20ADA0",
+              bgcolor: "#b497d6",
               color: "white",
             },
           }}

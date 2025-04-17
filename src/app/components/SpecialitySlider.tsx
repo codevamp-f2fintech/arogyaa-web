@@ -200,7 +200,11 @@ const SpecialitySlider: React.FC = () => {
                   <Paper
                     elevation={2}
                     sx={{
-                      height: "100%",
+                      height: { md: "100%" },
+                      width: {
+                        xs: "30vw",
+                        md: "inherit",
+                      },
                       borderRadius: 2,
                       overflow: "hidden",
                       transition: "all 0.3s ease",
