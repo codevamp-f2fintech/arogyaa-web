@@ -381,7 +381,7 @@ const DrProfile: React.FC = () => {
                               marginLeft: "5px",
                             }}
                           >
-                            Verified by Arogyaa
+                            Verified
                           </Typography>
                         </>
                       )}

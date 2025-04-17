@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -13,7 +13,7 @@ import {
   Rating,
   Typography,
 } from "@mui/material";
-import Tooltip from "@mui/material/Tooltip"; // Tooltip ko import karo
+import Tooltip from "@mui/material/Tooltip";
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import EventIcon from "@mui/icons-material/Event";
@@ -37,6 +37,7 @@ import Loader from "./common/Loader";
 import BookAppointmentModal from "../components/common/BookAppointmentModal";
 import { DoctorData } from "@/types/doctor";
 import Cookies from "js-cookie";
+import { fetcher } from "@/apis/apiClient";
 
 const ExpertSpecialistSlider: React.FC = () => {
   const [selectedDoctor, setSelectedDoctor] = useState<DoctorData | null>(null);
@@ -47,6 +48,9 @@ const ExpertSpecialistSlider: React.FC = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const { value: data, swrLoading } = useGetDoctors(null, "get-doctors", 1, 6);
+  const [ratingsMap, setRatingsMap] = useState<
+    Record<string, { avg: number; count: number }>
+  >({});
 
   const openModal = (doctor: DoctorData): void => {
     const userToken = Cookies.get("token");
@@ -72,20 +76,58 @@ const ExpertSpecialistSlider: React.FC = () => {
     }
   }, [data, dispatch]);
 
+  const fetchTestimonials = useCallback(async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:4008/api/v1/testimonial-service/get-testimonials"
+      );
+      const data = await response.json();
+      const allTestimonials: Testimonial[] = data?.results || [];
+      const groupedRatings: Record<string, number[]> = {};
+
+      allTestimonials.forEach((review) => {
+        const doctor = review.doctorId;
+        if (doctor && doctor._id) {
+          const doctorId = doctor._id;
+          if (!groupedRatings[doctorId]) {
+            groupedRatings[doctorId] = [];
+          }
+          groupedRatings[doctorId].push(review.rating);
+        }
+      });
+
+      const finalRatings: Record<string, { avg: number; count: number }> = {};
+      Object.entries(groupedRatings).forEach(([doctorId, ratings]) => {
+        const avg = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
+        finalRatings[doctorId] = {
+          avg: parseFloat(avg.toFixed(1)),
+          count: ratings.length,
+        };
+      });
+      setRatingsMap(finalRatings);
+    } catch (error) {
+      console.error("❌ Error fetching testimonials:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTestimonials();
+  }, [fetchTestimonials]);
+
   console.log("selectddoc", doctor);
 
   const sliderSettings = useMemo(
     () => ({
       dots: false,
       arrows: false,
-      infinite: true, // This ensures the slider will loop infinitely
+      infinite: true,
       speed: 500,
       slidesToShow: 4,
       slidesToScroll: 1,
       lazyLoad: "ondemand",
       pauseOnHover: true,
-      autoplay: true, // Enables auto-play
-      autoplaySpeed: 3000, // Interval between each slide transition in milliseconds
+      autoplay: true,
+      autoplaySpeed: 3000,
       cssEase: "ease-in-out",
       responsive: [
         {
@@ -199,20 +241,19 @@ const ExpertSpecialistSlider: React.FC = () => {
                       "& .doctor-image": {
                         transform: "scale(1.05)",
                       },
-                      // Yeh hover effect sirf typography par apply hoga
                       "& .verified-badge-text": {
-                        opacity: 1, // Jab hover ho, opacity 1 ho jayegi
-                        visibility: "visible", // Ensure visibility
+                        opacity: 1,
+                        visibility: "visible",
+                      },
+                      "& .default-icon": {
+                        opacity: 0,
                       },
                     },
                   }}
                 >
-                  {/* Enhanced Top Banner */}
                   <Box
                     sx={{
                       height: "100px",
-                      // background:
-                      //   "radial-gradient(circle at left top, #160F41 , #2E1966)",
                       backgroundColor: "#b497d6",
                       position: "relative",
                       "&::after": {
@@ -222,35 +263,67 @@ const ExpertSpecialistSlider: React.FC = () => {
                         left: 0,
                         right: 0,
                         height: "40px",
-                        // background:
-                        //   "radial-gradient(circle at left top, #160F41 , #2E1966)",
                       },
                     }}
                   >
+                    {/* Verified Badge Box (Text + Icon) */}
                     <Box
+                      className="verified-badge-text"
                       sx={{
                         position: "absolute",
-                        top: "10px",
-                        right: "10px",
+                        top: "6px",
+                        right: "1px",
                         display: "flex",
+                        alignItems: "center",
                         gap: "8px",
+                        opacity: 0,
+                        visibility: "hidden", // Initially hidden
+                        transition:
+                          "opacity 0.3s ease, visibility 0s linear 0.3s",
+                        backgroundColor: "#29175e",
+                        padding: "3px 10px",
+                        borderRadius: "30px",
+                        boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.2)",
+                        fontSize: "1rem",
+                        color: "#fff",
+                        fontWeight: "600",
+                        letterSpacing: "0.5px",
                       }}
                     >
-                      <IconButton
-                        size="small"
+                      {/* Verified Icon inside the text badge */}
+                      <VerifiedIcon
                         sx={{
-                          backgroundColor: "rgba(255, 255, 255, 0.9)",
-                          "&:hover": { backgroundColor: "#FFFFFF" },
+                          color: "#fff",
+                          fontSize: "20px",
+                        }}
+                      />
+                      {/* Text */}
+                      <Typography
+                        sx={{
+                          fontFamily: "Poppins",
+                          fontWeight: "600",
+                          color: "#fff",
+                          fontSize: "1rem",
                         }}
                       >
-                        <VerifiedIcon
-                          sx={{ color: "#20ADA0", fontSize: "20px" }}
-                        />
-                      </IconButton>
+                        Verified
+                      </Typography>
                     </Box>
+
+                    <VerifiedIcon
+                      className="default-icon"
+                      sx={{
+                        color: "#fff",
+                        fontSize: "25px",
+                        position: "absolute",
+                        top: "4px",
+                        right: "5px",
+                        opacity: 1,
+                        transition: "opacity 0.3s ease",
+                      }}
+                    />
                   </Box>
 
-                  {/* Enhanced Profile Image */}
                   <Box
                     sx={{
                       position: "absolute",
@@ -308,14 +381,6 @@ const ExpertSpecialistSlider: React.FC = () => {
                       }
                     >
                       {doctor.username}
-                      {/* <LocalHospitalIcon
-                        sx={{
-                          fontSize: "16px",
-                          ml: 1,
-                          color: "#29175e",
-                          verticalAlign: "text-top",
-                        }}
-                      /> */}
                     </Typography>
 
                     {/* Enhanced Chips */}
@@ -333,10 +398,9 @@ const ExpertSpecialistSlider: React.FC = () => {
                           display: "flex",
                           justifyContent: "center",
                           gap: 1,
-                          flexWrap: "wrap", // Wrap if too long
+                          flexWrap: "wrap",
                         }}
                       >
-                        {/* // qualification// */}
                         {doctor.qualificationIds?.map(
                           (qualification, index) => (
                             <Chip
@@ -372,7 +436,6 @@ const ExpertSpecialistSlider: React.FC = () => {
                           flexWrap: "wrap",
                         }}
                       >
-                        {/* expreince  */}
                         <Chip
                           icon={
                             <SchoolIcon sx={{ color: "#29175e!important" }} />
@@ -393,22 +456,21 @@ const ExpertSpecialistSlider: React.FC = () => {
                         />
                         <Tooltip
                           title={doctor.clinicAddress}
-                          arrow
-                          sx={{
-                            "& .MuiTooltip-tooltip": {
-                              backgroundColor: "#ffd700", // Background color
-                              color: "#29175e", // Text color
-                              fontSize: "0.875rem", // Font size
-                              fontFamily: "'Poppins', sans-serif", // Font family
-                              fontWeight: 500, // Font weight
-                              padding: "8px 12px", // Padding
-                              borderRadius: "4px", // Border radius
-                              boxShadow: "0px 2px 4px rgba(0,0,0,0.1)", // Box shadow
-                              maxWidth: "300px", // Maximum width
-                              border: "1px solid #e0e0e0", // Border
-                            },
-                            "& .MuiTooltip-arrow": {
-                              color: "#f2f2f2", // Arrow color to match tooltip background
+                          componentsProps={{
+                            tooltip: {
+                              sx: {
+                                backgroundColor: "#29175e",
+                                color: "#fff",
+                                fontSize: "1rem",
+                                fontFamily: "Poppins",
+                                fontWeight: 500,
+                                padding: "6px 16px",
+                                borderRadius: "8px",
+                                boxShadow: "0px 4px 8px rgba(0,0,0,0.1)",
+                                maxWidth: "300px",
+                                border: "1px solid #e0e0e0",
+                                transition: "background-color 0.3s ease",
+                              },
                             },
                           }}
                         >
@@ -428,7 +490,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                               fontWeight: 550,
                               fontFamily: "Poppins",
                               "&:hover": {
-                                backgroundColor: "rgba(32, 173, 160, 0.05)",
+                                backgroundColor: "#b497d6",
                                 borderColor: "#29175e",
                               },
                             }}
@@ -437,18 +499,37 @@ const ExpertSpecialistSlider: React.FC = () => {
                       </Box>
                     </Box>
 
+                    {/* Rating */}
                     <Rating
-                      value={doctor.rating || 0} // Fetch rating from API, default to 0 if not available
+                      value={ratingsMap[doctor._id]?.avg || 0}
                       precision={0.5}
                       readOnly
                       size="small"
                       sx={{
-                        mb: 2,
+                        mb: 0.1,
                         "& .MuiRating-iconFilled": {
-                          color: "#20ADA0",
+                          color: "yellow",
                         },
                       }}
                     />
+                    <br />
+                    {/* Review Count */}
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "#fff",
+                        fontFamily: "Poppins",
+                        fontWeight: "500",
+                        lineHeight: 1.4,
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      {ratingsMap[doctor._id]
+                        ? `(based on ${ratingsMap[doctor._id].count} patient${
+                            ratingsMap[doctor._id].count > 1 ? "s" : ""
+                          })`
+                        : "No reviews yet"}
+                    </Typography>
 
                     <Divider
                       sx={{
@@ -471,10 +552,15 @@ const ExpertSpecialistSlider: React.FC = () => {
                         lineHeight: 1.5,
                         px: 1,
                         fontFamily: "Poppins",
-                        width: "100%", // Adjusted width for responsiveness
-                        textAlign: "center", // Centers the text horizontally
-                        margin: "0 auto", // Ensures it is centered in the parent
+                        width: "100%",
+                        textAlign: "center",
+                        margin: "0 auto",
                         fontWeight: 500,
+                        "&:hover": {
+                          textShadow:
+                            "0px 6px 12px rgba(0, 0, 0, 0.4), 0px 12px 24px rgba(0, 0, 0, 0.3)",
+                          transform: "scale(1.05)",
+                        },
                       }}
                     >
                       {doctor.bio}
@@ -486,8 +572,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                       onClick={() => openModal(doctor)}
                       startIcon={<EventIcon />}
                       sx={{
-                        // bottom: "-50px",
-                        marginTop: "20px",
+                        marginTop: "16px",
                         background: "#29175e",
                         borderRadius: "25px",
                         padding: "8px 24px",
@@ -521,7 +606,6 @@ const ExpertSpecialistSlider: React.FC = () => {
             <Link href={`/doctors`}>
               <Button
                 sx={{
-                  // bottom: "-50px",
                   marginTop: "20px",
                   background: "#29175e !important",
                   borderRadius: "25px",
@@ -534,7 +618,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                   mb: 2,
                   "&:hover": {
                     background: "#29175e",
-                    // boxShadow: "0 6px 16px rgba(32, 173, 160, 0.3)",
+
                     transform: "translateY(-2px)",
                   },
                   "&:active": {

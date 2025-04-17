@@ -63,6 +63,7 @@ const AboutUs: React.FC = () => {
   return (
     <Box
       className={styles.aboutUsContainer}
+      id="aboutsection"
       sx={{
         py: { xs: 6, sm: 8, md: 12 },
 
