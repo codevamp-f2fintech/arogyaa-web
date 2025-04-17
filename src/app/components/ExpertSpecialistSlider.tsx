@@ -78,37 +78,40 @@ const ExpertSpecialistSlider: React.FC = () => {
 
   const fetchTestimonials = useCallback(async () => {
     try {
-      const response = await fetch(
-        "http://localhost:4008/api/v1/testimonial-service/get-testimonials"
-      );
-      const data = await response.json();
-      const allTestimonials: Testimonial[] = data?.results || [];
-      const groupedRatings: Record<string, number[]> = {};
-
-      allTestimonials.forEach((review) => {
-        const doctor = review.doctorId;
-        if (doctor && doctor._id) {
-          const doctorId = doctor._id;
-          if (!groupedRatings[doctorId]) {
-            groupedRatings[doctorId] = [];
+      const response = await fetcher("testimonial", "get-testimonials");
+      
+  
+      if (response && response.results) {
+        const allTestimonials: Testimonial[] = response.results || [];
+        const groupedRatings: Record<string, number[]> = {};
+  
+        allTestimonials.forEach((review) => {
+          const doctor = review.doctorId;
+          if (doctor && doctor._id) {
+            const doctorId = doctor._id;
+            if (!groupedRatings[doctorId]) {
+              groupedRatings[doctorId] = [];
+            }
+            groupedRatings[doctorId].push(review.rating);
           }
-          groupedRatings[doctorId].push(review.rating);
-        }
-      });
-
-      const finalRatings: Record<string, { avg: number; count: number }> = {};
-      Object.entries(groupedRatings).forEach(([doctorId, ratings]) => {
-        const avg = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
-        finalRatings[doctorId] = {
-          avg: parseFloat(avg.toFixed(1)),
-          count: ratings.length,
-        };
-      });
-      setRatingsMap(finalRatings);
+        });
+  
+        const finalRatings: Record<string, { avg: number; count: number }> = {};
+        Object.entries(groupedRatings).forEach(([doctorId, ratings]) => {
+          const avg = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
+          finalRatings[doctorId] = {
+            avg: parseFloat(avg.toFixed(1)),
+            count: ratings.length,
+          };
+        });
+  
+        setRatingsMap(finalRatings);
+      } 
     } catch (error) {
-      console.error("❌ Error fetching testimonials:", error);
+      console.error("Error fetching testimonials:", error);
     }
   }, []);
+  ;
 
   useEffect(() => {
     fetchTestimonials();
@@ -229,7 +232,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                   elevation={3}
                   sx={{
                     m: 1,
-                    height: "490px",
+                    height: { md: "490px", xs: "520px" },
                     borderRadius: "16px",
                     overflow: "hidden",
                     position: "relative",
@@ -610,7 +613,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                   background: "#29175e !important",
                   borderRadius: "25px",
                   padding: "8px 20px",
-                  height: "7.5vh",
+                  height: { xs: "6vh", md: "7.5vh" },
                   textTransform: "none",
                   fontWeight: "600",
                   transition: "all 0.3s ease",
