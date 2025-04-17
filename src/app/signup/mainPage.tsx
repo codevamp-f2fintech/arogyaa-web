@@ -29,6 +29,7 @@ import { AppDispatch, RootState } from "@/redux/store";
 import { creator } from "@/apis/apiClient";
 import { useCreatePatient } from "@/hooks/patient";
 import { Utility } from "@/utils";
+import { backIn, color } from "framer-motion";
 
 interface SignupResponse {
   token: string;
@@ -41,20 +42,20 @@ const inputStyles = {
   backgroundColor: "white",
   "& .MuiInputBase-root": {
     fontFamily: "Poppins",
-    backgroundColor: "white",
+    backgroundColor: "white", 
   },
   "& .MuiInputLabel-root": {
-    color: "#7A4D9C",
+    color: "#7A4D9C", 
     fontFamily: "Poppins",
   },
   "& .MuiOutlinedInput-root": {
     fontFamily: "Poppins",
-
+    color: "#000", 
     "& fieldset": {
-      borderColor: "#7A4D9C",
+      borderColor: "#7A4D9C", 
     },
     "&:hover fieldset": {
-      borderColor: "#7A4D9C",
+      borderColor: "#7A4D9C", 
     },
     "&.Mui-focused fieldset": {
       borderColor: "#7A4D9C",
@@ -62,11 +63,15 @@ const inputStyles = {
   },
   input: {
     fontFamily: "Poppins",
+    
+    color: "#000", // Ensure text is black while typing
   },
 };
 
+
 const menuItemStyles = {
   fontFamily: "Poppins",
+  color: "#000", // Ensure text is black while typing
 };
 
 const Signup = () => {

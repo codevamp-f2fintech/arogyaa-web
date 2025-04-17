@@ -34,6 +34,7 @@ const BannerComponentTest: React.FC = () => {
   const [results, setResults] = useState<any[]>([]);
   const { capitalizeFirstLetter } = Utility();
   const router = useRouter();
+
   // Debounce function to prevent unnecessary API calls
   const debounce = (func: (...args: any[]) => void, delay: number) => {
     let timer: NodeJS.Timeout;
@@ -57,7 +58,6 @@ const BannerComponentTest: React.FC = () => {
         "doctor",
         `get-doctors?keyword=${encodeURIComponent(searchTerm)}`
       );
-
       if (response && response.results && Array.isArray(response.results)) {
         setResults(response.results);
       } else {
@@ -138,9 +138,6 @@ const BannerComponentTest: React.FC = () => {
           zIndex: 1,
         }}
       />
-
-      {/* Floating particles */}
-
       <Box
         sx={{
           flex: 1,
@@ -219,6 +216,7 @@ const BannerComponentTest: React.FC = () => {
           </motion.div>
         </motion.div>
 
+        {/* Search Input and Near Me Button */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -233,7 +231,6 @@ const BannerComponentTest: React.FC = () => {
         >
           <Paper
             sx={{
-              mb: "70px",
               mb: "70px",
               display: "flex",
               alignItems: "center",
@@ -265,54 +262,61 @@ const BannerComponentTest: React.FC = () => {
             <Box
               sx={{
                 display: "flex",
+                justifyContent: "center",
                 alignItems: "center",
-                gap: 0,
               }}
             >
-              <Button
-                startIcon={
-                  <LocationOnIcon
-                    sx={{
-                      fontSize: "10px",
-                      color: "#29175e",
-                      marginRight: "-4px",
-                    }}
-                  />
-                }
-                sx={{
-                  textTransform: "none",
-                  fontSize: "0.8rem",
-                  fontWeight: 500,
-                  fontFamily: "Poppins",
-                  borderRadius: "20px",
-                  backgroundColor: "#b497d6",
-                  color: "#29175e",
-                  px: 1.3,
-                  py: 0.3,
-                  "& .MuiButton-startIcon": {
-                    marginRight: "4px",
-                  },
-                  "&:hover": {
-                    backgroundColor: "#29175e",
-                  },
+              <motion.div
+                whileHover={{
+                  scale: 1.05,
+                  transition: { duration: 0.3 },
+                }}
+                style={{
+                  position: "relative",
+                  display: "inline-block",
+                  zIndex: 10,
                 }}
               >
-                Near Me
-              </Button>
+                {keyword ? (
+                  <IconButton onClick={handleClear} sx={{ color: "#29175e" }}>
+                    <CloseIcon />
+                  </IconButton>
+                ) : (
+                  <IconButton sx={{ color: "#29175e" }}>
+                    <SearchIcon />
+                  </IconButton>
+                )}
+                <Button
+               
+                  sx={{
+                    textTransform: "none",
+                    fontSize: "0.8rem",
+                    fontWeight: 500,
+                    fontFamily: "Poppins",
+                    borderRadius: "20px",
+                    backgroundColor: "#b497d6",
+                    color: "#29175e",
+                    px: 0.8,
+                    py: 0.2,
+                    "& .MuiButton-startIcon": {
+                      marginRight: "4px",
+                    },
+                    "&:hover": {
+                      backgroundColor: "#29175e",
+                      color: "#fff",
+                      "& .MuiButton-startIcon": {
+                        color: "#fff",
+                      },
+                    },
+                  }}
+                >
+                     <LocationOnIcon sx={{ fontSize: "1.3rem" }} />
 
-              {keyword ? (
-                <IconButton onClick={handleClear} sx={{ color: "#29175e" }}>
-                  <CloseIcon />
-                </IconButton>
-              ) : (
-                <IconButton sx={{ color: "#29175e" }}>
-                  <SearchIcon />
-                </IconButton>
-              )}
-              {/* Search or Clear Icon */}
+                      Near Me
+                </Button>
+              </motion.div>
             </Box>
           </Paper>
-
           <Box
             sx={{
               position: "absolute",
@@ -322,7 +326,7 @@ const BannerComponentTest: React.FC = () => {
               textAlign: "center",
               justifyContent: "center",
               zIndex: 5,
-              mb: "10px",
+              mb: "1px",
             }}
           >
             {results.length > 0 && (
@@ -333,18 +337,22 @@ const BannerComponentTest: React.FC = () => {
                   left: 0,
                   right: 0,
                   backgroundColor: "white",
-                  borderRadius: "10px",
-                  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-                  padding: "1px 10px",
-                  width: "100%",
-                  maxWidth: "100vw",
+                  borderRadius: "5px",
+                 
+                
                   overflowY: "auto",
                   maxHeight: "300px",
                   zIndex: 10,
                 }}
               >
                 <List
-                  sx={{ padding: "0px", maxHeight: "250px", overflowY: "auto" }}
+                  sx={{
+                    padding: "0px",
+                    maxHeight: "250px", 
+                    overflowY: "auto",
+                    border: "1px solid #ddd",
+                    borderRadius: "5px", 
+                  }}
                 >
                   {results.map((doctor: any, index: number) => (
                     <ListItem
@@ -353,9 +361,13 @@ const BannerComponentTest: React.FC = () => {
                         padding: "10px 15px",
                         cursor: "pointer",
                         transition: "background-color 0.3s",
+                     
+                        ":hover": {
+                          backgroundColor: "#f4f4f4", 
+                        },
                       }}
                     >
-                      <Link href={`/doctors/profile/${doctor._id}`} passHref>
+                      <Link href={`/doctors/profile/${doctor._id}`} passHref>   </Link>
                         <ListItemText
                           primary={`${doctor.username || "Unknown"} - ${
                             doctor.specializationIds
@@ -366,14 +378,13 @@ const BannerComponentTest: React.FC = () => {
                           }`}
                           sx={{
                             fontSize: "0.9rem",
-                            color: "#333",
-                            ":hover": {
-                              color: "#20ADA0",
-                              backgroundColor: "#f4f4f4",
-                            },
+                            // color: "#333",
+                            textDecoration: "none", 
+                            fontfamily: "Poppins",
+                            color: "#29175e",
                           }}
                         />
-                      </Link>
+                   
                     </ListItem>
                   ))}
                 </List>
@@ -499,7 +510,6 @@ const BannerComponentTest: React.FC = () => {
           </Box>
         </motion.div>
       </Box>
-
       <Box
         component={motion.div}
         initial={{ opacity: 0, x: 50 }}
@@ -566,7 +576,7 @@ const BannerComponentTest: React.FC = () => {
             </Stack>
           </motion.div>
         </Box>
-      </Box>
+      </Box>{" "}
     </Box>
   );
 };

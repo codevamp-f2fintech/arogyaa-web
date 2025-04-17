@@ -169,7 +169,11 @@ const Footer = () => {
         title: "Pages",
         items: [
           { label: "Doctors", route: "/doctors", icon: <MedicalServices /> },
-          { label: "About Us", route: "#", icon: <MedicalServices /> },
+          {
+            label: "About Us",
+            route: "#aboutsection",
+            icon: <MedicalServices />,
+          },
           {
             label: "Our Services",
             route: "#specialitiesSection",
@@ -180,7 +184,7 @@ const Footer = () => {
       support: {
         title: "Support",
         items: [
-          { label: "Appointments", route: "#" },
+          { label: "Appointments", route: "/doctors",},
           { label: "Emergency Care", route: "#" },
         ],
       },

@@ -103,7 +103,9 @@ const initialFormData = {
   duration: "",
   isEmptyStomach: false,
   isFollowUp: false,
+  followUpDate: null,
   type: "",
+  diagnosis: "",
   status: "in progress",
   photo: null,
   doctor: null,
@@ -141,6 +143,7 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
       description: formData.description ? "" : "Description is required",
       quantity: formData.quantity ? "" : "Quantity is required",
       frequency: formData.frequency ? "" : "Frequency is required",
+      followUpDate: formData.followUpDate? "" : "Follow Up Date is required",  
       duration: formData.duration ? "" : "Duration is required",
       type: formData.type ? "" : "Type is required",
     };
@@ -175,9 +178,16 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
       console.error("Failed to fetch doctors", error);
     }
   };
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    setFormData({ ...formData, [name]: checked });
+  const handleCheckboxChange = (e) => {
+    setFormData({
+      ...formData,
+
+      isEmptyStomach: e.target.checked,
+    });
+  };
+
+  const handleCheckboxFollowChange = (e) => {
+    setFormData({ ...formData, isFollowUp: e.target.checked });
   };
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -237,7 +247,8 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
       onClose={handleClose}
       fullWidth
       maxWidth="lg"
-      sx={{ borderRadius: "50px" }}
+      sx={{ borderRadius: "50px" , fontFamily: "Poppins",
+      }}
     >
       <Box sx={{ backgroundColor: "#F8F5FF", borderRadius: 4, padding: 2 }}>
         <DialogTitle sx={{ color: "#56428B" }}>
@@ -314,7 +325,6 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                 label="Frequency"
                 name="frequency"
                 fullWidth
-                margin="dense"
                 value={formData.frequency}
                 onChange={handleChange}
                 error={!!errors.frequency}
@@ -330,7 +340,6 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                 label="Duration"
                 name="duration"
                 fullWidth
-                margin="dense"
                 value={formData.duration}
                 onChange={handleChange}
                 error={!!errors.duration}
@@ -411,10 +420,79 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                 )}
               />
             </Grid>
-            {/* Doctor Selection Field */}
+            <Grid item xs={12} sm={4} sx={{ mt: 2 }} className="mt-4">
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formData.isEmptyStomach}
+                    onChange={handleCheckboxChange}
+                    sx={{
+                      color: formData.isEmptyStomach ? "#20ADA0" : "default",
+                      "&.Mui-checked": {
+                        color: "#20ADA0",
+                      },
+                    }}
+                  />
+                }
+                label="Empty Stomach"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formData.isFollowUp}
+                    onChange={handleCheckboxFollowChange}
+                    sx={{
+                      color: formData.isFollowUp ? "#20ADA0" : "default",
+                      "&.Mui-checked": {
+                        color: "#20ADA0",
+                      },
+                    }}
+                  />
+                }
+                label="Is Follow Up?"
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <StyledTextField
+                label="Follow Up Date"
+                name="followUpDate"
+                type="date"
+                fullWidth
+                value={formData.followUpDate || ""}
+                onChange={handleChange}
+                InputLabelProps={{
+                  shrink: true, // Ensures the label is above the input when a date is selected
+                }}
+                error={!!errors.followUpDate}
+                helperText={errors.followUpDate}
+                placeholder="Enter follow-up date"
+                InputProps={{
+                  startAdornment: <Timer sx={{ color: "#20ADA0", mr: 2 }} />,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <StyledTextField
+                label="Diagnosis"
+                name="diagnosis"
+                fullWidth
+                value={formData.diagnosis}
+                onChange={handleChange}
+                error={!!errors.diagnosis}
+                helperText={errors.diagnosis}
+                placeholder="Enter Diagnosis"
+                InputProps={{
+                  startAdornment: (
+                    <Inventory sx={{ color: "#20ADA0", mr: 2 }} />
+                  ),
+                }}
+              />
+            </Grid>
+
+            {/* ✅ Doctor Selection Field */}
             {formData.type === "arogyaa" && (
               <Grid item xs={12} sm={4}>
-                <StyledAutocomplete
+                <Autocomplete
                   options={doctors}
                   getOptionLabel={(option) => option.username}
                   value={
