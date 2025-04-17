@@ -18,6 +18,8 @@ import {
 import { ArrowCircleRight } from "@mui/icons-material";
 import { useGetSymptom } from "@/hooks/symptoms";
 import { motion } from "framer-motion";
+import { useAnimation } from "framer-motion";
+import { useEffect, useRef } from "react";
 
 const theme = createTheme({
   palette: {
@@ -112,7 +114,7 @@ const SymptomCards = () => {
 
   const [pageSize, setPageSize] = useState({
     page: 1,
-    size: 6,
+    size: 40,
   });
 
   const {
@@ -129,12 +131,27 @@ const SymptomCards = () => {
   );
 
   // Split symptoms into two groups for different directions
-  const firstHalfSymptoms = data?.results?.slice(0, 3) || [];
-  const secondHalfSymptoms = data?.results?.slice(3, 6) || [];
+  const firstHalfSymptoms = data?.results?.slice(0, 22) || [];
+  const secondHalfSymptoms = data?.results?.slice(22, 39) || [];
 
   // Create duplicated arrays for infinite scrolling effect
   const duplicatedFirstHalf = [...firstHalfSymptoms, ...firstHalfSymptoms];
   const duplicatedSecondHalf = [...secondHalfSymptoms, ...secondHalfSymptoms];
+  const firstControls = useAnimation();
+  const firstRef = useRef(null);
+  const secondControls = useAnimation();
+  const secondRef = useRef(null);
+
+  useEffect(() => {
+    firstControls.start({
+      x: "-50%",
+      transition: {
+        duration: 40,
+        ease: "linear",
+        repeat: Infinity,
+      },
+    });
+  }, [firstControls]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -166,7 +183,7 @@ const SymptomCards = () => {
             {en.homepage.symptomCards.title1}
           </Typography>
           <motion.div
-            variant="h2"
+            // variant="h2"
             style={{
               textAlign: "center",
               marginBottom: "20px",
@@ -209,19 +226,24 @@ const SymptomCards = () => {
             }}
           >
             <motion.div
-              initial={{ x: 0 }}
-              animate={{ x: "-50%" }}
-              transition={{
-                duration: 40,
-                repeat: Number.POSITIVE_INFINITY,
-                repeatType: "loop",
-                ease: "linear",
-              }}
+              ref={firstRef}
+              animate={firstControls}
               style={{
                 display: "flex",
                 width: "200%",
                 gap: "2rem",
               }}
+              onMouseEnter={() => firstControls.stop()}
+              onMouseLeave={() =>
+                firstControls.start({
+                  x: "-50%",
+                  transition: {
+                    duration: 10,
+                    ease: "linear",
+                    repeat: Infinity,
+                  },
+                })
+              }
             >
               {duplicatedFirstHalf.map((symptom, index) => (
                 <Box
@@ -337,18 +359,27 @@ const SymptomCards = () => {
           {/* Second row - left to right infinite scroll */}
           <Box sx={{ overflow: "hidden", position: "relative" }}>
             <motion.div
-              initial={{ x: "-50%" }}
-              animate={{ x: "0%" }}
-              transition={{
-                duration: 40,
-                repeat: Number.POSITIVE_INFINITY,
-                repeatType: "loop",
-                ease: "linear",
-              }}
+              ref={secondRef}
+              animate={secondControls}
               style={{
                 display: "flex",
-                width: "200%",
+                width: "200%", // Ensure the width is enough for the movement
                 gap: "2rem",
+              }}
+              onMouseEnter={() => {
+                // Stop animation when hovered
+                secondControls.stop();
+              }}
+              onMouseLeave={() => {
+                // Start animation again when mouse leaves
+                secondControls.start({
+                  x: "-50%", // Animation moves from 0% to -50%
+                  transition: {
+                    duration: 10,
+                    ease: "linear",
+                    repeat: Infinity,
+                  },
+                });
               }}
             >
               {duplicatedSecondHalf.map((symptom, index) => (

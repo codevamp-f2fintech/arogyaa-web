@@ -807,7 +807,7 @@ const DrProfile: React.FC = () => {
                         <span
                           style={{
                             color: "	#2ECC71",
-                            textDecoration: "underline",
+                            textDecoration: "none",
                             fontWeight: "600",
                           }}
                         >
@@ -818,7 +818,7 @@ const DrProfile: React.FC = () => {
                           style={{
                             fontWeight: "500",
                             color: "	#2ECC71",
-                            textDecoration: "underline",
+                            textDecoration: "none",
                           }}
                         >
                           {profileData.data?.experience || "N/A"} years
@@ -828,7 +828,7 @@ const DrProfile: React.FC = () => {
                           style={{
                             fontWeight: "600",
                             color: "#2ECC71",
-                            textDecoration: "underline",
+                            textDecoration: "none",
                           }}
                         >
                           {profileData.data?.specializationIds &&
@@ -845,7 +845,7 @@ const DrProfile: React.FC = () => {
                         <span
                           style={{
                             color: "#2ECC71",
-                            textDecoration: "underline",
+                            textDecoration: "none",
                             fontWeight: "600",
                           }}
                         >
@@ -856,7 +856,7 @@ const DrProfile: React.FC = () => {
                           style={{
                             fontWeight: "600",
                             color: "#2ECC71",
-                            textDecoration: "underline",
+                            textDecoration: "none",
                           }}
                         >
                           {profileData.data?.bio ||

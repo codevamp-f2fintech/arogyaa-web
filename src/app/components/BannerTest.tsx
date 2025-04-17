@@ -108,7 +108,11 @@ const BannerComponentTest: React.FC = () => {
     <Box
       sx={{
         display: "flex",
-        flexDirection: "row",
+        flexDirection: {
+          xs: "column",
+          sm: "row",
+          md: "row",
+        },
         justifyContent: "center",
         alignItems: "center",
         textAlign: "center",
@@ -157,17 +161,22 @@ const BannerComponentTest: React.FC = () => {
         >
           <Typography
             variant="h3"
-            style={{
+            sx={{
               textAlign: "center",
-              marginBottom: "20px",
-              fontSize: "40px",
-              marginTop: "2px",
+              marginBottom: { xs: "10px", sm: "20px" },
+              fontSize: { xs: "34px", sm: "32px", md: "40px", lg: "48px" },
+              marginTop: { xs: "2px", sm: "10px" },
               fontWeight: 600,
               color: "#fff",
               fontFamily: "Poppins",
               letterSpacing: "0.5px",
               lineHeight: "1.2",
               textShadow: "0 4px 8px rgba(0,0,0,0.2)",
+              width: { xs: "100%", sm: "80%", md: "inherit" }, // Ensure it takes full width on smaller screens
+              display: "flex",
+              justifyContent: "center", // Ensure center alignment
+              alignItems: "center", // Vertically center the content
+              flexDirection: { xs: "column", md: "row" }, // Stack content on small screens
             }}
           >
             Welcome to{" "}
@@ -190,6 +199,7 @@ const BannerComponentTest: React.FC = () => {
               Arogyaa
             </motion.span>
           </Typography>
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -203,14 +213,22 @@ const BannerComponentTest: React.FC = () => {
                 textShadow: "2px 2px 15px rgba(0, 0, 0, 0.6)",
                 mb: "20px",
                 mt: "20px",
+                width: {
+                  xs: "300px",
+                  md: "inherit",
+                },
               }}
             >
-              <motion.span
+              <span
                 style={{ color: "#fff", fontWeight: "bold" }}
                 whileHover={{ scale: 1.05 }}
+                sx={{
+                  display: "flex",
+                  flexDirection: { xs: "column", sm: "row", md: "row" }, // xs for mobile screens, sm for larger screens
+                }}
               >
                 Find & Book
-              </motion.span>{" "}
+              </span>{" "}
               Healthcare Services Instantly
             </Typography>
           </motion.div>
@@ -237,7 +255,7 @@ const BannerComponentTest: React.FC = () => {
               padding: "4px 15px",
               borderRadius: "50px",
               background: "#fff",
-              width: "33vw",
+              width: { xs: "90%", sm: "75%", md: "33vw" }, // Adjust width based on screen size
               justifyContent: "space-between",
               boxShadow: "0px 4px 15px rgba(0,0,0,0.1)",
               gap: 0,
@@ -287,7 +305,6 @@ const BannerComponentTest: React.FC = () => {
                   </IconButton>
                 )}
                 <Button
-               
                   sx={{
                     textTransform: "none",
                     fontSize: "0.8rem",
@@ -310,9 +327,8 @@ const BannerComponentTest: React.FC = () => {
                     },
                   }}
                 >
-                     <LocationOnIcon sx={{ fontSize: "1.3rem" }} />
-
-                      Near Me
+                  <LocationOnIcon sx={{ fontSize: "1.3rem" }} />
+                  Near Me
                 </Button>
               </motion.div>
             </Box>
@@ -338,8 +354,7 @@ const BannerComponentTest: React.FC = () => {
                   right: 0,
                   backgroundColor: "white",
                   borderRadius: "5px",
-                 
-                
+
                   overflowY: "auto",
                   maxHeight: "300px",
                   zIndex: 10,
@@ -348,10 +363,10 @@ const BannerComponentTest: React.FC = () => {
                 <List
                   sx={{
                     padding: "0px",
-                    maxHeight: "250px", 
+                    maxHeight: "250px",
                     overflowY: "auto",
                     border: "1px solid #ddd",
-                    borderRadius: "5px", 
+                    borderRadius: "5px",
                   }}
                 >
                   {results.map((doctor: any, index: number) => (
@@ -361,30 +376,31 @@ const BannerComponentTest: React.FC = () => {
                         padding: "10px 15px",
                         cursor: "pointer",
                         transition: "background-color 0.3s",
-                     
+
                         ":hover": {
-                          backgroundColor: "#f4f4f4", 
+                          backgroundColor: "#f4f4f4",
                         },
                       }}
                     >
-                      <Link href={`/doctors/profile/${doctor._id}`} passHref>   </Link>
-                        <ListItemText
-                          primary={`${doctor.username || "Unknown"} - ${
-                            doctor.specializationIds
-                              ?.map((spec: any) =>
-                                capitalizeFirstLetter(spec.name)
-                              )
-                              .join(", ") || "Specialty not available"
-                          }`}
-                          sx={{
-                            fontSize: "0.9rem",
-                            // color: "#333",
-                            textDecoration: "none", 
-                            fontfamily: "Poppins",
-                            color: "#29175e",
-                          }}
-                        />
-                   
+                      <Link href={`/doctors/profile/${doctor._id}`} passHref>
+                        {" "}
+                      </Link>
+                      <ListItemText
+                        primary={`${doctor.username || "Unknown"} - ${
+                          doctor.specializationIds
+                            ?.map((spec: any) =>
+                              capitalizeFirstLetter(spec.name)
+                            )
+                            .join(", ") || "Specialty not available"
+                        }`}
+                        sx={{
+                          fontSize: "0.9rem",
+                          // color: "#333",
+                          textDecoration: "none",
+                          fontfamily: "Poppins",
+                          color: "#29175e",
+                        }}
+                      />
                     </ListItem>
                   ))}
                 </List>
@@ -401,10 +417,21 @@ const BannerComponentTest: React.FC = () => {
                   sx={{
                     display: "flex",
                     justifyContent: "center",
-                    gap: "50px",
+                    gap: { xs: "20px", sm: "50px" }, // Adjust gap for mobile and tablet sizes
                     mt: 30,
                     width: "100%",
                     maxWidth: "1200px",
+                    flexWrap: { xs: "nowrap", sm: "nowrap" }, // Allow wrapping on mobile
+                    justifyContent: { xs: "center", sm: "center" },
+                    padding: { xs: "10px", sm: "0" }, // Add padding for smaller screens to prevent overlap
+                    height: {
+                      xs: "auto", // Allow height to adjust for mobile devices
+                      sm: "inherit",
+                    },
+                    width: {
+                      xs: "100%", // Take full width on small devices
+                      sm: "inherit",
+                    },
                   }}
                 >
                   {[
@@ -452,7 +479,7 @@ const BannerComponentTest: React.FC = () => {
                           cursor: "pointer",
                           color: "#b497d6",
                           height: "60px",
-                          width: "75px",
+                          width: { xs: "70px", sm: "75px" }, // Adjust width on smaller screens
                           background: "rgba(255, 255, 255, 0.1)",
                           backdropFilter: "blur(5px)",
                           padding: "15px",
@@ -518,11 +545,11 @@ const BannerComponentTest: React.FC = () => {
         sx={{
           flex: 1,
           position: "relative",
-          height: "400px",
+          height: { xs: "300px", sm: "400px", md: "400px" }, // Height adjusted for mobile and tablet
+          width: "100%", // Full width for all devices
           overflow: "hidden",
           borderRadius: "20px",
-          // boxShadow: "0 15px 30px rgba(0,0,0,0.2)",
-          margin: "0 20px",
+          margin: { xs: "0 10px", sm: "0 15px", md: "0 20px" }, // Adjust margins for mobile and tablet
         }}
       >
         <motion.div
@@ -544,10 +571,13 @@ const BannerComponentTest: React.FC = () => {
             bottom: 0,
             left: 0,
             right: 0,
-            // background: "linear-gradient(to top, rgba(0,0,0,0.7), transparent)",
-            padding: "20px",
+            padding: { xs: "15px", sm: "20px", md: "20px" }, // Adjust padding for mobile and tablet
             display: "flex",
             justifyContent: "center",
+            width: "100%", // Ensure the Box takes full width on all screen sizes
+            "@media (max-width: 600px)": {
+              padding: "10px", // Custom padding for smaller mobile screens
+            },
           }}
         >
           <motion.div

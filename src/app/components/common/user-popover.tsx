@@ -91,6 +91,7 @@ export function UserPopover({
             border: "1px solid",
             borderColor: "divider",
             overflow: "visible",
+            background: "#b497d6",
           },
         },
       }}
@@ -99,7 +100,7 @@ export function UserPopover({
       <Box
         sx={{
           p: "16px 20px",
-          background: "#20ADA0", // Set background to the desired color
+          background: "#5c4891", // Set background to the desired color
           borderTopLeftRadius: (theme) => theme.shape.borderRadius * 2,
           borderTopRightRadius: (theme) => theme.shape.borderRadius * 2,
           color: "white",
@@ -130,6 +131,7 @@ export function UserPopover({
               wordWrap: "break-word",
               whiteSpace: "normal",
               width: "100%",
+              fontFamily: "Poppins",
             }}
           >
             {capitalizeFirstLetter(user?.username)}
@@ -173,10 +175,13 @@ export function UserPopover({
           sx={{
             gap: 2,
             alignItems: "center",
+            fontFamily: "Poppins",
+            fontSize: "1rem",
+            fontWeight: "500",
           }}
         >
-          <ListItemIcon sx={{ minWidth: "auto" }}>
-            <PersonIcon style={{ color: "#20ADA0", opacity: 0.7 }} />
+          <ListItemIcon sx={{ minWidth: "auto", color: "#29175e" }}>
+            <PersonIcon style={{ color: "#29175e", opacity: 0.7 }} />
           </ListItemIcon>
           Profile
         </MenuItem>
@@ -187,6 +192,9 @@ export function UserPopover({
             gap: 2,
             alignItems: "center",
             color: "error.main",
+            fontFamily: "Poppins",
+            fontSize: "1rem",
+            fontWeight: "500",
           }}
         >
           <ListItemIcon sx={{ minWidth: "auto" }}>

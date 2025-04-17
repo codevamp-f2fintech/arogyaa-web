@@ -422,7 +422,6 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
             background: "rgb(188,174,224)",
             background:
               "linear-gradient(180deg, rgba(188,174,224,1) 0%, rgba(255,255,255,1) 100%)",
-            border: "1px solid red",
             boxShadow: 24,
             borderRadius: "8px",
             overflowY: "hidden",

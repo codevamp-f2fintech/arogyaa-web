@@ -89,6 +89,7 @@ const SpecialistCard: React.FC<SpecialistCardProps> = React.memo(
             alignItems: "center",
             flexGrow: 1,
             width: "100%",
+            height: "32vh",
           }}
         >
           <Typography

@@ -22,12 +22,12 @@ const RefundPolicy = () => {
       <Container maxWidth="lg" sx={{ mt: 6, padding: "20px" }}>
         <Box
           sx={{
-            backgroundColor: "#ffffff",
+            backgroundColor: "#29175e",
             borderRadius: "80px",
             boxShadow: 3,
             padding: "40px",
             marginTop: "15px",
-            border: "3px solid #20ADA0",
+            border: "3px solid #fff",
           }}
         >
           <Typography
@@ -35,7 +35,7 @@ const RefundPolicy = () => {
             align="center"
             sx={{
               fontWeight: "bold",
-              color: "#20ADA0",
+              color: "#fff",
               marginBottom: "30px",
               fontSize: "36px",
               textTransform: "uppercase",
@@ -48,18 +48,18 @@ const RefundPolicy = () => {
             variant="h5"
             sx={{
               fontWeight: "bold",
-              color: "#20ADA0",
+              color: "#fff",
               marginBottom: "10px",
               display: "flex",
               alignItems: "center",
             }}
           >
-            <InfoIcon sx={{ marginRight: 1 }} /> Overview
+            <InfoIcon sx={{ marginRight: 1, color: "#b497d6" }} /> Overview
           </Typography>
           <Typography
             variant="body1"
             paragraph
-            sx={{ lineHeight: 1.8, color: "#34495E" }}
+            sx={{ lineHeight: 1.8, color: "#fff" }}
           >
             This Refund Policy explains the terms under which you may request a
             refund for purchases made on our platform. By using our service, you
@@ -72,18 +72,19 @@ const RefundPolicy = () => {
             variant="h5"
             sx={{
               fontWeight: "bold",
-              color: "#20ADA0",
+              color: "#fff",
               marginBottom: "10px",
               display: "flex",
               alignItems: "center",
             }}
           >
-            <InfoIcon sx={{ marginRight: 1 }} /> Refund Eligibility
+            <InfoIcon sx={{ marginRight: 1, color: "#b497d6" }} /> Refund
+            Eligibility
           </Typography>
           <Typography
             variant="body1"
             paragraph
-            sx={{ lineHeight: 1.8, color: "#34495E" }}
+            sx={{ lineHeight: 1.8, color: "#fff" }}
           >
             You are eligible for a refund if:
             <ul>
@@ -112,18 +113,19 @@ const RefundPolicy = () => {
             variant="h5"
             sx={{
               fontWeight: "bold",
-              color: "#20ADA0",
+              color: "#fff",
               marginBottom: "10px",
               display: "flex",
               alignItems: "center",
             }}
           >
-            <InfoIcon sx={{ marginRight: 1 }} /> Refund Process
+            <InfoIcon sx={{ marginRight: 1, color: "#b497d6" }} /> Refund
+            Process
           </Typography>
           <Typography
             variant="body1"
             paragraph
-            sx={{ lineHeight: 1, color: "#34495E" }}
+            sx={{ lineHeight: 1, color: "#fff" }}
           >
             To request a refund, please contact our support team with the
             following details:Order ID,Reason for refund,Date of purchase
@@ -135,18 +137,19 @@ const RefundPolicy = () => {
             variant="h5"
             sx={{
               fontWeight: "bold",
-              color: "#20ADA0",
+              color: "#fff",
               marginBottom: "10px",
               display: "flex",
               alignItems: "center",
             }}
           >
-            <InfoIcon sx={{ marginRight: 1 }} /> Refund Timeline
+            <InfoIcon sx={{ marginRight: 1, color: "#b497d6" }} /> Refund
+            Timeline
           </Typography>
           <Typography
             variant="body1"
             paragraph
-            sx={{ lineHeight: 1.8, color: "#34495E" }}
+            sx={{ lineHeight: 1.8, color: "#fff" }}
           >
             Refunds will be processed within 5-7 business days after the request
             is approved. The refund will be issued to the original payment
@@ -159,18 +162,19 @@ const RefundPolicy = () => {
             variant="h5"
             sx={{
               fontWeight: "bold",
-              color: "#20ADA0",
+              color: "#fff",
               marginBottom: "10px",
               display: "flex",
               alignItems: "center",
             }}
           >
-            <InfoIcon sx={{ marginRight: 1 }} /> Important Information
+            <InfoIcon sx={{ marginRight: 1, color: "#b497d6" }} /> Important
+            Information
           </Typography>
           <Typography
             variant="body1"
             paragraph
-            sx={{ lineHeight: 1.8, color: "#34495E" }}
+            sx={{ lineHeight: 1.8, color: "#fff" }}
           >
             - Refund requests must be made within 30 days of the service or
             treatment date.
@@ -178,7 +182,7 @@ const RefundPolicy = () => {
           <Typography
             variant="body1"
             paragraph
-            sx={{ lineHeight: 1.8, color: "#34495E" }}
+            sx={{ lineHeight: 1.8, color: "#fff" }}
           >
             - Any refund request after 30 days will not be considered, unless
             there is a valid reason for the delay.
@@ -190,18 +194,16 @@ const RefundPolicy = () => {
             variant="h5"
             sx={{
               fontWeight: "bold",
-              color: "#20ADA0",
+              color: "#fff",
               marginBottom: "10px",
               display: "flex",
               alignItems: "center",
             }}
           >
-            <InfoIcon sx={{ marginRight: 1 }} /> Contact Details
+            <InfoIcon sx={{ marginRight: 1, color: "#b497d6" }} /> Contact
+            Details
           </Typography>
-          <Typography
-            variant="body1"
-            sx={{ lineHeight: 1.8, color: "#34495E" }}
-          >
+          <Typography variant="body1" sx={{ lineHeight: 1.8, color: "#fff" }}>
             If you have any questions or concerns about this Refund Policy or
             need to request a refund, please contact our support team:
           </Typography>
@@ -209,13 +211,13 @@ const RefundPolicy = () => {
             variant="body1"
             sx={{
               lineHeight: 0.5,
-              color: "#34495E",
-              display: "flex", 
+              color: "#fff",
+              display: "flex",
               alignItems: "center",
               justifyContent: "start",
             }}
           >
-            <Email sx={{ marginRight: 1, color: "#20ADA0" }} />
+            <Email sx={{ marginRight: 1, color: "#b497d6" }} />
             arogyaa.f2@gmail.com
           </Typography>
         </Box>

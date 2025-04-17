@@ -83,6 +83,10 @@ const Testimonials = () => {
             <Card
               sx={{
                 backgroundColor: "#29175e !important",
+                flexDirection: {
+                  xs: "column",
+                  md: "row",
+                },
               }}
               key={index}
               className={styles.testimonialCard}
