@@ -28,6 +28,7 @@ import {
 import { motion } from "framer-motion";
 import { fetcher } from "@/apis/apiClient";
 import { Utility } from "@/utils";
+import AIAssistant from "./AIAssistant";
 
 const BannerComponentTest: React.FC = () => {
   const [keyword, setKeyword] = useState<string>("");
@@ -386,13 +387,12 @@ const BannerComponentTest: React.FC = () => {
                         {" "}
                       </Link>
                       <ListItemText
-                        primary={`${doctor.username || "Unknown"} - ${
-                          doctor.specializationIds
-                            ?.map((spec: any) =>
-                              capitalizeFirstLetter(spec.name)
-                            )
-                            .join(", ") || "Specialty not available"
-                        }`}
+                        primary={`${doctor.username || "Unknown"} - ${doctor.specializationIds
+                          ?.map((spec: any) =>
+                            capitalizeFirstLetter(spec.name)
+                          )
+                          .join(", ") || "Specialty not available"
+                          }`}
                         sx={{
                           fontSize: "0.9rem",
                           // color: "#333",
@@ -416,10 +416,8 @@ const BannerComponentTest: React.FC = () => {
                 <Box
                   sx={{
                     display: "flex",
-                    justifyContent: "center",
                     gap: { xs: "20px", sm: "50px" }, // Adjust gap for mobile and tablet sizes
                     mt: 30,
-                    width: "100%",
                     maxWidth: "1200px",
                     flexWrap: { xs: "nowrap", sm: "nowrap" }, // Allow wrapping on mobile
                     justifyContent: { xs: "center", sm: "center" },
@@ -607,6 +605,7 @@ const BannerComponentTest: React.FC = () => {
           </motion.div>
         </Box>
       </Box>{" "}
+      <AIAssistant />
     </Box>
   );
 };
