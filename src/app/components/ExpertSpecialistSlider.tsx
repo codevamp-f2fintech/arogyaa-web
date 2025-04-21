@@ -79,8 +79,6 @@ const ExpertSpecialistSlider: React.FC = () => {
   const fetchTestimonials = useCallback(async () => {
     try {
       const response = await fetcher("testimonial", "get-testimonials");
-      
-  
       if (response && response.results) {
         const allTestimonials: Testimonial[] = response.results || [];
         const groupedRatings: Record<string, number[]> = {};

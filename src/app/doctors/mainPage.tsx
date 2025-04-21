@@ -694,10 +694,10 @@ export default function DoctorListing() {
                               sx={{
                                 fontSize: "14px",
                                 fontWeight: "500",
-                                color: "#2ecc71", // Green color for verification text
+                                color: "#2ecc71",
                               }}
                             >
-                              Verified by Arogyaa
+                              Verified
                             </Typography>
                           </>
                         )}
