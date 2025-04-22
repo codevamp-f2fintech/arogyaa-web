@@ -80,7 +80,7 @@ const AIAssistant = () => {
         setIsTyping(true);
 
         try {
-            const res = await axios.post(`http://localhost:4009/api/v1/chat-service/chat-with-ai`, {
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_CHAT_URL}/chat-with-ai`, {
                 userMessage,
             });
 
