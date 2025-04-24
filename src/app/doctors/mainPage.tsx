@@ -541,121 +541,42 @@ export default function DoctorListing() {
                     }}
                   >
                     {/* Doctor Image */}
-                    <Box
+                    {/* <Box
                       sx={{
                         position: "relative",
                         display: "inline-block",
+                        border: "2px solid white"
                       }}
-                    >
-                      {/* Doctor Profile Picture */}
-                      <Box
-                        component="img"
-                        alt="Doctor"
-                        src={
-                          doctor.profilePicture ||
-                          "/assets/images/online-doctor-with-white-coat.png"
-                        }
-                        sx={{
-                          width: { xs: "60px", sm: "80px", md: "100px" },
-                          height: { xs: "60px", sm: "80px", md: "100px" },
-                          borderRadius: "50%",
-                          objectFit: "cover",
-                          border: "3px solid #29175e",
-                          boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-                          transition: "transform 0.3s ease",
-                          "&:hover": {
-                            transform: "scale(1.05)",
-                          },
-                        }}
-                      />
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "center",
-                          gap: "4px",
-                          marginTop: "6px",
-                        }}
-                      >
-                        {Cookies.get("token") && (
-                          <>
-                            <Button
-                              variant="contained"
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                gap: "4px",
-                                background:
-                                  "linear-gradient(135deg, #B3E5FC, #81D4FA)",
-                                color: "#0277BD",
-                                padding: "4px 8px",
-                                minWidth: "40px",
-                                borderRadius: "15px",
-                                fontWeight: "500",
-                                textTransform: "none",
-                                boxShadow: "0px 3px 8px rgba(0, 0, 0, 0.1)",
-                                transition: "all 0.3s ease",
-                                "&:hover": {
-                                  background:
-                                    "linear-gradient(135deg, #81D4FA, #4FC3F7)",
-                                  transform: "scale(1.04)",
-                                },
-                              }}
-                              onClick={() =>
-                                setVisibleContactId((prev) =>
-                                  prev === doctor._id ? null : doctor._id
-                                )
-                              }
-                            >
-                              {visibleContactId === doctor._id ? (
-                                <Typography
-                                  sx={{
-                                    fontSize: "12px",
-                                    fontWeight: "bold",
-                                    color: "#0277BD",
-                                  }}
-                                >
-                                  {doctor.contact}
-                                </Typography>
-                              ) : (
-                                <PhoneIcon sx={{ fontSize: "18px" }} />
-                              )}
-                            </Button>
-
-                            {doctor.contact && (
-                              <Button
-                                variant="contained"
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  backgroundColor: "#25D366",
-                                  color: "#fff",
-                                  padding: "4px 8px",
-                                  minWidth: "40px",
-                                  borderRadius: "15px",
-                                  fontWeight: "500",
-                                  textTransform: "none",
-                                  boxShadow: "0px 3px 8px rgba(0, 0, 0, 0.1)",
-                                  transition: "all 0.3s ease",
-                                }}
-                                onClick={() =>
-                                  window.open(
-                                    `https://wa.me/${doctor.contact}`,
-                                    "_blank"
-                                  )
-                                }
-                              >
-                                <WhatsAppIcon sx={{ fontSize: "18px" }} />
-                              </Button>
-                            )}
-                          </>
-                        )}
-                      </Box>
-                    </Box>
+                    > */}
+                    {/* Doctor Profile Picture */}
+                    <Box
+                      component="img"
+                      alt="Doctor"
+                      src={
+                        doctor.profilePicture ||
+                        "/assets/images/online-doctor-with-white-coat.png"
+                      }
+                      sx={{
+                        width: { xs: "60px", sm: "80px", md: "100px" },
+                        height: { xs: "60px", sm: "80px", md: "100px" },
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                        border: "3px solid #29175e",
+                        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                        transition: "transform 0.3s ease",
+                        "&:hover": {
+                          transform: "scale(1.05)",
+                        },
+                      }}
+                    />
 
                     {/* Doctor Info */}
-                    <Box sx={{ marginLeft: "15px", flex: 1 }}>
+                    <Box
+                      sx={{
+                        marginLeft: "15px",
+                        flex: 1,
+                      }}
+                    >
                       <Typography
                         variant="h6"
                         sx={{
@@ -844,6 +765,101 @@ export default function DoctorListing() {
                             ))
                             : "Availability not available"}
                         </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          // border:"2px solid white",
+                          display: "flex",
+                          justifyContent: "start",
+                          gap: "4px",
+                          marginTop: "6px",
+                          mr: "20vw",
+                          // maxWidth: "10vw"
+                          height: "7vh",
+                          width: "25vh",
+                          flexDirection: "row",
+                          marginLeft: "1vw",
+                        }}
+                      >
+                        {Cookies.get("token") && (
+                          <>
+                            {doctor.contact && (
+                              <Button
+                                variant="contained"
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  backgroundColor: "#25D366",
+                                  color: "#fff",
+                                  minWidth: "2vw",
+                                  padding: "1vw",
+                                  maxWidth: "7vw",
+                                  borderRadius: "15px",
+                                  fontWeight: "500",
+                                  textTransform: "none",
+                                  boxShadow: "0px 3px 8px rgba(0, 0, 0, 0.1)",
+                                  transition: "all 0.3s ease",
+                                  height: "6vh",
+                                  // mr:4
+                                }}
+                                onClick={() =>
+                                  window.open(
+                                    `https://wa.me/${doctor.contact}`,
+                                    "_blank"
+                                  )
+                                }
+                              >
+                                <WhatsAppIcon sx={{ fontSize: "18px" }} />
+                              </Button>
+                            )}
+                            <Button
+                              variant="contained"
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: "4px",
+                                background:
+                                  "linear-gradient(135deg, #B3E5FC, #81D4FA)",
+                                color: "#0277BD",
+                                padding: "1vw",
+                                maxWidth: "7vw",
+                                minWidth: "2vw",
+                                borderRadius: "15px",
+                                fontWeight: "500",
+                                textTransform: "none",
+                                boxShadow: "0px 3px 8px rgba(0, 0, 0, 0.1)",
+                                transition: "all 0.3s ease",
+                                height: "6vh",
+                                "&:hover": {
+                                  background:
+                                    "linear-gradient(135deg, #81D4FA, #4FC3F7)",
+                                  transform: "scale(1.04)",
+                                },
+                              }}
+                              onClick={() =>
+                                setVisibleContactId((prev) =>
+                                  prev === doctor._id ? null : doctor._id
+                                )
+                              }
+                            >
+                              {visibleContactId === doctor._id ? (
+                                <Typography
+                                  sx={{
+                                    fontSize: "12px",
+                                    fontWeight: "bold",
+                                    color: "#0277BD",
+                                  }}
+                                >
+                                  {doctor.contact}
+                                </Typography>
+                              ) : (
+                                <PhoneIcon sx={{ fontSize: "18px" }} />
+                              )}
+                            </Button>
+                          </>
+                        )}
                       </Box>
                     </Box>
                   </Box>
