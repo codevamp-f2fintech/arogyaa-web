@@ -549,7 +549,6 @@ export default function DoctorListing() {
                       alignItems: "center",
                       padding: "20px",
                       backgroundColor: "#5d4993",
-                      borderRadius: "10px",
                     }}
                   >
                     {/* Doctor Image */}
@@ -869,8 +868,6 @@ export default function DoctorListing() {
                       alignItems: "center",
                       padding: "7px 20px",
                       backgroundColor: "#5d4993",
-                      borderTop: "1px solid #f0f0f0",
-                      borderRadius: "10px",
                       // borderBottom: "1px solid #f0f0f0",
                     }}
                   >
@@ -919,20 +916,54 @@ export default function DoctorListing() {
                     <Button
                       variant="outlined"
                       fullWidth
-                      startIcon={<Person sx={{ fontSize: "20px" }} />}
+                      startIcon={
+                        <Person
+                          sx={{
+                            fontSize: "20px",
+                            transition: "transform 0.5s ease",
+                          }}
+                        />
+                      }
                       sx={{
-                        borderRadius: "10px",
+                        borderRadius: "0",
                         textTransform: "none",
                         backgroundColor: "#29175e",
                         color: "white",
+                        border: "none",
                         fontWeight: "600",
-                        borderRight: "1px solid #f0f0f0",
-                        border: "1px solid white", // Added border for white outline
-                        transition: "all 0.2s ease-in-out",
+                        position: "relative",
+                        overflow: "hidden",
+                        zIndex: 1,
+                        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        transition: "all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1)",
+                        "&::before": {
+                          content: '""',
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          width: "100%",
+                          height: "100%",
+                          background:
+                            "linear-gradient(45deg, #af9fdb, #d4c5f5)",
+                          zIndex: -1,
+                          transform: "translateY(100%)",
+                          transition: "transform 0.6s ease-in-out",
+                        },
                         "&:hover": {
-                          border: "1px solid white",
-                          backgroundColor: "#af9fdb",
                           color: "#29175e",
+                          border: "none",
+                          boxShadow: "0 6px 12px rgba(0, 0, 0, 0.15)",
+                          transform: "translateY(-2px)",
+                          "&::before": {
+                            transform: "translateY(0)",
+                          },
+                          "& .MuiButton-startIcon": {
+                            transform: "scale(1.2)", // Icon zoom
+                          },
+                        },
+                        "&:active": {
+                          transform: "translateY(0) scale(0.98)",
+                          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
                         },
                       }}
                       onClick={() => {
@@ -941,30 +972,91 @@ export default function DoctorListing() {
                         );
                       }}
                     >
-                      View Full Profile
+                      <Box
+                        component="span"
+                        sx={{
+                          display: "inline-block",
+                          transition: "transform 0.5s ease",
+                          "&:hover": {
+                            transform: "scale(1.05)", // Text zoom
+                          },
+                        }}
+                      >
+                        View Full Profile
+                      </Box>
                     </Button>
 
                     <Button
                       variant="contained"
                       fullWidth
-                      startIcon={<EventIcon sx={{ fontSize: "20px" }} />}
+                      startIcon={
+                        <EventIcon
+                          sx={{
+                            fontSize: "20px",
+                            transition: "transform 0.5s ease",
+                          }}
+                        />
+                      }
                       sx={{
-                        borderRadius: "10px",
+                        borderRadius: "0",
                         textTransform: "none",
                         background: "#29175e",
                         color: "#fff",
                         fontWeight: "600",
-                        border: "1px solid white", // Added border for white outline
-                        transition: "all 0.3s ease-in-out",
+                        position: "relative",
+                        overflow: "hidden",
+                        zIndex: 1,
+                        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        transition: "all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1)",
+                        "&::before": {
+                          content: '""',
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          width: "100%",
+                          height: "100%",
+                          background:
+                            "linear-gradient(45deg, #af9fdb, #d4c5f5)",
+                          zIndex: -1,
+                          transform: "translateY(100%)",
+                          transition: "transform 0.6s ease-in-out",
+                        },
                         "&:hover": {
-                          background: "#af9fdb",
-                          border: "1px solid white",
                           color: "#29175e",
+                          border: "none",
+                          boxShadow: "0 6px 12px rgba(0, 0, 0, 0.15)",
+                          transform: "translateY(-2px)",
+                          backgroundColor: "#29175e",
+                          "&::before": {
+                            transform: "translateY(0)",
+                          },
+
+                          "&::before": {
+                            transform: "translateY(0)",
+                          },
+                          "& .MuiButton-startIcon": {
+                            transform: "scale(1.2)",
+                          },
+                        },
+                        "&:active": {
+                          transform: "translateY(0) scale(0.98)",
+                          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
                         },
                       }}
                       onClick={() => openModal(doctor)}
                     >
-                      Book Appointment
+                      <Box
+                        component="span"
+                        sx={{
+                          display: "inline-block",
+                          transition: "transform 0.5s ease",
+                          "&:hover": {
+                            transform: "scale(1.05)",
+                          },
+                        }}
+                      >
+                        Book Appointment
+                      </Box>
                     </Button>
                   </Box>
                 </Box>

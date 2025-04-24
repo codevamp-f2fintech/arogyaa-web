@@ -115,7 +115,6 @@ const Topbar = () => {
 
   const handleScroll = () => {
     if (window.scrollY < 100) {
-      console.log("chnage color");
       setAppBarBg("#56428b");
     } else {
       setAppBarBg("transparent");

@@ -35,6 +35,7 @@ import WcIcon from "@mui/icons-material/Wc";
 import MedicalInformationIcon from "@mui/icons-material/MedicalInformation";
 import HealingIcon from "@mui/icons-material/Healing";
 import MedicationIcon from "@mui/icons-material/Medication";
+import { Cancel } from "@mui/icons-material";
 
 import { Utility } from "@/utils";
 import { fetcher, modifier } from "@/apis/apiClient";
@@ -45,6 +46,7 @@ import TestHistory from "../components/Test-history";
 import BillingHistory from "../components/Billing-history";
 import TreatmentHistory from "../components/Treatment-history";
 import SnackbarComponent from "../components/common/Snackbar";
+import { color } from "framer-motion";
 
 interface Appointment {
   hospitalName: string;
@@ -282,20 +284,17 @@ const UserProfile = () => {
         borderRadius: "12px",
         cursor: "pointer",
         transition: "all 0.3s ease",
-        background:
-          activeView === value
-            ? "linear-gradient(135deg, #56428B 0%, #B497D6 100%)"
-            : "#fff",
         "&:hover": {
           transform: "translateY(-5px)",
           boxShadow: "0 8px 16px rgba(0,0,0,0.1)",
         },
         "& .MuiTypography-root": {
-          color: activeView === value ? "white" : "#2C3E50",
-          fontWeight: activeView === value ? "700" : "500",
+          color: activeView === value ? "#29175e" : "#29175e",
+          fontWeight: activeView === value ? "550" : "570",
+          fontFamily: activeView === value ? "Poppins" : "Poppins",
         },
         "& .MuiSvgIcon-root": {
-          color: activeView === value ? "white" : "#B497D6",
+          color: activeView === value ? "#29175e" : "#B497D6",
         },
       }}
       onClick={() => setActiveView(value as typeof activeView)}
@@ -323,91 +322,87 @@ const UserProfile = () => {
     <Box
       sx={{
         marginTop: "50px",
-        minHeight: "100vh",
-        background: "#56428B",
+        maxHeight: {
+          xs: "auto",
+          md: "700px",
+          sm: "700px",
+        },
         padding: "1.5rem",
+        width: "100vw",
+        background:
+          "linear-gradient(180deg, rgba(175,159,219,1) 0%, rgba(190,176,225,1) 100%)",
+        overflowY: "auto",
       }}
     >
       <Grid
         container
         spacing={3}
         sx={{
-          flexWrap: "nowrap",
+          flexWrap: {
+            xs: "",
+            md: "nowrap",
+          },
         }}
       >
-        <Grid item xs={12} md={5}>
+        <Grid item xs={12} md={4}>
           <Box
             sx={{
-              background: "linear-gradient(145deg, #ffffff, #f8f9fa)",
-              p: 0.5,
+              background: "linear-gradient(135deg, #6B46C1 0%, #9F7AEA 100%)",
+              p: { xs: 1, sm: 2 },
               borderRadius: "16px",
-              boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+              overflowY: "auto", // Ensures scrolling when content overflows vertically
+              maxHeight: "530px", // Set the height limit for the Box
+              boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)",
               textAlign: "center",
+              width: "100%",
+              maxWidth: "450px",
               position: "relative",
             }}
           >
             {/* Edit Button */}
-            {isEditing ? (
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  position: "absolute",
-                  top: "20px",
-                  right: "10px",
-                  gap: 1,
-                }}
-              >
-                <Button
-                  onClick={updateUserProfile}
-                  sx={{
-                    backgroundColor: "#56428B",
-                    borderRadius: "50px",
-                    padding: "4px 20px",
-                    color: "white",
-                    "&:hover": {
-                      backgroundColor: "#483980",
-                    },
-                  }}
-                >
-                  Save
-                </Button>
-                <Button
-                  onClick={handleCancelEdit}
-                  sx={{
-                    backgroundColor: "red",
-                    borderRadius: "50px",
-                    padding: "4px 20px",
-                    color: "white",
-                    "&:hover": {
-                      backgroundColor: "red",
-                    },
-                  }}
-                >
-                  Cancel
-                </Button>
-              </Box>
-            ) : (
+            {!isEditing && (
               <IconButton
                 onClick={toggleEditMode}
-                sx={{ position: "absolute", top: 10, right: 10 }}
+                sx={{
+                  position: "absolute",
+                  top: 10,
+                  right: 10,
+                  color: "white",
+                  backgroundColor: "#7A4D9C",
+                  borderRadius: "20px",
+                  padding: "6px 12px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  fontWeight: 500,
+                  fontSize: "0.9rem",
+                  fontFamily: "Poppins",
+                  transition: "background-color 0.3s",
+                  "&:hover": {
+                    backgroundColor: "#5e3a78",
+                  },
+                }}
               >
-                <EditIcon />
+                Edit
+                <EditIcon sx={{ fontSize: "1.1rem" }} />
               </IconButton>
             )}
+
+            {/* Profile Picture */}
             <Box sx={{ position: "relative", display: "inline-block", mb: 2 }}>
               <Box
                 sx={{
-                  width: "130px",
-                  height: "140px",
+                  width: { xs: "110px", sm: "130px" },
+                  height: { xs: "110px", sm: "130px" },
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  borderRadius: "8px",
-                  border: "3px solid #56428B",
+                  borderRadius: "50%",
+                  border: "4px solid #ffffff",
                   boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
                   overflow: "hidden",
                   marginTop: "15px",
+                  mx: "auto",
                 }}
               >
                 <Box
@@ -446,114 +441,127 @@ const UserProfile = () => {
               )}
             </Box>
 
-            <Box sx={{ textAlign: "center", mb: 1 }}>
+            {/* Username */}
+            <Box sx={{ textAlign: "center", mb: 2 }}>
               {isEditing ? (
                 <TextField
                   variant="outlined"
                   size="small"
-                  sx={{
-                    fontSize: "1.25rem",
-                    fontWeight: "700",
-                    width: "50%",
-                    borderRadius: "12px",
-                    padding: "8px 16px",
-                    textAlign: "center",
-                    backgroundColor: "#fff",
-                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
-                  }}
                   value={editValues.username || ""}
                   onChange={(e) =>
                     handleInputChange("username", e.target.value)
                   }
+                  sx={{
+                    width: { xs: "70%", sm: "50%" },
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "12px",
+                      backgroundColor: "#fff",
+                      fontSize: ".9rem",
+                      fontWeight: "500",
+                      fontFamily: "Poppins",
+                      color: "#000",
+                      padding: "8px 16px",
+                      boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+                    },
+                  }}
                 />
               ) : (
                 <Typography
                   variant="h5"
-                  sx={{ fontWeight: "700", color: "#2C3E50", mb: 0.5 }}
+                  sx={{
+                    fontWeight: "600",
+                    color: "#ffffff",
+                    fontFamily: "Poppins",
+                    mb: 0.5,
+                    textTransform: "lowercase",
+                    fontSize: { xs: "1.5rem", sm: "1.8rem" },
+                  }}
                 >
                   {user?.username || "N/A"}
                 </Typography>
               )}
             </Box>
 
-            {/* User Information */}
+            {/* Personal Information Section */}
+            <Typography
+              variant="body1"
+              sx={{
+                fontWeight: "600",
+                fontFamily: "Poppins",
+                color: "#ffffff",
+                mb: 2,
+                fontSize: { xs: "1.1rem", sm: "1.2rem" },
+              }}
+            >
+              Personal Information
+            </Typography>
+
+            {/* Information Fields */}
             <Box
               sx={{
                 display: "flex",
                 flexDirection: "column",
-                alignItems: "center",
-                borderRadius: "12px",
-                p: 0.3,
-                my: 4,
-                width: "90%",
-                maxWidth: "500px",
-                textAlign: "center",
-                mx: "auto",
-                gap: 1,
-                boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.05)",
+                gap: 1.5,
+                width: "100%",
+                px: { xs: 1, sm: 2 },
+                "& .css-1n4twyu-MuiInputBase-input-MuiOutlinedInput-input": {
+                  color: "#000",
+                },
               }}
             >
-              <Typography
-                variant="body1"
-                sx={{ fontWeight: "600", color: "#B497D6", mb: 1 }}
-              >
-                Personal Information
-              </Typography>
               {[
                 {
-                  icon: <PhoneIcon sx={{ color: "#20ADA0" }} />,
+                  icon: <PhoneIcon sx={{ color: "#ffffff" }} />,
                   label: "Contact",
                   key: "contact",
                 },
                 {
-                  icon: <EmailIcon sx={{ color: "#20ADA0" }} />,
+                  icon: <EmailIcon sx={{ color: "#ffffff" }} />,
                   label: "Email",
                   key: "email",
                 },
                 {
-                  icon: <WcIcon sx={{ color: "#20ADA0" }} />,
+                  icon: <WcIcon sx={{ color: "#ffffff" }} />,
                   label: "Gender",
                   key: "gender",
                 },
                 {
-                  icon: <CalendarMonthIcon sx={{ color: "#20ADA0" }} />,
+                  icon: <CalendarMonthIcon sx={{ color: "#ffffff" }} />,
                   label: "Age",
                   key: "age",
                 },
                 {
-                  icon: <Straighten sx={{ color: "#20ADA0" }} />,
+                  icon: <Straighten sx={{ color: "#ffffff" }} />,
                   label: "Height",
                   key: "height",
                 },
                 {
-                  icon: <MonitorWeight sx={{ color: "#20ADA0" }} />,
+                  icon: <MonitorWeight sx={{ color: "#ffffff" }} />,
                   label: "Weight",
                   key: "weight",
                 },
                 {
-                  icon: <LocationOnIcon sx={{ color: "#20ADA0" }} />,
+                  icon: <LocationOnIcon sx={{ color: "#ffffff" }} />,
                   label: "Address",
                   key: "address",
                 },
                 {
-                  icon: <FavoriteIcon sx={{ color: "#20ADA0" }} />,
+                  icon: <FavoriteIcon sx={{ color: "#ffffff" }} />,
                   label: "Blood Group",
                   key: "bloodGroup",
                 },
                 {
-                  icon: (
-                    <MedicalInformationIcon sx={{ color: "#20ADA0", gap: 2 }} />
-                  ),
+                  icon: <MedicalInformationIcon sx={{ color: "#ffffff" }} />,
                   label: "Medical History",
                   key: "medicalHistory",
                 },
                 {
-                  icon: <HealingIcon sx={{ color: "#20ADA0" }} />,
+                  icon: <HealingIcon sx={{ color: "#ffffff" }} />,
                   label: "Allergies",
                   key: "allergies",
                 },
                 {
-                  icon: <MedicationIcon sx={{ color: "#20ADA0" }} />,
+                  icon: <MedicationIcon sx={{ color: "#ffffff" }} />,
                   label: "Current Medication",
                   key: "currentMedication",
                 },
@@ -563,52 +571,70 @@ const UserProfile = () => {
                   sx={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 2,
-                    px: 3,
-                    py: 1,
-                    borderRadius: "20px",
-                    color: "#2C3E50",
-                    fontSize: "0.9rem",
-                    fontWeight: "500",
-                    width: "85%",
-                    maxWidth: "420px",
-                    justifyContent: "space-between",
-                    background: "#F8F5FF",
+                    gap: 1,
+                    px: { xs: 2, sm: 3 },
+                    py: { xs: 1, sm: 1.5 },
+                    borderRadius: "50px",
+                    backgroundColor: "rgba(255, 255, 255, 0.9)",
                     boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.05)",
-                    border: "1px solid #B497D6",
-                    textAlign: "left",
-                    transition: "0.3s ease-in-out",
+                    width: "100%",
+                    transition: "all 0.2s ease-in-out",
+                    "&:hover": {
+                      transform: "translateY(-2px)",
+                      boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                    },
+                    "&:hover": {
+                      transform: "translateY(-2px)",
+                      boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#aaa", // border on hover
+                    },
+                    "& fieldset": {
+                      borderColor: "#aaa",
+                      borderRadius: "25px",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "red", // Border color on hover
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "red", // Border color when focused
+                    },
                   }}
                 >
                   <Box
                     sx={{
                       display: "flex",
                       alignItems: "center",
-                      gap: 1,
-                      flex: 1,
+                      justifyContent: "center",
+                      width: "32px",
+                      height: "32px",
+                      borderRadius: "50%",
+                      backgroundColor: "#B497D6",
                     }}
                   >
                     {React.cloneElement(item.icon, {
-                      sx: { color: "#B497D6" },
+                      sx: { color: "#29175e", fontSize: "18px" },
+                      fontSize: "small",
                     })}
-                    <Typography
-                      sx={{
-                        fontWeight: 600,
-                        fontSize: "0.9rem",
-                        minWidth: "60px",
-                      }}
-                    >
-                      {item.label}:
-                    </Typography>
                   </Box>
+
+                  <Typography
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: "0.9rem",
+                      minWidth: { xs: "50px", sm: "60px" },
+                      color: "#56428B",
+                    }}
+                  >
+                    {item.label}:
+                  </Typography>
 
                   <Box
                     sx={{
-                      flex: 2,
+                      flex: 1,
                       textAlign: "left",
-                      mr: 1,
-                      display: "flex",
-                      alignItems: "center",
+                      overflow: "hidden",
                     }}
                   >
                     {isEditing ? (
@@ -619,6 +645,30 @@ const UserProfile = () => {
                           onChange={(e) =>
                             handleInputChange(item.key, e.target.value)
                           }
+                          sx={{
+                            width: "100%",
+                            borderRadius: "25px",
+
+                            "&:hover .MuiOutlinedInput-notchedOutline": {
+                              borderColor: "#aaa", // border on hover
+                              borderRadius: "25px",
+                            },
+                            "& .MuiSelect-select": {
+                              backgroundColor: "", // make selected area black
+                              color: "#000", // make selected text white
+                            },
+                          }}
+                          MenuProps={{
+                            PaperProps: {
+                              sx: {
+                                backgroundColor: "#fff", // white dropdown background
+                                color: "#000", // black text color
+                                "& .MuiMenuItem-root": {
+                                  color: "#000", // explicitly set black text for each menu item
+                                },
+                              },
+                            },
+                          }}
                         >
                           <MenuItem value="Male">Male</MenuItem>
                           <MenuItem value="Female">Female</MenuItem>
@@ -635,168 +685,167 @@ const UserProfile = () => {
                           onChange={(e) =>
                             handleInputChange(item.key, e.target.value)
                           }
-                          error={!!errors[item.key]}
-                          helperText={errors[item.key]}
+                          type={item.key === "email" ? "email" : "text"}
+                          sx={{ width: "100%" }}
                         />
                       )
                     ) : (
-                      <Typography>
-                        {user?.[item.key] ??
-                          (item.key === "bloodGroup" ? "A+" : "N/A")}
+                      <Typography
+                        sx={{
+                          fontSize: "0.9rem",
+                          color: "#2C3E50",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {user?.[item.key] ?? "N/A"}
                       </Typography>
                     )}
                   </Box>
                 </Box>
               ))}
-              {/* Visit Information Section */}
+            </Box>
+
+            {/* Save and Cancel buttons */}
+            {isEditing && (
               <Box
                 sx={{
-                  p: 1,
-                  borderRadius: "16px",
-                  background: "linear-gradient(145deg, #ffffff, #f8f9fa)",
-                  color: "#2C3E50",
-                  fontSize: "0.95rem",
-                  fontWeight: "500",
-                  border: "1px solid #E0E0E0",
-                  boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.1)",
-                  width: "90%",
-                  maxWidth: "520px",
-                  transition: "all 0.3s ease-in-out",
-                  "&:hover": {
-                    transform: "translateY(-5px)",
-                    boxShadow: "0px 12px 24px rgba(0, 0, 0, 0.1)",
-                  },
+                  display: "flex",
+                  flexDirection: "row",
+                  position: "relative",
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  gap: 1,
+                  zIndex: 10,
+                  marginTop: "auto",
+                  justifyContent: "center",
+                  paddingTop: "5vh",
                 }}
               >
-                <Typography
-                  variant="body1"
+                <Button
+                  onClick={updateUserProfile}
                   sx={{
-                    fontWeight: "700",
-                    color: "#B497D6",
-                    mb: 2,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.5px",
+                    minWidth: "150px",
+                    color: "#fff",
+                    background: "#29175E",
+                    borderRadius: "4px",
+                    marginLeft: "20px",
+                    textTransform: "none",
                   }}
                 >
-                  Visit Information
-                </Typography>
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  {/* Previous Visit */}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      px: 2,
-                      py: 1,
-                      borderRadius: "8px",
-                      backgroundColor: "#F8F5FF",
-                      border: "1px solid #E0E0E0",
-                      boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.05)",
-                      transition: "all 0.3s ease-in-out",
-                      "&:hover": {
-                        backgroundColor: "#EFE6FF",
-                        transform: "translateY(-2px)",
-                      },
-                    }}
-                  >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <EventIcon sx={{ color: "#B497D6" }} />
-                      <Typography sx={{ fontWeight: 600, fontSize: "1rem" }}>
-                        Previous Visit:
-                      </Typography>
-                    </Box>
-                    <Typography
-                      sx={{
-                        fontSize: "0.95rem",
-                        fontWeight: "500",
-                        color: "#2C3E50",
-                      }}
-                    >
-                      {previousVisit
-                        ? `${new Date(
-                            previousVisit.appointmentDate
-                          ).toLocaleDateString()} at ${
-                            previousVisit.appointmentTime
-                          }| ${previousVisit.hospitalName ?? "Hospital N/A"}`
-                        : "N/A"}
-                    </Typography>
-                  </Box>
-                  {/* Next Visit */}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      px: 2,
-                      py: 1,
-                      borderRadius: "8px",
-                      backgroundColor: "#F8F5FF",
-                      border: "1px solid #E0E0E0",
-                      boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.05)",
-                      transition: "all 0.3s ease-in-out",
-                      "&:hover": {
-                        backgroundColor: "#EFE6FF",
-                        transform: "translateY(-2px)",
-                      },
-                    }}
-                  >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <EventIcon sx={{ color: "#B497D6" }} />
-                      <Typography sx={{ fontWeight: 600, fontSize: "1rem" }}>
-                        Next Visit:
-                      </Typography>
-                    </Box>
-                    <Typography
-                      sx={{
-                        fontSize: "0.95rem",
-                        fontWeight: 500,
-                        color: "#2C3E50",
-                      }}
-                    >
-                      {nextVisit
-                        ? `${new Date(
-                            nextVisit.appointmentDate
-                          ).toLocaleDateString()} at ${
-                            nextVisit.appointmentTime
-                          } | ${nextVisit.hospitalName ?? "Hospital N/A"}`
-                        : "N/A"}
-                    </Typography>
-                  </Box>
-                </Box>
+                  Save
+                </Button>
+                <Button
+                  onClick={handleCancelEdit}
+                  sx={{
+                    minWidth: "150px",
+                    color: "#fff",
+                    background: "#29175E",
+                    borderRadius: "4px",
+                    marginLeft: "20px",
+                    textTransform: "none",
+                  }}
+                  startIcon={<Cancel sx={{ fontSize: 22 }} />}
+                >
+                  Cancel
+                </Button>
               </Box>
-            </Box>
+            )}
           </Box>
         </Grid>
 
-        <Grid item xs={12} md={8}>
+        <Grid
+          sx={{
+            height: "90vh",
+            width: "60vw",
+            display: "flex",
+            flexDirection: "column",
+            justifyItems: "center",
+          }}
+          item
+          xs={12}
+          md={8}
+        >
           <Paper
             elevation={3}
             sx={{
-              p: 2,
-              borderRadius: "20px",
-              background: "rgba(255, 255, 255, 0.95)",
+              p: { xs: 1.5, sm: 2 }, // Reduced padding on mobile for better space usage
+              width: "100%", // Maintains original width
+              height: "auto", // Auto height to fit content
+              minHeight: { xs: "240px", sm: "260px", md: "280px" }, // Responsive minHeight
+              borderRadius: "16px",
+              // background: "rgb(175,159,219)",
+              background: "#7b56ce",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
+              transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+              "&:hover": {
+                transform: "translateY(-2px)",
+                boxShadow: "0 6px 16px rgba(0, 0, 0, 0.12)",
+                borderColor: "#29175e",
+              },
             }}
           >
             <Typography
               variant="h6"
               sx={{
                 mb: 3,
-                ml: 3,
-                color: "#2C3E50",
+                ml: { xs: 2, sm: 3 }, // Slightly reduced margin-left on mobile
+                color: "#fff",
                 fontWeight: "700",
+                fontSize: { xs: "1.125rem", sm: "1.25rem" }, // Smaller font on mobile
+                position: "relative",
+                fontFamily: "Poppins",
+                "&::after": {
+                  content: '""',
+                  bottom: -8,
+                  left: 0,
+                  width: "40px",
+                  height: "3px",
+                  background: "linear-gradient(90deg, #29175e, transparent)",
+                  borderRadius: "3px",
+                  transition: "width 0.3s ease",
+                },
+                "&:hover::after": {
+                  width: "80px",
+                },
               }}
             >
               Quick Actions
             </Typography>
-            <Grid container spacing={1} sx={{ justifyContent: "space-around" }}>
+
+            <Grid
+              container
+              spacing={{ xs: 0.5, sm: 1 }} // Reduced spacing on mobile
+              sx={{ justifyContent: "space-around" }}
+            >
               {quickActions.map((action, index) => (
                 <Grid item xs={6} sm={4} md={2} key={index}>
-                  <CustomMenuItem
-                    icon={action.icon}
-                    label={action.label}
-                    value={action.value}
-                  />
+                  <Box
+                    sx={{
+                      height: "100%",
+                      transition: "all 0.2s ease",
+                      "&:hover": {
+                        transform: "scale(1.02)",
+                      },
+                    }}
+                  >
+                    <CustomMenuItem
+                      icon={action.icon}
+                      label={action.label}
+                      value={action.value}
+                      sx={{
+                        transition: "all 0.2s ease",
+                        "&:hover": {
+                          backgroundColor: "rgba(245, 245, 245, 0.7)",
+                        },
+                        // Ensure CustomMenuItem scales properly on mobile
+                        fontSize: { xs: "0.875rem", sm: "1rem" }, // Smaller text on mobile
+                        padding: { xs: "8px", sm: "12px" }, // Adjust padding for mobile
+                      }}
+                    />
+                  </Box>
                 </Grid>
               ))}
             </Grid>
@@ -804,10 +853,10 @@ const UserProfile = () => {
           <Paper
             elevation={3}
             sx={{
-              marginTop: "20px",
-              p: 4,
-              borderRadius: "20px",
-              background: "rgba(255, 255, 255, 0.95)",
+              marginTop: { xs: "10px", sm: "15px", md: "20px" }, // Responsive margin-top
+              p: { xs: 2, sm: 3, md: 4 }, // Responsive padding
+              borderRadius: { xs: "12px", sm: "16px", md: "20px" }, // Slightly smaller radius on mobile
+              background: "#7b56ce",
             }}
           >
             {activeView === "appointments" && <AppointmentHistory />}

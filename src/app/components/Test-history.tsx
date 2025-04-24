@@ -216,7 +216,13 @@ const TestHistory: React.FC = () => {
 
   return (
     <Container maxWidth="lg">
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          mb: 2,
+        }}
+      >
         <Button
           onClick={() => setOpenCreateDialog(true)}
           sx={{
@@ -250,12 +256,17 @@ const TestHistory: React.FC = () => {
         </Alert>
       )}
 
-      <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 2 }}>
+      <TableContainer
+        component={Paper}
+        sx={{
+          boxShadow: 3,
+          borderRadius: 2,
+          backgroundColor: "#7b56ce",
+        }}
+      >
         <Table>
           <TableHead
             sx={{
-              backgroundColor: (theme) =>
-                alpha(theme.palette.primary.main, 0.05),
               width: "auto",
             }}
           >
@@ -273,7 +284,7 @@ const TestHistory: React.FC = () => {
                   sx={{
                     fontWeight: 600,
                     textTransform: "uppercase",
-                    color: "text.secondary",
+                    color: "#fff",
                     textAlign: "center",
                     ...(header === "doctor's Name" && { whiteSpace: "nowrap" }),
                   }}
@@ -297,16 +308,44 @@ const TestHistory: React.FC = () => {
                     textAlign: "center",
                   }}
                 >
-                  <TableCell sx={{ textAlign: "center" }}>
+                  <TableCell
+                    sx={{
+                      textAlign: "center",
+                      color: "#29175e",
+                      fontWeight: "600",
+                      fontFamily: "Poppins",
+                    }}
+                  >
                     {capitalizeFirstLetter(test.doctorId?.username || "N/A")}
                   </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
+                  <TableCell
+                    sx={{
+                      textAlign: "center",
+                      color: "#29175e",
+                      fontWeight: "600",
+                      fontFamily: "Poppins",
+                    }}
+                  >
                     {capitalizeFirstLetter(test.name)}
                   </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
+                  <TableCell
+                    sx={{
+                      textAlign: "center",
+                      color: "#7b56ce",
+                      fontWeight: "600",
+                      fontFamily: "Poppins",
+                    }}
+                  >
                     {capitalizeFirstLetter(test.description)}
                   </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
+                  <TableCell
+                    sx={{
+                      textAlign: "center",
+                      color: "#29175e",
+                      fontWeight: "600",
+                      fontFamily: "Poppins",
+                    }}
+                  >
                     {capitalizeFirstLetter(test.type || "N/A")}
                   </TableCell>
 
@@ -439,14 +478,14 @@ const TestHistory: React.FC = () => {
                         sx={{
                           display: "block",
                           margin: "0 auto",
-                          background: "#56428B",
+                          background: "#29175e",
                           color: "white",
                           fontWeight: "bold",
                           textDecoration: "none",
                           borderRadius: "4px",
                           padding: "5px 10px",
                           "&:hover": {
-                            background: "#483980",
+                            background: "#29175e",
                             boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
                           },
                           transition: "all 0.3s ease",
@@ -468,10 +507,10 @@ const TestHistory: React.FC = () => {
                       alignItems: "center",
                       gap: 0.5,
                       borderRadius: "8px",
-                      color: "#B497D6",
+                      color: "#fff",
                     }}
                   >
-                    <AssignmentLate sx={{ fontSize: 18, color: "#B497D6" }} />
+                    <AssignmentLate sx={{ fontSize: 18, color: "#fff" }} />
                     No Test History
                   </Box>
                 </TableCell>

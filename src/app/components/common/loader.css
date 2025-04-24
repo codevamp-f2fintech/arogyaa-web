@@ -1,86 +1,68 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
 
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body,
 .loader-container {
-    font-family: 'Poppins', sans-serif;
-    min-height: 100vh;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  font-family: "Poppins", sans-serif;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #7b56ce;
 }
 
-.loader {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    column-gap: 5px;
-    height: 300px;
-    width: 300px;
-   
-    border-radius: 1rem;
-    padding-bottom: 7rem;
+.skeleton-loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.loader span {
-    --duration: 1s;
-    height: var(--height);
-    width: 15px;
-    background-color: #449AC8;
-    border: none;
-    border-radius: 5px;
-    animation: animation var(--duration) ease-in-out infinite;
+.skeleton {
+  background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s ease-in-out infinite;
+  border-radius: 8px;
 }
 
-.loader span:nth-child(1) {
-    --height: 50px;
-    animation-delay: 0.25s;
+.skeleton-item {
+  width: 200px;
+  height: 20px;
+  margin-bottom: 10px;
 }
 
-.loader span:nth-child(2) {
-    --height: 70px;
-    animation-delay: 0.55s;
+.skeleton-item:last-child {
+  margin-bottom: 0;
 }
 
-.loader span:nth-child(3) {
-    --height: 80px;
-    animation-delay: 0.75s;
+.skeleton-item:nth-child(odd) {
+  width: 250px;
 }
 
-.loader span:nth-child(4) {
-    --height: 70px;
-    animation-delay: 1s;
+.skeleton-item:nth-child(2) {
+  width: 180px;
 }
 
-.loader span:nth-child(5) {
-    --height: 50px;
-    animation-delay: 1.25s;
+.skeleton-item:nth-child(3) {
+  width: 220px;
 }
 
-.attribute {
-    position: absolute;
-    bottom: 10px;
+.skeleton-item:nth-child(4) {
+  width: 240px;
 }
 
-@keyframes animation {
-
-    0%,
-    100% {
-        transform: translateY(25%);
-        opacity: 0.4;
-        box-shadow: 0 0 20px #65c1f3;
-    }
-
-    50% {
-        transform: translateY(0);
-        opacity: 1;
-        box-shadow: none;
-        height: calc(var(--height) + 25px);
-    }
+@keyframes loading {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
