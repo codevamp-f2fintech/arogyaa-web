@@ -299,21 +299,15 @@ export default function DoctorListing() {
                 position: "relative",
               }}
             >
-              <IconButton
-                aria-label="search"
-                className={styles.searchBarButton}
-                sx={{
-                  backgroundColor: "#2ecc71",
-                  color: "#29175e",
-                  borderRadius: "90%",
-                  padding: "0.4rem",
-                  "&:hover": {
-                    backgroundColor: "#1A8575",
-                  },
-                }}
-              >
-                <SearchIcon fontSize="small" />
-              </IconButton>
+              {!keyword && (
+                <IconButton
+                  aria-label="search"
+                  className={styles.searchBarButton}
+                  sx={{ color: "#29175e" }}
+                >
+                  <SearchIcon fontSize="small" />
+                </IconButton>
+              )}
               <InputBase
                 value={keyword}
                 onChange={handleChange}
@@ -330,12 +324,7 @@ export default function DoctorListing() {
                 <IconButton
                   aria-label="clear"
                   onClick={handleClearSearch}
-                  sx={{
-                    backgroundColor: "transparent",
-                    color: "#2ecc71",
-                    borderRadius: "50%",
-                    padding: "0.4rem",
-                  }}
+                  sx={{ color: "#29175e" }}
                 >
                   <CloseIcon fontSize="small" />
                 </IconButton>
@@ -824,35 +813,35 @@ export default function DoctorListing() {
                         >
                           {doctor.availability?.length > 0
                             ? doctor.availability.map((slot, index) => (
-                                <Typography
-                                  key={index}
-                                  variant="body2"
-                                  sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    whiteSpace: "nowrap",
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
-                                    mb: 0.5, // Adds spacing between items
+                              <Typography
+                                key={index}
+                                variant="body2"
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  whiteSpace: "nowrap",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  mb: 0.5, // Adds spacing between items
+                                }}
+                              >
+                                <LocalHospitalIcon
+                                  fontSize="small"
+                                  color="primary"
+                                  sx={{ marginRight: "4px", flexShrink: 0 }}
+                                />
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    whiteSpace: "normal",
                                   }}
                                 >
-                                  <LocalHospitalIcon
-                                    fontSize="small"
-                                    color="primary"
-                                    sx={{ marginRight: "4px", flexShrink: 0 }}
-                                  />
-                                  <span
-                                    style={{
-                                      display: "inline-block",
-                                      whiteSpace: "normal",
-                                    }}
-                                  >
-                                    {slot.hospital?.name || "Unknown Hospital"},{" "}
-                                    {slot.hospital?.location ||
-                                      "Unknown Location"}
-                                  </span>
-                                </Typography>
-                              ))
+                                  {slot.hospital?.name || "Unknown Hospital"},{" "}
+                                  {slot.hospital?.location ||
+                                    "Unknown Location"}
+                                </span>
+                              </Typography>
+                            ))
                             : "Availability not available"}
                         </Typography>
                       </Box>

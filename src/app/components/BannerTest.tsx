@@ -350,15 +350,26 @@ const BannerComponentTest: React.FC = () => {
               <Box
                 sx={{
                   position: "absolute",
-                  bottom: "2px",
+                  bottom: results.length < 2 ? "110px" : results.length < 3 ? "60px" : "-80px",
                   left: 0,
                   right: 0,
                   backgroundColor: "white",
                   borderRadius: "5px",
-
-                  overflowY: "auto",
+                  overflow: "scroll",
                   maxHeight: "300px",
                   zIndex: 10,
+                  boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                  "&::-webkit-scrollbar": {
+                    width: "8px",
+                  },
+                  "&::-webkit-scrollbar-track": {
+                    background: "#f1f1f1",
+                    borderRadius: "10px",
+                  },
+                  "&::-webkit-scrollbar-thumb": {
+                    background: "#b497d6",
+                    borderRadius: "10px",
+                  },
                 }}
               >
                 <List
@@ -367,7 +378,7 @@ const BannerComponentTest: React.FC = () => {
                     maxHeight: "250px",
                     overflowY: "auto",
                     border: "1px solid #ddd",
-                    borderRadius: "5px",
+                    borderRadius: "10px",
                   }}
                 >
                   {results.map((doctor: any, index: number) => (
@@ -383,25 +394,26 @@ const BannerComponentTest: React.FC = () => {
                         },
                       }}
                     >
-                      <Link href={`/doctors/profile/${doctor._id}`} passHref>
-                        {" "}
-                      </Link>
-                      <ListItemText
-                        primary={`${doctor.username || "Unknown"} - ${
-                          doctor.specializationIds
+                      <Link href={`/doctors/profile/${doctor._id}`} passHref
+                        sx={{
+                          textDecoration: "none"
+                        }}
+                      >
+                        <ListItemText
+                          primary={`${doctor.username || "Unknown"} - ${doctor.specializationIds
                             ?.map((spec: any) =>
                               capitalizeFirstLetter(spec.name)
                             )
                             .join(", ") || "Specialty not available"
-                        }`}
-                        sx={{
-                          fontSize: "0.9rem",
-                          // color: "#333",
-                          textDecoration: "none",
-                          fontfamily: "Poppins",
-                          color: "#29175e",
-                        }}
-                      />
+                            }`}
+                          sx={{
+                            fontSize: "0.9rem",
+                            textDecoration: "none",
+                            fontfamily: "Poppins",
+                            color: "#29175e",
+                          }}
+                        />
+                      </Link>
                     </ListItem>
                   ))}
                 </List>
@@ -535,7 +547,7 @@ const BannerComponentTest: React.FC = () => {
             </Container>
           </Box>
         </motion.div>
-      </Box>
+      </Box >
       <Box
         component={motion.div}
         initial={{ opacity: 0, x: 50 }}
@@ -613,7 +625,7 @@ const BannerComponentTest: React.FC = () => {
         </Box>
       </Box>{" "}
       <AIAssistant />
-    </Box>
+    </Box >
   );
 };
 
