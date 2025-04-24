@@ -82,7 +82,7 @@ const ExpertSpecialistSlider: React.FC = () => {
       if (response && response.results) {
         const allTestimonials: Testimonial[] = response.results || [];
         const groupedRatings: Record<string, number[]> = {};
-  
+
         allTestimonials.forEach((review) => {
           const doctor = review.doctorId;
           if (doctor && doctor._id) {
@@ -93,7 +93,7 @@ const ExpertSpecialistSlider: React.FC = () => {
             groupedRatings[doctorId].push(review.rating);
           }
         });
-  
+
         const finalRatings: Record<string, { avg: number; count: number }> = {};
         Object.entries(groupedRatings).forEach(([doctorId, ratings]) => {
           const avg = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
@@ -102,15 +102,13 @@ const ExpertSpecialistSlider: React.FC = () => {
             count: ratings.length,
           };
         });
-  
+
         setRatingsMap(finalRatings);
-      } 
+      }
     } catch (error) {
       console.error("Error fetching testimonials:", error);
     }
   }, []);
-  ;
-
   useEffect(() => {
     fetchTestimonials();
   }, [fetchTestimonials]);
@@ -230,7 +228,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                   elevation={3}
                   sx={{
                     m: 1,
-                    height: { md: "490px", xs: "520px" },
+                    height: { md: "508px", xs: "520px" },
                     borderRadius: "16px",
                     overflow: "hidden",
                     position: "relative",

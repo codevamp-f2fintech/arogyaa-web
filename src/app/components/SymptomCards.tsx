@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import styles from "../page.module.css";
 import en from "@/locales/en.json";
 import { useRouter } from "next/navigation";
@@ -17,9 +17,7 @@ import {
 } from "@mui/material";
 import { ArrowCircleRight } from "@mui/icons-material";
 import { useGetSymptom } from "@/hooks/symptoms";
-import { motion } from "framer-motion";
-import { useAnimation } from "framer-motion";
-import { useEffect, useRef } from "react";
+import { motion, useAnimation } from "framer-motion";
 
 const theme = createTheme({
   palette: {
@@ -111,6 +109,10 @@ const theme = createTheme({
 const SymptomCards = () => {
   const router = useRouter();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const firstControls = useAnimation();
+  const secondControls = useAnimation();
+  const firstRef = useRef(null);
+  const secondRef = useRef(null);
 
   const [pageSize, setPageSize] = useState({
     page: 1,
@@ -124,7 +126,7 @@ const SymptomCards = () => {
   } = useGetSymptom(null, "get-symptoms", pageSize.page, pageSize.size);
 
   const handleConsult = useCallback(
-    (symptomsName: string) => {
+    (symptomsName) => {
       router.push(`/doctors?keyword=${encodeURIComponent(symptomsName)}`);
     },
     [router]
@@ -137,21 +139,32 @@ const SymptomCards = () => {
   // Create duplicated arrays for infinite scrolling effect
   const duplicatedFirstHalf = [...firstHalfSymptoms, ...firstHalfSymptoms];
   const duplicatedSecondHalf = [...secondHalfSymptoms, ...secondHalfSymptoms];
-  const firstControls = useAnimation();
-  const firstRef = useRef(null);
-  const secondControls = useAnimation();
-  const secondRef = useRef(null);
+
+  const animationDuration = 15;
 
   useEffect(() => {
+    // First row - right to left
     firstControls.start({
       x: "-50%",
       transition: {
-        duration: 40,
         ease: "linear",
+        duration: 40,
         repeat: Infinity,
+        repeatType: "loop",
       },
     });
-  }, [firstControls]);
+
+    // Second row - left to right
+    secondControls.start({
+      x: "0%",
+      transition: {
+        ease: "linear",
+        duration: 40,
+        repeat: Infinity,
+        repeatType: "loop",
+      },
+    });
+  }, [firstControls, secondControls]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -162,6 +175,7 @@ const SymptomCards = () => {
             "linear-gradient(180deg, rgba(93,73,147,1) 0%, rgba(104,82,164,1) 100%)",
           minHeight: "100vh",
           py: { xs: 8, md: 12 },
+          width: "100vw",
         }}
       >
         <Box
@@ -183,7 +197,6 @@ const SymptomCards = () => {
             {en.homepage.symptomCards.title1}
           </Typography>
           <motion.div
-            // variant="h2"
             style={{
               textAlign: "center",
               marginBottom: "20px",
@@ -194,6 +207,7 @@ const SymptomCards = () => {
               fontFamily: "Poppins",
               letterSpacing: "0.5px",
               lineHeight: "1.2",
+              flex: " 0 0 100%",
             }}
             animate={{
               color: ["#fff", "#fff", "#b497d6"],
@@ -214,284 +228,321 @@ const SymptomCards = () => {
         </Box>
         <Box
           sx={{
-            width: "100vw",
+            width: "100%",
+            overflow: "hidden",
           }}
         >
           {/* First row - right to left infinite scroll */}
-          <Box
-            sx={{
-              overflow: "hidden",
-              mb: 1,
-              position: "relative",
+          <motion.div
+            ref={firstRef}
+            initial={{ x: "0%" }}
+            animate={firstControls}
+            style={{
+              display: isMobile ? "none" : "flex",
+              width: "200%",
+              gap: "2rem",
+              overflow: "visible",
             }}
-          >
-            <motion.div
-              ref={firstRef}
-              animate={firstControls}
-              style={{
-                display: "flex",
-                width: "200%",
-                gap: "2rem",
-              }}
-              onMouseEnter={() => firstControls.stop()}
-              onMouseLeave={() =>
+            onMouseEnter={() => {
+              if (!isMobile) {
+                firstControls.stop();
+              }
+            }}
+            onMouseLeave={() => {
+              if (!isMobile) {
                 firstControls.start({
                   x: "-50%",
                   transition: {
-                    duration: 10,
                     ease: "linear",
+                    duration: animationDuration,
                     repeat: Infinity,
-                  },
-                })
-              }
-            >
-              {duplicatedFirstHalf.map((symptom, index) => (
-                <Box
-                  key={`first-${symptom._id}-${index}`}
-                  sx={{
-                    flex: "0 0 calc(16.666% - 1.67rem)",
-                    position: "relative",
-                  }}
-                >
-                  <Grow
-                    in={true}
-                    timeout={((index % 3) + 1) * 300}
-                    style={{ transformOrigin: "center top" }}
-                  >
-                    <Card
-                      sx={{
-                        height: "90%",
-                        background: "#b497d6",
-                        border: "1px solid rgba(32, 173, 160, 0.1)",
-                      }}
-                    >
-                      <CardContent sx={{ p: 2 }}>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            mb: 3,
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              width: 64,
-                              height: 64,
-                              borderRadius: "24px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              background: theme.palette.primary.light,
-                              boxShadow: "0 12px 24px rgba(32, 173, 160, 0.1)",
-                            }}
-                          >
-                            <img
-                              src={
-                                symptom.icon ||
-                                "/assets/images/online-doctor-with-white-coat.png" ||
-                                "/placeholder.svg"
-                              }
-                              alt={symptom.name}
-                              style={{ width: 40, height: 40 }}
-                            />
-                          </Box>
-                          <Box sx={{ ml: 2 }}>
-                            <Typography
-                              variant="h6"
-                              sx={{
-                                color: "#29175e",
-                                fontFamily: "Poppins",
-                                mb: 1,
-                                fontWeight: 550,
-                              }}
-                            >
-                              {symptom.name}
-                            </Typography>
-                          </Box>
-                        </Box>
-
-                        <Typography
-                          sx={{
-                            mb: 3,
-                            color: "#29175e",
-                            fontSize: ".9rem",
-                            fontWeight: 550,
-                            fontFamily: "Poppins",
-                            lineHeight: 1.7,
-                          }}
-                        >
-                          {symptom.description}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grow>
-                  <Button
-                    variant="contained"
-                    className="consultButton"
-                    endIcon={<ArrowCircleRight />}
-                    onClick={() => handleConsult(symptom.name)}
-                    sx={{
-                      position: "relative",
-                      bottom: 60,
-                      marginLeft: "45px",
-                      width: "75%",
-                      background: "#29175e !important",
-                      color: "white",
-                      fontWeight: "bold",
-                      borderRadius: "20px",
-                      boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
-                      transition: "all 0.3s ease",
-                      display: "flex",
-                      alignItems: "center",
-                      "&:hover": {
-                        transform: "translateY(-2px)",
-                        boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)!important",
-                      },
-                    }}
-                  >
-                    Consult Now
-                  </Button>
-                </Box>
-              ))}
-            </motion.div>
-          </Box>
-
-          {/* Second row - left to right infinite scroll */}
-          <Box sx={{ overflow: "hidden", position: "relative" }}>
-            <motion.div
-              ref={secondRef}
-              animate={secondControls}
-              style={{
-                display: "flex",
-                width: "200%", // Ensure the width is enough for the movement
-                gap: "2rem",
-              }}
-              onMouseEnter={() => {
-                // Stop animation when hovered
-                secondControls.stop();
-              }}
-              onMouseLeave={() => {
-                // Start animation again when mouse leaves
-                secondControls.start({
-                  x: "-50%", // Animation moves from 0% to -50%
-                  transition: {
-                    duration: 10,
-                    ease: "linear",
-                    repeat: Infinity,
+                    repeatType: "loop",
                   },
                 });
-              }}
-            >
-              {duplicatedSecondHalf.map((symptom, index) => (
-                <Box
-                  key={`second-${symptom._id}-${index}`}
-                  sx={{
-                    flex: "0 0 calc(16.666% - 1.67rem)",
-                    position: "relative",
-                  }}
+              }
+            }}
+          >
+            {duplicatedFirstHalf.map((symptom, index) => (
+              <Box
+                key={`first-${symptom._id}-${index}`}
+                sx={{
+                  flex: "0 0 calc(16.666% - 1.67rem)",
+                  position: "relative",
+                }}
+              >
+                <Grow
+                  in={true}
+                  timeout={((index % 3) + 1) * 300}
+                  style={{ transformOrigin: "center top" }}
                 >
-                  <Grow
-                    in={true}
-                    timeout={((index % 3) + 4) * 300}
-                    style={{ transformOrigin: "center top" }}
-                  >
-                    <Card
-                      sx={{
-                        height: "90%",
-                        background: "#b497d6",
-                        border: "1px solid rgba(32, 173, 160, 0.1)",
-                      }}
-                    >
-                      <CardContent sx={{ p: 2 }}>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            mb: 3,
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              width: 64,
-                              height: 64,
-                              borderRadius: "24px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              background: theme.palette.primary.light,
-                              boxShadow: "0 12px 24px rgba(32, 173, 160, 0.1)",
-                            }}
-                          >
-                            <img
-                              src={
-                                symptom.icon ||
-                                "/assets/images/online-doctor-with-white-coat.png" ||
-                                "/placeholder.svg"
-                              }
-                              alt={symptom.name}
-                              style={{ width: 40, height: 40 }}
-                            />
-                          </Box>
-                          <Box sx={{ ml: 2 }}>
-                            <Typography
-                              variant="h6"
-                              sx={{
-                                color: "#29175e",
-                                fontFamily: "Poppins",
-                                mb: 1,
-                                fontWeight: 550,
-                              }}
-                            >
-                              {symptom.name}
-                            </Typography>
-                          </Box>
-                        </Box>
-
-                        <Typography
-                          sx={{
-                            mb: 3,
-                            color: "#29175e",
-                            fontSize: ".9rem",
-                            fontWeight: 550,
-                            fontFamily: "Poppins",
-                            lineHeight: 1.7,
-                          }}
-                        >
-                          {symptom.description}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grow>
-                  <Button
-                    variant="contained"
-                    className="consultButton"
-                    endIcon={<ArrowCircleRight />}
-                    onClick={() => handleConsult(symptom.name)}
+                  <Card
                     sx={{
-                      position: "relative",
-                      bottom: 60,
-                      marginLeft: "45px",
-                      width: "75%",
-                      background: "#29175e !important",
-                      color: "white",
-                      fontWeight: "bold",
-                      borderRadius: "20px",
-                      boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
-                      transition: "all 0.3s ease",
-                      display: "flex",
-                      alignItems: "center",
-                      "&:hover": {
-                        transform: "translateY(-2px)",
-                        boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)!important",
-                      },
+                      height: isMobile ? "80%" : "90%",
+                      width: isMobile ? "100%" : "auto",
+                      background: "#b497d6",
+                      border: "1px solid rgba(32, 173, 160, 0.1)",
                     }}
                   >
-                    Consult Now
-                  </Button>
-                </Box>
-              ))}
-            </motion.div>
-          </Box>
+                    <CardContent sx={{ p: 2 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          mb: 3,
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            width: {
+                              xs: 48,
+                              sm: 56,
+                              md: 64,
+                            },
+                            height: {
+                              xs: 48,
+                              sm: 56,
+                              md: 64,
+                            },
+                            borderRadius: "24px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            background: theme.palette.primary.light,
+                            boxShadow: "0 12px 24px rgba(32, 173, 160, 0.1)",
+                          }}
+                        >
+                          <img
+                            src={
+                              symptom.icon ||
+                              "/assets/images/online-doctor-with-white-coat.png" ||
+                              "/placeholder.svg"
+                            }
+                            alt={symptom.name}
+                            style={{ width: 40, height: 40 }}
+                          />
+                        </Box>
+                        <Box sx={{ ml: 2 }}>
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              color: "#29175e",
+                              fontFamily: "Poppins",
+                              mb: 1,
+                              fontWeight: 550,
+                            }}
+                          >
+                            {symptom.name}
+                          </Typography>
+                        </Box>
+                      </Box>
+
+                      <Typography
+                        sx={{
+                          mb: 3,
+                          color: "#29175e",
+                          fontSize: ".9rem",
+                          fontWeight: 550,
+                          fontFamily: "Poppins",
+                          lineHeight: 1.7,
+                        }}
+                      >
+                        {symptom.description}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grow>
+                <Button
+                  variant="contained"
+                  className="consultButton"
+                  endIcon={<ArrowCircleRight />}
+                  onClick={() => handleConsult(symptom.name)}
+                  sx={{
+                    position: "relative",
+                    bottom: 60,
+                    marginLeft: "45px",
+                    width: "75%",
+                    background: "#29175e !important",
+                    color: "white",
+                    fontWeight: "bold",
+                    borderRadius: "20px",
+                    boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
+                    transition: "all 0.3s ease",
+                    display: "flex",
+                    alignItems: "center",
+                    "&:hover": {
+                      transform: "translateY(-2px)",
+                      boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)!important",
+                    },
+                  }}
+                >
+                  Consult Now
+                </Button>
+              </Box>
+            ))}
+          </motion.div>
+
+          {/* Second row - left to right infinite scroll */}
+          <motion.div
+            ref={secondRef}
+            initial={{ x: "-50%" }}
+            animate={secondControls}
+            style={{
+              display: "flex",
+              width: "200%",
+              gap: "2rem",
+              overflow: "visible",
+              marginTop: "2rem",
+            }}
+            onMouseEnter={() => {
+              if (!isMobile) {
+                secondControls.stop();
+              }
+            }}
+            onMouseLeave={() => {
+              if (!isMobile) {
+                secondControls.start({
+                  x: "0%",
+                  transition: {
+                    ease: "linear",
+                    duration: animationDuration,
+                    repeat: Infinity,
+                    repeatType: "loop",
+                  },
+                });
+              }
+            }}
+          >
+            {duplicatedSecondHalf.map((symptom, index) => (
+              <Box
+                key={`second-${symptom._id}-${index}`}
+                sx={{
+                  flex: "0 0 calc(16.666% - 1.67rem)",
+                  position: "relative",
+                }}
+              >
+                <Grow
+                  in={true}
+                  timeout={((index % 3) + 4) * 300}
+                  style={{ transformOrigin: "center top" }}
+                >
+                  <Card
+                    sx={{
+                      height: "90%",
+                      background: "#b497d6",
+                      border: "1px solid rgba(32, 173, 160, 0.1)",
+                    }}
+                  >
+                    <CardContent sx={{ p: 2 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          mb: 3,
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            width: 64,
+                            height: 64,
+                            borderRadius: "24px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            background: theme.palette.primary.light,
+                            boxShadow: "0 12px 24px rgba(32, 173, 160, 0.1)",
+
+                            "@media (max-width: 600px)": {
+                              width: "15vh",
+                              borderRadius: "50%",
+                            },
+                          }}
+                        >
+                          <img
+                            src={
+                              symptom.icon ||
+                              "/assets/images/online-doctor-with-white-coat.png" ||
+                              "/placeholder.svg"
+                            }
+                            alt={symptom.name}
+                            style={{ width: 50, height: 50 }}
+                          />
+                        </Box>
+                        <Box sx={{ ml: 2 }}>
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              color: "#29175e",
+                              fontFamily: "Poppins",
+                              mb: 1,
+                              fontWeight: 550,
+                              "@media (max-width: 600px)": {
+                                fontSize: "1.4rem",
+                              },
+                            }}
+                          >
+                            {symptom.name}
+                          </Typography>
+                        </Box>
+                      </Box>
+
+                      <Typography
+                        sx={{
+                          mb: 3,
+                          color: "#29175e",
+                          fontSize: ".9rem",
+                          fontWeight: 550,
+                          fontFamily: "Poppins",
+                          lineHeight: 1.7,
+                          "@media (max-width: 600px)": {
+                            mb: 8,
+                            fontSize: "1rem",
+                          },
+                        }}
+                      >
+                        {symptom.description}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grow>
+                <Button
+                  variant="contained"
+                  className="consultButton"
+                  endIcon={<ArrowCircleRight />}
+                  onClick={() => handleConsult(symptom.name)}
+                  sx={{
+                    position: "relative",
+                    bottom: 60,
+                    marginLeft: "auto",
+                    marginRight: "auto",
+                    left: 0,
+                    right: 0,
+                    width: "75%",
+                    background: "#29175e !important",
+                    color: "white",
+                    fontWeight: "bold",
+                    borderRadius: "20px",
+                    boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
+                    transition: "all 0.3s ease",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    "&:hover": {
+                      transform: "translateY(-2px)",
+                      boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)!important",
+                    },
+                    "@media (max-width: 600px)": {
+                      width: "80%",
+                      height: "4vh",
+                      bottom: 40,
+                      ml: 3.3,
+                    },
+                  }}
+                >
+                  Consult Now
+                </Button>
+              </Box>
+            ))}
+          </motion.div>
         </Box>
       </Container>
     </ThemeProvider>

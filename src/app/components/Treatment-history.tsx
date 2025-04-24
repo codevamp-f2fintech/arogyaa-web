@@ -249,7 +249,10 @@ const TreatmentHistory: React.FC = () => {
         </Alert>
       )}
 
-      <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 2 }}>
+      <TableContainer
+        component={Paper}
+        sx={{ boxShadow: 3, borderRadius: 2, backgroundColor: "#7b56ce" }}
+      >
         <Table>
           <TableHead
             sx={{
@@ -271,7 +274,7 @@ const TreatmentHistory: React.FC = () => {
                   sx={{
                     fontWeight: 600,
                     textTransform: "uppercase",
-                    color: "text.secondary",
+                    color: "#fff",
                     textAlign: "center",
                     ...(header === "doctor's Name" && { whiteSpace: "nowrap" }),
                   }}
@@ -480,10 +483,10 @@ const TreatmentHistory: React.FC = () => {
                       alignItems: "center",
                       gap: 0.5,
                       borderRadius: "8px",
-                      color: "#B497D6",
+                      color: "#fff",
                     }}
                   >
-                    <LocalHospital sx={{ fontSize: 18, color: "#B497D6" }} />
+                    <LocalHospital sx={{ fontSize: 18, color: "#fff" }} />
                     No Treatment History
                   </Box>
                 </TableCell>

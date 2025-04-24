@@ -54,15 +54,18 @@ const SpecialitySlider: React.FC = () => {
     [router]
   );
 
-  const sliderSettings = useMemo(
-    () => ({
+  const sliderSettings = useMemo(() => {
+    // Detect if we're on a mobile device using window.innerWidth
+    const isMobile = typeof window !== "undefined" && window.innerWidth <= 600;
+
+    return {
       dots: false,
       arrows: true,
       infinite: true,
       speed: 500,
       slidesToShow: 4,
       slidesToScroll: 1,
-      autoplaySpeed: 3000,
+      autoplaySpeed: isMobile ? 3000 : 3000, // Slower on mobile: 5 seconds vs 2.5 seconds
       lazyLoad: "progressive",
       pauseOnHover: true,
       autoplay: true,
@@ -73,6 +76,7 @@ const SpecialitySlider: React.FC = () => {
           settings: {
             slidesToShow: 3,
             slidesToScroll: 1,
+            autoplaySpeed: 3000, // 3 seconds for tablets
           },
         },
         {
@@ -80,6 +84,7 @@ const SpecialitySlider: React.FC = () => {
           settings: {
             slidesToShow: 2,
             slidesToScroll: 1,
+            autoplaySpeed: 4000, // 4 seconds for small tablets
           },
         },
         {
@@ -88,12 +93,12 @@ const SpecialitySlider: React.FC = () => {
             slidesToShow: 1,
             slidesToScroll: 1,
             dots: false,
+            autoplaySpeed: 5000, // 5 seconds for mobile phones
           },
         },
       ],
-    }),
-    []
-  );
+    };
+  }, []);
   const theme = useTheme();
   console.log("color", theme.palette.secondary.main);
 
@@ -105,8 +110,8 @@ const SpecialitySlider: React.FC = () => {
         background: "rgb(104,82,164)",
         background:
           "linear-gradient(180deg, rgba(104,82,164,1) 0%, rgba(126,107,177,1) 100%)!important",
-
         maxWidth: "1400px",
+        width: "100vw",
         px: { xs: 2, sm: 4, md: 6 },
         py: { xs: 4, sm: 6, md: 8 },
       }}
@@ -116,24 +121,29 @@ const SpecialitySlider: React.FC = () => {
         sx={{
           textAlign: "center",
           mb: { xs: 4, md: 6 },
-          fontSize: { xs: "2rem", sm: "2.5rem", md: "2.5rem" },
+          fontSize: { xs: "1.7rem", sm: "2.5rem", md: "2.5rem" },
           fontWeight: 600,
           fontFamily: "Poppins",
           color: "black",
           letterSpacing: "-0.10px",
           lineHeight: 1.2,
+          width: {
+            xs: "90vw",
+          },
+          marginLeft: { xs: "0px", md: "inherit" },
         }}
       >
         {en.homepage.specialitySlider.title} {/* This is shown first */}
         <motion.span
-          style={{
+          sx={{
             mb: { xs: 4, md: 6 },
-            fontSize: "2.5rem",
+            fontSize: { xs: "1.8rem", sm: "2.5rem", md: "2.5rem" },
             fontWeight: 600,
             fontFamily: "Poppins",
             color: "black",
             letterSpacing: "-0.10px",
             lineHeight: 1.2,
+            border: "1px solid yellow",
           }}
           animate={{
             color: ["#fff", "#fff", "#b497d6"],
@@ -195,6 +205,9 @@ const SpecialitySlider: React.FC = () => {
                   sx={{
                     height: "100%",
                     p: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
                   <Paper
@@ -202,12 +215,14 @@ const SpecialitySlider: React.FC = () => {
                     sx={{
                       height: { md: "100%" },
                       width: {
-                        xs: "30vw",
+                        xs: "85vw",
                         md: "inherit",
                       },
+                      ml: 0.6,
                       borderRadius: 2,
                       overflow: "hidden",
                       transition: "all 0.3s ease",
+
                       "&:hover": {
                         transform: "translateY(-8px)",
                         boxShadow: (theme) => theme.shadows[8],

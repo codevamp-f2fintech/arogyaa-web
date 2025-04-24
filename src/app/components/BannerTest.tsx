@@ -387,12 +387,13 @@ const BannerComponentTest: React.FC = () => {
                         {" "}
                       </Link>
                       <ListItemText
-                        primary={`${doctor.username || "Unknown"} - ${doctor.specializationIds
-                          ?.map((spec: any) =>
-                            capitalizeFirstLetter(spec.name)
-                          )
-                          .join(", ") || "Specialty not available"
-                          }`}
+                        primary={`${doctor.username || "Unknown"} - ${
+                          doctor.specializationIds
+                            ?.map((spec: any) =>
+                              capitalizeFirstLetter(spec.name)
+                            )
+                            .join(", ") || "Specialty not available"
+                        }`}
                         sx={{
                           fontSize: "0.9rem",
                           // color: "#333",
@@ -546,6 +547,12 @@ const BannerComponentTest: React.FC = () => {
           height: { xs: "300px", sm: "400px", md: "400px" }, // Height adjusted for mobile and tablet
           width: "100%", // Full width for all devices
           overflow: "hidden",
+          display: {
+            xs: "none",
+            sm: "flex",
+            md: "flex",
+            lg: "flex",
+          },
           borderRadius: "20px",
           margin: { xs: "0 10px", sm: "0 15px", md: "0 20px" }, // Adjust margins for mobile and tablet
         }}

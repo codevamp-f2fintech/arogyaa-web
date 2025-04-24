@@ -192,15 +192,11 @@ const BillingHistory: React.FC = () => {
         sx={{
           boxShadow: 4,
           borderRadius: 2,
+          backgroundColor: "#7b56ce",
         }}
       >
-        <Table>
-          <TableHead
-            sx={{
-              backgroundColor: (theme) =>
-                alpha(theme.palette.primary.main, 0.05),
-            }}
-          >
+        <Table sx={{}}>
+          <TableHead sx={{}}>
             <TableRow sx={{ textAlign: "center" }}>
               {[
                 "Doctor's Name",
@@ -214,7 +210,7 @@ const BillingHistory: React.FC = () => {
                   sx={{
                     fontWeight: 600,
                     textTransform: "uppercase",
-                    color: "text.secondary",
+                    color: "#fff",
                     textAlign: "center",
                   }}
                 >
@@ -287,13 +283,11 @@ const BillingHistory: React.FC = () => {
                       justifyContent: "center",
                       alignItems: "center",
                       gap: 0.5,
-
                       borderRadius: "8px",
-
-                      color: "#B497D6",
+                      color: "#fff",
                     }}
                   >
-                    <ReceiptLong sx={{ fontSize: 18, color: "#B497D6" }} />
+                    <ReceiptLong sx={{ fontSize: 18, color: "#fff" }} />
                     No Billing History
                   </Box>
                 </TableCell>
