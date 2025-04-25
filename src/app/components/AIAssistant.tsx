@@ -11,6 +11,9 @@ import {
   Slide,
   Fade,
   keyframes,
+  List,
+  ListItem,
+  ListItemText,
 } from "@mui/material";
 import {
   Close,
@@ -222,13 +225,38 @@ const AIAssistant = () => {
                         message.sender === "user"
                           ? "#344e41"
                           : darkMode
-                          ? "grey.800"
-                          : "#29175e",
+                            ? "grey.800"
+                            : "#29175e",
                       color: message.sender === "user" ? "#fff" : "ffd700",
                       position: "relative",
                     }}
                   >
-                    <Typography variant="body1">{message.content}</Typography>
+                    <Typography variant="body1">
+                      {message.content.startsWith("I found the following doctors") ? (
+                        <>
+                          <Typography
+                            variant="subtitle1"
+                            component="div"
+                            sx={{ fontWeight: 'bold', mb: 1 }}
+                          >
+                            I found the following doctors for you:
+                          </Typography>
+
+                          <List>
+                            {message.content
+                              .split(": ")[1] // Get the part after the colon
+                              .split(/,\s+/) // Split by comma+space
+                              .map((doctor, index) => (
+                                <ListItem key={index} sx={{ py: 0.5 }}>
+                                  <ListItemText primary={doctor.trim()} />
+                                </ListItem>
+                              ))}
+                          </List>
+                        </>
+                      ) : (
+                        message.content
+                      )}
+                    </Typography>
                     <Typography
                       variant="caption"
                       sx={{
