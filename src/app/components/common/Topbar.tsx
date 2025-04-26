@@ -115,7 +115,6 @@ const Topbar = () => {
 
   const handleScroll = () => {
     if (window.scrollY < 100) {
-      console.log("chnage color");
       setAppBarBg("#56428b");
     } else {
       setAppBarBg("transparent");
@@ -146,30 +145,19 @@ const Topbar = () => {
       }}
     >
       <Toolbar disableGutters>
-        <AdbIcon
-          sx={{
-            display: { xs: "none", md: "flex", color: "#fff" },
-            mr: 0.1,
-            mb: 0.6,
-          }}
-        />
-        <Typography
-          variant="h6"
-          noWrap
-          component="a"
-          href="/"
-          sx={{
-            mr: 2,
-            display: { xs: "none", md: "flex" },
-            fontFamily: "Poppins",
-            fontWeight: 700,
-            letterSpacing: ".3rem",
-            color: "#fff",
-            textDecoration: "none",
-          }}
-        >
-          {en.topbar.title}
-        </Typography>
+        <a href="/">
+          <img
+            src="/logomain.png" // Replace this with your image URL
+            alt="Logo"
+            style={{
+              display: "flex",
+              width: "auto",
+              height: "auto",
+              maxWidth: "30%",
+              marginRight: "8px", // Adjust the spacing as needed
+            }}
+          />
+        </a>
 
         {/* <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
           <IconButton

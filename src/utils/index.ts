@@ -75,7 +75,8 @@ export const Utility = () => {
   const getServiceUrl = (serviceName: string): string => {
     const urls: Record<string, string> = {
       appointment: process.env.NEXT_PUBLIC_APPOINTMENT_URL as string,
-      treatment:process.env.NEXT_PUBLIC_TREATMENT_URL as string,
+      chat: process.env.NEXT_PUBLIC_CHAT_URL as string,
+      treatment: process.env.NEXT_PUBLIC_TREATMENT_URL as string,
       speciality: process.env.NEXT_PUBLIC_SPECIALITY_URL as string,
       symptom: process.env.NEXT_PUBLIC_SYMPTOM_URL as string,
       qualification: process.env.NEXT_PUBLIC_QUALIFICATION_URL as string,
@@ -176,7 +177,7 @@ export const Utility = () => {
   const remLocalStorage = (key: string): void => {
     try {
       localStorage.removeItem(key);
-    } catch (err) {}
+    } catch (err) { }
   };
 
   /**
@@ -188,7 +189,7 @@ export const Utility = () => {
   const setLocalStorage = (key: string, value: any): void => {
     try {
       localStorage.setItem(key, JSON.stringify(value));
-    } catch (err) {}
+    } catch (err) { }
   };
 
   /**

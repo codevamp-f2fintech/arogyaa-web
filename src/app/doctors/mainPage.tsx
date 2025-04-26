@@ -299,21 +299,15 @@ export default function DoctorListing() {
                 position: "relative",
               }}
             >
-              <IconButton
-                aria-label="search"
-                className={styles.searchBarButton}
-                sx={{
-                  backgroundColor: "#2ecc71",
-                  color: "#29175e",
-                  borderRadius: "90%",
-                  padding: "0.4rem",
-                  "&:hover": {
-                    backgroundColor: "#1A8575",
-                  },
-                }}
-              >
-                <SearchIcon fontSize="small" />
-              </IconButton>
+              {!keyword && (
+                <IconButton
+                  aria-label="search"
+                  className={styles.searchBarButton}
+                  sx={{ color: "#29175e" }}
+                >
+                  <SearchIcon fontSize="small" />
+                </IconButton>
+              )}
               <InputBase
                 value={keyword}
                 onChange={handleChange}
@@ -330,12 +324,7 @@ export default function DoctorListing() {
                 <IconButton
                   aria-label="clear"
                   onClick={handleClearSearch}
-                  sx={{
-                    backgroundColor: "transparent",
-                    color: "#2ecc71",
-                    borderRadius: "50%",
-                    padding: "0.4rem",
-                  }}
+                  sx={{ color: "#29175e" }}
                 >
                   <CloseIcon fontSize="small" />
                 </IconButton>
@@ -549,125 +538,45 @@ export default function DoctorListing() {
                       alignItems: "center",
                       padding: "20px",
                       backgroundColor: "#5d4993",
-                      borderRadius: "10px",
                     }}
                   >
                     {/* Doctor Image */}
-                    <Box
+                    {/* <Box
                       sx={{
                         position: "relative",
                         display: "inline-block",
+                        border: "2px solid white"
                       }}
-                    >
-                      {/* Doctor Profile Picture */}
-                      <Box
-                        component="img"
-                        alt="Doctor"
-                        src={
-                          doctor.profilePicture ||
-                          "/assets/images/online-doctor-with-white-coat.png"
-                        }
-                        sx={{
-                          width: { xs: "60px", sm: "80px", md: "100px" },
-                          height: { xs: "60px", sm: "80px", md: "100px" },
-                          borderRadius: "50%",
-                          objectFit: "cover",
-                          border: "3px solid #29175e",
-                          boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-                          transition: "transform 0.3s ease",
-                          "&:hover": {
-                            transform: "scale(1.05)",
-                          },
-                        }}
-                      />
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "center",
-                          gap: "4px",
-                          marginTop: "6px",
-                        }}
-                      >
-                        {Cookies.get("token") && (
-                          <>
-                            <Button
-                              variant="contained"
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                gap: "4px",
-                                background:
-                                  "linear-gradient(135deg, #B3E5FC, #81D4FA)",
-                                color: "#0277BD",
-                                padding: "4px 8px",
-                                minWidth: "40px",
-                                borderRadius: "15px",
-                                fontWeight: "500",
-                                textTransform: "none",
-                                boxShadow: "0px 3px 8px rgba(0, 0, 0, 0.1)",
-                                transition: "all 0.3s ease",
-                                "&:hover": {
-                                  background:
-                                    "linear-gradient(135deg, #81D4FA, #4FC3F7)",
-                                  transform: "scale(1.04)",
-                                },
-                              }}
-                              onClick={() =>
-                                setVisibleContactId((prev) =>
-                                  prev === doctor._id ? null : doctor._id
-                                )
-                              }
-                            >
-                              {visibleContactId === doctor._id ? (
-                                <Typography
-                                  sx={{
-                                    fontSize: "12px",
-                                    fontWeight: "bold",
-                                    color: "#0277BD",
-                                  }}
-                                >
-                                  {doctor.contact}
-                                </Typography>
-                              ) : (
-                                <PhoneIcon sx={{ fontSize: "18px" }} />
-                              )}
-                            </Button>
-
-                            {doctor.contact && (
-                              <Button
-                                variant="contained"
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  backgroundColor: "#25D366",
-                                  color: "#fff",
-                                  padding: "4px 8px",
-                                  minWidth: "40px",
-                                  borderRadius: "15px",
-                                  fontWeight: "500",
-                                  textTransform: "none",
-                                  boxShadow: "0px 3px 8px rgba(0, 0, 0, 0.1)",
-                                  transition: "all 0.3s ease",
-                                }}
-                                onClick={() =>
-                                  window.open(
-                                    `https://wa.me/${doctor.contact}`,
-                                    "_blank"
-                                  )
-                                }
-                              >
-                                <WhatsAppIcon sx={{ fontSize: "18px" }} />
-                              </Button>
-                            )}
-                          </>
-                        )}
-                      </Box>
-                    </Box>
+                    > */}
+                    {/* Doctor Profile Picture */}
+                    <Box
+                      component="img"
+                      alt="Doctor"
+                      src={
+                        doctor.profilePicture ||
+                        "/assets/images/online-doctor-with-white-coat.png"
+                      }
+                      sx={{
+                        width: { xs: "60px", sm: "80px", md: "100px" },
+                        height: { xs: "60px", sm: "80px", md: "100px" },
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                        border: "3px solid #29175e",
+                        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                        transition: "transform 0.3s ease",
+                        "&:hover": {
+                          transform: "scale(1.05)",
+                        },
+                      }}
+                    />
 
                     {/* Doctor Info */}
-                    <Box sx={{ marginLeft: "15px", flex: 1 }}>
+                    <Box
+                      sx={{
+                        marginLeft: "15px",
+                        flex: 1,
+                      }}
+                    >
                       <Typography
                         variant="h6"
                         sx={{
@@ -694,10 +603,10 @@ export default function DoctorListing() {
                               sx={{
                                 fontSize: "14px",
                                 fontWeight: "500",
-                                color: "#2ecc71", // Green color for verification text
+                                color: "#2ecc71",
                               }}
                             >
-                              Verified by Arogyaa
+                              Verified
                             </Typography>
                           </>
                         )}
@@ -825,37 +734,132 @@ export default function DoctorListing() {
                         >
                           {doctor.availability?.length > 0
                             ? doctor.availability.map((slot, index) => (
-                                <Typography
-                                  key={index}
-                                  variant="body2"
-                                  sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    whiteSpace: "nowrap",
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
-                                    mb: 0.5, // Adds spacing between items
+                              <Typography
+                                key={index}
+                                variant="body2"
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  whiteSpace: "nowrap",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  mb: 0.5, // Adds spacing between items
+                                }}
+                              >
+                                <LocalHospitalIcon
+                                  fontSize="small"
+                                  color="primary"
+                                  sx={{ marginRight: "4px", flexShrink: 0 }}
+                                />
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    whiteSpace: "normal",
                                   }}
                                 >
-                                  <LocalHospitalIcon
-                                    fontSize="small"
-                                    color="primary"
-                                    sx={{ marginRight: "4px", flexShrink: 0 }}
-                                  />
-                                  <span
-                                    style={{
-                                      display: "inline-block",
-                                      whiteSpace: "normal",
-                                    }}
-                                  >
-                                    {slot.hospital?.name || "Unknown Hospital"},{" "}
-                                    {slot.hospital?.location ||
-                                      "Unknown Location"}
-                                  </span>
-                                </Typography>
-                              ))
+                                  {slot.hospital?.name || "Unknown Hospital"},{" "}
+                                  {slot.hospital?.location ||
+                                    "Unknown Location"}
+                                </span>
+                              </Typography>
+                            ))
                             : "Availability not available"}
                         </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          // border:"2px solid white",
+                          display: "flex",
+                          justifyContent: "start",
+                          gap: "4px",
+                          marginTop: "6px",
+                          mr: "20vw",
+                          // maxWidth: "10vw"
+                          height: "7vh",
+                          width: "25vh",
+                          flexDirection: "row",
+                          marginLeft: "1vw",
+                        }}
+                      >
+                        {Cookies.get("token") && (
+                          <>
+                            {doctor.contact && (
+                              <Button
+                                variant="contained"
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  backgroundColor: "#25D366",
+                                  color: "#fff",
+                                  minWidth: "2vw",
+                                  padding: "1vw",
+                                  maxWidth: "7vw",
+                                  borderRadius: "15px",
+                                  fontWeight: "500",
+                                  textTransform: "none",
+                                  boxShadow: "0px 3px 8px rgba(0, 0, 0, 0.1)",
+                                  transition: "all 0.3s ease",
+                                  height: "6vh",
+                                  // mr:4
+                                }}
+                                onClick={() =>
+                                  window.open(
+                                    `https://wa.me/${doctor.contact}`,
+                                    "_blank"
+                                  )
+                                }
+                              >
+                                <WhatsAppIcon sx={{ fontSize: "18px" }} />
+                              </Button>
+                            )}
+                            <Button
+                              variant="contained"
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: "4px",
+                                background:
+                                  "linear-gradient(135deg, #B3E5FC, #81D4FA)",
+                                color: "#0277BD",
+                                padding: "1vw",
+                                maxWidth: "7vw",
+                                minWidth: "2vw",
+                                borderRadius: "15px",
+                                fontWeight: "500",
+                                textTransform: "none",
+                                boxShadow: "0px 3px 8px rgba(0, 0, 0, 0.1)",
+                                transition: "all 0.3s ease",
+                                height: "6vh",
+                                "&:hover": {
+                                  background:
+                                    "linear-gradient(135deg, #81D4FA, #4FC3F7)",
+                                  transform: "scale(1.04)",
+                                },
+                              }}
+                              onClick={() =>
+                                setVisibleContactId((prev) =>
+                                  prev === doctor._id ? null : doctor._id
+                                )
+                              }
+                            >
+                              {visibleContactId === doctor._id ? (
+                                <Typography
+                                  sx={{
+                                    fontSize: "12px",
+                                    fontWeight: "bold",
+                                    color: "#0277BD",
+                                  }}
+                                >
+                                  {doctor.contact}
+                                </Typography>
+                              ) : (
+                                <PhoneIcon sx={{ fontSize: "18px" }} />
+                              )}
+                            </Button>
+                          </>
+                        )}
                       </Box>
                     </Box>
                   </Box>
@@ -869,8 +873,6 @@ export default function DoctorListing() {
                       alignItems: "center",
                       padding: "7px 20px",
                       backgroundColor: "#5d4993",
-                      borderTop: "1px solid #f0f0f0",
-                      borderRadius: "10px",
                       // borderBottom: "1px solid #f0f0f0",
                     }}
                   >
@@ -919,20 +921,54 @@ export default function DoctorListing() {
                     <Button
                       variant="outlined"
                       fullWidth
-                      startIcon={<Person sx={{ fontSize: "20px" }} />}
+                      startIcon={
+                        <Person
+                          sx={{
+                            fontSize: "20px",
+                            transition: "transform 0.5s ease",
+                          }}
+                        />
+                      }
                       sx={{
-                        borderRadius: "10px",
+                        borderRadius: "0",
                         textTransform: "none",
                         backgroundColor: "#29175e",
                         color: "white",
+                        border: "none",
                         fontWeight: "600",
-                        borderRight: "1px solid #f0f0f0",
-                        border: "1px solid white", // Added border for white outline
-                        transition: "all 0.2s ease-in-out",
+                        position: "relative",
+                        overflow: "hidden",
+                        zIndex: 1,
+                        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        transition: "all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1)",
+                        "&::before": {
+                          content: '""',
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          width: "100%",
+                          height: "100%",
+                          background:
+                            "linear-gradient(45deg, #af9fdb, #d4c5f5)",
+                          zIndex: -1,
+                          transform: "translateY(100%)",
+                          transition: "transform 0.6s ease-in-out",
+                        },
                         "&:hover": {
-                          border: "1px solid white",
-                          backgroundColor: "#af9fdb",
                           color: "#29175e",
+                          border: "none",
+                          boxShadow: "0 6px 12px rgba(0, 0, 0, 0.15)",
+                          transform: "translateY(-2px)",
+                          "&::before": {
+                            transform: "translateY(0)",
+                          },
+                          "& .MuiButton-startIcon": {
+                            transform: "scale(1.2)", // Icon zoom
+                          },
+                        },
+                        "&:active": {
+                          transform: "translateY(0) scale(0.98)",
+                          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
                         },
                       }}
                       onClick={() => {
@@ -941,30 +977,91 @@ export default function DoctorListing() {
                         );
                       }}
                     >
-                      View Full Profile
+                      <Box
+                        component="span"
+                        sx={{
+                          display: "inline-block",
+                          transition: "transform 0.5s ease",
+                          "&:hover": {
+                            transform: "scale(1.05)", // Text zoom
+                          },
+                        }}
+                      >
+                        View Full Profile
+                      </Box>
                     </Button>
 
                     <Button
                       variant="contained"
                       fullWidth
-                      startIcon={<EventIcon sx={{ fontSize: "20px" }} />}
+                      startIcon={
+                        <EventIcon
+                          sx={{
+                            fontSize: "20px",
+                            transition: "transform 0.5s ease",
+                          }}
+                        />
+                      }
                       sx={{
-                        borderRadius: "10px",
+                        borderRadius: "0",
                         textTransform: "none",
                         background: "#29175e",
                         color: "#fff",
                         fontWeight: "600",
-                        border: "1px solid white", // Added border for white outline
-                        transition: "all 0.3s ease-in-out",
+                        position: "relative",
+                        overflow: "hidden",
+                        zIndex: 1,
+                        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        transition: "all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1)",
+                        "&::before": {
+                          content: '""',
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          width: "100%",
+                          height: "100%",
+                          background:
+                            "linear-gradient(45deg, #af9fdb, #d4c5f5)",
+                          zIndex: -1,
+                          transform: "translateY(100%)",
+                          transition: "transform 0.6s ease-in-out",
+                        },
                         "&:hover": {
-                          background: "#af9fdb",
-                          border: "1px solid white",
                           color: "#29175e",
+                          border: "none",
+                          boxShadow: "0 6px 12px rgba(0, 0, 0, 0.15)",
+                          transform: "translateY(-2px)",
+                          backgroundColor: "#29175e",
+                          "&::before": {
+                            transform: "translateY(0)",
+                          },
+
+                          "&::before": {
+                            transform: "translateY(0)",
+                          },
+                          "& .MuiButton-startIcon": {
+                            transform: "scale(1.2)",
+                          },
+                        },
+                        "&:active": {
+                          transform: "translateY(0) scale(0.98)",
+                          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
                         },
                       }}
                       onClick={() => openModal(doctor)}
                     >
-                      Book Appointment
+                      <Box
+                        component="span"
+                        sx={{
+                          display: "inline-block",
+                          transition: "transform 0.5s ease",
+                          "&:hover": {
+                            transform: "scale(1.05)",
+                          },
+                        }}
+                      >
+                        Book Appointment
+                      </Box>
                     </Button>
                   </Box>
                 </Box>

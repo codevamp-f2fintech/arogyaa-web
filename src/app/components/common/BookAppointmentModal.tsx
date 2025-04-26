@@ -439,22 +439,41 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
           >
             <Box
               sx={{
+                width: "100%", // Make it full width
                 display: "flex",
+                flexDirection: {
+                  xs: "column", // Stack items vertically on mobile
+                  sm: "row", // Side-by-side on tablets and up
+                },
                 justifyContent: "space-between",
-                alignItems: "center",
+                alignItems: {
+                  xs: "flex-start", // Align items to start on mobile
+                  sm: "center", // Center align on larger screens
+                },
                 marginBottom: "2px",
                 padding: "1px",
                 borderRadius: "8px",
+                gap: "8px", // spacing between stacked items on small screens
               }}
             >
               {/* Left: Book with Doctor */}
               <Typography
                 sx={{
-                  fontSize: "1.35rem",
+                  fontSize: {
+                    xs: "1rem",
+                    sm: "1.15rem",
+                    md: "1.35rem",
+                  },
                   fontWeight: 600,
                   color: "#29175e",
-                  textAlign: "left",
-                  whiteSpace: "nowrap",
+                  textAlign: {
+                    xs: "center",
+                    sm: "left",
+                  },
+                  whiteSpace: {
+                    xs: "normal",
+                    sm: "nowrap",
+                  },
                   fontFamily: "Poppins",
                 }}
               >
@@ -471,6 +490,15 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                   border: "1px solid #ccc",
                   padding: "5px 10px",
                   borderRadius: "8px",
+                  width: "100%", // make it responsive
+                  maxWidth: {
+                    xs: "100%", // full width on mobile
+                    sm: "26vw", // shrink to content on larger screens
+                  },
+                  justifyContent: {
+                    xs: "center",
+                    sm: "flex-end",
+                  },
                 }}
               >
                 <EventAvailableIcon

@@ -78,13 +78,15 @@ const ExpertSpecialistSlider: React.FC = () => {
 
   const fetchTestimonials = useCallback(async () => {
     try {
-      const response = await fetcher("testimonial", "get-testimonials");
+
       
   
       if (response && response.results) {
         const allTestimonials: Testimonial[] = response.results || [];
         const groupedRatings: Record<string, number[]> = {};
-  
+      if (response && response.results) {
+        const allTestimonials: Testimonial[] = response.results || [];
+        const groupedRatings: Record<string, number[]> = {};
         allTestimonials.forEach((review) => {
           const doctor = review.doctorId;
           if (doctor && doctor._id) {
@@ -95,7 +97,7 @@ const ExpertSpecialistSlider: React.FC = () => {
             groupedRatings[doctorId].push(review.rating);
           }
         });
-  
+
         const finalRatings: Record<string, { avg: number; count: number }> = {};
         Object.entries(groupedRatings).forEach(([doctorId, ratings]) => {
           const avg = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
@@ -104,14 +106,20 @@ const ExpertSpecialistSlider: React.FC = () => {
             count: ratings.length,
           };
         });
+
   
         setRatingsMap(finalRatings);
       } 
+
+        setRatingsMap(finalRatings);
+      }
+
     } catch (error) {
+      console.error("Error fetching testimonials:", error);
       console.error("Error fetching testimonials:", error);
     }
   }, []);
-  ;
+
 
   useEffect(() => {
     fetchTestimonials();
@@ -122,7 +130,7 @@ const ExpertSpecialistSlider: React.FC = () => {
   const sliderSettings = useMemo(
     () => ({
       dots: false,
-      arrows: false,
+      arrows: true,
       infinite: true,
       speed: 500,
       slidesToShow: 4,
@@ -226,13 +234,13 @@ const ExpertSpecialistSlider: React.FC = () => {
       ) : (
         <>
           <Slider {...sliderSettings} className={styles.slider}>
-            {doctor?.results?.map((doctor) => (
+            {doctor?.results?.map((doctor, index) => (
               <div key={doctor._id}>
                 <Paper
                   elevation={3}
                   sx={{
                     m: 1,
-                    height: { md: "490px", xs: "520px" },
+                    height: { md: "85vh", xs: "85vh" },
                     borderRadius: "16px",
                     overflow: "hidden",
                     position: "relative",
@@ -256,9 +264,11 @@ const ExpertSpecialistSlider: React.FC = () => {
                 >
                   <Box
                     sx={{
-                      height: "100px",
+                      top: "1%",
+                      right: "10%",
                       backgroundColor: "#b497d6",
-                      position: "relative",
+                      position: "absolute",
+                      zIndex: 2,
                       "&::after": {
                         content: '""',
                         position: "absolute",
@@ -297,16 +307,16 @@ const ExpertSpecialistSlider: React.FC = () => {
                       <VerifiedIcon
                         sx={{
                           color: "#fff",
-                          fontSize: "20px",
+                          fontSize: "15px",
                         }}
                       />
                       {/* Text */}
                       <Typography
                         sx={{
                           fontFamily: "Poppins",
-                          fontWeight: "600",
+                          fontWeight: "500",
                           color: "#fff",
-                          fontSize: "1rem",
+                          fontSize: "0.7rem",
                         }}
                       >
                         Verified
@@ -317,7 +327,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                       className="default-icon"
                       sx={{
                         color: "#fff",
-                        fontSize: "25px",
+                        fontSize: "15px",
                         position: "absolute",
                         top: "4px",
                         right: "5px",
@@ -329,14 +339,9 @@ const ExpertSpecialistSlider: React.FC = () => {
 
                   <Box
                     sx={{
-                      position: "absolute",
-                      top: "50px",
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                      width: "100px",
-                      height: "100px",
-                      borderRadius: "50%",
-                      overflow: "hidden",
+                      position: "relative",
+                      width: "100%",
+                      height: "40vh",
                       boxShadow: "0 4px 12px rgba(32, 173, 160, 0.2)",
                     }}
                   >
@@ -350,7 +355,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                       alt={doctor.username}
                       sx={{
                         width: "100%",
-                        height: "100%",
+                        height: "90%",
                         objectFit: "cover",
                         cursor: "pointer",
                         transition: "transform 0.3s ease",
@@ -361,31 +366,46 @@ const ExpertSpecialistSlider: React.FC = () => {
                         )
                       }
                     />
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: "76%",
+                        width: "100%",
+                        display: "flex",
+                        padding: "5px",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: "10vh",
+                        backgroundColor: "#29175e",
+                        borderRadius: "5%",
+                      }}
+                    >
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          textAlign: "center",
+                          margin: "0 auto",
+                          zIndex: 2,
+                          color: "#ffffff",
+                          fontSize: "1rem",
+                          fontWeight: "600",
+                          cursor: "pointer",
+                          transition: "color 0.2s ease",
+                          "&:hover": { color: "#b497d6" },
+                        }}
+                        onClick={() =>
+                          router.push(
+                            `/doctors/profile/${encodeURIComponent(doctor._id)}`
+                          )
+                        }
+                      >
+                        {doctor.username}
+                      </Typography>
+                    </Box>
                   </Box>
 
                   {/* Enhanced Content */}
-                  <Box sx={{ mt: 6, p: 2, textAlign: "center" }}>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        color: "#ffffff",
-                        fontSize: "auto",
-                        fontWeight: "600",
-                        mb: 1,
-                        minHeight: "12vh",
-                        cursor: "pointer",
-                        transition: "color 0.2s ease",
-                        "&:hover": { color: "#29175e" },
-                      }}
-                      onClick={() =>
-                        router.push(
-                          `/doctors/profile/${encodeURIComponent(doctor._id)}`
-                        )
-                      }
-                    >
-                      {doctor.username}
-                    </Typography>
-
+                  <Box sx={{ marginTop: "2vh", p: 2, textAlign: "center" }}>
                     {/* Enhanced Chips */}
                     <Box
                       sx={{
@@ -410,7 +430,10 @@ const ExpertSpecialistSlider: React.FC = () => {
                               key={index}
                               icon={
                                 <SchoolIcon
-                                  sx={{ color: "#29175e !important" }}
+                                  sx={{
+                                    color: "#29175e !important",
+                                    fontSize: "0.7rem",
+                                  }}
                                 />
                               }
                               label={qualification.name}
@@ -419,7 +442,8 @@ const ExpertSpecialistSlider: React.FC = () => {
                               sx={{
                                 borderColor: "#29175e",
                                 color: "#29175e",
-                                fontWeight: 550,
+                                fontWeight: 500,
+                                fontSize: "0.8rem",
                                 fontFamily: "Poppins",
                                 "&:hover": {
                                   backgroundColor: "rgba(32, 173, 160, 0.05)",
@@ -449,7 +473,8 @@ const ExpertSpecialistSlider: React.FC = () => {
                           sx={{
                             borderColor: "#29175e",
                             color: "#29175e",
-                            fontWeight: 550,
+                            fontWeight: 500,
+                            fontSize: "0.8rem",
                             fontFamily: "Poppins",
                             "&:hover": {
                               backgroundColor: "rgba(32, 173, 160, 0.05)",
@@ -464,9 +489,9 @@ const ExpertSpecialistSlider: React.FC = () => {
                               sx: {
                                 backgroundColor: "#29175e",
                                 color: "#fff",
-                                fontSize: "1rem",
                                 fontFamily: "Poppins",
                                 fontWeight: 500,
+                                fontSize: "0.8rem",
                                 padding: "6px 16px",
                                 borderRadius: "8px",
                                 boxShadow: "0px 4px 8px rgba(0,0,0,0.1)",
@@ -490,7 +515,8 @@ const ExpertSpecialistSlider: React.FC = () => {
                               borderColor: "#29175e",
                               color: "#29175e",
                               width: "10vw",
-                              fontWeight: 550,
+                              fontSize: "0.8rem",
+                              fontWeight: 500,
                               fontFamily: "Poppins",
                               "&:hover": {
                                 backgroundColor: "#b497d6",
@@ -547,7 +573,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                       variant="body2"
                       sx={{
                         color: "#fff",
-                        height: "auto",
+                        // height: "8vh",
                         overflow: "hidden",
                         display: "-webkit-box",
                         WebkitLineClamp: 2,

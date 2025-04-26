@@ -184,7 +184,7 @@ const Footer = () => {
       support: {
         title: "Support",
         items: [
-          { label: "Appointments", route: "/doctors",},
+          { label: "Appointments", route: "/doctors" },
           { label: "Emergency Care", route: "#" },
         ],
       },
@@ -277,7 +277,6 @@ const Footer = () => {
         background:
           "linear-gradient(180deg, rgba(188,174,224,1) 0%, rgba(255,255,255,1) 100%)",
         color: THEME.colors.text.dark,
-        borderTop: "1px solid #fff",
         pt: 8,
         pb: 4,
         width: "100%",
