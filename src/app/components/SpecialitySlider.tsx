@@ -24,7 +24,7 @@ const SpecialitySlider: React.FC = () => {
   const { speciality } = useSelector((state: RootState) => state.specialities);
   const [pageSize, setPageSize] = useState({
     page: 1,
-    size: 6,
+    size: 200,
   });
 
   const { value: data, swrLoading } = useGetSpeciality(

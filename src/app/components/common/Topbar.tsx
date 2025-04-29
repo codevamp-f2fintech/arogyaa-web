@@ -145,19 +145,20 @@ const Topbar = () => {
       }}
     >
       <Toolbar disableGutters>
-        <a href="/">
-          <img
-            src="/logomain.png" // Replace this with your image URL
+        <Link href="/">
+          <Box
+            component="img"
+            src="/logomain.png"
             alt="Logo"
-            style={{
+            sx={{
               display: "flex",
               width: "auto",
-              height: "auto",
-              maxWidth: "30%",
-              marginRight: "8px", // Adjust the spacing as needed
+              height: { xs: 45, sm: 60, md: 65 },
+              maxWidth: "auto",
+              mr: 1,
             }}
           />
-        </a>
+        </Link>
 
         {/* <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
           <IconButton
@@ -252,7 +253,24 @@ const Topbar = () => {
                   display: "flex",
                   alignItems: "center",
                   textTransform: "capitalize",
-                  padding: "5px 16px",
+                  padding: {
+                    xs: "0",
+                    md: "5px 16px",
+                  },
+                  height: {
+                    xs: "3vh",
+                    md: "6vh",
+                    sm: "4vh",
+                  },
+                  width: {
+                    xs: "35vw",
+                    md: "15vw",
+                    sm: "30vw",
+                  },
+                  fontSize: {
+                    xs: "10px",
+                    md: "15px",
+                  },
                   "&:hover": {
                     backgroundColor: "#af9fdb !important",
                     color: "#29175e",
@@ -280,7 +298,7 @@ const Topbar = () => {
               }
               sx={{
                 backgroundColor: "#5d4993 !important",
-                color: "white",
+                color: "#fff !important",
                 fontWeight: "bold",
                 borderRadius: "20px",
                 boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
@@ -288,9 +306,27 @@ const Topbar = () => {
                 display: "flex",
                 alignItems: "center",
                 textTransform: "capitalize",
-                padding: "5px 16px",
+                padding: {
+                  xs: "0",
+                  md: "5px 16px",
+                },
+                height: {
+                  xs: "3vh",
+                  md: "6vh",
+                  sm: "4vh",
+                },
+                width: {
+                  xs: "35vw",
+                  md: "15vw",
+                  sm: "30vw",
+                },
+                fontSize: {
+                  xs: "10px",
+                  md: "15px",
+                },
                 "&:hover": {
                   backgroundColor: "#af9fdb !important",
+                  color: "#29175e",
                   boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.3)",
                 },
               }}
@@ -308,20 +344,37 @@ const Topbar = () => {
           <Button
             variant="contained"
             sx={{
-              backgroundColor: "#5d4993",
-              color: "white",
+              backgroundColor: "#5d4993 !important",
+              color: "#fff !important",
               fontWeight: "bold",
-              padding: "6px 16px", // Adjust padding to make it more compact
-              marginLeft: "4px",
               borderRadius: "20px",
-              fontSize: "14px",
               boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
               transition: "all 0.3s ease",
               display: "flex",
               alignItems: "center",
-              gap: "8px",
+              textTransform: "capitalize",
+              padding: {
+                xs: "0",
+                md: "6px 16px",
+              },
+              height: {
+                xs: "3vh",
+                md: "6vh",
+                sm: "4vh",
+              },
+              width: {
+                xs: "15vw",
+                md: "7vw",
+                sm: "30vw",
+              },
+              fontSize: {
+                xs: "10px",
+                md: "15px",
+              },
               "&:hover": {
-                backgroundColor: "#af9fdb",
+                backgroundColor: "#af9fdb !important",
+                color: "#29175e",
+                boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.3)",
               },
             }}
           >

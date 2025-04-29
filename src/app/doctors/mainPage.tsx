@@ -734,35 +734,35 @@ export default function DoctorListing() {
                         >
                           {doctor.availability?.length > 0
                             ? doctor.availability.map((slot, index) => (
-                              <Typography
-                                key={index}
-                                variant="body2"
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  whiteSpace: "nowrap",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  mb: 0.5, // Adds spacing between items
-                                }}
-                              >
-                                <LocalHospitalIcon
-                                  fontSize="small"
-                                  color="primary"
-                                  sx={{ marginRight: "4px", flexShrink: 0 }}
-                                />
-                                <span
-                                  style={{
-                                    display: "inline-block",
-                                    whiteSpace: "normal",
+                                <Typography
+                                  key={index}
+                                  variant="body2"
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    mb: 0.5, // Adds spacing between items
                                   }}
                                 >
-                                  {slot.hospital?.name || "Unknown Hospital"},{" "}
-                                  {slot.hospital?.location ||
-                                    "Unknown Location"}
-                                </span>
-                              </Typography>
-                            ))
+                                  <LocalHospitalIcon
+                                    fontSize="small"
+                                    color="primary"
+                                    sx={{ marginRight: "4px", flexShrink: 0 }}
+                                  />
+                                  <span
+                                    style={{
+                                      display: "inline-block",
+                                      whiteSpace: "normal",
+                                    }}
+                                  >
+                                    {slot.hospital?.name || "Unknown Hospital"},{" "}
+                                    {slot.hospital?.location ||
+                                      "Unknown Location"}
+                                  </span>
+                                </Typography>
+                              ))
                             : "Availability not available"}
                         </Typography>
                       </Box>
