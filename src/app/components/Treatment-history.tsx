@@ -85,6 +85,7 @@ const TreatmentHistory: React.FC = () => {
             page + 1
           }&limit=${rowsPerPage}`
         );
+       
         if (!response) {
           throw new Error("No response from the API");
         }
@@ -125,6 +126,7 @@ const TreatmentHistory: React.FC = () => {
       return;
     }
   };
+
   // Open modal for uploading image
   const handleOpenModal = (treatmentId: string) => {
     setSelectedTreatmentId(treatmentId);
@@ -185,7 +187,7 @@ const TreatmentHistory: React.FC = () => {
     setViewImageUrl(null);
   };
 
-  //status change handler
+  // Status change handler
   const handleStatusChange = useCallback(
     async (treatmentId: string, newStatus: string) => {
       if (!treatmentId) return;
@@ -292,187 +294,169 @@ const TreatmentHistory: React.FC = () => {
                 </TableCell>
               </TableRow>
             ) : treatments.length > 0 ? (
-              treatments.map((treatment) => (
-                <TableRow
-                  key={treatment._id}
-                  hover
-                  sx={{
-                    "&:nth-of-type(even)": {
-                      backgroundColor: alpha("#f5f5f5", 0.4),
-                    },
-                    "&:hover": {
-                      backgroundColor: alpha("#f0f0f0", 0.7),
-                    },
-                    transition: "background-color 0.2s ease-in-out",
-                    textAlign: "center",
-                  }}
-                >
-                  <TableCell sx={{ textAlign: "center" }}>
-                    {capitalizeFirstLetter(
-                      treatment?.doctorId?.username || "N/A"
-                    )}
-                  </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
-                    {capitalizeFirstLetter(treatment.name)}
-                  </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
-                    {capitalizeFirstLetter(treatment.description)}
-                  </TableCell>
-                  <TableCell
+              treatments.map((treatment) => {
+                const treatmentData = treatment.treatments && treatment.treatments[0];
+                return (
+                  <TableRow
+                    key={treatment._id}
+                    hover
                     sx={{
-                      width: 150,
+                      "&:nth-of-type(even)": {
+                        backgroundColor: alpha("#f5f5f5", 0.4),
+                      },
+                      "&:hover": {
+                        backgroundColor: alpha("#f0f0f0", 0.7),
+                      },
+                      transition: "background-color 0.2s ease-in-out",
                       textAlign: "center",
-                      verticalAlign: "middle",
                     }}
                   >
-                    <Select
-                      value={treatment.status}
-                      onChange={(e) =>
-                        handleStatusChange(treatment._id, e.target.value)
-                      }
-                      variant="outlined"
-                      size="small"
-                      displayEmpty
-                      sx={{
-                        borderRadius: "20px",
-                        width: "100%",
-                        height: "36px",
-                        textAlign: "center",
-                        backgroundColor:
-                          treatment.status.toLowerCase() === "in progress"
-                            ? "#cce5ff"
-                            : treatment.status.toLowerCase() === "completed"
-                            ? "#d4edda"
-                            : "#f8f9fa",
-                        color:
-                          treatment.status.toLowerCase() === "in progress"
-                            ? "#0056b3"
-                            : treatment.status.toLowerCase() === "completed"
-                            ? "#2D9735"
-                            : "#000",
-                        "& .MuiOutlinedInput-notchedOutline": {
-                          border: "none",
-                        },
-                        "& .MuiSelect-select": {
-                          borderRadius: "20px",
-                          padding: "6px 14px !important",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: "0.875rem",
-                          fontWeight: 500,
-                          boxSizing: "border-box",
-                          overflow: "hidden",
-                          whiteSpace: "nowrap",
-                          paddingRight: "28px !important",
-                        },
-                        "& .MuiSelect-icon": {
-                          fontSize: "1.2rem",
-                          right: 4,
-                        },
-                      }}
-                      MenuProps={{
-                        PaperProps: {
-                          sx: {
-                            width: 150,
-                            borderRadius: 2,
-                            boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.08)",
-                            mt: 1,
-                            "& .MuiMenuItem-root": {
-                              padding: "8px 14px",
-                              borderRadius: "8px",
-                              margin: "2px 4px",
-                              fontSize: "0.875rem",
-                              "&:hover": {
-                                backgroundColor: "#F5F5F5",
-                              },
-                            },
-                          },
-                        },
-                      }}
-                    >
-                      <MenuItem value="in progress">
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1.5,
-                            color: "#0056b3",
-                          }}
-                        >
-                          <HourglassEmpty fontSize="small" />
-                          In Progress
-                        </Box>
-                      </MenuItem>
-                      <MenuItem value="completed">
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1.5,
-                            color: "#2D9735",
-                          }}
-                        >
-                          <CheckCircle fontSize="small" />
-                          Completed
-                        </Box>
-                      </MenuItem>
-                    </Select>
-                  </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
-                    {capitalizeFirstLetter(treatment.type)}
-                  </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
-                    {treatment.photo ? (
-                      <Box
-                        sx={{ position: "relative", display: "inline-block" }}
-                      >
-                        <img
-                          src={treatment.photo || "/placeholder.svg"}
-                          alt={treatment.name}
-                          style={{
-                            width: "50px",
-                            height: "50px",
-                            objectFit: "cover",
-                            borderRadius: "4px",
-                            display: "block",
-                            margin: "0 auto",
-                          }}
-                        />
-                        <IconButton
-                          sx={{ position: "absolute", top: 0, right: 0 }}
-                          onClick={() =>
-                            handleOpenViewImageModal(treatment.photo)
-                          }
-                        >
-                          <Visibility sx={{ color: "#B497D6" }} />
-                        </IconButton>
-                      </Box>
-                    ) : (
-                      <Button
-                        onClick={() => handleOpenModal(treatment._id)}
+                    <TableCell sx={{ textAlign: "center" }}>
+                      {capitalizeFirstLetter(
+                        treatment?.doctorId?.username || "N/A"
+                      )}
+                    </TableCell>
+                    <TableCell sx={{ textAlign: "center" }}>
+                      {capitalizeFirstLetter(treatmentData?.name || "N/A")}
+                    </TableCell>
+                    <TableCell sx={{ textAlign: "center" }}>
+                      {capitalizeFirstLetter(treatmentData?.description || "N/A")}
+                    </TableCell>
+                    <TableCell sx={{ textAlign: "center" }}>
+                      {capitalizeFirstLetter(treatment.type)}
+                    </TableCell>
+                    <TableCell sx={{    width: 150,
+                      textAlign: "center",
+                      verticalAlign: "middle", }}>
+                      <Select
+                        value={treatment.status}
+                        onChange={(e) =>
+                          handleStatusChange(treatment._id, e.target.value)
+                        }
+                        variant="outlined"
+                        size="small"
+                        displayEmpty
                         sx={{
-                          display: "block",
-                          margin: "0 auto",
-                          background: "#56428B",
-                          color: "white",
-                          fontWeight: "bold",
-                          textDecoration: "none",
-                          borderRadius: "4px",
-                          padding: "5px 10px",
-                          "&:hover": {
-                            background: "#483980",
-                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+                          borderRadius: "20px",
+                          width: "100%",
+                          height: "36px",
+                          textAlign: "center",
+                          backgroundColor:
+                            treatment.status.toLowerCase() === "in progress"
+                              ? "#cce5ff"
+                              : treatment.status.toLowerCase() === "completed"
+                              ? "#d4edda"
+                              : "#f8f9fa",
+                          color:
+                            treatment.status.toLowerCase() === "in progress"
+                              ? "#0056b3"
+                              : treatment.status.toLowerCase() === "completed"
+                              ? "#2D9735"
+                              : "#000",
+                          "& .MuiOutlinedInput-notchedOutline": {
+                            border: "none",
                           },
-                          transition: "all 0.3s ease",
+                          "& .MuiSelect-select": {
+                            borderRadius: "20px",
+                            padding: "6px 14px !important",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "0.875rem",
+                            fontWeight: 500,
+                            boxSizing: "border-box",
+                            overflow: "hidden",
+                            whiteSpace: "nowrap",
+                            paddingRight: "28px !important",
+                          },
+                          "& .MuiSelect-icon": {
+                            fontSize: "1.2rem",
+                            right: 4,
+                          },
                         }}
                       >
-                        Upload
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))
+                        <MenuItem value="in progress">
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1.5,
+                              color: "#0056b3",
+                            }}
+                          >
+                            <HourglassEmpty fontSize="small" />
+                            In Progress
+                          </Box>
+                        </MenuItem>
+                        <MenuItem value="completed">
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1.5,
+                              color: "#2D9735",
+                            }}
+                          >
+                            <CheckCircle fontSize="small" />
+                            Completed
+                          </Box>
+                        </MenuItem>
+                      </Select>
+                    </TableCell>
+                    <TableCell sx={{ textAlign: "center" }}>
+                    {capitalizeFirstLetter(treatment.type)}
+                  </TableCell>                    <TableCell sx={{ textAlign: "center" }}>
+                      {treatment.photo ? (
+                        <Box
+                          sx={{ position: "relative", display: "inline-block" }}
+                        >
+                          <img
+                            src={treatment.photo || "/placeholder.svg"}
+                            alt={treatment.name}
+                            style={{
+                              width: "50px",
+                              height: "50px",
+                              objectFit: "cover",
+                              borderRadius: "4px",
+                              display: "block",
+                              margin: "0 auto",
+                            }}
+                          />
+                          <IconButton
+                            sx={{ position: "absolute", top: 0, right: 0 }}
+                            onClick={() =>
+                              handleOpenViewImageModal(treatment.photo)
+                            }
+                          >
+                            <Visibility sx={{ color: "#B497D6" }} />
+                          </IconButton>
+                        </Box>
+                      ) : (
+                        <Button
+                          onClick={() => handleOpenModal(treatment._id)}
+                          sx={{
+                            display: "block",
+                            margin: "0 auto",
+                            background: "#56428B",
+                            color: "white",
+                            fontWeight: "bold",
+                            textDecoration: "none",
+                            borderRadius: "4px",
+                            padding: "5px 10px",
+                            "&:hover": {
+                              background: "#483980",
+                              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+                            },
+                            transition: "all 0.3s ease",
+                          }}
+                        >
+                          Upload
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             ) : (
               <TableRow>
                 <TableCell colSpan={9} align="center">
