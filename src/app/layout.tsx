@@ -1,16 +1,18 @@
-import dynamic from "next/dynamic";
 import { Metadata } from "next";
+import dynamic from "next/dynamic";
+import Link from "next/link";
 import { Inter } from "next/font/google";
+
 import { ThemeProvider } from "@mui/material/styles";
+import { CssBaseline } from "@mui/material";
+import ReduxProvider from "@/redux/provider";
 
 import { theme } from "./theme"; // Import the theme you created
-
-import ReduxProvider from "@/redux/provider";
 import Topbar from "./components/common/Topbar";
+
+import SessionProvider from "./components/SessionProvider";
 const Footer = dynamic(() => import("./components/common/Footer"));
-import { CssBaseline } from "@mui/material";
 import "./globals.css";
-import Link from "next/link";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,16 +32,17 @@ const RootLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
         />
       </head>
       <body className={inter.className}>
-        <ThemeProvider theme={theme}>
-          <ReduxProvider>
-            <CssBaseline />
-            <Topbar />
+        <SessionProvider>
+          <ThemeProvider theme={theme}>
+            <ReduxProvider>
+              <CssBaseline />
+              <Topbar />
 
-            {children}
-          </ReduxProvider>
-
-          <Footer />
-        </ThemeProvider>
+              {children}
+            </ReduxProvider>
+            <Footer />
+          </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   );

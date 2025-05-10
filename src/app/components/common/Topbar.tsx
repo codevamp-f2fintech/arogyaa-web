@@ -2,104 +2,62 @@
 
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { usePathname, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import Menu from "@mui/material/Menu";
-import MenuIcon from "@mui/icons-material/Menu";
-import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
-import Tooltip from "@mui/material/Tooltip";
-import MenuItem from "@mui/material/MenuItem";
-import AdbIcon from "@mui/icons-material/Adb";
-import MarkEmailReadIcon from "@mui/icons-material/MarkEmailRead";
-import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 import EventIcon from "@mui/icons-material/Event";
-import NotificationsIcon from "@mui/icons-material/Notifications";
 import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
-import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import Popover from "@mui/material/Popover";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
 
 import { UserPopover } from "./user-popover";
 import en from "@/locales/en.json";
 import styles from "../../page.module.css";
 
 import { AppDispatch, RootState } from "@/redux/store";
-import { useGetNotifications } from "@/hooks/notification";
 import { setNotifications } from "@/redux/features/notificationsSlice";
+
+import { creator } from "@/apis/apiClient";
 import { Utility } from "@/utils";
+import SnackbarComponent from "../common/Snackbar";
+
 import { Link } from "@mui/material";
 import { usePopover } from "@/hooks/use-popover";
 
-const pages = ["Products", "Pricing", "Blog"];
+interface SignInResponse {
+  token: string;
+  message: string;
+  statusCode: number;
+}
 
 const Topbar = () => {
-  const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
-  const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
-  const [tabValue, setTabValue] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [readNotification, setReadNotification] = useState<string[]>([]);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const dispatch: AppDispatch = useDispatch();
-  const { capitalizeFirstLetter, decodedToken } = Utility();
+  const { capitalizeFirstLetter, decodedToken, getCookies } = Utility();
   const router = useRouter();
   const pathname = usePathname();
+  const token = getCookies().token;
+
+  console.log("token>>", token);
 
   const userPopover = usePopover<HTMLDivElement>();
   const { notifications } = useSelector(
     (state: RootState) => state.notifications
   );
 
-  //fetch api
-  // const { data } = useGetNotifications(
-  //   [],
-  //   `http://localhost:3004/api/notifications/get-notifications/60d9caed6f70c40b7cdcb867`
-  // );
-
-  let dataArray = [1, 2, 3, 4, 5];
-
-  // useEffect(() => {
-  //   if (dataArray && dataArray.length > 0) {
-  //     dispatch(setNotifications(dataArray));
-  //   }
-  // }, [data, dispatch]);
-
-  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElNav(event.currentTarget);
-  };
-
-  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
-  };
-
   const [visibleNotifications, setVisibleNotifications] = useState(5);
   const [appBarBg, setAppBarBg] = useState("#56428b");
+  const { data: session } = useSession();
+  const searchParams = useSearchParams();
+
+  const { snackbarAndNavigate } = Utility();
+  const rawRedirect = searchParams.get("redirect");
+  const decodedRedirect = rawRedirect ? decodeURIComponent(rawRedirect) : null;
 
   const markAsRead = (index: number) => {
     const notificationToMove = notifications[index];
@@ -121,6 +79,60 @@ const Topbar = () => {
     }
   };
 
+  const handleLogin = async (email) => {
+    try {
+      const response: SignInResponse = await creator("patient", "/login", {
+        email: email,
+        password: process.env.NEXT_PUBLIC_PATIENT_PASS,
+      });
+
+      if (response?.statusCode === 200) {
+        document.cookie = `token=${response.token}; path=/; max-age=${
+          1 * 24 * 60 * 60
+        }; secure; samesite=strict`;
+
+        snackbarAndNavigate(
+          dispatch,
+          true,
+          "success",
+          response?.message || "Login Successful",
+          () => router.push(decodedRedirect || "/doctors")
+        );
+      } else if (response?.statusCode === 409) {
+        snackbarAndNavigate(dispatch, true, "error", "Patient Not Found");
+        setTimeout(() => {
+          setLoading(false);
+        }, 2000);
+      } else if (response?.statusCode === 400) {
+        snackbarAndNavigate(dispatch, true, "error", "Invalid Password");
+        setTimeout(() => {
+          setLoading(false);
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Login failed", error);
+      snackbarAndNavigate(
+        dispatch,
+        true,
+        "error",
+        "Error Logging in. Please Try Again"
+      );
+      setTimeout(() => {
+        setLoading(false);
+      }, 2200);
+    } finally {
+      setTimeout(() => {
+        setLoading(false);
+      }, 2200);
+    }
+  };
+
+  useEffect(() => {
+    if (session?.user?.email && !token) {
+      handleLogin(session.user.email);
+    }
+  }, [session]);
+
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
     return () => {
@@ -130,6 +142,8 @@ const Topbar = () => {
 
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
+
+  console.log("session>>", session?.user?.name, decodedToken());
 
   return (
     <AppBar
@@ -265,7 +279,7 @@ const Topbar = () => {
             )}
         </Box>
 
-        {decodedToken()?.id ? (
+        {session || decodedToken()?.id ? (
           <Box>
             <Button
               variant="contained"
@@ -295,7 +309,8 @@ const Topbar = () => {
                 },
               }}
             >
-              {capitalizeFirstLetter(decodedToken()?.patientName)}
+              {session?.user?.name ||
+                capitalizeFirstLetter(decodedToken()?.patientName)}
             </Button>
 
             <UserPopover

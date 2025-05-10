@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "next/navigation";
 import {
@@ -47,6 +47,7 @@ import BillingHistory from "../components/Billing-history";
 import TreatmentHistory from "../components/Treatment-history";
 import SnackbarComponent from "../components/common/Snackbar";
 import { color } from "framer-motion";
+import { useSession } from "next-auth/react";
 
 interface Appointment {
   hospitalName: string;
@@ -57,6 +58,8 @@ interface Appointment {
 
 const UserProfile = () => {
   const [user, setUser] = useState<PatientData>();
+  const { data: session } = useSession();
+
   const [profilePicture, setProfilePicture] = useState<string | File>(
     "/iconimg.jpg"
   );
@@ -153,6 +156,28 @@ const UserProfile = () => {
       }
     }
   }, [patientId]);
+
+  const fetchUserProfileByEmail = useCallback(async () => {
+    if (session?.user?.email) {
+      try {
+        const response = await fetcher(
+          "patient",
+          `get-patient-by-email/${session.user.email}`
+        );
+
+        console.log(response, "response>>");
+        setUser(response.data); // Set the fetched user data
+      } catch (error) {
+        console.error("Error fetching patient profile:", error);
+      }
+    }
+  }, [session]);
+
+  useEffect(() => {
+    if (session?.user?.email) {
+      fetchUserProfileByEmail(); // Fetch user profile by email on initial load
+    }
+  }, [session, fetchUserProfile]);
 
   // Fetch Appointments
   const fetchAppointments = useCallback(async () => {
