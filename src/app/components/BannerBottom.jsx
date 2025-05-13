@@ -157,7 +157,7 @@ export default function FAQpage() {
               transition: "all 0.3s ease",
               flexDirection: "row",
               width: {
-                xs: "25%", // Full width on mobile
+                xs: "100%", // Full width on mobile
                 sm: "80%", // 80% width on small screens
                 md: "auto", // Auto width on medium screens and above
               },
@@ -183,7 +183,11 @@ export default function FAQpage() {
                 />
               }
               sx={{
-                padding: { xs: "12px 16px", sm: "16px 24px" }, // Adjust padding for mobile and tablet
+                padding: {
+                  xs: "12px 16px",
+                  sm: "16px 24px",
+                },
+
                 "&:hover": {
                   backgroundColor: "rgba(255, 255, 255, 0.05)",
                 },
