@@ -1046,11 +1046,11 @@ const DrProfile: React.FC = () => {
                             sx={{
                               ...cardStyle,
                               padding: "16px",
-                              ...cardStyle,
-                              padding: "16px",
-                              borderRadius: "0",
+                              borderRadius: 0,
                               backgroundColor: "#29175e",
                               boxShadow: "0 5px 100px rgba(46,204,113,0.5)",
+                              height: "auto",
+                              overflow: "visible",
                             }}
                           >
                             <Typography

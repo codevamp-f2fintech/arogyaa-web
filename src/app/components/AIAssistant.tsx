@@ -179,16 +179,29 @@ const AIAssistant = () => {
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <SmartToy color="primary" />
+                <SmartToy color="#fff" />
                 <Typography sx={{ fontFamily: "Poppins" }} variant="h6">
                   AI Assistant
                 </Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <IconButton onClick={() => setDarkMode(!darkMode)}>
+                <IconButton
+                  sx={{
+                    color: darkMode ? "#fff" : "#fff",
+                  }}
+                  onClick={() => setDarkMode(!darkMode)}
+                >
                   {darkMode ? <LightMode /> : <DarkMode />}
                 </IconButton>
-                <IconButton onClick={() => setOpen(false)}>
+                <IconButton
+                  sx={{
+                    color: darkMode ? "#fff" : "#fff",
+                    "&:hover": {
+                      color: "red",
+                    },
+                  }}
+                  onClick={() => setOpen(false)}
+                >
                   <Close />
                 </IconButton>
               </Box>
@@ -225,19 +238,21 @@ const AIAssistant = () => {
                         message.sender === "user"
                           ? "#344e41"
                           : darkMode
-                            ? "grey.800"
-                            : "#29175e",
+                          ? "grey.800"
+                          : "#29175e",
                       color: message.sender === "user" ? "#fff" : "ffd700",
                       position: "relative",
                     }}
                   >
                     <Typography variant="body1">
-                      {message.content.startsWith("I found the following doctors") ? (
+                      {message.content.startsWith(
+                        "I found the following doctors"
+                      ) ? (
                         <>
                           <Typography
                             variant="subtitle1"
                             component="div"
-                            sx={{ fontWeight: 'bold', mb: 1 }}
+                            sx={{ fontWeight: "bold", mb: 1 }}
                           >
                             I found the following doctors for you:
                           </Typography>
