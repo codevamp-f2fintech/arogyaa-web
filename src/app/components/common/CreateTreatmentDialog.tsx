@@ -26,6 +26,7 @@ import {
   Inventory,
   Repeat,
   Timer,
+  Add,
 } from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
 import { styled } from "@mui/system";
@@ -89,27 +90,27 @@ const optionsStatus = [
   { label: "Completed", value: "completed" },
 ];
 
+interface TreatmentItem {
+  _id: string;
+  doctorId: string;
+  name: string;
+  description?: string;
+  quantity?: string;
+  frequency?: string;
+  duration?: string;
+  isEmptyStomach?: boolean;
+  type?: string;
+  status: string;
+  diagnosis: string;
+  isFollowUp: boolean;
+  followUpDate?: Date;
+}
 interface CreateTreatmentDialogProps {
   open: boolean;
   onClose: () => void;
   fetchTreatments: (newTreatment: any) => void;
+  doctorId: string;
 }
-
-const initialFormData = {
-  name: "",
-  description: "",
-  quantity: "",
-  frequency: "",
-  duration: "",
-  isEmptyStomach: false,
-  isFollowUp: false,
-  followUpDate: null,
-  type: "",
-  diagnosis: "",
-  status: "in progress",
-  photo: null,
-  doctor: null,
-};
 
 const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
   open,
@@ -127,32 +128,100 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
       onClose();
     }
   };
-  const [formData, setFormData] = useState(initialFormData);
-  const [errors, setErrors] = useState({} as Record<string, string>);
+
+  const initialTreatmentItem: TreatmentItem = {
+    _id: "",
+    doctorId: "",
+    status: "",
+    diagnosis: "",
+    isFollowUp: false,
+    name: "",
+    description: "",
+    quantity: "",
+    frequency: "",
+    duration: "",
+    isEmptyStomach: false,
+  };
+
+  const [formData, setFormData] = useState({
+    type: "",
+    status: "in progress",
+    photo: null,
+    diagnosis: "",
+    isFollowUp: false,
+    followUpDate: "",
+    isEmptyStomach: false,
+  });
+  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
+  const [errors, setErrors] = useState({
+    name: "",
+    description: "",
+    quantity: "",
+    frequency: "",
+    duration: "",
+    type: "",
+    diagnosis: "",
+  });
+  const [treatmentItems, setTreatmentItems] = useState<TreatmentItem[]>([
+    { ...initialTreatmentItem },
+  ]);
+
   useEffect(() => {
     if (!open) {
-      setFormData(initialFormData);
+      setFormData(initialTreatmentItem);
       setErrors({});
     }
   }, [open]);
 
+  const handleTreatmentItemChange = (
+    index: number,
+    field: keyof TreatmentItem,
+    value: any
+  ) => {
+    const updatedItems = [...treatmentItems];
+    updatedItems[index] = {
+      ...updatedItems[index],
+      [field]: value,
+    };
+    setTreatmentItems(updatedItems);
+  };
+  const handleAddTreatment = () => {
+    setTreatmentItems([...treatmentItems, { ...initialTreatmentItem }]);
+  };
+
+  const handleRemoveTreatment = (index: number) => {
+    if (treatmentItems.length > 1) {
+      setTreatmentItems(treatmentItems.filter((_, i) => i !== index));
+    }
+  };
+
   const validateForm = () => {
-    const valid = true;
+    let valid = true;
     const newErrors = {
-      name: formData.name ? "" : "Name is required",
-      description: formData.description ? "" : "Description is required",
-      quantity: formData.quantity ? "" : "Quantity is required",
-      frequency: formData.frequency ? "" : "Frequency is required",
-      followUpDate: formData.followUpDate? "" : "Follow Up Date is required",  
-      duration: formData.duration ? "" : "Duration is required",
+      name: treatmentItems.some((item) => !item.name) ? "Name is required" : "",
+      description: treatmentItems.some((item) => !item.description)
+        ? "Description is required"
+        : "",
+      quantity: treatmentItems.some((item) => !item.quantity)
+        ? "Quantity is required"
+        : "",
+      frequency: treatmentItems.some((item) => !item.frequency)
+        ? "Frequency is required"
+        : "",
+      duration: treatmentItems.some((item) => !item.duration)
+        ? "Duration is required"
+        : "",
       type: formData.type ? "" : "Type is required",
+      diagnosis: formData.diagnosis ? "" : "Diagnosis is required",
     };
 
     setErrors(newErrors);
-    return !Object.values(newErrors).some((error) => error !== "");
+    valid = !Object.values(newErrors).some((error) => error !== "");
+    return valid;
   };
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+
+  const handleImageUpload = (event: { target: { files: any[] } }) => {
+    const file = event.target.files[0];
     if (file) {
       setFormData((prevData) => ({
         ...prevData,
@@ -160,6 +229,7 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
       }));
     }
   };
+
   const fetchDoctors = async () => {
     try {
       const response = await fetcher("doctor", "get-doctors");
@@ -178,54 +248,75 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
       console.error("Failed to fetch doctors", error);
     }
   };
-  const handleCheckboxChange = (e) => {
-    setFormData({
-      ...formData,
+  // const handleCheckboxChange = (e) => {
+  //   setFormData({
+  //     ...formData,
 
-      isEmptyStomach: e.target.checked,
-    });
-  };
+  //     isEmptyStomach: e.target.checked,
+  //   });
+  // };
+  useEffect(() => {
+    if (open) {
+      setTreatmentItems([{ ...initialTreatmentItem }]); // Only set when dialog opens
+    }
+  }, [open]);
 
-  const handleCheckboxFollowChange = (e) => {
-    setFormData({ ...formData, isFollowUp: e.target.checked });
-  };
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // const handleCheckboxFollowChange = (e) => {
+  //   setFormData({ ...formData, isFollowUp: e.target.checked });
+  // };
+  const handleChange = (e: { target: { name: any; value: any } }) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [name]: value ? "" : prevErrors[name],
-    }));
+    setFormData({ ...formData, [name]: value });
   };
+
   const handleSubmit = async () => {
     if (!validateForm()) return;
+
     try {
-      const headers = { "Content-Type": "multipart/form-data" };
       const selectedDoctor = doctors.find((doc) => doc.id === formData.doctor);
       const doctorId = selectedDoctor ? selectedDoctor.id : null;
+
+      // Prepare payload
+      const payload = {
+        patientId: patientId,
+        doctorId: doctorId,
+        treatments: treatmentItems.map((item) => ({
+          name: item.name,
+          description: item.description,
+          quantity: item.quantity,
+          frequency: item.frequency,
+          duration: item.duration,
+          isEmptyStomach: item.isEmptyStomach,
+        })),
+        type: formData.type,
+        diagnosis: formData.diagnosis,
+        isFollowUp: formData.isFollowUp,
+        followUpDate: formData.followUpDate,
+        status: formData.status,
+      };
+
+      const formDataInstance = new FormData();
+      formDataInstance.append("payload", JSON.stringify(payload));
+
+      if (formData.photo) {
+        formDataInstance.append("photo", formData.photo);
+      }
 
       const response = await creator(
         "treatment",
         "create-treatment",
-        {
-          ...formData,
-          patientId,
-          doctorId,
-        },
-        headers
+        formDataInstance,
+        { "Content-Type": "multipart/form-data" }
       );
       console.log("API Response:", response);
 
-      if (response.statusCode == 201) {
+      if (response.statusCode === 201) {
         snackbarAndNavigate(dispatch, true, "success", "Created successfully");
         fetchTreatments(response.data);
         onClose();
       }
     } catch (error) {
+      console.error("API Error:", error);
       snackbarAndNavigate(
         dispatch,
         true,
@@ -247,10 +338,16 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
       onClose={handleClose}
       fullWidth
       maxWidth="lg"
-      sx={{ borderRadius: "50px" , fontFamily: "Poppins",
-      }}
+      sx={{ borderRadius: "50px", fontFamily: "Poppins" }}
     >
-      <Box sx={{ backgroundColor: "#F8F5FF", borderRadius: 4, padding: 2 }}>
+      <Box
+        sx={{
+          background:
+            "linear-gradient(180deg, rgba(188,174,224,1) 0%, rgba(255,255,255,1) 100%)",
+          borderRadius: 4,
+          padding: 2,
+        }}
+      >
         <DialogTitle sx={{ color: "#56428B" }}>
           <Typography variant="h6">Create Treatment</Typography>
           <IconButton
@@ -266,142 +363,160 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
           </IconButton>
         </DialogTitle>
         <DialogContent sx={{ padding: 3 }}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={4}>
-              <StyledTextField
-                label="Name"
-                name="name"
-                fullWidth
-                margin="dense"
-                value={formData.name}
-                onChange={handleChange}
-                error={!!errors.name}
-                helperText={errors.name}
-                required
-                placeholder="Enter treatment name(e.g.,paracetamol)"
-                InputProps={{
-                  startAdornment: <ListAlt sx={{ color: "#56428B", mr: 2 }} />,
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <StyledTextField
-                label="Description"
-                name="description"
-                fullWidth
-                margin="dense"
-                value={formData.description}
-                onChange={handleChange}
-                error={!!errors.description}
-                helperText={errors.description}
-                placeholder="Enter description(e.g.,For fever)"
-                InputProps={{
-                  startAdornment: (
-                    <Description sx={{ color: "#56428B", mr: 2 }} />
-                  ),
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <StyledTextField
-                label="Quantity"
-                name="quantity"
-                fullWidth
-                margin="dense"
-                value={formData.quantity}
-                onChange={handleChange}
-                error={!!errors.quantity}
-                helperText={errors.quantity}
-                placeholder="Enter quantity(e.g.,1 capsule)"
-                InputProps={{
-                  startAdornment: (
-                    <Inventory sx={{ color: "#56428B", mr: 2 }} />
-                  ),
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <StyledTextField
-                label="Frequency"
-                name="frequency"
-                fullWidth
-                value={formData.frequency}
-                onChange={handleChange}
-                error={!!errors.frequency}
-                helperText={errors.frequency}
-                placeholder="Enter frequency(e.g.,twice a day)"
-                InputProps={{
-                  startAdornment: <Repeat sx={{ color: "#56428B", mr: 2 }} />,
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <StyledTextField
-                label="Duration"
-                name="duration"
-                fullWidth
-                value={formData.duration}
-                onChange={handleChange}
-                error={!!errors.duration}
-                helperText={errors.duration}
-                placeholder="Enter duration(e.g.,7 days)"
-                InputProps={{
-                  startAdornment: <Timer sx={{ color: "#56428B", mr: 2 }} />,
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={4} sx={{ mt: 2 }} className="mt-4">
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formData.isEmptyStomach}
-                    onChange={(e) =>
-                      handleCheckboxChange({
-                        ...e,
-                        target: { ...e.target, name: "isEmptyStomach" },
-                      })
-                    }
-                    sx={{
-                      color: formData.isEmptyStomach ? "#56428B" : "default",
-                      "&.Mui-checked": {
-                        color: "#56428B",
-                      },
-                    }}
-                  />
-                }
-                label="Empty Stomach"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formData.isFollowUp}
-                    onChange={(e) =>
-                      handleCheckboxChange({
-                        ...e,
-                        target: { ...e.target, name: "isFollowUp" },
-                      })
-                    }
-                    sx={{
-                      color: formData.isFollowUp ? "#56428B" : "default",
-                      "&.Mui-checked": {
-                        color: "#56428B",
-                      },
-                    }}
-                  />
-                }
-                label="Is Follow Up?"
-              />
-            </Grid>
+          {treatmentItems.map((item, index) => (
+            <Grid
+              container
+              spacing={3}
+              key={index}
+              sx={{ mb: 3, pb: 2, borderBottom: "1px dashed #ccc" }}
+            >
+              <Grid item xs={12} sm={4}>
+                <StyledTextField
+                  label="Medication Name"
+                  fullWidth
+                  margin="dense"
+                  value={item.name}
+                  onChange={(e) =>
+                    handleTreatmentItemChange(index, "name", e.target.value)
+                  }
+                  error={!!errors.name && !item.name}
+                  helperText={!item.name && errors.name}
+                  required
+                  placeholder="Enter Medication name(e.g.,paracetamol)"
+                  InputProps={{
+                    startAdornment: (
+                      <ListAlt sx={{ color: "#56428B", mr: 2 }} />
+                    ),
+                  }}
+                />
+              </Grid>
 
+              {/* Description Field */}
+              <Grid item xs={12} sm={4}>
+                <StyledTextField
+                  label="Description"
+                  fullWidth
+                  margin="dense"
+                  value={item.description}
+                  onChange={(e) =>
+                    handleTreatmentItemChange(
+                      index,
+                      "description",
+                      e.target.value
+                    )
+                  }
+                  error={!!errors.description && !item.description}
+                  helperText={!item.description && errors.description}
+                  placeholder="Enter description(e.g.,For fever)"
+                  InputProps={{
+                    startAdornment: (
+                      <Description sx={{ color: "#56428B", mr: 2 }} />
+                    ),
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <StyledTextField
+                  label="Dosage"
+                  fullWidth
+                  margin="dense"
+                  value={item.quantity}
+                  onChange={(e) =>
+                    handleTreatmentItemChange(index, "quantity", e.target.value)
+                  }
+                  error={!!errors.quantity && !item.quantity}
+                  helperText={!item.quantity && errors.quantity}
+                  placeholder="Enter quantity(e.g., 500 mg)"
+                  InputProps={{
+                    startAdornment: (
+                      <Inventory sx={{ color: "#56428B", mr: 2 }} />
+                    ),
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <StyledTextField
+                  label="Frequency"
+                  fullWidth
+                  value={item.frequency}
+                  onChange={(e) =>
+                    handleTreatmentItemChange(
+                      index,
+                      "frequency",
+                      e.target.value
+                    )
+                  }
+                  placeholder="(e.g., twice a day, every 6 hours)"
+                  InputProps={{
+                    startAdornment: <Repeat sx={{ color: "#56428B", mr: 2 }} />,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <StyledTextField
+                  label="Duration"
+                  fullWidth
+                  value={item.duration}
+                  onChange={(e) =>
+                    handleTreatmentItemChange(index, "duration", e.target.value)
+                  }
+                  placeholder="Duration (e.g., 5 days, 1 month)"
+                  InputProps={{
+                    startAdornment: <Timer sx={{ color: "#56428B", mr: 2 }} />,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={item.isEmptyStomach}
+                      onChange={(e) =>
+                        handleTreatmentItemChange(
+                          index,
+                          "isEmptyStomach",
+                          e.target.checked
+                        )
+                      }
+                      sx={{
+                        color: "#56428B",
+                        "&.Mui-checked": { color: "#56428B" },
+                      }}
+                    />
+                  }
+                  label="Empty Stomach"
+                />
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={() => handleRemoveTreatment(index)}
+                  disabled={treatmentItems.length === 1}
+                  sx={{ ml: 2 }}
+                >
+                  Remove
+                </Button>
+              </Grid>
+            </Grid>
+          ))}
+
+          {/* Button to Add More */}
+          <Button
+            variant="outlined"
+            startIcon={<Add />}
+            onClick={handleAddTreatment}
+            sx={{ mb: 3 }}
+          >
+            Add More medications
+          </Button>
+
+          <Grid container spacing={3}>
             <Grid item xs={12} sm={4}>
               <StyledAutocomplete
                 options={optionsType}
                 getOptionLabel={(option) => option.label}
-                value={
-                  optionsType.find(
-                    (option) => option.value === formData.type
-                  ) || null
-                }
+                value={optionsType.find(
+                  (option) => option.value === formData.type
+                )}
                 onChange={(event, newValue) => {
                   setFormData({
                     ...formData,
@@ -420,76 +535,24 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                 )}
               />
             </Grid>
-            <Grid item xs={12} sm={4} sx={{ mt: 2 }} className="mt-4">
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formData.isEmptyStomach}
-                    onChange={handleCheckboxChange}
-                    sx={{
-                      color: formData.isEmptyStomach ? "#20ADA0" : "default",
-                      "&.Mui-checked": {
-                        color: "#20ADA0",
-                      },
-                    }}
-                  />
-                }
-                label="Empty Stomach"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formData.isFollowUp}
-                    onChange={handleCheckboxFollowChange}
-                    sx={{
-                      color: formData.isFollowUp ? "#20ADA0" : "default",
-                      "&.Mui-checked": {
-                        color: "#20ADA0",
-                      },
-                    }}
-                  />
-                }
-                label="Is Follow Up?"
-              />
-            </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid item xs={12} sm={4} marginTop={-1}>
               <StyledTextField
-                label="Follow Up Date"
-                name="followUpDate"
-                type="date"
-                fullWidth
-                value={formData.followUpDate || ""}
-                onChange={handleChange}
-                InputLabelProps={{
-                  shrink: true, // Ensures the label is above the input when a date is selected
-                }}
-                error={!!errors.followUpDate}
-                helperText={errors.followUpDate}
-                placeholder="Enter follow-up date"
-                InputProps={{
-                  startAdornment: <Timer sx={{ color: "#20ADA0", mr: 2 }} />,
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <StyledTextField
-                label="Diagnosis"
+                label="Instructions / Notes"
                 name="diagnosis"
                 fullWidth
+                margin="dense"
                 value={formData.diagnosis}
                 onChange={handleChange}
                 error={!!errors.diagnosis}
                 helperText={errors.diagnosis}
-                placeholder="Enter Diagnosis"
+                placeholder="(e.g.,take after food,avoid alcohol)"
                 InputProps={{
                   startAdornment: (
-                    <Inventory sx={{ color: "#20ADA0", mr: 2 }} />
+                    <Description sx={{ color: "#56428B", mr: 2 }} />
                   ),
                 }}
               />
             </Grid>
-
-            {/* ✅ Doctor Selection Field */}
             {formData.type === "arogyaa" && (
               <Grid item xs={12} sm={4}>
                 <Autocomplete
@@ -507,7 +570,6 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                   isOptionEqualToValue={(option, value) =>
                     option.id === value.id
                   }
-                  fullWidth
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -518,7 +580,7 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                   )}
                 />
               </Grid>
-            )}
+            )}{" "}
             <Grid item xs={12} sm={4}>
               <StyledAutocomplete
                 options={optionsStatus}
@@ -540,9 +602,8 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                 )}
               />
             </Grid>
-
             {/* Image Upload Grid */}
-            <Grid item xs={12} sm={4}>
+            <Grid item xs={12} sm={4} sx={{ mt: 0 }}>
               <Button
                 component="label"
                 variant="contained"
@@ -554,9 +615,12 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                   backgroundColor: "#56428B",
                   cursor: "pointer",
                   width: "100%",
-                  marginTop: 0.6,
-                  "&:hover": { backgroundColor: "#483980" },
-                  transition: "0.3s",
+                  marginTop: 1.6,
+                  "&:hover": {
+                    background:
+                      "linear-gradient(45deg, #1976D2 30%, #0D47A1 90%)",
+                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)",
+                  },
                 }}
               >
                 Upload Image
@@ -584,9 +648,7 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                   }}
                 >
                   <img
-                    src={
-                      URL.createObjectURL(formData.photo) || "/placeholder.svg"
-                    }
+                    src={URL.createObjectURL(formData.photo)}
                     alt="Uploaded"
                     style={{
                       width: "100%",
@@ -603,7 +665,7 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                       position: "absolute",
                       top: 4,
                       right: 8,
-                      color: "#56428B",
+                      color: "#20ADA0",
                     }}
                   >
                     <Close />
@@ -611,8 +673,41 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                 </Box>
               )}
             </Grid>
+            <Grid item xs={3} sm={3} sx={{ mt: 2, ml: 11.5 }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formData.isFollowUp}
+                    onChange={(e) =>
+                      setFormData({ ...formData, isFollowUp: e.target.checked })
+                    }
+                    sx={{
+                      color: formData.isFollowUp ? "#3f51b5" : "default",
+                      "&.Mui-checked": { color: "#56428B" },
+                    }}
+                  />
+                }
+                label="Is Follow Up?"
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <StyledTextField
+                label="Start Date"
+                name="followUpDate"
+                type="date"
+                fullWidth
+                margin="dense"
+                InputLabelProps={{ shrink: true }}
+                value={formData.followUpDate}
+                onChange={(e) =>
+                  setFormData({ ...formData, followUpDate: e.target.value })
+                }
+                disabled={!formData.isFollowUp}
+              />
+            </Grid>
           </Grid>
         </DialogContent>
+
         <DialogActions sx={{ justifyContent: "center" }}>
           <Button
             onClick={onClose}

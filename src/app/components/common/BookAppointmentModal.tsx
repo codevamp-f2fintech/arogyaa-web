@@ -21,6 +21,8 @@ import {
   InputAdornment,
   IconButton,
 } from "@mui/material";
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import InfoIcon from "@mui/icons-material/Info";
@@ -40,6 +42,7 @@ import { useCreateAppointment } from "@/hooks/appointment";
 import { useGetSymptom } from "@/hooks/symptoms";
 import { Utility } from "@/utils";
 import { fontFamily } from "@mui/system";
+import { fetcher } from "@/apis/apiClient";
 
 dayjs.extend(customParseFormat);
 
@@ -133,9 +136,11 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
     snackbarAndNavigate,
   } = Utility();
   const [selectedHospital, setSelectedHospital] = useState<string | null>(null);
-  // TRACK SELECTED DAY & TIME SLOT IN LOCAL STATE
+  // TRACK SELECTED DAY & TIME SLOT IN LOCAL STATE[]
   const [selectedDayName, setSelectedDayName] = useState<string | null>(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+
   // BUCKETS THAT WILL HOLD MORNING / AFTERNOON / EVENING / NIGHT SLOTS
   const [timeBuckets, setTimeBuckets] = useState({
     morning: [] as string[],
@@ -143,15 +148,61 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
     evening: [] as string[],
     night: [] as string[],
   });
+
+  const [bookedSlots, setBookedSlots] = useState<string[]>([]);
+
   const { createAppointment } = useCreateAppointment("create-appointment");
+
+  useEffect(() => {
+    const fetchBookedSlots = async () => {
+      const doctorId = data?._id;
+      if (!doctorId || !selectedDayName || !selectedDate) {
+        setBookedSlots([]);
+        return;
+      }
+      setLoading(true);
+
+      try {
+        const params = new URLSearchParams({
+          page: "1",
+          limit: "100",
+          dateFilter: selectedDate,
+        });
+        const response = await fetcher(
+          "appointment",
+          `get-doctors-appointment/${doctorId}?${params.toString()}`
+        );
+        console.log("Appointments API response:", response);
+
+        const bookedTimes = response.results
+          .filter(
+            (appt) =>
+              dayjs(appt.appointmentDate).format("YYYY-MM-DD") === selectedDate
+          )
+          .map((appt) => appt.appointmentTime);
+
+        setBookedSlots(bookedTimes);
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
+      } finally {
+        setLoading(true);
+      }
+    };
+
+    fetchBookedSlots();
+  }, [data?._id, selectedDayName, selectedDate]);
+
+  const allowedDays = data?.availability
+    ?.filter((slot) => slot.hospital.name === selectedHospital)
+    .map((slot) => slot.day); 
 
   const { value: symptoms } = useGetSymptom(null, "get-symptoms", 1, 200);
 
-  // Reset hospital and other selections when a new doctor is selected
   useEffect(() => {
     setSelectedHospital(null);
     setSelectedDayName(null);
     setTimeBuckets({ morning: [], afternoon: [], evening: [], night: [] });
+    setBookedSlots([]);
   }, [data]);
 
   // Handle hospital change
@@ -161,6 +212,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
     setSelectedHospital(event.target.value as string);
     setSelectedDayName(null);
     setTimeBuckets({ morning: [], afternoon: [], evening: [], night: [] });
+    setBookedSlots([]);
   };
 
   // Whenever selectedDayName changes, generate new time slots from data.availability
@@ -169,27 +221,22 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
       setTimeBuckets({ morning: [], afternoon: [], evening: [], night: [] });
       return;
     }
-
     // Find the entry in availability that matches the chosen weekday
     const hospitalAvailability = data.availability.filter(
       (slot) => slot.hospital.name === selectedHospital
     );
-
     const dayAvailability = hospitalAvailability.find(
       (slot) => slot.day?.toLowerCase() === selectedDayName?.toLowerCase()
     );
-
     if (!dayAvailability) {
       setTimeBuckets({ morning: [], afternoon: [], evening: [], night: [] });
       return;
     }
-
     // Generate discrete time slots from (startTime, endTime) in steps of 60 min
-
     const slots = generateTimeSlots(
       dayAvailability.startTime,
       dayAvailability.endTime,
-      60
+      20
     );
     const buckets = {
       morning: [] as string[],
@@ -197,12 +244,10 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
       evening: [] as string[],
       night: [] as string[],
     };
-
     slots.forEach((slotTime) => {
       const part = getTimeOfDaySlot(slotTime);
       buckets[part].push(slotTime);
     });
-
     setTimeBuckets(buckets);
   }, [selectedDayName, selectedHospital, data?.availability]);
 
@@ -217,11 +262,26 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
       let [hours, minutes] = time.split(":");
       hours = parseInt(hours);
       minutes = parseInt(minutes);
+
+      // Adjust for 12-hour format
       if (period === "PM" && hours !== 12) hours += 12;
       if (period === "AM" && hours === 12) hours = 0;
+
       const date = new Date();
       date.setHours(hours, minutes, 0, 0);
       return date;
+    };
+
+    const formatTime = (date: Date) => {
+      let hours = date.getHours();
+      const minutes = date.getMinutes();
+      const period = hours >= 12 ? "PM" : "AM";
+
+      // Convert from 24-hour format to 12-hour format
+      if (hours > 12) hours -= 12;
+      if (hours === 0) hours = 12;
+
+      return `${hours}:${minutes < 10 ? "0" + minutes : minutes} ${period}`;
     };
 
     const start = parseTime(startTime);
@@ -229,28 +289,28 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
     const slots = [];
 
     while (start < end) {
-      const slotTime = new Date(start);
-      const formattedTime = slotTime.toTimeString().substr(0, 5);
-      slots.push(formattedTime);
+      slots.push(formatTime(new Date(start)));
+
       start.setMinutes(start.getMinutes() + interval);
     }
 
     return slots;
   };
 
-  // Time of day categorization
+
   const getTimeOfDaySlot = (time: string) => {
-    const hour = parseInt(time.split(":")[0], 10);
+    const [timePart, period] = time.split(" ");
+    const [hourStr] = timePart.split(":");
+    let hour = parseInt(hourStr, 10);
+
+    if (period === "PM" && hour !== 12) hour += 12;
+    if (period === "AM" && hour === 12) hour = 0;
+
     if (hour >= 5 && hour < 12) return "morning";
     if (hour >= 12 && hour < 17) return "afternoon";
     if (hour >= 17 && hour < 21) return "evening";
     return "night";
   };
-
-  // const handleTimeSlotClick = (time: string, setFieldValue: Function) => {
-  //   setSelectedTimeSlot(time);
-  //   setFieldValue("appointmentTime", time);
-  // };
 
   // Define the snackbar close handler
   const handleSnackbarClose = (
@@ -263,8 +323,68 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
   };
 
   const handleTimeSlotClick = (time: string, setFieldValue: Function) => {
-    setSelectedTimeSlot(time);
-    setFieldValue("appointmentTime", time);
+    if (!bookedSlots.includes(time)) {
+      setSelectedTimeSlot(time);
+      setFieldValue("appointmentTime", time);
+    }
+  };
+
+  const renderTimeSlots = (
+    slots: string[],
+    timeOfDay: string,
+    setFieldValue: Function
+  ) => {
+    if (slots.length === 0) return null;
+
+    return (
+      <Box component="fieldset" className="fieldset_wrap">
+        <legend className="fldset_lgend">
+          {capitalizeFirstLetter(timeOfDay)} Slots
+        </legend>
+        <ul className="time_box">
+          {slots.map((time) => {
+            const isBooked = bookedSlots.includes(time);
+            const isSelected = selectedTimeSlot === time;
+
+            return (
+              <li
+                key={time}
+                onClick={() =>
+                  !isBooked && handleTimeSlotClick(time, setFieldValue)
+                }
+                style={{
+                  background: isSelected ? "#29175E" : "transparent",
+                  color: isSelected ? "white" : isBooked ? "#ccc" : "black",
+                  cursor: isBooked ? "not-allowed" : "pointer",
+                  textDecoration: isBooked ? "line-through" : "none",
+                  position: "relative",
+                  border: isBooked ? "1px solid #ccc" : "1px solid #29175E",
+                  ...(isSelected && { border: "1px solid #29175E" }),
+                }}
+                title={
+                  isBooked ? "This slot is already booked" : `Select ${time}`
+                }
+              >
+                {time}
+                {isBooked && (
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "10%",
+                      width: "80%",
+                      height: "1px",
+                      backgroundColor: "#ccc",
+                      transform: "translateY(-50%)",
+                    }}
+                  ></span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </Box>
+    );
   };
   const handleBookAppointment = useCallback(
     async (values: AppointmentFormValues) => {
@@ -306,7 +426,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
             doctorId,
             appointmentId: response.data._id,
             status: "successful",
-            amount: parseInt(data?.consultationFee) * 100,
+            amount: parseInt(data?.consultationFee) * 1,
             currency: "inr",
             transactionMethod: "card",
           };
@@ -439,24 +559,23 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
           >
             <Box
               sx={{
-                width: "100%", // Make it full width
+                width: "100%", 
                 display: "flex",
                 flexDirection: {
-                  xs: "column", // Stack items vertically on mobile
-                  sm: "row", // Side-by-side on tablets and up
+                  xs: "column", 
+                  sm: "row", 
                 },
                 justifyContent: "space-between",
                 alignItems: {
-                  xs: "flex-start", // Align items to start on mobile
-                  sm: "center", // Center align on larger screens
-                },
+                  xs: "flex-start", 
+                  sm: "center",                 },
                 marginBottom: "2px",
                 padding: "1px",
                 borderRadius: "8px",
-                gap: "8px", // spacing between stacked items on small screens
+                gap: "8px",
               }}
             >
-              {/* Left: Book with Doctor */}
+             
               <Typography
                 sx={{
                   fontSize: {
@@ -490,10 +609,10 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                   border: "1px solid #ccc",
                   padding: "5px 10px",
                   borderRadius: "8px",
-                  width: "100%", // make it responsive
+                  width: "100%",
                   maxWidth: {
-                    xs: "100%", // full width on mobile
-                    sm: "26vw", // shrink to content on larger screens
+                    xs: "100%",
+                    sm: "26vw",
                   },
                   justifyContent: {
                     xs: "center",
@@ -578,27 +697,34 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         alignItems: "center",
                       },
                       "& .time_box": {
-                        display: "flex",
-                        flexWrap: "wrap",
+                        display: "grid",
+                        gridTemplateColumns: "repeat(6, 0fr)",
+                        gap: "8px",
+
                         width: "100%",
+                        listStyle: "none",
+                        padding: 0,
+                        margin: 0,
+                        justifyItems: "center",
                         "& li": {
-                          marginTop: "10px",
                           fontSize: "0.8rem",
                           fontWeight: 300,
                           lineHeight: "1.2rem",
-                          padding: "8px 10px",
+                          padding: "8px 7px",
                           border: "1px solid #29175E",
-                          borderRadius: "4px",
-                          listStyle: "none",
-                          marginRight: "10px",
+                          borderRadius: "2px",
                           cursor: "pointer",
                           color: "black",
+                          textAlign: "center",
+                          transition: "all 0.2s ease",
                           "&:hover": {
                             background: "#7A4D9C",
                             color: "white",
+                            transform: "scale(1.05)", 
                           },
                         },
                       },
+
                       "& .tx2date": {
                         fontSize: "1rem",
                         fontWeight: 300,
@@ -684,68 +810,104 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                             </Select>
                           </FormControl>
                         </Box>
-
-                        <Box sx={{ marginBottom: 2 }}>
-                          <Field
-                            fullWidth
-                            as={TextField}
-                            label="Date Of Appointment *"
-                            name="appointmentDate"
-                            type="date"
-                            value={
-                              values.appointmentDate
-                                ? dayjs(values.appointmentDate).format(
-                                    "YYYY-MM-DD"
+                        <Box
+                          sx={{
+                            marginBottom: 2,
+                          
+                            "& .MuiFormLabel-root": {
+                              color: "#29175E",
+                              fontFamily: "Poppins",
+                            },
+                            "& .MuiInputBase-root": {
+                              backgroundColor: "#fff",
+                              borderRadius: "4px",
+                              fontFamily: "Poppins",
+                              width: "130%",
+                            },
+                            "& .MuiOutlinedInput-root": {
+                              "& fieldset": {
+                                borderColor: "#29175E",
+                              },
+                              "&:hover fieldset": {
+                                borderColor: "#29175E",
+                              },
+                              "&.Mui-focused fieldset": {
+                                borderColor: "#29175E",
+                              },
+                            },
+                          }}
+                        >
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              label="Date Of Appointment *"
+                              disablePast
+                              inputFormat="YYYY-MM-DD"
+                              value={
+                                values.appointmentDate
+                                  ? dayjs(values.appointmentDate)
+                                  : null
+                              }
+                              shouldDisableDate={(date) => {
+                                const selectedDays = data?.availability
+                                  ?.filter(
+                                    (slot) =>
+                                      slot.hospital.name === selectedHospital
                                   )
-                                : ""
-                            }
-                            onChange={(
-                              e: React.ChangeEvent<HTMLInputElement>
-                            ) => {
-                              const formattedDate = dayjs(
-                                e.target.value
-                              ).format("YYYY-MM-DD");
-                              setFieldValue("appointmentDate", formattedDate);
-                              const dayName = dayjs(e.target.value).format(
-                                "dddd"
-                              );
-                              setSelectedDayName(dayName);
-                              setSelectedTimeSlot("");
-                              setFieldValue("appointmentTime", "");
-                            }}
-                            InputLabelProps={{
-                              shrink: true,
-                              sx: {
-                                color: "#29175E",
-                                "&.Mui-focused": {
-                                  color: "#29175E",
-                                },
-                              },
-                            }}
-                            sx={{
-                              ...inputStyles,
-                              "& input[type=date]": {
-                                background: "#fff",
-                                borderRadius: "6px",
-                                padding: "12px 12px",
-                              },
-                              "& input[type=date]::-webkit-calendar-picker-indicator":
-                                {
-                                  zIndex: 3,
-                                  cursor: "pointer",
-                                },
-                            }}
-                            inputProps={{ min: today }}
-                            error={
-                              touched.appointmentDate &&
-                              Boolean(errors.appointmentDate)
-                            }
-                            helperText={
-                              touched.appointmentDate && errors.appointmentDate
-                            }
-                          />
+                                  .map((slot) => slot.day); 
+                                const dayName = dayjs(date).format("dddd");
+                                return !selectedDays?.includes(dayName);
+                              }}
+                              onChange={(newValue) => {
+                                if (newValue) {
+                                  const formattedDate =
+                                    dayjs(newValue).format("YYYY-MM-DD");
+                                  const dayName =
+                                    dayjs(newValue).format("dddd");
+                                  setFieldValue(
+                                    "appointmentDate",
+                                    formattedDate
+                                  );
+                                  setSelectedDate(formattedDate);
+                                  setSelectedDayName(dayName);
+                                  setSelectedTimeSlot("");
+                                  setFieldValue("appointmentTime", "");
+                                }
+                              }}
+                              renderInput={(params) => (
+                                <TextField
+                                  {...params}
+                                  fullWidth
+                                  name="appointmentDate"
+                                  sx={{
+                                    "& input": {
+                                      padding: "12px",
+                                      fontFamily: "Poppins",
+                                    },
+                                  }}
+                                  inputProps={{ min: today }}
+                                  error={
+                                    touched.appointmentDate &&
+                                    Boolean(errors.appointmentDate)
+                                  }
+                                  helperText={
+                                    touched.appointmentDate &&
+                                    errors.appointmentDate
+                                  }
+                                  InputLabelProps={{
+                                    shrink: true,
+                                    sx: {
+                                      fontFamily: "Poppins",
+                                      color: "#29175E",
+                                      "&.Mui-focused": {
+                                        color: "#29175E",
+                                      },
+                                    },
+                                  }}
+                                />
+                              )}
+                            />
+                          </LocalizationProvider>
                         </Box>
-
                         {/*Display Message*/}
                         {!values.appointmentDate ? (
                           <Typography
@@ -784,7 +946,6 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                             No slots available.
                           </Typography>
                         ) : null}
-
                         {/* === Appointment Type === */}
                         <TextField
                           fullWidth
@@ -840,8 +1001,8 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           <MenuItem value="online">Online</MenuItem>
                           <MenuItem value="in-person">In-Person</MenuItem>
                         </TextField>
-
                         {/* === Symptoms Selection === */}
+                        {/* === Short Description === */}
                         <Autocomplete
                           multiple
                           disableCloseOnSelect
@@ -890,7 +1051,6 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                             />
                           )}
                         />
-
                         {/* === Short Description === */}
                         <Field
                           as={TextField}
@@ -927,130 +1087,219 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                             touched.description && Boolean(errors.description)
                           }
                           helperText={touched.description && errors.description}
-                        />
+                        />{" "}
                       </Grid>
                       {/* ===== Middle Section (Dynamic Time Slots) ===== */}
                       <Field type="hidden" name="appointmentTime" />{" "}
                       {/* Hidden Formik Field so Formik tracks appointmenttime errors*/}
                       <Grid item xs={12} sm={4} md={4}>
                         <Box sx={priceWrapSx}>
-                          <Box
-                            component="fieldset"
-                            className="fieldset_wrap"
-                            sx={{ marginTop: "-7px" }}
-                          >
-                            <legend className="fldset_lgend">
-                              Morning Slots
-                            </legend>
-                            <ul className="time_box">
-                              {timeBuckets.morning.map((time) => (
-                                <li
-                                  key={time}
-                                  onClick={() =>
-                                    handleTimeSlotClick(time, setFieldValue)
-                                  }
-                                  style={{
-                                    background:
-                                      selectedTimeSlot === time
-                                        ? "#29175E"
-                                        : "",
-                                    color:
-                                      selectedTimeSlot === time
-                                        ? "white"
-                                        : "black",
-                                  }}
-                                >
-                                  {time}
-                                </li>
-                              ))}
-                            </ul>
-                          </Box>
+                          {/* Morning Slots */}
+                          {(!values.appointmentDate ||
+                            timeBuckets.morning.length > 0) && (
+                            <Box
+                              component="fieldset"
+                              className="fieldset_wrap"
+                              sx={{ marginTop: "-7px" }}
+                            >
+                              <legend className="fldset_lgend">
+                                Morning Slots
+                              </legend>
+                              <ul className="time_box">
+                                {timeBuckets.morning.map((time) => {
+                                  const isBooked = bookedSlots.includes(time);
+                                  return (
+                                    <li
+                                      key={time}
+                                      onClick={() => {
+                                        if (!isBooked) {
+                                          handleTimeSlotClick(
+                                            time,
+                                            setFieldValue
+                                          );
+                                        }
+                                      }}
+                                      style={{
+                                        background:
+                                          selectedTimeSlot === time
+                                            ? "#29175E"
+                                            : isBooked
+                                            ? "#ccc"
+                                            : "",
+                                        color:
+                                          selectedTimeSlot === time
+                                            ? "white"
+                                            : isBooked
+                                            ? "#666"
+                                            : "black",
+                                        cursor: isBooked
+                                          ? "not-allowed"
+                                          : "pointer",
+                                        pointerEvents: isBooked
+                                          ? "none"
+                                          : "auto",
+                                      }}
+                                    >
+                                      {time}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </Box>
+                          )}
 
-                          <Box component="fieldset" className="fieldset_wrap">
-                            <legend className="fldset_lgend">
-                              Afternoon Slots
-                            </legend>
-                            <ul className="time_box">
-                              {timeBuckets.afternoon.map((time) => (
-                                <li
-                                  key={time}
-                                  onClick={() =>
-                                    handleTimeSlotClick(time, setFieldValue)
-                                  }
-                                  style={{
-                                    background:
-                                      selectedTimeSlot === time
-                                        ? "#29175E"
-                                        : "",
-                                    color:
-                                      selectedTimeSlot === time
-                                        ? "white"
-                                        : "black",
-                                  }}
-                                >
-                                  {time}
-                                </li>
-                              ))}
-                            </ul>
-                          </Box>
+                          {/* Afternoon Slots */}
+                          {(!values.appointmentDate ||
+                            timeBuckets.afternoon.length > 0) && (
+                            <Box component="fieldset" className="fieldset_wrap">
+                              <legend className="fldset_lgend">
+                                Afternoon Slots
+                              </legend>
+                              <ul className="time_box">
+                                {timeBuckets.afternoon.map((time) => {
+                                  const isBooked = bookedSlots.includes(time);
+                                  return (
+                                    <li
+                                      key={time}
+                                      onClick={() => {
+                                        if (!isBooked) {
+                                          handleTimeSlotClick(
+                                            time,
+                                            setFieldValue
+                                          );
+                                        }
+                                      }}
+                                      style={{
+                                        background:
+                                          selectedTimeSlot === time
+                                            ? "#29175E"
+                                            : isBooked
+                                            ? "#ccc"
+                                            : "",
+                                        color:
+                                          selectedTimeSlot === time
+                                            ? "white"
+                                            : isBooked
+                                            ? "#666"
+                                            : "black",
+                                        cursor: isBooked
+                                          ? "not-allowed"
+                                          : "pointer",
+                                        pointerEvents: isBooked
+                                          ? "none"
+                                          : "auto",
+                                      }}
+                                    >
+                                      {time}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </Box>
+                          )}
 
-                          <Box component="fieldset" className="fieldset_wrap">
-                            <legend className="fldset_lgend">
-                              Evening Slots
-                            </legend>
-                            <ul className="time_box">
-                              {timeBuckets.evening.map((time) => (
-                                <li
-                                  key={time}
-                                  onClick={() =>
-                                    handleTimeSlotClick(time, setFieldValue)
-                                  }
-                                  style={{
-                                    background:
-                                      selectedTimeSlot === time
-                                        ? "#29175E"
-                                        : "",
-                                    color:
-                                      selectedTimeSlot === time
-                                        ? "white"
-                                        : "black",
-                                  }}
-                                >
-                                  {time}
-                                </li>
-                              ))}
-                            </ul>
-                          </Box>
+                          {/* Evening Slots */}
+                          {(!values.appointmentDate ||
+                            timeBuckets.evening.length > 0) && (
+                            <Box component="fieldset" className="fieldset_wrap">
+                              <legend className="fldset_lgend">
+                                Evening Slots
+                              </legend>
+                              <ul className="time_box">
+                                {timeBuckets.evening.map((time) => {
+                                  const isBooked = bookedSlots.includes(time);
+                                  return (
+                                    <li
+                                      key={time}
+                                      onClick={() => {
+                                        if (!isBooked) {
+                                          handleTimeSlotClick(
+                                            time,
+                                            setFieldValue
+                                          );
+                                        }
+                                      }}
+                                      style={{
+                                        background:
+                                          selectedTimeSlot === time
+                                            ? "#29175E"
+                                            : isBooked
+                                            ? "#ccc"
+                                            : "",
+                                        color:
+                                          selectedTimeSlot === time
+                                            ? "white"
+                                            : isBooked
+                                            ? "#666"
+                                            : "black",
+                                        cursor: isBooked
+                                          ? "not-allowed"
+                                          : "pointer",
+                                        pointerEvents: isBooked
+                                          ? "none"
+                                          : "auto",
+                                      }}
+                                    >
+                                      {time}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </Box>
+                          )}
 
-                          <Box component="fieldset" className="fieldset_wrap">
-                            <legend className="fldset_lgend">
-                              Night Slots
-                            </legend>
-                            <ul className="time_box">
-                              {timeBuckets.night.map((time) => (
-                                <li
-                                  key={time}
-                                  onClick={() =>
-                                    handleTimeSlotClick(time, setFieldValue)
-                                  }
-                                  style={{
-                                    background:
-                                      selectedTimeSlot === time
-                                        ? "#29175E"
-                                        : "",
-                                    color:
-                                      selectedTimeSlot === time
-                                        ? "white"
-                                        : "black",
-                                  }}
-                                >
-                                  {time}
-                                </li>
-                              ))}
-                            </ul>
-                          </Box>
+                          {/* Night Slots */}
+                          {(!values.appointmentDate ||
+                            timeBuckets.night.length > 0) && (
+                            <Box component="fieldset" className="fieldset_wrap">
+                              <legend className="fldset_lgend">
+                                Night Slots
+                              </legend>
+                              <ul className="time_box">
+                                {timeBuckets.night.map((time) => {
+                                  const isBooked = bookedSlots.includes(time);
+                                  return (
+                                    <li
+                                      key={time}
+                                      onClick={() => {
+                                        if (!isBooked) {
+                                          handleTimeSlotClick(
+                                            time,
+                                            setFieldValue
+                                          );
+                                        }
+                                      }}
+                                      style={{
+                                        background:
+                                          selectedTimeSlot === time
+                                            ? "#29175E"
+                                            : isBooked
+                                            ? "#ccc"
+                                            : "",
+                                        color:
+                                          selectedTimeSlot === time
+                                            ? "white"
+                                            : isBooked
+                                            ? "#666"
+                                            : "black",
+                                        cursor: isBooked
+                                          ? "not-allowed"
+                                          : "pointer",
+                                        pointerEvents: isBooked
+                                          ? "none"
+                                          : "auto",
+                                      }}
+                                    >
+                                      {time}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </Box>
+                          )}
                         </Box>
 
+                        {/* Error Message for appointmentTime */}
                         {touched.appointmentTime && errors.appointmentTime && (
                           <Typography
                             color="error"
@@ -1230,7 +1479,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                             </Typography>
                           </Box>
                         </Box>
-                      </Grid>
+                      </Grid>{" "}
                     </Grid>
                   </Box>
 
@@ -1391,7 +1640,6 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
               </Typography>
             </Box>
           </Box>
-
           <SnackbarComponent
             alerting={snackbar.snackbarAlert}
             severity={snackbar.snackbarSeverity}
