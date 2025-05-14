@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { Box, Typography, Button, Paper } from "@mui/material";
-import { useRouter } from "next/navigation"; 
+import { useRouter } from "next/navigation";
 import { creator } from "@/apis/apiClient";
 import { Payment, Cancel } from "@mui/icons-material";
 
@@ -25,7 +25,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [message, setMessage] = useState("");
-  const router = useRouter(); 
+  const router = useRouter();
 
   const handlePayU = useCallback(async () => {
     setIsProcessing(true);
@@ -37,9 +37,6 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
         document.body.appendChild(container);
         container.querySelector("form")?.submit();
         setMessage("Payment initiation was successful! Redirecting...");
-        setTimeout(() => {    
-        router.push("/profile");
-        }, 3000);
       } else {
         setMessage("Unable to initiate PayU payment.");
       }
