@@ -14,21 +14,27 @@ import {
   Alert,
   Box,
   Chip,
-  alpha,
+  Tooltip,
 } from "@mui/material";
-
 import {
   EventAvailable as AppointmentIcon,
   CalendarMonth,
+  Phone,
+  WhatsApp,
 } from "@mui/icons-material";
-
 import { Utility } from "@/utils";
 import { fetcher } from "@/apis/apiClient";
+
+interface Doctor {
+  username: string;
+  email: string;
+  contact: string;
+}
 
 interface Appointment {
   _id: string;
   patientId: string;
-  doctorId: string;
+  doctorId: Doctor;
   appointmentTime: string;
   status: string;
 }
@@ -48,12 +54,15 @@ const AppointmentHistory: React.FC = () => {
       try {
         const response = await fetcher(
           "appointment",
-          `get-patients-appointment/${patientId}?page=1`
+          `get-patients-appointment/${patientId}?page=${
+            page + 1
+          }&limit=${rowsPerPage}`
         );
-        const results = response?.results || [];
-        const count = response?.count || 0;
-        setAppointments(results);
-        setTotalCount(count);
+        if (!response || !response.results) {
+          throw new Error("No data found");
+        }
+        setAppointments(response.results || []);
+        setTotalCount(response.count || 0);
         setError(null);
       } catch (error) {
         console.error("Error fetching appointments:", error);
@@ -62,11 +71,11 @@ const AppointmentHistory: React.FC = () => {
         setTotalCount(0);
       }
     }
-  }, [patientId, page, rowsPerPage]);
+  }, [patientId]);
 
   useEffect(() => {
     fetchAppointments();
-  }, [fetchAppointments]);
+  }, [fetchAppointments, page, rowsPerPage]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -97,71 +106,34 @@ const AppointmentHistory: React.FC = () => {
     return appointments.slice(startIndex, startIndex + rowsPerPage);
   }, [appointments, page, rowsPerPage]);
 
+  const headerStyle = {
+    fontWeight: 600,
+    textTransform: "uppercase",
+    color: "#fff",
+  };
+
   return (
     <Container maxWidth="lg">
-      <Box
-      // sx={{
-      //   // border:"2px solid red",
-      //   display: "flex",
-      //   alignItems: "center",
-      //   mb: 3,
-      //   p: 2,
-      //   // backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.1),
-      //   borderRadius: 2,
-      // }}
-      >
-        {/* <TimelineIcon sx={{ mr: 2, color: "primary.main" }} /> */}
-        {/* <Typography
-          variant="h6" // Change this to a larger or smaller variant, like "h5" or "h4"
-          sx={{
-            mb: 3,
-            color: "#2C3E50",
-            fontWeight: "700",
-            fontSize: "1.2rem", // You can use this to set a custom font size
-          }}
-        >
-          Appointment History
-        </Typography> */}
-      </Box>
-
       {error && (
-        <Alert
-          severity="error"
-          sx={{
-            mb: 2,
-            borderRadius: 2,
-          }}
-        >
+        <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
           {error}
         </Alert>
       )}
 
       <TableContainer
         component={Paper}
-        sx={{
-          backgroundColor: "#7b56ce",
-        }}
+        sx={{ backgroundColor: "#7b56ce", mt: 3 }}
       >
         <Table>
-          <TableHead
-            sx={{
-              backgroundColor: (theme) =>
-                alpha(theme.palette.primary.main, 0.05),
-            }}
-          >
+          <TableHead>
             <TableRow>
-              {["Doctor's Name", "Appointment Time", "Status"].map((header) => (
-                <TableCell
-                  key={header}
-                  sx={{
-                    fontWeight: 600,
-                    textTransform: "uppercase",
-                    color: "#fff",
-                  }}
-                >
-                  {header}
-                </TableCell>
-              ))}
+              <TableCell sx={headerStyle}>Doctor</TableCell>
+              {/* <TableCell sx={headerStyle}>Email</TableCell> */}
+              <TableCell sx={headerStyle}>Contact</TableCell>
+              <TableCell sx={headerStyle}>Date</TableCell>
+              <TableCell sx={headerStyle}>Time</TableCell>
+              <TableCell sx={headerStyle}>Hospital</TableCell>
+              <TableCell sx={headerStyle}>Status</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -171,17 +143,49 @@ const AppointmentHistory: React.FC = () => {
                   key={appointment._id}
                   hover
                   sx={{
-                    "&:last-child td, &:last-child th": {
-                      borderBottom: "1px solid #ddd",
+                    "& td": {
+                      py: 2,
+                      borderBottom: "1px solid #ffffff66",
+                      color: "#fff",
                     },
-                    transition: "background-color 0.2s",
-                    textAlign: "center",
                   }}
                 >
                   <TableCell>
                     {appointment?.doctorId?.username || "N/A"}
                   </TableCell>
+                  {/* <TableCell>{appointment?.doctorId?.email || "N/A"}</TableCell> */}
+                  <TableCell>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <span>{appointment?.doctorId?.contact || "N/A"}</span>
+                      {appointment?.doctorId?.contact && (
+                        <Tooltip title="Message on WhatsApp">
+                          <a
+                            href={`https://wa.me/91${appointment?.doctorId?.contact}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              color: "#25D366",
+                              display: "flex",
+                              alignItems: "center",
+                            }}
+                          >
+                            <WhatsApp fontSize="small" />
+                          </a>
+                        </Tooltip>
+                      )}
+                    </Box>
+                  </TableCell>
+
+                  <TableCell>
+                    {appointment?.appointmentDate
+                      ? new Date(appointment.appointmentDate)
+                          .toISOString()
+                          .split("T")[0]
+                      : "N/A"}
+                  </TableCell>
+
                   <TableCell>{appointment?.appointmentTime || "N/A"}</TableCell>
+                  <TableCell>{appointment?.hospitalName || "N/A"}</TableCell>
                   <TableCell>
                     <Chip
                       icon={<AppointmentIcon />}
@@ -195,25 +199,25 @@ const AppointmentHistory: React.FC = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={3} align="center">
+                <TableCell colSpan={6} align="center">
                   <Box
                     sx={{
                       display: "flex",
                       justifyContent: "center",
                       alignItems: "center",
-                      gap: 0.5,
-                      borderRadius: "8px",
-                      color: "#fff", // Changed from #20ADA0
+                      gap: 2,
+                      color: "#fff",
                     }}
                   >
-                    <CalendarMonth sx={{ fontSize: 18, color: "#fff" }} /> //
-                    Changed from #20ADA0 No Appointment Booked
+                    <CalendarMonth sx={{ fontSize: 18, color: "#fff" }} />
+                    No Appointment Booked
                   </Box>
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
+
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
