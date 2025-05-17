@@ -52,15 +52,16 @@ const BillingHistory: React.FC = () => {
 
   const getStatusChip = (status: string) => {
     switch (status.toLowerCase()) {
-      case "successful":
+      case "success":
         return (
           <Chip
             icon={<CheckCircle />}
-            label="Paid"
+            label="success"
             color="success"
             size="small"
           />
         );
+
       case "pending":
         return (
           <Chip
@@ -201,7 +202,7 @@ const BillingHistory: React.FC = () => {
               {[
                 "Doctor's Name",
                 "Payment Method",
-                "Date",
+                "Transaction Id",
                 "Amount",
                 "Status",
               ].map((header) => (
@@ -246,7 +247,7 @@ const BillingHistory: React.FC = () => {
                     </span>
                   </TableCell>
                   <TableCell align="center">
-                    {new Date(bill.date).toLocaleString()}
+                    {(bill.transactionId).toLocaleString()}
                   </TableCell>
                   <TableCell align="center">
                     <span
