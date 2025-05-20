@@ -71,17 +71,13 @@ export const authOptions: NextAuthOptions = {
 
           if (loginData.statusCode === 200) {
             // Store the JWT token in a cookie
-            const { token } = loginData;
-
-            // Set the token in the response header as a cookie
-            document.cookie = `token=${token}; path=/; max-age=${
-              1 * 24 * 60 * 60
-            }; secure; samesite=strict`;
+            return true
           } else {
             console.log("Login failed");
           }
         } else {
           console.log("Patient found, skipping creation");
+          return true
         }
         return true;
       } catch (err) {
