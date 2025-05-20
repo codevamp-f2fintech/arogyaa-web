@@ -135,6 +135,11 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
     // getTimeOfDaySlot,
     snackbarAndNavigate,
   } = Utility();
+
+  const [showOtherInput, setShowOtherInput] = useState(false);
+  const [customSymptom, setCustomSymptom] = useState("");
+  const [symptomOptionsDropdown, setSymtopOptionsDropdown] = useState([]);
+
   const [selectedHospital, setSelectedHospital] = useState<string | null>(null);
   // TRACK SELECTED DAY & TIME SLOT IN LOCAL STATE[]
   const [selectedDayName, setSelectedDayName] = useState<string | null>(null);
@@ -172,7 +177,6 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
           "appointment",
           `get-doctors-appointment/${doctorId}?${params.toString()}`
         );
-        console.log("Appointments API response:", response);
 
         const bookedTimes = response.results
           .filter(
@@ -194,9 +198,19 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
 
   const allowedDays = data?.availability
     ?.filter((slot) => slot.hospital.name === selectedHospital)
-    .map((slot) => slot.day); 
+    .map((slot) => slot.day);
 
-  const { value: symptoms } = useGetSymptom(null, "get-symptoms", 1, 200);
+  const { value: symptoms, refetch } = useGetSymptom(
+    null,
+    "get-symptoms",
+    1,
+    200
+  );
+
+  useEffect(() => {
+    const otherOption = { _id: "other", name: "Other" };
+    setSymtopOptionsDropdown([...(symptoms?.results || []), otherOption]);
+  }, [symptoms?.results]);
 
   useEffect(() => {
     setSelectedHospital(null);
@@ -297,7 +311,6 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
     return slots;
   };
 
-
   const getTimeOfDaySlot = (time: string) => {
     const [timePart, period] = time.split(" ");
     const [hourStr] = timePart.split(":");
@@ -319,6 +332,38 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
   ) => {
     if (reason === "clickaway") {
       return;
+    }
+  };
+
+  const handleCreateCustomSymptom = async () => {
+    if (!customSymptom.trim()) return;
+
+    try {
+      const response = await fetch(
+        "http://localhost:4002/api/v1/symptom-service/create-symptom",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name: customSymptom.trim() }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const newSymptom = data.data;
+        // Reset custom symptom input and hide it
+        setCustomSymptom("");
+        setShowOtherInput(false);
+        refetch();
+      } else {
+        // Handle error (you might want to show a snackbar or error message)
+        console.error(data.message);
+      }
+    } catch (error) {
+      console.error("Error creating symptom", error);
     }
   };
 
@@ -417,8 +462,6 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
         };
 
         const response = await createAppointment(appointmentData);
-
-        console.log("Response received:", response);
 
         if (response?.statusCode === 201) {
           const paymentData = {
@@ -559,23 +602,23 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
           >
             <Box
               sx={{
-                width: "100%", 
+                width: "100%",
                 display: "flex",
                 flexDirection: {
-                  xs: "column", 
-                  sm: "row", 
+                  xs: "column",
+                  sm: "row",
                 },
                 justifyContent: "space-between",
                 alignItems: {
-                  xs: "flex-start", 
-                  sm: "center",                 },
+                  xs: "flex-start",
+                  sm: "center",
+                },
                 marginBottom: "2px",
                 padding: "1px",
                 borderRadius: "8px",
                 gap: "8px",
               }}
             >
-             
               <Typography
                 sx={{
                   fontSize: {
@@ -720,7 +763,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           "&:hover": {
                             background: "#7A4D9C",
                             color: "white",
-                            transform: "scale(1.05)", 
+                            transform: "scale(1.05)",
                           },
                         },
                       },
@@ -813,7 +856,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         <Box
                           sx={{
                             marginBottom: 2,
-                          
+
                             "& .MuiFormLabel-root": {
                               color: "#29175E",
                               fontFamily: "Poppins",
@@ -853,7 +896,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                                     (slot) =>
                                       slot.hospital.name === selectedHospital
                                   )
-                                  .map((slot) => slot.day); 
+                                  .map((slot) => slot.day);
                                 const dayName = dayjs(date).format("dddd");
                                 return !selectedDays?.includes(dayName);
                               }}
@@ -1002,19 +1045,49 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           <MenuItem value="in-person">In-Person</MenuItem>
                         </TextField>
                         {/* === Symptoms Selection === */}
-                        {/* === Short Description === */}
                         <Autocomplete
                           multiple
-                          disableCloseOnSelect
-                          options={symptoms?.results || []}
+                          disableCloseOnSelect={!showOtherInput} // Only disable close when not showing other input
+                          options={[...symptomOptionsDropdown]}
                           getOptionLabel={(option) => option.name}
                           isOptionEqualToValue={(option, value) =>
                             option._id === value._id
                           }
-                          value={values.symptomIds || undefined}
-                          onChange={(event, value) =>
-                            setFieldValue("symptomIds", value)
-                          }
+                          value={values.symptomIds || []}
+                          onChange={(event, selected, reason) => {
+                            // Check if "Other" was just selected
+                            const justSelectedOther =
+                              selected.some((item) => item._id === "other") &&
+                              !values.symptomIds.some(
+                                (item) => item._id === "other"
+                              );
+
+                            // If "Other" was just selected, show the custom input and close the dropdown
+                            if (justSelectedOther) {
+                              setShowOtherInput(true);
+                              // Close the dropdown by blurring the input
+                              const input =
+                                document.activeElement as HTMLElement;
+                              if (input) input.blur();
+                            }
+
+                            // Remove "Other" from the actual selected symptoms
+                            const filteredSelected = selected.filter(
+                              (item) => item._id !== "other"
+                            );
+
+                            // Update Formik field value
+                            setFieldValue("symptomIds", filteredSelected);
+                          }}
+                          onClose={() => {
+                            // This ensures the dropdown stays closed when showing other input
+                            if (showOtherInput) {
+                              const input = document.getElementById(
+                                "symptoms-autocomplete"
+                              );
+                              if (input) input.blur();
+                            }
+                          }}
                           sx={{
                             ...inputStyles,
                             background: "#fff",
@@ -1023,6 +1096,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           renderInput={(params) => (
                             <TextField
                               {...params}
+                              id="symptoms-autocomplete"
                               label="Symptom *"
                               name="symptomIds"
                               type="text"
@@ -1050,7 +1124,73 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                               }}
                             />
                           )}
+                          renderOption={(props, option, { selected }) => {
+                            // Special styling for the "Other" option
+                            const isOther = option._id === "other";
+                            return (
+                              <li
+                                {...props}
+                                style={{
+                                  ...props.style,
+                                  fontWeight: isOther ? "bold" : "normal",
+                                  color: isOther ? "#7A4D9C" : "inherit",
+                                  backgroundColor:
+                                    isOther && selected ? "#f0e6ff" : "inherit",
+                                }}
+                              >
+                                {option.name}
+                              </li>
+                            );
+                          }}
                         />
+                        {showOtherInput && (
+                          <Box mt={2}>
+                            <TextField
+                              label="Enter Custom Symptom"
+                              value={customSymptom}
+                              onChange={(e) => setCustomSymptom(e.target.value)}
+                              fullWidth
+                              variant="outlined"
+                              sx={{
+                                backgroundColor: "white",
+                                "& .MuiOutlinedInput-root": {
+                                  "& fieldset": {
+                                    borderColor: "black",
+                                  },
+                                  "&:hover fieldset": {
+                                    borderColor: "black",
+                                  },
+                                  "&.Mui-focused fieldset": {
+                                    borderColor: "black",
+                                  },
+                                },
+                                "& .MuiInputLabel-root": {
+                                  color: "black",
+                                },
+                              }}
+                            />
+
+                            <Button
+                              onClick={handleCreateCustomSymptom}
+                              variant="contained"
+                              // fullWidth
+                              disabled={!customSymptom.trim()}
+                              sx={{
+                                mt: 1,
+                                backgroundColor: "#2E1065", // Deep purple like your screenshot
+                                color: "#fff",
+                                borderRadius: "8px",
+                                fontWeight: "bold",
+                                textTransform: "none",
+                                "&:hover": {
+                                  backgroundColor: "#23094f",
+                                },
+                              }}
+                            >
+                              Add Symptom
+                            </Button>
+                          </Box>
+                        )}
                         {/* === Short Description === */}
                         <Field
                           as={TextField}

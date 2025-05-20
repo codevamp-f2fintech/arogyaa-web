@@ -16,6 +16,7 @@ import {
   IconButton,
   Box,
   TextField,
+  CircularProgress,
 } from "@mui/material";
 import {
   Image as ImageIcon,
@@ -105,6 +106,7 @@ interface TreatmentItem {
   isFollowUp: boolean;
   followUpDate?: Date;
 }
+
 interface CreateTreatmentDialogProps {
   open: boolean;
   onClose: () => void;
@@ -122,6 +124,8 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
   const patientId = decodedToken()?.id;
   const doctorId = decodedToken()?.id;
   const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [medicationOptions, setMedicationOptions] = useState<string[]>([]);
+  const [isLoadingMedications, setIsLoadingMedications] = useState(false);
 
   const handleClose = (event: any, reason: string) => {
     if (reason !== "backdropClick") {
@@ -173,6 +177,37 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
     }
   }, [open]);
 
+  useEffect(() => {
+    if (open) {
+      fetchExistingMedications();
+      setTreatmentItems([{ ...initialTreatmentItem }]);
+    }
+  }, [open]);
+
+  const fetchExistingMedications = async () => {
+    setIsLoadingMedications(true);
+    try {
+      const response = await fetcher(
+        "treatment",
+        `get-treatments-by-patientId/${patientId}?page=1&limit=1000`
+      );
+
+      if (response?.results) {
+        const allMedications = response.results.flatMap((treatment) =>
+          treatment.treatments.map((item) => item.name)
+        );
+        const uniqueMedications = Array.from(
+          new Set(allMedications.filter(Boolean))
+        );
+        setMedicationOptions(uniqueMedications);
+      }
+    } catch (error) {
+      console.error("Failed to fetch medications", error);
+    } finally {
+      setIsLoadingMedications(false);
+    }
+  };
+
   const handleTreatmentItemChange = (
     index: number,
     field: keyof TreatmentItem,
@@ -185,6 +220,7 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
     };
     setTreatmentItems(updatedItems);
   };
+
   const handleAddTreatment = () => {
     setTreatmentItems([...treatmentItems, { ...initialTreatmentItem }]);
   };
@@ -233,7 +269,6 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
   const fetchDoctors = async () => {
     try {
       const response = await fetcher("doctor", "get-doctors");
-      console.log("Doctors API Response:", response);
 
       if (response && response.results) {
         const formattedDoctors: Doctor[] = response.results.map((doc: any) => ({
@@ -248,22 +283,7 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
       console.error("Failed to fetch doctors", error);
     }
   };
-  // const handleCheckboxChange = (e) => {
-  //   setFormData({
-  //     ...formData,
 
-  //     isEmptyStomach: e.target.checked,
-  //   });
-  // };
-  useEffect(() => {
-    if (open) {
-      setTreatmentItems([{ ...initialTreatmentItem }]); // Only set when dialog opens
-    }
-  }, [open]);
-
-  // const handleCheckboxFollowChange = (e) => {
-  //   setFormData({ ...formData, isFollowUp: e.target.checked });
-  // };
   const handleChange = (e: { target: { name: any; value: any } }) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -276,7 +296,6 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
       const selectedDoctor = doctors.find((doc) => doc.id === formData.doctor);
       const doctorId = selectedDoctor ? selectedDoctor.id : null;
 
-      // Prepare payload
       const payload = {
         patientId: patientId,
         doctorId: doctorId,
@@ -308,7 +327,6 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
         formDataInstance,
         { "Content-Type": "multipart/form-data" }
       );
-      console.log("API Response:", response);
 
       if (response.statusCode === 201) {
         snackbarAndNavigate(dispatch, true, "success", "Created successfully");
@@ -332,6 +350,14 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
     }
   }, [formData.type]);
 
+  const getAvailableMedications = (currentIndex: number) => {
+    return medicationOptions.filter(
+      (med) =>
+        !treatmentItems.some(
+          (item, idx) => idx !== currentIndex && item.name === med
+        )
+    );
+  };
   return (
     <Dialog
       open={open}
@@ -371,27 +397,53 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
               sx={{ mb: 3, pb: 2, borderBottom: "1px dashed #ccc" }}
             >
               <Grid item xs={12} sm={4}>
-                <StyledTextField
-                  label="Medication Name"
-                  fullWidth
-                  margin="dense"
+                <StyledAutocomplete
+                  freeSolo
+                  options={getAvailableMedications(index)} // Use filtered options
+                  loading={isLoadingMedications}
                   value={item.name}
-                  onChange={(e) =>
-                    handleTreatmentItemChange(index, "name", e.target.value)
-                  }
-                  error={!!errors.name && !item.name}
-                  helperText={!item.name && errors.name}
-                  required
-                  placeholder="Enter Medication name(e.g.,paracetamol)"
-                  InputProps={{
-                    startAdornment: (
-                      <ListAlt sx={{ color: "#56428B", mr: 2 }} />
-                    ),
+                  onChange={(event, newValue) => {
+                    handleTreatmentItemChange(index, "name", newValue || "");
+                    // Refresh options when a new medication is selected
+                    if (newValue && !medicationOptions.includes(newValue)) {
+                      setMedicationOptions((prev) => [...prev, newValue]);
+                    }
                   }}
+                  onInputChange={(event, newInputValue) =>
+                    handleTreatmentItemChange(index, "name", newInputValue)
+                  }
+                  componentsProps={{
+                    paper: {
+                      sx: {
+                        bgcolor: "#56428B",
+                        color: "black",
+                      },
+                    },
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Medication Name"
+                      fullWidth
+                      margin="dense"
+                      error={!!errors.name && !item.name}
+                      helperText={!item.name && errors.name}
+                      required
+                      placeholder="Search or enter medication name"
+                      InputProps={{
+                        ...params.InputProps,
+                        startAdornment: (
+                          <>
+                            <ListAlt sx={{ color: "#56428B", mr: 2 }} />
+                            {params.InputProps.startAdornment}
+                          </>
+                        ),
+                      }}
+                    />
+                  )}
                 />
               </Grid>
 
-              {/* Description Field */}
               <Grid item xs={12} sm={4}>
                 <StyledTextField
                   label="Description"
@@ -499,7 +551,6 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
             </Grid>
           ))}
 
-          {/* Button to Add More */}
           <Button
             variant="outlined"
             startIcon={<Add />}
@@ -580,7 +631,7 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                   )}
                 />
               </Grid>
-            )}{" "}
+            )}
             <Grid item xs={12} sm={4}>
               <StyledAutocomplete
                 options={optionsStatus}
@@ -602,7 +653,6 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                 )}
               />
             </Grid>
-            {/* Image Upload Grid */}
             <Grid item xs={12} sm={4} sx={{ mt: 0 }}>
               <Button
                 component="label"
@@ -657,8 +707,6 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                       borderRadius: 8,
                     }}
                   />
-
-                  {/* Close Button */}
                   <IconButton
                     onClick={() => setFormData({ ...formData, photo: null })}
                     sx={{

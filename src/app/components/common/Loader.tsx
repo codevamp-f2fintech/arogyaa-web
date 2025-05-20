@@ -1,18 +1,12 @@
 import React from "react";
 import "./loader.css";
 
-const Loader: React.FC = () => {
+const SpinnerLoader: React.FC = () => {
   return (
-    <div className="loader-container">
-      <div className="skeleton-loader">
-        <div className="skeleton skeleton-item"></div>
-        <div className="skeleton skeleton-item"></div>
-        <div className="skeleton skeleton-item"></div>
-        <div className="skeleton skeleton-item"></div>
-        <div className="skeleton skeleton-item"></div>
-      </div>
+    <div className="spinner-container">
+      <div className="spinner"></div>
     </div>
   );
 };
 
-export default Loader;
+export default SpinnerLoader;
