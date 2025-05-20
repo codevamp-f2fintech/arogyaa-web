@@ -83,7 +83,7 @@ const Topbar = () => {
     try {
       const response: SignInResponse = await creator("patient", "/login", {
         email: email,
-        password: process.env.NEXT_PUBLIC_PATIENT_PASS,
+        password: "arrogyapatient",
       });
 
       if (response?.statusCode === 200) {

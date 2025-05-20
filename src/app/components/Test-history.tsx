@@ -37,6 +37,8 @@ import { AddCircle, AssignmentLate, Visibility } from "@mui/icons-material";
 import CreateTestDialog from "./common/CreateTestDialog";
 
 interface Test {
+  tests: any;
+  testId: any;
   _id: string;
   patientId: string;
   doctorId: string;
@@ -84,7 +86,6 @@ const TestHistory: React.FC = () => {
             page + 1
           }&limit=${rowsPerPage}`
         );
-        console.log(response, "test response");
         const results = response?.results || [];
         const count = response?.count || 0;
         const updatedResults = results.map((test: Test) => ({
@@ -326,18 +327,29 @@ const TestHistory: React.FC = () => {
                       fontFamily: "Poppins",
                     }}
                   >
-                    {capitalizeFirstLetter(test.name)}
+                    {test.tests && test.tests.length > 0
+                      ? test.tests
+                          .map((t) => capitalizeFirstLetter(t.name || "N/A"))
+                          .join(", ")
+                      : "N/A"}
                   </TableCell>
                   <TableCell
                     sx={{
                       textAlign: "center",
-                      color: "#7b56ce",
+                      color: "#29175e",
                       fontWeight: "600",
                       fontFamily: "Poppins",
                     }}
                   >
-                    {capitalizeFirstLetter(test.description)}
+                    {test.tests && test.tests.length > 0
+                      ? test.tests
+                          .map((t) =>
+                            capitalizeFirstLetter(t.description || "N/A")
+                          )
+                          .join(", ")
+                      : "N/A"}
                   </TableCell>
+
                   <TableCell
                     sx={{
                       textAlign: "center",
