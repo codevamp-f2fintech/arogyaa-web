@@ -2,16 +2,21 @@ import { Metadata } from "next";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Inter } from "next/font/google";
+import { Suspense } from "react"; // Added Suspense
 
 import { ThemeProvider } from "@mui/material/styles";
 import { CssBaseline } from "@mui/material";
 import ReduxProvider from "@/redux/provider";
+import Loader from "./components/common/Loader";
 
-import { theme } from "./theme"; // Import the theme you created
-import Topbar from "./components/common/Topbar";
+import { theme } from "./theme";
+const Topbar = dynamic(() => import("./components/common/Topbar"), {
+  ssr: false, // Important for client-side only components
+});
 
 import SessionProvider from "./components/SessionProvider";
 const Footer = dynamic(() => import("./components/common/Footer"));
+
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -27,8 +32,7 @@ const RootLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
       <head>
         <Link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;700&display=swap
-"
+          href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;700&display=swap"
         />
       </head>
       <body className={inter.className}>
@@ -36,11 +40,12 @@ const RootLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
           <ThemeProvider theme={theme}>
             <ReduxProvider>
               <CssBaseline />
-              <Topbar />
-
-              {children}
+              <Suspense fallback={<Loader />}>
+                <Topbar />
+                {children}
+              </Suspense>
+              <Footer />
             </ReduxProvider>
-            <Footer />
           </ThemeProvider>
         </SessionProvider>
       </body>

@@ -341,6 +341,51 @@ export default function DoctorListing() {
                 gap: "16px",
               }}
             >
+              <FormControl
+                fullWidth
+                variant="outlined"
+                size="small"
+                sx={{
+                  background: "#f7f6fb",
+                  borderRadius: "30px",
+                  minWidth: 190,
+                }}
+              >
+                <InputLabel
+                  id="gender-label"
+                  sx={{
+                    backgroundColor: "#f7f6fb",
+                    px: 1,
+                    transition: "all 0.3s ease-in-out",
+                    "&.MuiInputLabel-shrink": {
+                      px: 1,
+                      borderRadius: "100px",
+                    },
+                  }}
+                >
+                  Location
+                </InputLabel>
+                <Select
+                  labelId="gender-label"
+                  id="gender-select"
+                  value={filters.gender}
+                  onChange={(e) => handleFilterChange("gender", e.target.value)}
+                  label="Gender"
+                  sx={{
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderRadius: "40px",
+                    },
+                  }}
+                >
+                  <MenuItem value="">
+                    <em>All</em>
+                  </MenuItem>
+                  <MenuItem value="male">Male</MenuItem>
+                  <MenuItem value="female">Female</MenuItem>
+                  <MenuItem value="other">Other</MenuItem>
+                </Select>
+              </FormControl>
+
               {/* Gender Filter */}
               <FormControl
                 fullWidth
