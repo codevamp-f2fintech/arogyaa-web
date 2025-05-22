@@ -30,6 +30,8 @@ import {
   List,
   ListItemText,
   ListItem,
+  OutlinedInput,
+  InputAdornment,
 } from "@mui/material";
 import styles from "../page.module.css";
 import ChatIcon from "@mui/icons-material/Chat";
@@ -46,6 +48,7 @@ import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import SchoolIcon from "@mui/icons-material/School";
 import PhoneIcon from "@mui/icons-material/Phone";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
+import DoctorCardSkeleton from "../components/Search-loader";
 
 import { useGetDoctors } from "@/hooks/doctor";
 import { DoctorData } from "@/types/doctor";
@@ -147,15 +150,18 @@ export default function DoctorListing() {
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [selectedDoctor, setSelectedDoctor] = useState<DoctorData | null>();
   const [results, setResults] = useState([]);
-  const [keyword, setKeyword] = useState<string>("");
+  // const [keyword, setKeyword] = useState<string>("");
   const [debouncedKeyword, setDebouncedKeyword] = useState<string>("");
   const [isTyping, setIsTyping] = useState(false);
   const [visibleContactId, setVisibleContactId] = useState(null);
+  const [keyword, setKeyword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const [filters, setFilters] = useState({
     gender: "",
     experienceFilter: "",
     sortBy: "",
+    location: "", // Add location to initial state
   });
 
   const queryParams = {
@@ -166,8 +172,10 @@ export default function DoctorListing() {
   // Create a debounced function to update the debounced keyword state
   const debouncedSearch = useCallback(
     debounce((value: string) => {
+      setLoading(true);
       setDebouncedKeyword(value);
-    }, 500),
+      setLoading(false);
+    }, 700),
     []
   );
 
@@ -192,7 +200,7 @@ export default function DoctorListing() {
     value: doctors,
     swrLoading,
     error,
-  } = useGetDoctors(null, "get-doctors", 1, 100, queryParams);
+  } = useGetDoctors(null, "get-doctors", 1, 3, queryParams);
 
   const openModal = (doctor: DoctorData): void => {
     const userToken = Cookies.get("token");
@@ -237,29 +245,29 @@ export default function DoctorListing() {
     }
   }, [searchParams]);
 
-  if (swrLoading) {
-    return (
-      <Container maxWidth="lg" sx={{ py: 8 }}>
-        <Grid container spacing={4}>
-          {[...Array(3)].map((_, index) => (
-            <Grid item xs={12} key={index}>
-              <Skeleton variant="rectangular" height={200} />
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
-    );
-  }
+  // if (swrLoading) {
+  //   return (
+  //     <Container maxWidth="lg" sx={{ py: 8 }}>
+  //       <Grid container spacing={4}>
+  //         {[...Array(3)].map((_, index) => (
+  //           <Grid item xs={12} key={index}>
+  //             <Skeleton variant="rectangular" height={200} />
+  //           </Grid>
+  //         ))}
+  //       </Grid>
+  //     </Container>
+  //   );
+  // }
 
-  if (error) {
-    return (
-      <Container maxWidth="lg" sx={{ py: 8 }}>
-        <Typography variant="h4" color="error" align="center">
-          Error loading doctor list: {error.message}
-        </Typography>
-      </Container>
-    );
-  }
+  // if (error) {
+  //   return (
+  //     <Container maxWidth="lg" sx={{ py: 8 }}>
+  //       <Typography variant="h4" color="error" align="center">
+  //         Error loading doctor list: {error.message}
+  //       </Typography>
+  //     </Container>
+  //   );
+  // }
 
   return (
     <ThemeProvider theme={theme}>
@@ -288,6 +296,7 @@ export default function DoctorListing() {
               component="form"
               className={styles.searchBarWrapper}
               sx={{
+                border: "2px solid black",
                 display: "flex",
                 alignItems: "center",
                 margin: "1rem 0rem",
@@ -341,23 +350,30 @@ export default function DoctorListing() {
                 gap: "16px",
               }}
             >
+              {/* Location Filter */}
               <FormControl
                 fullWidth
                 variant="outlined"
                 size="small"
                 sx={{
                   background: "#f7f6fb",
-                  borderRadius: "30px",
+                  borderRadius: "40px",
                   minWidth: 190,
+                  "&:hover": {
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#665dfe",
+                    },
+                  },
                 }}
               >
                 <InputLabel
-                  id="gender-label"
+                  htmlFor="location-search"
                   sx={{
                     backgroundColor: "#f7f6fb",
                     px: 1,
                     transition: "all 0.3s ease-in-out",
                     "&.MuiInputLabel-shrink": {
+                      transform: "translate(14px, -9px) scale(0.75)",
                       px: 1,
                       borderRadius: "100px",
                     },
@@ -365,25 +381,40 @@ export default function DoctorListing() {
                 >
                   Location
                 </InputLabel>
-                <Select
-                  labelId="gender-label"
-                  id="gender-select"
-                  value={filters.gender}
-                  onChange={(e) => handleFilterChange("gender", e.target.value)}
-                  label="Gender"
+                <OutlinedInput
+                  id="location-search"
+                  value={filters.location}
+                  onChange={(e) =>
+                    handleFilterChange("location", e.target.value)
+                  }
+                  label="Location"
+                  autoComplete="off"
+                  startAdornment={
+                    <InputAdornment
+                      position="start"
+                      sx={{ color: "#665dfe", ml: 1 }}
+                    >
+                      <LocationOnIcon /> {/* Changed from SearchIcon */}
+                    </InputAdornment>
+                  }
                   sx={{
+                    borderRadius: "40px",
+                    "& .MuiOutlinedInput-input": {
+                      py: "10px",
+                      px: 1,
+                    },
                     "& .MuiOutlinedInput-notchedOutline": {
-                      borderRadius: "40px",
+                      borderColor: "transparent",
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#665dfe !important",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#665dfe !important",
+                      borderWidth: "1px",
                     },
                   }}
-                >
-                  <MenuItem value="">
-                    <em>All</em>
-                  </MenuItem>
-                  <MenuItem value="male">Male</MenuItem>
-                  <MenuItem value="female">Female</MenuItem>
-                  <MenuItem value="other">Other</MenuItem>
-                </Select>
+                />
               </FormControl>
 
               {/* Gender Filter */}
@@ -528,6 +559,12 @@ export default function DoctorListing() {
               </FormControl>
             </Box>
           </Grid>
+          {/* Skeleton Shown When No Keyword */}
+          {loading && (
+            <Grid item xs={12} sm={6} md={4}>
+              <DoctorCardSkeleton />
+            </Grid>
+          )}
         </Grid>
 
         <Box
@@ -565,6 +602,24 @@ export default function DoctorListing() {
             marginTop: "20px",
           }}
         >
+          {error && (
+            <Container maxWidth="lg" sx={{ py: 8 }}>
+              <Typography variant="h4" color="error" align="center">
+                Error loading doctor list: {error.message}
+              </Typography>
+            </Container>
+          )}
+          {swrLoading && (
+            <Container maxWidth="lg" sx={{ py: 8 }}>
+              <Grid container spacing={4}>
+                {[...Array(3)].map((_, index) => (
+                  <Grid item xs={12} key={index}>
+                    <Skeleton variant="rectangular" height={200} />
+                  </Grid>
+                ))}
+              </Grid>
+            </Container>
+          )}
           {Array.isArray(doctors?.results) && doctors.results.length > 0 ? (
             doctors.results.map((doctor: any) => (
               <Grid item xs={12} sm={6} md={6} key={doctor._id}>
