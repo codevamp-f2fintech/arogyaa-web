@@ -17,6 +17,7 @@ import {
   Box,
   TextField,
   CircularProgress,
+  Paper,
 } from "@mui/material";
 import {
   Image as ImageIcon,
@@ -28,6 +29,8 @@ import {
   Repeat,
   Timer,
   Add,
+  ArrowDropDown,
+  ContrastOutlined,
 } from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
 import { styled } from "@mui/system";
@@ -368,9 +371,10 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
     >
       <Box
         sx={{
-          background:
-            "linear-gradient(180deg, rgba(188,174,224,1) 0%, rgba(255,255,255,1) 100%)",
-          borderRadius: 4,
+          // background:
+          //   "linear-gradient(180deg, rgba(188,174,224,1) 0%, rgba(255,255,255,1) 100%)",
+          background: "white",
+          borderRadius: 1,
           padding: 2,
         }}
       >
@@ -432,12 +436,16 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                       placeholder="Search or enter medication name"
                       InputProps={{
                         ...params.InputProps,
+
                         startAdornment: (
                           <>
                             <ListAlt sx={{ color: "#56428B", mr: 2 }} />
                             {params.InputProps.startAdornment}
                           </>
                         ),
+                        sx: {
+                          color: "#56428B", // Change input text color here
+                        },
                       }}
                     />
                   )}
@@ -465,6 +473,11 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                       <Description sx={{ color: "#56428B", mr: 2 }} />
                     ),
                   }}
+                  inputProps={{
+                    style: {
+                      color: "#56428B", // <-- Set text color here
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12} sm={4}>
@@ -484,6 +497,11 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                       <Inventory sx={{ color: "#56428B", mr: 2 }} />
                     ),
                   }}
+                  inputProps={{
+                    style: {
+                      color: "#56428B", // Set text color
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12} sm={4}>
@@ -502,6 +520,11 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                   InputProps={{
                     startAdornment: <Repeat sx={{ color: "#56428B", mr: 2 }} />,
                   }}
+                  inputProps={{
+                    style: {
+                      color: "#56428B", // <-- Sets input text color
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12} sm={4}>
@@ -515,6 +538,11 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                   placeholder="Duration (e.g., 5 days, 1 month)"
                   InputProps={{
                     startAdornment: <Timer sx={{ color: "#56428B", mr: 2 }} />,
+                  }}
+                  inputProps={{
+                    style: {
+                      color: "#56428B", // Input text color
+                    },
                   }}
                 />
               </Grid>
@@ -537,6 +565,9 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                     />
                   }
                   label="Empty Stomach"
+                  sx={{
+                    color: "#56428B", // This sets the label color
+                  }}
                 />
                 <Button
                   variant="outlined"
@@ -555,7 +586,17 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
             variant="outlined"
             startIcon={<Add />}
             onClick={handleAddTreatment}
-            sx={{ mb: 3 }}
+            sx={{
+              mb: 3,
+              color: "#56428B",
+              borderColor: "#56428B",
+              textTransform: "none",
+              fontWeight: "bold",
+              "&:hover": {
+                backgroundColor: "rgba(86, 66, 139, 0.08)", // Light purple on hover
+                borderColor: "#56428B",
+              },
+            }}
           >
             Add More medications
           </Button>
@@ -575,6 +616,42 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                   });
                 }}
                 fullWidth
+                popupIcon={<ArrowDropDown sx={{ color: "#56428B" }} />}
+                PaperComponent={({ children }) => (
+                  <Paper
+                    sx={{
+                      backgroundColor: "#56428B", // Deep purple dropdown background
+                      color: "#fff", // White text
+                      borderRadius: 2,
+                      mt: 1,
+                    }}
+                  >
+                    {children}
+                  </Paper>
+                )}
+                sx={{
+                  "& .MuiAutocomplete-option": {
+                    backgroundColor: "#56428B",
+                    color: "#fff",
+                    "&[aria-selected='true']": {
+                      backgroundColor: "#453278", // Slightly darker on selection
+                    },
+                    "&:hover": {
+                      backgroundColor: "#453278", // Same as selected on hover
+                    },
+                  },
+                  "& .MuiAutocomplete-popupIndicator": {
+                    color: "#56428B",
+                  },
+                }}
+                // componentsProps={{
+                //   paper: {
+                //     sx: {
+                //       bgcolor: "#f8f6fc", // Optional light background for dropdown
+                //       color: "#56428B", // Dropdown item text color
+                //     },
+                //   },
+                // }}
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -582,6 +659,31 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                     variant="outlined"
                     error={!!errors.type}
                     helperText={errors.type || ""}
+                    InputLabelProps={{
+                      style: {
+                        color: "#56428B", // Label color like in image
+                        fontWeight: 500,
+                      },
+                    }}
+                    sx={{
+                      backgroundColor: "#fff",
+                      borderRadius: 2,
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          borderColor: "#56428B", // Light purple border
+                        },
+                        "&:hover fieldset": {
+                          borderColor: "#56428B",
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#56428B",
+                        },
+                        color: "#56428B", // Text color
+                      },
+                      "& .MuiInputBase-input": {
+                        color: "#56428B", // Ensures the input text is purple
+                      },
+                    }}
                   />
                 )}
               />
@@ -602,6 +704,29 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                     <Description sx={{ color: "#56428B", mr: 2 }} />
                   ),
                 }}
+                inputProps={{
+                  style: {
+                    color: "#56428B", // Text color
+                  },
+                }}
+                InputLabelProps={{
+                  style: {
+                    color: "#56428B", // Label color
+                  },
+                }}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "#56428B",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#56428B",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#56428B",
+                    },
+                  },
+                }}
               />
             </Grid>
             {formData.type === "arogyaa" && (
@@ -621,12 +746,77 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                   isOptionEqualToValue={(option, value) =>
                     option.id === value.id
                   }
+                  popupIcon={<ArrowDropDown sx={{ color: "#56428B" }} />}
+                  PaperComponent={({ children }) => (
+                    <Paper
+                      sx={{
+                        backgroundColor: "#56428B", // Dropdown background
+                        color: "#FFFFFF", // White text
+                        borderRadius: 2,
+                        mt: 1,
+                        boxShadow: 3,
+                      }}
+                    >
+                      {children}
+                    </Paper>
+                  )}
+                  sx={{
+                    "& .MuiAutocomplete-option": {
+                      backgroundColor: "#56428B",
+                      color: "#FFFFFF",
+                      "&[aria-selected='true']": {
+                        backgroundColor: "#453278",
+                      },
+                      "&:hover": {
+                        backgroundColor: "#453278",
+                      },
+                    },
+                    "& .MuiOutlinedInput-root": {
+                      backgroundColor: "#FFFFFF", // White background for input
+                      borderRadius: 2,
+                      color: "#56428B", // Purple input text
+                      "& fieldset": {
+                        borderColor: "#56428B",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#56428B",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#56428B",
+                      },
+                    },
+                    "& .MuiAutocomplete-popupIndicator": {
+                      color: "#56428B",
+                    },
+                  }}
                   renderInput={(params) => (
                     <TextField
                       {...params}
                       label="Select Doctor"
                       error={!!errors.doctor}
                       helperText={errors.doctor}
+                      InputLabelProps={{
+                        style: {
+                          color: "#56428B", // Match label to theme
+                          fontWeight: 500,
+                        },
+                      }}
+                      // sx={{
+                      //   backgroundColor: "#E7DEF6", // Light purple background
+                      //   borderRadius: 2,
+                      //   "& .MuiOutlinedInput-root": {
+                      //     "& fieldset": {
+                      //       borderColor: "#56428B",
+                      //     },
+                      //     "&:hover fieldset": {
+                      //       borderColor: "#56428B",
+                      //     },
+                      //     "&.Mui-focused fieldset": {
+                      //       borderColor: "#56428B",
+                      //     },
+                      //     color: "#56428B", // Input text
+                      //   },
+                      // }}
                     />
                   )}
                 />
@@ -648,8 +838,51 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                   });
                 }}
                 fullWidth
+                PaperComponent={(props) => (
+                  <Paper
+                    {...props}
+                    sx={{
+                      backgroundColor: "#56428B",
+                      color: "#fff",
+                      borderRadius: 2,
+                      "& .MuiAutocomplete-option": {
+                        color: "#fff",
+                        '&[aria-selected="true"]': {
+                          backgroundColor: "#3E2E6E",
+                        },
+                        "&:hover": {
+                          backgroundColor: "#3E2E6E",
+                        },
+                      },
+                    }}
+                  />
+                )}
                 renderInput={(params) => (
-                  <TextField {...params} label="Status" variant="outlined" />
+                  <TextField
+                    {...params}
+                    label="Status"
+                    variant="outlined"
+                    InputProps={{
+                      ...params.InputProps,
+                      sx: { color: "#56428B" }, // Text color
+                    }}
+                    InputLabelProps={{
+                      sx: { color: "#56428B" }, // Label color
+                    }}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          borderColor: "#56428B",
+                        },
+                        "&:hover fieldset": {
+                          borderColor: "#56428B",
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#56428B",
+                        },
+                      },
+                    }}
+                  />
                 )}
               />
             </Grid>
@@ -657,19 +890,22 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
               <Button
                 component="label"
                 variant="contained"
-                startIcon={<ImageIcon />}
+                startIcon={<ImageIcon sx={{ color: "#fff" }} />}
                 sx={{
                   borderRadius: "12px",
                   padding: "10px",
                   textAlign: "center",
                   backgroundColor: "#56428B",
+                  color: "#fff",
                   cursor: "pointer",
                   width: "100%",
                   marginTop: 1.6,
+                  transition: "all 0.3s ease",
+                  boxShadow: "0px 2px 8px rgba(86, 66, 139, 0.3)",
                   "&:hover": {
                     background:
-                      "linear-gradient(45deg, #1976D2 30%, #0D47A1 90%)",
-                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)",
+                      "linear-gradient(45deg, #56428B 30%, #3E2E6E 90%)",
+                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.2)",
                   },
                 }}
               >
@@ -730,12 +966,22 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                       setFormData({ ...formData, isFollowUp: e.target.checked })
                     }
                     sx={{
-                      color: formData.isFollowUp ? "#3f51b5" : "default",
+                      color: "#56428B",
                       "&.Mui-checked": { color: "#56428B" },
                     }}
+                    // sx={{
+                    //   color: formData.isFollowUp ? "#3f51b5" : "default",
+                    //   "&.Mui-checked": { color: "#56428B" },
+                    // }}
                   />
                 }
                 label="Is Follow Up?"
+                sx={{
+                  color: "#56428B",
+                  "& .MuiFormControlLabel-label": {
+                    fontWeight: 500,
+                  },
+                }}
               />
             </Grid>
             <Grid item xs={12} sm={4}>
@@ -751,6 +997,34 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                   setFormData({ ...formData, followUpDate: e.target.value })
                 }
                 disabled={!formData.isFollowUp}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "#56428B", // normal border
+                    },
+                    "&.Mui-disabled fieldset": {
+                      borderColor: "#A28FCB", // softer purple for disabled
+                    },
+                    "&.Mui-disabled": {
+                      backgroundColor: "#F3EFFA", // soft purple background
+                    },
+                  },
+                  "& .MuiInputBase-input": {
+                    color: "#56428B",
+                    "&.Mui-disabled": {
+                      color: "#A28FCB", // soft purple text
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "#56428B",
+                    "&.Mui-disabled": {
+                      color: "#A28FCB",
+                    },
+                  },
+                  "& input::placeholder": {
+                    color: "#A28FCB",
+                  },
+                }}
               />
             </Grid>
           </Grid>

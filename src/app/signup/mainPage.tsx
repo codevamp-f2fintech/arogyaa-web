@@ -42,20 +42,20 @@ const inputStyles = {
   backgroundColor: "white",
   "& .MuiInputBase-root": {
     fontFamily: "Poppins",
-    backgroundColor: "white", 
+    backgroundColor: "white",
   },
   "& .MuiInputLabel-root": {
-    color: "#7A4D9C", 
+    color: "#7A4D9C",
     fontFamily: "Poppins",
   },
   "& .MuiOutlinedInput-root": {
     fontFamily: "Poppins",
-    color: "#000", 
+    color: "#000",
     "& fieldset": {
-      borderColor: "#7A4D9C", 
+      borderColor: "#7A4D9C",
     },
     "&:hover fieldset": {
-      borderColor: "#7A4D9C", 
+      borderColor: "#7A4D9C",
     },
     "&.Mui-focused fieldset": {
       borderColor: "#7A4D9C",
@@ -63,11 +63,10 @@ const inputStyles = {
   },
   input: {
     fontFamily: "Poppins",
-    
+
     color: "#000", // Ensure text is black while typing
   },
 };
-
 
 const menuItemStyles = {
   fontFamily: "Poppins",
