@@ -34,6 +34,7 @@ import type { AppDispatch, RootState } from "@/redux/store";
 import SnackbarComponent from "./common/Snackbar";
 import ImagePicker from "./common/ImagePicker";
 import CreateTreatmentDialog from "./common/CreateTreatmentDialog";
+import { log } from "console";
 
 interface Treatment {
   _id: string;
@@ -85,7 +86,7 @@ const TreatmentHistory: React.FC = () => {
             page + 1
           }&limit=${rowsPerPage}`
         );
-       
+
         if (!response) {
           throw new Error("No response from the API");
         }
@@ -295,7 +296,8 @@ const TreatmentHistory: React.FC = () => {
               </TableRow>
             ) : treatments.length > 0 ? (
               treatments.map((treatment) => {
-                const treatmentData = treatment.treatments && treatment.treatments[0];
+                const treatmentData =
+                  treatment.treatments && treatment.treatments[0];
                 return (
                   <TableRow
                     key={treatment._id}
@@ -316,18 +318,46 @@ const TreatmentHistory: React.FC = () => {
                         treatment?.doctorId?.username || "N/A"
                       )}
                     </TableCell>
-                    <TableCell sx={{ textAlign: "center" }}>
-                      {capitalizeFirstLetter(treatmentData?.name || "N/A")}
+                    <TableCell
+                      sx={{
+                        textAlign: "center",
+                        color: "white",
+                        fontWeight: "300",
+                        fontFamily: "Poppins",
+                      }}
+                    >
+                      {treatment.treatments && treatment.treatments.length > 0
+                        ? treatment.treatments
+                            .map((t) => capitalizeFirstLetter(t.name || "N/A"))
+                            .join(", ")
+                        : "N/A"}
                     </TableCell>
-                    <TableCell sx={{ textAlign: "center" }}>
-                      {capitalizeFirstLetter(treatmentData?.description || "N/A")}
+                    <TableCell
+                      sx={{
+                        textAlign: "center",
+                        color: "white",
+                        fontWeight: "300",
+                        fontFamily: "Poppins",
+                      }}
+                    >
+                      {treatment.treatments && treatment.treatments.length > 0
+                        ? treatment.treatments
+                            .map((t) =>
+                              capitalizeFirstLetter(t.description || "N/A")
+                            )
+                            .join(", ")
+                        : "N/A"}
                     </TableCell>
                     <TableCell sx={{ textAlign: "center" }}>
                       {capitalizeFirstLetter(treatment.type)}
                     </TableCell>
-                    <TableCell sx={{    width: 150,
-                      textAlign: "center",
-                      verticalAlign: "middle", }}>
+                    <TableCell
+                      sx={{
+                        width: 150,
+                        textAlign: "center",
+                        verticalAlign: "middle",
+                      }}
+                    >
                       <Select
                         value={treatment.status}
                         onChange={(e) =>
@@ -404,8 +434,9 @@ const TreatmentHistory: React.FC = () => {
                       </Select>
                     </TableCell>
                     <TableCell sx={{ textAlign: "center" }}>
-                    {capitalizeFirstLetter(treatment.type)}
-                  </TableCell>                    <TableCell sx={{ textAlign: "center" }}>
+                      {capitalizeFirstLetter(treatment.type)}
+                    </TableCell>{" "}
+                    <TableCell sx={{ textAlign: "center" }}>
                       {treatment.photo ? (
                         <Box
                           sx={{ position: "relative", display: "inline-block" }}
