@@ -268,6 +268,9 @@ const TreatmentHistory: React.FC = () => {
                 "doctor's Name",
                 "Name",
                 "Description",
+                "Quantity",
+                "Frequency",
+                "Duration",
                 "Type",
                 "Status",
                 "Photo",
@@ -327,9 +330,11 @@ const TreatmentHistory: React.FC = () => {
                       }}
                     >
                       {treatment.treatments && treatment.treatments.length > 0
-                        ? treatment.treatments
-                            .map((t) => capitalizeFirstLetter(t.name || "N/A"))
-                            .join(", ")
+                        ? treatment.treatments.map((t) => (
+                            <TableRow sx={{ textAlign: "center" }}>
+                              {capitalizeFirstLetter(t.name)}
+                            </TableRow>
+                          ))
                         : "N/A"}
                     </TableCell>
                     <TableCell
@@ -341,11 +346,62 @@ const TreatmentHistory: React.FC = () => {
                       }}
                     >
                       {treatment.treatments && treatment.treatments.length > 0
-                        ? treatment.treatments
-                            .map((t) =>
-                              capitalizeFirstLetter(t.description || "N/A")
+                        ? treatment.treatments.map(
+                            (t) => (
+                              <TableRow sx={{ textAlign: "center" }}>
+                                {capitalizeFirstLetter(t.description)}
+                              </TableRow>
                             )
-                            .join(", ")
+                            // capitalizeFirstLetter(t.description || "N/A")
+                          )
+                        : "N/A"}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        textAlign: "center",
+                        color: "white",
+                        fontWeight: "300",
+                        fontFamily: "Poppins",
+                      }}
+                    >
+                      {treatment.treatments && treatment.treatments.length > 0
+                        ? treatment.treatments.map((t) => (
+                            <TableRow sx={{ textAlign: "center" }}>
+                              {capitalizeFirstLetter(t.quantity)}
+                            </TableRow>
+                          ))
+                        : "N/A"}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        textAlign: "center",
+                        color: "white",
+                        fontWeight: "300",
+                        fontFamily: "Poppins",
+                      }}
+                    >
+                      {treatment.treatments && treatment.treatments.length > 0
+                        ? treatment.treatments.map((t) => (
+                            <TableRow sx={{ textAlign: "center" }}>
+                              {capitalizeFirstLetter(t.frequency)}
+                            </TableRow>
+                          ))
+                        : "N/A"}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        textAlign: "center",
+                        color: "white",
+                        fontWeight: "300",
+                        fontFamily: "Poppins",
+                      }}
+                    >
+                      {treatment.treatments && treatment.treatments.length > 0
+                        ? treatment.treatments.map((t) => (
+                            <TableRow sx={{ textAlign: "center" }}>
+                              {capitalizeFirstLetter(t.duration)}
+                            </TableRow>
+                          ))
                         : "N/A"}
                     </TableCell>
                     <TableCell sx={{ textAlign: "center" }}>
