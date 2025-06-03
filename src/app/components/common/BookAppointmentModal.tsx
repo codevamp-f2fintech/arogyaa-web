@@ -451,7 +451,6 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
       try {
         setLoading(true);
 
-        // Ensure the hospitalName is being passed to the appointment data
         const appointmentData = {
           ...values,
           patientId,
@@ -463,6 +462,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
 
         const response = await createAppointment(appointmentData);
 
+        
         if (response?.statusCode === 201) {
           const paymentData = {
             patientId,
@@ -476,6 +476,16 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
 
           setShowPaymentForm(true);
           setPaymentInfo(paymentData);
+
+     
+          snackbarAndNavigate(
+            dispatch,
+            true,
+            "success",
+            "Appointment created successfully!",
+            null,
+            false
+          );
         } else {
           snackbarAndNavigate(
             dispatch,
