@@ -25,6 +25,7 @@ import {
   MenuItem,
   Modal,
   IconButton,
+  Typography,
 } from "@mui/material";
 
 import { fetcher, modifier } from "@/apis/apiClient";
@@ -150,7 +151,7 @@ const TestHistory: React.FC = () => {
     },
     [dispatch, fetchTests]
   );
-
+  // console.log()
   const handleOpenModal = (testId: string) => {
     setSelectedTestId(testId);
     setTestImagePreview(null);
@@ -215,6 +216,9 @@ const TestHistory: React.FC = () => {
     setViewImageModal(false);
   };
 
+  const formatCategory = (str) =>
+    str.replaceAll("_", " ").replace(/\b\w/g, (char) => char.toUpperCase());
+
   return (
     <Container maxWidth="lg">
       <Box
@@ -276,6 +280,7 @@ const TestHistory: React.FC = () => {
                 "doctor's Name",
                 "Name",
                 "Description",
+                "category",
                 "Type",
                 "Status",
                 "Photo",
@@ -319,37 +324,79 @@ const TestHistory: React.FC = () => {
                   >
                     {capitalizeFirstLetter(test.doctorId?.username || "N/A")}
                   </TableCell>
-                  <TableCell
-                    sx={{
-                      textAlign: "center",
-                      color: "white",
-                      fontWeight: "300",
-                      fontFamily: "Poppins",
-                    }}
-                  >
-                    {test.tests && test.tests.length > 0
-                      ? test.tests
-                          .map((t) => capitalizeFirstLetter(t.name || "N/A"))
-                          .join(", ")
-                      : "N/A"}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      textAlign: "center",
-                      color: "white",
-                      fontWeight: "300",
-                      fontFamily: "Poppins",
-                    }}
-                  >
-                    {test.tests && test.tests.length > 0
-                      ? test.tests
-                          .map((t) =>
-                            capitalizeFirstLetter(t.description || "N/A")
-                          )
-                          .join(", ")
-                      : "N/A"}
-                  </TableCell>
 
+                  <TableCell
+                    sx={{
+                      textAlign: "center",
+                      color: "white",
+                      fontWeight: 300,
+                      fontFamily: "Poppins",
+                    }}
+                  >
+                    {test.tests && test.tests.length > 0 ? (
+                      <Box
+                        display="flex"
+                        flexDirection="column"
+                        alignItems="center"
+                      >
+                        {test.tests.map((t, index) => (
+                          <Typography
+                            key={index}
+                            variant="body2"
+                            sx={{ color: "white" }}
+                          >
+                            {capitalizeFirstLetter(t.name)}
+                          </Typography>
+                        ))}
+                      </Box>
+                    ) : (
+                      "N/A"
+                    )}
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      textAlign: "center",
+                      color: "white",
+                      fontWeight: 300,
+                      fontFamily: "Poppins",
+                    }}
+                  >
+                    {test.tests && test.tests.length > 0 ? (
+                      <Box
+                        display="flex"
+                        flexDirection="column"
+                        alignItems="center"
+                      >
+                        {test.tests.map((t, index) => (
+                          <Typography
+                            key={index}
+                            variant="body2"
+                            sx={{ color: "white" }}
+                          >
+                            {capitalizeFirstLetter(t.description)}
+                          </Typography>
+                        ))}
+                      </Box>
+                    ) : (
+                      "N/A"
+                    )}
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      textAlign: "center",
+                      color: "white",
+                      fontWeight: "300",
+                      fontFamily: "Poppins",
+                    }}
+                  >
+                    {test.tests && test.tests.length > 0
+                      ? test.tests.map((t) => (
+                          <TableRow>
+                            {formatCategory(t.category || "N/A")}
+                          </TableRow>
+                        ))
+                      : "N/A"}
+                  </TableCell>
                   <TableCell
                     sx={{
                       textAlign: "center",
@@ -360,7 +407,6 @@ const TestHistory: React.FC = () => {
                   >
                     {capitalizeFirstLetter(test.type || "N/A")}
                   </TableCell>
-
                   <TableCell
                     sx={{
                       width: 150,

@@ -19,6 +19,7 @@ import {
   Select,
   IconButton,
   Modal,
+  Typography,
 } from "@mui/material";
 import {
   CheckCircle,
@@ -127,7 +128,7 @@ const TreatmentHistory: React.FC = () => {
       return;
     }
   };
-
+  // console.log()
   // Open modal for uploading image
   const handleOpenModal = (treatmentId: string) => {
     setSelectedTreatmentId(treatmentId);
@@ -325,84 +326,146 @@ const TreatmentHistory: React.FC = () => {
                       sx={{
                         textAlign: "center",
                         color: "white",
-                        fontWeight: "300",
+                        fontWeight: 300,
                         fontFamily: "Poppins",
                       }}
                     >
-                      {treatment.treatments && treatment.treatments.length > 0
-                        ? treatment.treatments.map((t) => (
-                            <TableRow sx={{ textAlign: "center" }}>
+                      {treatment.treatments &&
+                      treatment.treatments.length > 0 ? (
+                        <Box
+                          display="flex"
+                          flexDirection="column"
+                          alignItems="center"
+                        >
+                          {treatment.treatments.map((t, index) => (
+                            <Typography
+                              key={index}
+                              variant="body2"
+                              sx={{ color: "white" }}
+                            >
                               {capitalizeFirstLetter(t.name)}
-                            </TableRow>
-                          ))
-                        : "N/A"}
+                            </Typography>
+                          ))}
+                        </Box>
+                      ) : (
+                        "N/A"
+                      )}
                     </TableCell>
                     <TableCell
                       sx={{
                         textAlign: "center",
                         color: "white",
-                        fontWeight: "300",
+                        fontWeight: 300,
                         fontFamily: "Poppins",
                       }}
                     >
-                      {treatment.treatments && treatment.treatments.length > 0
-                        ? treatment.treatments.map(
-                            (t) => (
-                              <TableRow sx={{ textAlign: "center" }}>
-                                {capitalizeFirstLetter(t.description)}
-                              </TableRow>
-                            )
-                            // capitalizeFirstLetter(t.description || "N/A")
-                          )
-                        : "N/A"}
+                      {treatment.treatments &&
+                      treatment.treatments.length > 0 ? (
+                        <Box
+                          display="flex"
+                          flexDirection="column"
+                          alignItems="center"
+                        >
+                          {treatment.treatments.map((t, index) => (
+                            <Typography
+                              key={index}
+                              variant="body2"
+                              sx={{ color: "white" }}
+                            >
+                              {capitalizeFirstLetter(t.description || "N/A")}
+                            </Typography>
+                          ))}
+                        </Box>
+                      ) : (
+                        "N/A"
+                      )}
                     </TableCell>
                     <TableCell
                       sx={{
                         textAlign: "center",
                         color: "white",
-                        fontWeight: "300",
+                        fontWeight: 300,
                         fontFamily: "Poppins",
                       }}
                     >
-                      {treatment.treatments && treatment.treatments.length > 0
-                        ? treatment.treatments.map((t) => (
-                            <TableRow sx={{ textAlign: "center" }}>
-                              {capitalizeFirstLetter(t.quantity)}
-                            </TableRow>
-                          ))
-                        : "N/A"}
+                      {treatment.treatments &&
+                      treatment.treatments.length > 0 ? (
+                        <Box
+                          display="flex"
+                          flexDirection="column"
+                          alignItems="center"
+                        >
+                          {treatment.treatments.map((t, index) => (
+                            <Typography
+                              key={index}
+                              variant="body2"
+                              sx={{ color: "white" }}
+                            >
+                              {capitalizeFirstLetter(t.quantity || "N/A")}
+                            </Typography>
+                          ))}
+                        </Box>
+                      ) : (
+                        "N/A"
+                      )}
                     </TableCell>
                     <TableCell
                       sx={{
                         textAlign: "center",
                         color: "white",
-                        fontWeight: "300",
+                        fontWeight: 300,
                         fontFamily: "Poppins",
                       }}
                     >
-                      {treatment.treatments && treatment.treatments.length > 0
-                        ? treatment.treatments.map((t) => (
-                            <TableRow sx={{ textAlign: "center" }}>
-                              {capitalizeFirstLetter(t.frequency)}
-                            </TableRow>
-                          ))
-                        : "N/A"}
+                      {treatment.treatments &&
+                      treatment.treatments.length > 0 ? (
+                        <Box
+                          display="flex"
+                          flexDirection="column"
+                          alignItems="center"
+                        >
+                          {treatment.treatments.map((t, index) => (
+                            <Typography
+                              key={index}
+                              variant="body2"
+                              sx={{ color: "white" }}
+                            >
+                              {capitalizeFirstLetter(t.frequency || "N/A")}
+                            </Typography>
+                          ))}
+                        </Box>
+                      ) : (
+                        "N/A"
+                      )}
                     </TableCell>
                     <TableCell
                       sx={{
                         textAlign: "center",
                         color: "white",
-                        fontWeight: "300",
+                        fontWeight: 300,
                         fontFamily: "Poppins",
                       }}
                     >
-                      {treatment.treatments && treatment.treatments.length > 0
-                        ? treatment.treatments.map((t) => (
-                            <TableRow sx={{ textAlign: "center" }}>
-                              {capitalizeFirstLetter(t.duration)}
-                            </TableRow>
-                          ))
-                        : "N/A"}
+                      {treatment.treatments &&
+                      treatment.treatments.length > 0 ? (
+                        <Box
+                          display="flex"
+                          flexDirection="column"
+                          alignItems="center"
+                        >
+                          {treatment.treatments.map((t, index) => (
+                            <Typography
+                              key={index}
+                              variant="body2"
+                              sx={{ color: "white" }}
+                            >
+                              {capitalizeFirstLetter(t.duration || "N/A")}
+                            </Typography>
+                          ))}
+                        </Box>
+                      ) : (
+                        "N/A"
+                      )}
                     </TableCell>
                     <TableCell sx={{ textAlign: "center" }}>
                       {capitalizeFirstLetter(treatment.type)}
