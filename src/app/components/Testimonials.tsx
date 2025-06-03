@@ -22,8 +22,8 @@ const Testimonials = () => {
       const response = await fetcher("testimonial", "get-testimonials");
       console.log("Fetched Testimonials:", response);
 
-      if (response && response.results) {
-        setTestimonials(response.results);
+      if (response && response?.results) {
+        setTestimonials(response?.results);
       } else {
         setTestimonials([]);
       }
