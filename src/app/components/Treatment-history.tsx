@@ -128,7 +128,7 @@ const TreatmentHistory: React.FC = () => {
       return;
     }
   };
-
+  // console.log()
   // Open modal for uploading image
   const handleOpenModal = (treatmentId: string) => {
     setSelectedTreatmentId(treatmentId);

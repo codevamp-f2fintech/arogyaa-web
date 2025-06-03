@@ -151,7 +151,7 @@ const TestHistory: React.FC = () => {
     },
     [dispatch, fetchTests]
   );
-
+  // console.log()
   const handleOpenModal = (testId: string) => {
     setSelectedTestId(testId);
     setTestImagePreview(null);
