@@ -76,6 +76,7 @@ export const Utility = () => {
     const urls: Record<string, string> = {
       appointment: process.env.NEXT_PUBLIC_APPOINTMENT_URL as string,
       chat: process.env.NEXT_PUBLIC_CHAT_URL as string,
+      notification: process.env.NEXT_PUBLIC_NOTIFICATION_URL as string,
       treatment: process.env.NEXT_PUBLIC_TREATMENT_URL as string,
       speciality: process.env.NEXT_PUBLIC_SPECIALITY_URL as string,
       symptom: process.env.NEXT_PUBLIC_SYMPTOM_URL as string,
