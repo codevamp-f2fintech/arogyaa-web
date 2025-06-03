@@ -63,7 +63,6 @@ export function UserPopover({
       }
     }
   }, [userId]);
-  console.log(user, "response>>>>");
 
   React.useEffect(() => {
     fetchUserProfile();

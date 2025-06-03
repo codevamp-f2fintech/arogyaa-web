@@ -46,8 +46,6 @@ const Topbar = () => {
   const pathname = usePathname();
   const token = getCookies().token;
 
-  console.log("token>>", token);
-
   const userPopover = usePopover<HTMLDivElement>();
   const { notifications } = useSelector(
     (state: RootState) => state.notifications

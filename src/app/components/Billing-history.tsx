@@ -38,6 +38,7 @@ import {
 
 import { fetcher } from "@/apis/apiClient";
 import { Utility } from "@/utils";
+import { border } from "@mui/system";
 
 const BillingHistory: React.FC = () => {
   const { decodedToken } = Utility();
@@ -247,7 +248,7 @@ const BillingHistory: React.FC = () => {
                     </span>
                   </TableCell>
                   <TableCell align="center">
-                    {(bill.transactionId).toLocaleString()}
+                    {bill.transactionId.toLocaleString()}
                   </TableCell>
                   <TableCell align="center">
                     <span

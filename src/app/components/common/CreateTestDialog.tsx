@@ -16,6 +16,7 @@ import {
   IconButton,
   Typography,
   Box,
+  Paper,
 } from "@mui/material";
 import {
   Image as ImageIcon,
@@ -24,6 +25,7 @@ import {
   ListAlt,
   CheckCircle,
   Add,
+  ArrowDropDown,
 } from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
 import { styled } from "@mui/system";
@@ -298,10 +300,12 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
     >
       <Box
         sx={{
-          background:
-            "linear-gradient(180deg, rgba(188,174,224,1) 0%, rgba(255,255,255,1) 100%)",
-          borderRadius: 4,
+          // background:
+          //   "linear-gradient(180deg, rgba(188,174,224,1) 0%, rgba(255,255,255,1) 100%)",
+          background: "white",
+          borderRadius: 1,
           padding: 2,
+          color: "#56428B", // 👈 Add this line
         }}
       >
         <DialogTitle sx={{ color: "#56428B" }}>
@@ -343,6 +347,15 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
                     startAdornment: (
                       <ListAlt sx={{ color: "#56428B", mr: 2 }} />
                     ),
+                    sx: {
+                      color: "#56428B", // 👈 input text color
+                    },
+                  }}
+                  InputLabelProps={{
+                    sx: { color: "#56428B" }, // 👈 label color
+                  }}
+                  FormHelperTextProps={{
+                    sx: { color: "#56428B" }, // 👈 helper text color
                   }}
                 />
               </Grid>
@@ -363,11 +376,20 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
                     startAdornment: (
                       <Description sx={{ color: "#56428B", mr: 2 }} />
                     ),
+                    sx: {
+                      color: "#56428B", // 👈 input text color
+                    },
+                  }}
+                  InputLabelProps={{
+                    sx: { color: "#56428B" }, // 👈 label color
+                  }}
+                  FormHelperTextProps={{
+                    sx: { color: "#56428B" }, // 👈 helper text color
                   }}
                 />
               </Grid>
 
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={4} mt={1}>
                 <StyledAutocomplete
                   options={optionsCategory}
                   getOptionLabel={(option) => option.label}
@@ -382,6 +404,25 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
                     );
                   }}
                   fullWidth
+                  PaperComponent={(props) => (
+                    <Paper
+                      {...props}
+                      sx={{
+                        backgroundColor: "#56428B",
+                        color: "#fff",
+                        borderRadius: 2,
+                        "& .MuiAutocomplete-option": {
+                          color: "#fff",
+                          '&[aria-selected="true"]': {
+                            backgroundColor: "#3E2E6E",
+                          },
+                          "&:hover": {
+                            backgroundColor: "#3E2E6E",
+                          },
+                        },
+                      }}
+                    />
+                  )}
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -389,6 +430,16 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
                       variant="outlined"
                       error={!!errors.category && !item.category}
                       helperText={!item.category && errors.category}
+                      InputProps={{
+                        ...params.InputProps,
+                        sx: { color: "#56428B" }, // 👈 input text color
+                      }}
+                      InputLabelProps={{
+                        sx: { color: "#56428B" }, // 👈 label color
+                      }}
+                      FormHelperTextProps={{
+                        sx: { color: "#56428B" }, // 👈 helper/error text color
+                      }}
                     />
                   )}
                 />
@@ -432,7 +483,18 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
             variant="outlined"
             startIcon={<Add />}
             onClick={handleAddTest}
-            sx={{ mb: 3 }}
+            sx={{
+              mb: 3,
+              borderColor: "#56428B",
+              color: "#56428B",
+              borderRadius: "12px",
+              fontWeight: "bold",
+              "&:hover": {
+                backgroundColor: "#56428B",
+                color: "#fff",
+                borderColor: "#56428B",
+              },
+            }}
           >
             Add More Tests
           </Button>
@@ -452,8 +514,68 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
                   });
                 }}
                 fullWidth
+                popupIcon={<ArrowDropDown sx={{ color: "#56428B" }} />}
+                PaperComponent={({ children }) => (
+                  <Paper
+                    sx={{
+                      backgroundColor: "#56428B", // Dropdown background
+                      color: "white", // Text color
+                      borderRadius: 2,
+                      mt: 1,
+                    }}
+                  >
+                    {children}
+                  </Paper>
+                )}
+                sx={{
+                  "& .MuiAutocomplete-option": {
+                    backgroundColor: "#56428B",
+                    color: "white",
+                    "&[aria-selected='true']": {
+                      backgroundColor: "#453278",
+                    },
+                    "&:hover": {
+                      backgroundColor: "#453278",
+                    },
+                  },
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "#FFFFFF", // White input background
+                    borderRadius: "12px",
+                    color: "#56428B",
+                    "& fieldset": {
+                      borderColor: "#56428B",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#56428B",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#56428B",
+                    },
+                  },
+                  "& .MuiAutocomplete-popupIndicator": {
+                    color: "#56428B",
+                  },
+                }}
                 renderInput={(params) => (
-                  <TextField {...params} label="Status" variant="outlined" />
+                  <TextField
+                    {...params}
+                    label="Status"
+                    variant="outlined"
+                    sx={{
+                      "& .MuiInputBase-root": {
+                        color: "#56428B",
+                        borderRadius: "12px",
+                      },
+                      "& .MuiInputLabel-root": {
+                        color: "#56428B",
+                        fontWeight: 500,
+                      },
+                      "& input": {
+                        color: "#56428B",
+                        fontWeight: 300,
+                      },
+                    }}
+                  />
                 )}
               />
             </Grid>
@@ -472,8 +594,68 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
                   });
                 }}
                 fullWidth
+                popupIcon={<ArrowDropDown sx={{ color: "#56428B" }} />}
+                PaperComponent={({ children }) => (
+                  <Paper
+                    sx={{
+                      backgroundColor: "#56428B", // Dropdown background
+                      color: "#fff", // Dropdown text
+                      borderRadius: 2,
+                      mt: 1,
+                    }}
+                  >
+                    {children}
+                  </Paper>
+                )}
+                sx={{
+                  "& .MuiAutocomplete-option": {
+                    backgroundColor: "#56428B",
+                    color: "#fff",
+                    "&[aria-selected='true']": {
+                      backgroundColor: "#453278",
+                    },
+                    "&:hover": {
+                      backgroundColor: "#453278",
+                    },
+                  },
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "#FFFFFF", // Match to Status field for consistency
+                    borderRadius: "12px",
+                    color: "#56428B",
+                    "& fieldset": {
+                      borderColor: "#56428B",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#56428B",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#56428B",
+                    },
+                  },
+                  "& .MuiAutocomplete-popupIndicator": {
+                    color: "#56428B",
+                  },
+                }}
                 renderInput={(params) => (
-                  <TextField {...params} label="Type" variant="outlined" />
+                  <TextField
+                    {...params}
+                    label="Type"
+                    variant="outlined"
+                    sx={{
+                      "& .MuiInputBase-root": {
+                        color: "#56428B",
+                        borderRadius: "12px",
+                      },
+                      "& .MuiInputLabel-root": {
+                        color: "#56428B",
+                        fontWeight: 500,
+                      },
+                      "& input": {
+                        color: "#56428B",
+                        fontWeight: 300,
+                      },
+                    }}
+                  />
                 )}
               />
             </Grid>
@@ -495,14 +677,94 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
                   isOptionEqualToValue={(option, value) =>
                     option.id === value.id
                   }
+                  popupIcon={<ArrowDropDown sx={{ color: "#56428B" }} />}
+                  PaperComponent={({ children }) => (
+                    <Paper
+                      sx={{
+                        backgroundColor: "#56428B",
+                        color: "#fff",
+                        borderRadius: 2,
+                        mt: 1,
+                      }}
+                    >
+                      {children}
+                    </Paper>
+                  )}
+                  sx={{
+                    "& .MuiAutocomplete-option": {
+                      backgroundColor: "#56428B",
+                      color: "#fff",
+                      "&[aria-selected='true']": {
+                        backgroundColor: "#453278",
+                      },
+                      "&:hover": {
+                        backgroundColor: "#453278",
+                      },
+                    },
+                    "& .MuiOutlinedInput-root": {
+                      backgroundColor: "#FFFFFF",
+                      borderRadius: "12px",
+                      color: "#56428B",
+                      "& fieldset": {
+                        borderColor: "#56428B",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#56428B",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#56428B",
+                      },
+                    },
+                    "& .MuiAutocomplete-popupIndicator": {
+                      color: "#56428B",
+                    },
+                  }}
                   renderInput={(params) => (
                     <TextField
                       {...params}
                       label="Select Doctor"
                       error={!!errors.doctor}
                       helperText={errors.doctor}
+                      sx={{
+                        "& .MuiInputBase-root": {
+                          color: "#56428B",
+                          borderRadius: "12px",
+                        },
+                        "& .MuiInputLabel-root": {
+                          color: "#56428B",
+                          fontWeight: 500,
+                        },
+                        "& input": {
+                          color: "#56428B",
+                          fontWeight: 300,
+                        },
+                      }}
                     />
                   )}
+                  PaperComponent={({ children }) => (
+                    <Paper
+                      sx={{
+                        backgroundColor: "#56428B",
+                        // color: "white",
+                        borderRadius: 2,
+                        mt: 1,
+                      }}
+                    >
+                      {children}
+                    </Paper>
+                  )}
+                  sx={{
+                    "& .MuiAutocomplete-option": {
+                      backgroundColor: "#56428B",
+                      // color: "white",
+                      "&[aria-selected='true']": {
+                        backgroundColor: "#56428B",
+                      },
+                      "&:hover": {
+                        backgroundColor: "#56428B",
+                      },
+                    },
+                  }}
                 />
               </Grid>
             )}
@@ -517,13 +779,16 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
                   padding: "10px",
                   textAlign: "center",
                   backgroundColor: "#56428B",
+                  color: "#ffffff",
                   cursor: "pointer",
                   width: "100%",
                   marginTop: 1.6,
+                  transition: "all 0.3s ease",
+                  boxShadow: "0px 2px 8px rgba(86, 66, 139, 0.3)",
                   "&:hover": {
                     background:
-                      "linear-gradient(45deg, #1976D2 30%, #0D47A1 90%)",
-                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)",
+                      "linear-gradient(45deg, #56428B 30%, #3E2E6E 90%)",
+                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.2)",
                   },
                 }}
               >

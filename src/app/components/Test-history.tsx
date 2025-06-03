@@ -312,8 +312,8 @@ const TestHistory: React.FC = () => {
                   <TableCell
                     sx={{
                       textAlign: "center",
-                      color: "#29175e",
-                      fontWeight: "600",
+                      color: "white",
+                      fontWeight: "300",
                       fontFamily: "Poppins",
                     }}
                   >
@@ -322,8 +322,8 @@ const TestHistory: React.FC = () => {
                   <TableCell
                     sx={{
                       textAlign: "center",
-                      color: "#29175e",
-                      fontWeight: "600",
+                      color: "white",
+                      fontWeight: "300",
                       fontFamily: "Poppins",
                     }}
                   >
@@ -336,8 +336,8 @@ const TestHistory: React.FC = () => {
                   <TableCell
                     sx={{
                       textAlign: "center",
-                      color: "#29175e",
-                      fontWeight: "600",
+                      color: "white",
+                      fontWeight: "300",
                       fontFamily: "Poppins",
                     }}
                   >
@@ -353,8 +353,8 @@ const TestHistory: React.FC = () => {
                   <TableCell
                     sx={{
                       textAlign: "center",
-                      color: "#29175e",
-                      fontWeight: "600",
+                      color: "white",
+                      fontWeight: "300",
                       fontFamily: "Poppins",
                     }}
                   >

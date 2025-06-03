@@ -165,7 +165,6 @@ const UserProfile = () => {
           `get-patient-by-email/${session.user.email}`
         );
 
-        console.log(response, "response>>");
         setUser(response.data); // Set the fetched user data
       } catch (error) {
         console.error("Error fetching patient profile:", error);
@@ -376,7 +375,7 @@ const UserProfile = () => {
               p: { xs: 1, sm: 2 },
               borderRadius: "16px",
               overflowY: "auto", // Ensures scrolling when content overflows vertically
-              maxHeight: "530px", // Set the height limit for the Box
+              height: "87vh", // Set the height limit for the Box
               boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)",
               textAlign: "center",
               width: "100%",

@@ -30,6 +30,9 @@ import {
   List,
   ListItemText,
   ListItem,
+  OutlinedInput,
+  InputAdornment,
+  CircularProgress,
 } from "@mui/material";
 import styles from "../page.module.css";
 import ChatIcon from "@mui/icons-material/Chat";
@@ -46,6 +49,8 @@ import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import SchoolIcon from "@mui/icons-material/School";
 import PhoneIcon from "@mui/icons-material/Phone";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
+import DoctorCardSkeleton from "../components/Search-loader";
+import Loader from "../components/common/Loader";
 
 import { useGetDoctors } from "@/hooks/doctor";
 import { DoctorData } from "@/types/doctor";
@@ -130,6 +135,8 @@ const theme = createTheme({
   },
 });
 
+const LIMIT = 4;
+
 // Simple debounce function
 const debounce = (func: (...args: any[]) => void, delay: number) => {
   let timer: NodeJS.Timeout;
@@ -147,15 +154,23 @@ export default function DoctorListing() {
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [selectedDoctor, setSelectedDoctor] = useState<DoctorData | null>();
   const [results, setResults] = useState([]);
-  const [keyword, setKeyword] = useState<string>("");
+  // const [keyword, setKeyword] = useState<string>("");
   const [debouncedKeyword, setDebouncedKeyword] = useState<string>("");
   const [isTyping, setIsTyping] = useState(false);
   const [visibleContactId, setVisibleContactId] = useState(null);
+  const [keyword, setKeyword] = useState("");
+  const [loading, setLoading] = useState(false);
+  // Add these new states for pagination
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
+  const [combinedDoctors, setCombinedDoctors] = useState<DoctorData[]>([]);
 
   const [filters, setFilters] = useState({
     gender: "",
     experienceFilter: "",
     sortBy: "",
+    location: "", // Add location to initial state
   });
 
   const queryParams = {
@@ -166,8 +181,10 @@ export default function DoctorListing() {
   // Create a debounced function to update the debounced keyword state
   const debouncedSearch = useCallback(
     debounce((value: string) => {
+      setLoading(true);
       setDebouncedKeyword(value);
-    }, 500),
+      setLoading(false);
+    }, 700),
     []
   );
 
@@ -188,11 +205,61 @@ export default function DoctorListing() {
     }));
   };
 
+  // Get doctors data
   const {
     value: doctors,
     swrLoading,
     error,
-  } = useGetDoctors(null, "get-doctors", 1, 100, queryParams);
+  } = useGetDoctors(null, "get-doctors", page, LIMIT, queryParams);
+
+  // Combine doctors when new data is fetched
+  useEffect(() => {
+    // console.log("this is useeffect", doctors, page);
+    if (doctors?.results) {
+      if (page === 1) {
+        // console.log("this is ", doctors);
+        setCombinedDoctors(doctors.results);
+      } else {
+        setCombinedDoctors((prev) => [...prev, ...doctors.results]);
+      }
+      // Check if there are more doctors to load
+      setHasMore(doctors.results.length >= LIMIT);
+    }
+  }, [page, doctors?.results.length]);
+
+  // Add scroll event listener
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = document.documentElement.scrollTop;
+      const windowHeight = window.innerHeight;
+      const docHeight = document.documentElement.scrollHeight;
+
+      const scrolledPercentage = (scrollTop + windowHeight) / docHeight;
+
+      if (
+        scrolledPercentage < 0.5 || // Trigger when scrolled halfway down
+        isFetching ||
+        !hasMore ||
+        swrLoading
+      ) {
+        return;
+      }
+
+      console.log("Fetching more doctors...");
+      setIsFetching(true);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isFetching, hasMore, swrLoading]);
+
+  // Load more data when isFetching becomes true
+  useEffect(() => {
+    if (!isFetching) return;
+
+    setPage((prev) => prev + 1);
+    setIsFetching(false);
+  }, [isFetching]);
 
   const openModal = (doctor: DoctorData): void => {
     const userToken = Cookies.get("token");
@@ -206,6 +273,13 @@ export default function DoctorListing() {
     setSelectedDoctor(doctor);
     setModalOpen(true);
   };
+
+  // Reset combined doctors and page when filters change
+  // useEffect(() => {
+  //   setPage(1);
+  //   setCombinedDoctors([]);
+  //   setHasMore(true);
+  // }, [filters, debouncedKeyword]);
 
   const closeModal = (): void => {
     setModalOpen(false);
@@ -237,30 +311,29 @@ export default function DoctorListing() {
     }
   }, [searchParams]);
 
-  if (swrLoading) {
-    return (
-      <Container maxWidth="lg" sx={{ py: 8 }}>
-        <Grid container spacing={4}>
-          {[...Array(3)].map((_, index) => (
-            <Grid item xs={12} key={index}>
-              <Skeleton variant="rectangular" height={200} />
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
-    );
-  }
+  // if (swrLoading) {
+  //   return (
+  //     <Container maxWidth="lg" sx={{ py: 8 }}>
+  //       <Grid container spacing={4}>
+  //         {[...Array(3)].map((_, index) => (
+  //           <Grid item xs={12} key={index}>
+  //             <Skeleton variant="rectangular" height={200} />
+  //           </Grid>
+  //         ))}
+  //       </Grid>
+  //     </Container>
+  //   );
+  // }
 
-  if (error) {
-    return (
-      <Container maxWidth="lg" sx={{ py: 8 }}>
-        <Typography variant="h4" color="error" align="center">
-          Error loading doctor list: {error.message}
-        </Typography>
-      </Container>
-    );
-  }
-
+  // if (error) {
+  //   return (
+  //     <Container maxWidth="lg" sx={{ py: 8 }}>
+  //       <Typography variant="h4" color="error" align="center">
+  //         Error loading doctor list: {error.message}
+  //       </Typography>
+  //     </Container>
+  //   );
+  // }
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -268,7 +341,6 @@ export default function DoctorListing() {
         maxWidth={false}
         sx={{
           py: 12,
-          background: "rgb(175,159,219)",
           background:
             "linear-gradient(180deg, rgba(175,159,219,1) 0%, rgba(190,176,225,1) 100%)",
         }}
@@ -341,23 +413,30 @@ export default function DoctorListing() {
                 gap: "16px",
               }}
             >
+              {/* Location Filter */}
               <FormControl
                 fullWidth
                 variant="outlined"
                 size="small"
                 sx={{
                   background: "#f7f6fb",
-                  borderRadius: "30px",
+                  borderRadius: "40px",
                   minWidth: 190,
+                  "&:hover": {
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#665dfe",
+                    },
+                  },
                 }}
               >
                 <InputLabel
-                  id="gender-label"
+                  htmlFor="location-search"
                   sx={{
                     backgroundColor: "#f7f6fb",
                     px: 1,
                     transition: "all 0.3s ease-in-out",
                     "&.MuiInputLabel-shrink": {
+                      transform: "translate(14px, -9px) scale(0.75)",
                       px: 1,
                       borderRadius: "100px",
                     },
@@ -365,25 +444,40 @@ export default function DoctorListing() {
                 >
                   Location
                 </InputLabel>
-                <Select
-                  labelId="gender-label"
-                  id="gender-select"
-                  value={filters.gender}
-                  onChange={(e) => handleFilterChange("gender", e.target.value)}
-                  label="Gender"
+                <OutlinedInput
+                  id="location-search"
+                  value={filters.location}
+                  onChange={(e) =>
+                    handleFilterChange("location", e.target.value)
+                  }
+                  label="Location"
+                  autoComplete="off"
+                  startAdornment={
+                    <InputAdornment
+                      position="start"
+                      sx={{ color: "#665dfe", ml: 1 }}
+                    >
+                      <LocationOnIcon /> {/* Changed from SearchIcon */}
+                    </InputAdornment>
+                  }
                   sx={{
+                    borderRadius: "40px",
+                    "& .MuiOutlinedInput-input": {
+                      py: "10px",
+                      px: 1,
+                    },
                     "& .MuiOutlinedInput-notchedOutline": {
-                      borderRadius: "40px",
+                      borderColor: "transparent",
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#665dfe !important",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#665dfe !important",
+                      borderWidth: "1px",
                     },
                   }}
-                >
-                  <MenuItem value="">
-                    <em>All</em>
-                  </MenuItem>
-                  <MenuItem value="male">Male</MenuItem>
-                  <MenuItem value="female">Female</MenuItem>
-                  <MenuItem value="other">Other</MenuItem>
-                </Select>
+                />
               </FormControl>
 
               {/* Gender Filter */}
@@ -528,6 +622,12 @@ export default function DoctorListing() {
               </FormControl>
             </Box>
           </Grid>
+          {/* Skeleton Shown When No Keyword */}
+          {loading && (
+            <Grid item xs={12} sm={6} md={4}>
+              <DoctorCardSkeleton />
+            </Grid>
+          )}
         </Grid>
 
         <Box
@@ -565,8 +665,25 @@ export default function DoctorListing() {
             marginTop: "20px",
           }}
         >
-          {Array.isArray(doctors?.results) && doctors.results.length > 0 ? (
-            doctors.results.map((doctor: any) => (
+          {error && (
+            <Container maxWidth="lg" sx={{ py: 8 }}>
+              <Typography variant="h4" color="error" align="center">
+                Error loading doctor list: {error.message}
+              </Typography>
+            </Container>
+          )}
+          {swrLoading && page === 1 ? (
+            <Container maxWidth="lg" sx={{ py: 8 }}>
+              <Grid container spacing={4}>
+                {[...Array(3)].map((_, index) => (
+                  <Grid item xs={12} key={index}>
+                    <Skeleton variant="rectangular" height={200} />
+                  </Grid>
+                ))}
+              </Grid>
+            </Container>
+          ) : combinedDoctors.length > 0 ? (
+            combinedDoctors.map((doctor: DoctorData) => (
               <Grid item xs={12} sm={6} md={6} key={doctor._id}>
                 <Box
                   sx={{
@@ -576,7 +693,6 @@ export default function DoctorListing() {
                     backgroundColor: "",
                   }}
                 >
-                  {/* Doctor Header */}
                   <Box
                     sx={{
                       display: "flex",
@@ -585,15 +701,6 @@ export default function DoctorListing() {
                       backgroundColor: "#5d4993",
                     }}
                   >
-                    {/* Doctor Image */}
-                    {/* <Box
-                      sx={{
-                        position: "relative",
-                        display: "inline-block",
-                        border: "2px solid white"
-                      }}
-                    > */}
-                    {/* Doctor Profile Picture */}
                     <Box
                       component="img"
                       alt="Doctor"
@@ -615,7 +722,6 @@ export default function DoctorListing() {
                       }}
                     />
 
-                    {/* Doctor Info */}
                     <Box
                       sx={{
                         marginLeft: "15px",
@@ -634,12 +740,11 @@ export default function DoctorListing() {
                       >
                         {doctor.username || "Doctor Name"}
 
-                        {/* Show Verified Tick and Text if Doctor is Verified */}
                         {doctor.isVerified && (
                           <>
                             <VerifiedIcon
                               sx={{
-                                color: "#2ecc71", // Green color for verification
+                                color: "#2ecc71",
                                 marginLeft: "10px",
                                 fontSize: "24px",
                               }}
@@ -657,7 +762,6 @@ export default function DoctorListing() {
                         )}
                       </Typography>
 
-                      {/* Qualification Section */}
                       <Box
                         sx={{
                           mt: 1,
@@ -667,12 +771,10 @@ export default function DoctorListing() {
                           borderRadius: "1px",
                           padding: "8px",
                           backgroundColor: "transparent",
-                          // boxShadow: "3px 2px 2px rgba(0, 0, 0, 0.1)",
                           height: "25vh",
                           width: "auto",
                         }}
                       >
-                        {/* Education and Qualifications Section */}
                         <Box
                           sx={{
                             display: "flex",
@@ -682,8 +784,7 @@ export default function DoctorListing() {
                         >
                           <SchoolIcon
                             sx={{ color: "#2ecc71", fontSize: "30px" }}
-                          />{" "}
-                          {/* Qualification Icon */}
+                          />
                           <Box
                             sx={{
                               display: "flex",
@@ -721,7 +822,6 @@ export default function DoctorListing() {
                           </Box>
                         </Box>
 
-                        {/* Tags / Specialization Section */}
                         <Box sx={{ display: "flex", flexDirection: "column" }}>
                           <Box
                             sx={{
@@ -750,8 +850,7 @@ export default function DoctorListing() {
                                       fontSize: "16px",
                                       marginRight: "6px",
                                     }}
-                                  />{" "}
-                                  {/* Tag Icon */}
+                                  />
                                   <Typography variant="body2">{tag}</Typography>
                                 </Box>
                               ))
@@ -766,7 +865,6 @@ export default function DoctorListing() {
                           </Box>
                         </Box>
 
-                        {/* Location and Hospital Affiliations */}
                         <Typography
                           variant="body2"
                           sx={{
@@ -788,7 +886,7 @@ export default function DoctorListing() {
                                     whiteSpace: "nowrap",
                                     overflow: "hidden",
                                     textOverflow: "ellipsis",
-                                    mb: 0.5, // Adds spacing between items
+                                    mb: 0.5,
                                   }}
                                 >
                                   <LocalHospitalIcon
@@ -811,15 +909,13 @@ export default function DoctorListing() {
                             : "Availability not available"}
                         </Typography>
                       </Box>
-                      <Box
+                      {/* <Box
                         sx={{
-                          // border:"2px solid white",
                           display: "flex",
                           justifyContent: "start",
                           gap: "4px",
                           marginTop: "6px",
                           mr: "20vw",
-                          // maxWidth: "10vw"
                           height: "7vh",
                           width: "25vh",
                           flexDirection: "row",
@@ -829,34 +925,33 @@ export default function DoctorListing() {
                         {Cookies.get("token") && (
                           <>
                             {doctor.contact && (
-                              <Button
-                                variant="contained"
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  backgroundColor: "#25D366",
-                                  color: "#fff",
-                                  minWidth: "2vw",
-                                  padding: "1vw",
-                                  maxWidth: "7vw",
-                                  borderRadius: "15px",
-                                  fontWeight: "500",
-                                  textTransform: "none",
-                                  boxShadow: "0px 3px 8px rgba(0, 0, 0, 0.1)",
-                                  transition: "all 0.3s ease",
-                                  height: "6vh",
-                                  // mr:4
-                                }}
-                                onClick={() =>
-                                  window.open(
-                                    `https://wa.me/${doctor.contact}`,
-                                    "_blank"
-                                  )
-                                }
-                              >
-                                <WhatsAppIcon sx={{ fontSize: "18px" }} />
-                              </Button>
+                              // <Button
+                              //   variant="contained"
+                              //   sx={{
+                              //     display: "flex",
+                              //     alignItems: "center",
+                              //     justifyContent: "center",
+                              //     backgroundColor: "#25D366",
+                              //     color: "#fff",
+                              //     minWidth: "2vw",
+                              //     padding: "1vw",
+                              //     maxWidth: "7vw",
+                              //     borderRadius: "15px",
+                              //     fontWeight: "500",
+                              //     textTransform: "none",
+                              //     boxShadow: "0px 3px 8px rgba(0, 0, 0, 0.1)",
+                              //     transition: "all 0.3s ease",
+                              //     height: "6vh",
+                              //   }}
+                              //   onClick={() =>
+                              //     window.open(
+                              //       `https://wa.me/${doctor.contact}`,
+                              //       "_blank"
+                              //     )
+                              //   }
+                              // >
+                              //   <WhatsAppIcon sx={{ fontSize: "18px" }} />
+                              // </Button>
                             )}
                             <Button
                               variant="contained"
@@ -905,12 +1000,9 @@ export default function DoctorListing() {
                             </Button>
                           </>
                         )}
-                      </Box>
+                      </Box> */}
                     </Box>
                   </Box>
-                  {/* WhatsApp & Phone Icons Positioned Below the Profile Picture */}
-
-                  {/* Details Section */}
                   <Box
                     sx={{
                       display: "flex",
@@ -918,7 +1010,6 @@ export default function DoctorListing() {
                       alignItems: "center",
                       padding: "7px 20px",
                       backgroundColor: "#5d4993",
-                      // borderBottom: "1px solid #f0f0f0",
                     }}
                   >
                     <Typography
@@ -955,7 +1046,6 @@ export default function DoctorListing() {
                     </Typography>
                   </Box>
 
-                  {/* Actions Section */}
                   <Box
                     sx={{
                       display: "flex",
@@ -1008,7 +1098,7 @@ export default function DoctorListing() {
                             transform: "translateY(0)",
                           },
                           "& .MuiButton-startIcon": {
-                            transform: "scale(1.2)", // Icon zoom
+                            transform: "scale(1.2)",
                           },
                         },
                         "&:active": {
@@ -1028,7 +1118,7 @@ export default function DoctorListing() {
                           display: "inline-block",
                           transition: "transform 0.5s ease",
                           "&:hover": {
-                            transform: "scale(1.05)", // Text zoom
+                            transform: "scale(1.05)",
                           },
                         }}
                       >
@@ -1080,10 +1170,6 @@ export default function DoctorListing() {
                           "&::before": {
                             transform: "translateY(0)",
                           },
-
-                          "&::before": {
-                            transform: "translateY(0)",
-                          },
                           "& .MuiButton-startIcon": {
                             transform: "scale(1.2)",
                           },
@@ -1132,7 +1218,28 @@ export default function DoctorListing() {
               </Typography>
             </Grid>
           )}
+
+          {/* Loading indicator for additional pages */}
+          {isFetching && hasMore && (
+            <Grid
+              item
+              xs={12}
+              sx={{ display: "flex", justifyContent: "center", py: 4 }}
+            >
+              <Loader />
+            </Grid>
+          )}
+
+          {/* No more doctors message */}
+          {!hasMore && combinedDoctors.length > 0 && (
+            <Grid item xs={12}>
+              <Typography variant="body1" align="center" sx={{ py: 4 }}>
+                You've reached the end of the list
+              </Typography>
+            </Grid>
+          )}
         </Grid>
+
         <BookAppointmentModal
           isOpen={isModalOpen}
           onClose={closeModal}
