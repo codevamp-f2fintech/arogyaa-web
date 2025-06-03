@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Box,
-  Typography,
-  Tabs,
-  Tab,
-  Button,
-  Popover,
-} from "@mui/material";
+import { Box, Typography, Tabs, Tab, Button, Popover } from "@mui/material";
 import { useEffect, useState } from "react";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import { Utility } from "@/utils";
@@ -23,7 +16,7 @@ interface NotificationPopoverProps {
   open: boolean;
   anchorEl: HTMLButtonElement | null;
   onClose: () => void;
-  setUnreadCount?: (count: number) => void; 
+  setUnreadCount?: (count: number) => void;
 }
 
 export default function NotificationPopover({
@@ -39,6 +32,7 @@ export default function NotificationPopover({
   const fetchNotifications = async () => {
     const { decodedToken } = Utility();
     const patientId = decodedToken()?._id || decodedToken()?.id;
+    console.log(patientId, "Patient ID from token");
 
     if (!patientId) {
       console.warn("No patient ID found, skipping fetch.");
@@ -46,14 +40,21 @@ export default function NotificationPopover({
     }
 
     try {
-      const response = await fetcher("notification", `get-notifications/${patientId}`);
-      setNotifications(response);
+      const response = await fetcher(
+        "notification",
+        `get-notifications/${patientId}`
+      );
+      console.log("Fetched notifications:", response);
+      // Defensive: check if response is array, else empty array
+      setNotifications(Array.isArray(response) ? response : []);
     } catch (err) {
       console.error("Fetch error:", err);
     }
   };
 
-  const unreadCount = notifications.filter(n => n.status === "unread").length;
+  const unreadCount = Array.isArray(notifications)
+    ? notifications?.filter((n) => n.status === "unread").length
+    : 0;
 
   useEffect(() => {
     fetchNotifications();
@@ -67,8 +68,9 @@ export default function NotificationPopover({
 
   const markAsRead = async (id: string) => {
     try {
-      await modifier("notification", `update-notification/${id}`, { status: "read" });
-
+      await modifier("notification", `update-notification/${id}`, {
+        status: "read",
+      });
       setNotifications((prev) =>
         prev.map((n) => (n._id === id ? { ...n, status: "read" } : n))
       );
@@ -102,11 +104,16 @@ export default function NotificationPopover({
     </Box>
   );
 
-  const filteredNotifications = notifications.filter((n) =>
-    tabValue === 0 ? n.status === "unread" : n.status === "read"
-  );
+  const filteredNotifications = Array.isArray(notifications)
+    ? notifications?.filter((n) =>
+        tabValue === 0 ? n.status === "unread" : n.status === "read"
+      )
+    : [];
 
-  const displayedNotifications = filteredNotifications.slice(0, visibleNotifications);
+  const displayedNotifications = filteredNotifications.slice(
+    0,
+    visibleNotifications
+  );
 
   return (
     <Popover
