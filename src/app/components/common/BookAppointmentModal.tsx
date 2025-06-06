@@ -462,7 +462,6 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
 
         const response = await createAppointment(appointmentData);
 
-        
         if (response?.statusCode === 201) {
           const paymentData = {
             patientId,
@@ -477,7 +476,6 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
           setShowPaymentForm(true);
           setPaymentInfo(paymentData);
 
-     
           snackbarAndNavigate(
             dispatch,
             true,

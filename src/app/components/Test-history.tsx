@@ -120,10 +120,10 @@ const TestHistory: React.FC = () => {
     setPage(0);
   };
 
-  const paginatedTests = useMemo(() => {
-    const startIndex = page * rowsPerPage;
-    return tests.slice(startIndex, startIndex + rowsPerPage);
-  }, [tests, page, rowsPerPage]);
+  // const paginatedTests = useMemo(() => {
+  //   const startIndex = page * rowsPerPage;
+  //   return tests.slice(startIndex, startIndex + rowsPerPage);
+  // }, [tests, page, rowsPerPage]);
 
   const handleStatusChange = useCallback(
     async (testId: string, newStatus: string) => {
@@ -301,8 +301,8 @@ const TestHistory: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedTests.length > 0 ? (
-              paginatedTests.map((test) => (
+            {tests.length > 0 ? (
+              tests.map((test) => (
                 <TableRow
                   key={test._id}
                   hover

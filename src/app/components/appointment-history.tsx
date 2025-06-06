@@ -71,11 +71,11 @@ const AppointmentHistory: React.FC = () => {
         setTotalCount(0);
       }
     }
-  }, [patientId]);
+  }, [patientId, page, rowsPerPage]);
 
   useEffect(() => {
     fetchAppointments();
-  }, [fetchAppointments, page, rowsPerPage]);
+  }, [fetchAppointments]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -101,16 +101,18 @@ const AppointmentHistory: React.FC = () => {
     }
   };
 
-  const paginatedAppointments = useMemo(() => {
-    const startIndex = page * rowsPerPage;
-    return appointments.slice(startIndex, startIndex + rowsPerPage);
-  }, [appointments, page, rowsPerPage]);
+  // const paginatedAppointments = useMemo(() => {
+  //   const startIndex = page * rowsPerPage;
+  //   return appointments.slice(startIndex, startIndex + rowsPerPage);
+  // }, [appointments, page, rowsPerPage]);
 
   const headerStyle = {
     fontWeight: 600,
     textTransform: "uppercase",
     color: "#fff",
   };
+
+  // console.log("appointments>>>", appointments);
 
   return (
     <Container maxWidth="lg">
@@ -137,8 +139,8 @@ const AppointmentHistory: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedAppointments.length > 0 ? (
-              paginatedAppointments.map((appointment) => (
+            {appointments.length > 0 ? (
+              appointments.map((appointment) => (
                 <TableRow
                   key={appointment._id}
                   hover
@@ -230,6 +232,7 @@ const AppointmentHistory: React.FC = () => {
             "& .MuiTablePagination-selectLabel, & .MuiTablePagination-select": {
               fontWeight: 500,
               color: "#fff",
+              border: "2px solid blue",
             },
           }}
         />
