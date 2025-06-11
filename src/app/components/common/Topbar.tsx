@@ -20,6 +20,7 @@ import styles from "../../page.module.css";
 
 import { AppDispatch, RootState } from "@/redux/store";
 import { setNotifications } from "@/redux/features/notificationsSlice";
+import useSocket from "@/hooks/useSocket";
 
 import { creator } from "@/apis/apiClient";
 import { Utility } from "@/utils";
@@ -27,6 +28,7 @@ import SnackbarComponent from "../common/Snackbar";
 
 import { IconButton, Link, Tooltip } from "@mui/material";
 import { usePopover } from "@/hooks/use-popover";
+import { Notifications } from "@/types/notifications";
 
 interface SignInResponse {
   token: string;
@@ -44,8 +46,13 @@ const Topbar = () => {
   const { capitalizeFirstLetter, decodedToken, getCookies } = Utility();
   const router = useRouter();
   const pathname = usePathname();
-  const token = getCookies().token;
 
+  const patientId = decodedToken()?.id;
+  console.log(patientId, "patientId in Topbar");
+  useSocket(patientId, (newNotification) => {
+      console.log("📥 Notification received in Topbar:", newNotification);
+      dispatch(setNotifications([...(notifications || []), newNotification]));
+    });
   const userPopover = usePopover<HTMLDivElement>();
   const { notifications } = useSelector(
     (state: RootState) => state.notifications
@@ -71,15 +78,15 @@ const Topbar = () => {
   //   setAnchorEl(event.currentTarget);
   // };
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-  const token = decodedToken();
+    const token = decodedToken();
 
-  if (!token?.id && !token?._id) {
-    router.push("/signin"); 
-    return;
-  }
+    if (!token?.id && !token?._id) {
+      router.push("/signin");
+      return;
+    }
 
-  setAnchorEl(event.currentTarget); 
-};
+    setAnchorEl(event.currentTarget);
+  };
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -254,7 +261,7 @@ const Topbar = () => {
           <Tooltip title="Notifications">
             <IconButton
               aria-describedby={id}
-               onClick={handleClick}
+              onClick={handleClick}
               sx={{
                 padding: "10px",
                 borderRadius: "50%",
@@ -287,7 +294,6 @@ const Topbar = () => {
             notifications={notifications}
             readNotifications={readNotification}
             markAsRead={markAsRead}
-            setUnreadCount={setUnreadCount}
           />
         </Box>
 

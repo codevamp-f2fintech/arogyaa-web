@@ -482,7 +482,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
             dispatch,
             true,
             "success",
-            "Appointment created successfully!",
+            "Appointment booked successfully!",
             null,
             false
           );
@@ -491,7 +491,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
             dispatch,
             true,
             "error",
-            "Failed to create appointment",
+            "Failed to book appointment",
             null,
             true
           );
