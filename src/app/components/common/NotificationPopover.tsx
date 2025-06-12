@@ -1,10 +1,15 @@
 "use client";
 
 import { Box, Typography, Tabs, Tab, Button, Popover } from "@mui/material";
-import { useEffect, useState } from "react";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Utility } from "@/utils";
 import { fetcher, modifier } from "@/apis/apiClient";
+import { setNotifications } from "@/redux/features/notificationsSlice";
+import { RootState } from "@/redux/store";
+import useSocket from "@/hooks/useSocket";
+import SnackbarComponent from "./Snackbar";
 
 interface Notification {
   _id: string;
@@ -26,37 +31,69 @@ export default function NotificationPopover({
   setUnreadCount,
 }: NotificationPopoverProps) {
   const [tabValue, setTabValue] = useState(0);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [visibleNotifications, setVisibleNotifications] = useState(5);
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState("");
+
+  const dispatch = useDispatch();
+  const notifications = useSelector(
+    (state: RootState) => state.notifications.notifications
+  );
+
+  const { decodedToken } = Utility();
+  const tokenData = decodedToken();
+  const patientId = tokenData?.id;
+
+  console.log(tokenData, "decodedToken");
+  console.log(patientId, "patientId");
+
+  // Function to request notification permissions
+  const requestNotificationPermission = () => {
+    if (Notification.permission !== "granted") {
+      Notification.requestPermission().then((permission) => {
+        if (permission === "granted") {
+          console.log("Notification permission granted");
+        }
+      });
+    }
+  };
+
+  // Function to show browser notification
+  const showBrowserNotification = (notification: Notification) => {
+    if (Notification.permission === "granted") {
+      new Notification(notification.message);
+      console.log("🔔 Browser Notification:", notification.message);
+    }
+  };
+
+  useSocket(patientId, (newNotification) => {
+    // Update state with new notification
+    dispatch(setNotifications((prev) => [newNotification, ...prev]));
+    setSnackbarMsg(newNotification.message);
+    setShowSnackbar(true);
+    console.log("📥 New Socket Notification:", newNotification);
+    // Show browser notification
+    showBrowserNotification(newNotification);
+  });
+
+  const unreadCount = notifications.filter((n) => n.status === "unread").length;
 
   const fetchNotifications = async () => {
-    const { decodedToken } = Utility();
-    const patientId = decodedToken()?._id || decodedToken()?.id;
-    console.log(patientId, "Patient ID from token");
-
-    if (!patientId) {
-      console.warn("No patient ID found, skipping fetch.");
-      return;
-    }
+    if (!patientId) return;
 
     try {
       const response = await fetcher(
         "notification",
         `get-notifications/${patientId}`
       );
-      console.log("Fetched notifications:", response);
-      // Defensive: check if response is array, else empty array
-      setNotifications(Array.isArray(response) ? response : []);
+      dispatch(setNotifications(Array.isArray(response) ? response : []));
     } catch (err) {
       console.error("Fetch error:", err);
     }
   };
 
-  const unreadCount = Array.isArray(notifications)
-    ? notifications?.filter((n) => n.status === "unread").length
-    : 0;
-
   useEffect(() => {
+    requestNotificationPermission(); // Request permission on mount
     fetchNotifications();
   }, []);
 
@@ -71,9 +108,10 @@ export default function NotificationPopover({
       await modifier("notification", `update-notification/${id}`, {
         status: "read",
       });
-      setNotifications((prev) =>
-        prev.map((n) => (n._id === id ? { ...n, status: "read" } : n))
+      const updated = notifications.map((n) =>
+        n._id === id ? { ...n, status: "read" } : n
       );
+      dispatch(setNotifications(updated));
     } catch (error) {
       console.error("Failed to mark notification as read:", error);
     }
@@ -104,11 +142,9 @@ export default function NotificationPopover({
     </Box>
   );
 
-  const filteredNotifications = Array.isArray(notifications)
-    ? notifications?.filter((n) =>
-        tabValue === 0 ? n.status === "unread" : n.status === "read"
-      )
-    : [];
+  const filteredNotifications = notifications.filter((n) =>
+    tabValue === 0 ? n.status === "unread" : n.status === "read"
+  );
 
   const displayedNotifications = filteredNotifications.slice(
     0,
@@ -196,6 +232,12 @@ export default function NotificationPopover({
           </>
         )}
       </Box>
+      <SnackbarComponent
+        alerting={showSnackbar}
+        message={snackbarMsg}
+        severity="info"
+        onClose={() => setShowSnackbar(false)}
+      />
     </Popover>
   );
 }
