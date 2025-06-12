@@ -46,10 +46,34 @@ export default function NotificationPopover({
 
   console.log(tokenData, "decodedToken");
   console.log(patientId, "patientId");
+
+  // Function to request notification permissions
+  const requestNotificationPermission = () => {
+    if (Notification.permission !== "granted") {
+      Notification.requestPermission().then((permission) => {
+        if (permission === "granted") {
+          console.log("Notification permission granted");
+        }
+      });
+    }
+  };
+
+  // Function to show browser notification
+  const showBrowserNotification = (notification: Notification) => {
+    if (Notification.permission === "granted") {
+      new Notification(notification.message);
+      console.log("🔔 Browser Notification:", notification.message);
+    }
+  };
+
   useSocket(patientId, (newNotification) => {
-    setNotifications((prev) => [newNotification, ...prev]);
+    // Update state with new notification
+    dispatch(setNotifications((prev) => [newNotification, ...prev]));
     setSnackbarMsg(newNotification.message);
     setShowSnackbar(true);
+    console.log("📥 New Socket Notification:", newNotification);
+    // Show browser notification
+    showBrowserNotification(newNotification);
   });
 
   const unreadCount = notifications.filter((n) => n.status === "unread").length;
@@ -68,12 +92,8 @@ export default function NotificationPopover({
     }
   };
 
-  
-  useSocket(patientId, (newNotification) => {
-    dispatch(setNotifications([newNotification, ...notifications]));
-  });
-
   useEffect(() => {
+    requestNotificationPermission(); // Request permission on mount
     fetchNotifications();
   }, []);
 
