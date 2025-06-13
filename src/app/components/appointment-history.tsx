@@ -71,11 +71,11 @@ const AppointmentHistory: React.FC = () => {
         setTotalCount(0);
       }
     }
-  }, [patientId]);
+  }, [patientId, page, rowsPerPage]);
 
   useEffect(() => {
     fetchAppointments();
-  }, [fetchAppointments, page, rowsPerPage]);
+  }, [fetchAppointments]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -101,16 +101,18 @@ const AppointmentHistory: React.FC = () => {
     }
   };
 
-  const paginatedAppointments = useMemo(() => {
-    const startIndex = page * rowsPerPage;
-    return appointments.slice(startIndex, startIndex + rowsPerPage);
-  }, [appointments, page, rowsPerPage]);
+  // const paginatedAppointments = useMemo(() => {
+  //   const startIndex = page * rowsPerPage;
+  //   return appointments.slice(startIndex, startIndex + rowsPerPage);
+  // }, [appointments, page, rowsPerPage]);
 
   const headerStyle = {
     fontWeight: 600,
     textTransform: "uppercase",
     color: "#fff",
   };
+
+  // console.log("appointments>>>", appointments);
 
   return (
     <Container maxWidth="lg">
@@ -137,8 +139,8 @@ const AppointmentHistory: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedAppointments.length > 0 ? (
-              paginatedAppointments.map((appointment) => (
+            {appointments.length > 0 ? (
+              appointments.map((appointment) => (
                 <TableRow
                   key={appointment._id}
                   hover
@@ -227,9 +229,47 @@ const AppointmentHistory: React.FC = () => {
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
           sx={{
-            "& .MuiTablePagination-selectLabel, & .MuiTablePagination-select": {
+            "& .MuiTablePagination-selectLabel": {
               fontWeight: 500,
               color: "#fff",
+            },
+            "& .MuiTablePagination-select": {
+              fontWeight: 500,
+              color: "#fff",
+              backgroundColor: "#7b56ce",
+              border: "2px solid #7b56ce",
+              borderRadius: "8px",
+            },
+            "& .MuiSelect-icon": {
+              color: "#fff",
+            },
+            "& .MuiTablePagination-displayedRows": {
+              color: "#fff",
+            },
+            "& .MuiTablePagination-actions": {
+              color: "#fff",
+            },
+            "& .MuiIconButton-root": {
+              color: "#fff",
+            },
+          }}
+          SelectProps={{
+            MenuProps: {
+              sx: {
+                "& .MuiPaper-root": {
+                  backgroundColor: "#7b56ce",
+                  color: "#fff",
+                },
+                "& .MuiMenuItem-root": {
+                  color: "#fff",
+                  "&.Mui-selected": {
+                    backgroundColor: "#6a4bb8",
+                  },
+                  "&:hover": {
+                    backgroundColor: "#7050c1",
+                  },
+                },
+              },
             },
           }}
         />

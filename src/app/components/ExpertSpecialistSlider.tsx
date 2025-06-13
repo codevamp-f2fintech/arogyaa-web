@@ -48,9 +48,54 @@ const ExpertSpecialistSlider: React.FC = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const { value: data, swrLoading } = useGetDoctors(null, "get-doctors", 1, 6);
-  const [ratingsMap, setRatingsMap] = useState<
-    Record<string, { avg: number; count: number }>
-  >({});
+  // const [ratingsMap, setRatingsMap] = useState<
+  //   Record<string, { avg: number; count: number }>
+  // >({});
+  // const [isLoadingRatings, setIsLoadingRatings] = useState(true);
+
+  // Fetch rating stats for a doctor
+  // const fetchDoctorRatingStats = useCallback(async (doctorId: string) => {
+  //   try {
+  //     const response = await fetcher(`/api/doctors/${doctorId}/rating-stats`);
+  //     if (response.statusCode === 200) {
+  //       return response.data;
+  //     }
+  //     return { averageRating: 0, totalCount: 0 };
+  //   } catch (error) {
+  //     console.error("Error fetching rating stats:", error);
+  //     return { averageRating: 0, totalCount: 0 };
+  //   }
+  // }, []);
+
+  // Fetch ratings for all doctors
+  // useEffect(() => {
+  //   const fetchAllRatings = async () => {
+  //     if (!doctor?.results) return;
+
+  //     setIsLoadingRatings(true);
+  //     const ratings: Record<string, { avg: number; count: number }> = {};
+
+  //     try {
+  //       await Promise.all(
+  //         doctor.results.map(async (doc) => {
+  //           const stats = await fetchDoctorRatingStats(doc._id);
+  //           ratings[doc._id] = {
+  //             avg: stats.averageRating,
+  //             count: stats.totalCount,
+  //           };
+  //         })
+  //       );
+
+  //       setRatingsMap(ratings);
+  //     } catch (error) {
+  //       console.error("Error fetching ratings:", error);
+  //     } finally {
+  //       setIsLoadingRatings(false);
+  //     }
+  //   };
+
+  //   fetchAllRatings();
+  // }, [doctor, fetchDoctorRatingStats]);
 
   const openModal = (doctor: DoctorData): void => {
     const userToken = Cookies.get("token");
@@ -76,54 +121,49 @@ const ExpertSpecialistSlider: React.FC = () => {
     }
   }, [data, dispatch]);
 
-  const fetchTestimonials = useCallback(async () => {
-    try {
+  // const fetchTestimonials = useCallback(async () => {
+  //   try {
+  //     if (response && response.results) {
+  //       const allTestimonials: Testimonial[] = response.results || [];
+  //       const groupedRatings: Record<string, number[]> = {};
+  //       if (response && response.results) {
+  //         const allTestimonials: Testimonial[] = response.results || [];
+  //         const groupedRatings: Record<string, number[]> = {};
+  //         allTestimonials.forEach((review) => {
+  //           const doctor = review.doctorId;
+  //           if (doctor && doctor._id) {
+  //             const doctorId = doctor._id;
+  //             if (!groupedRatings[doctorId]) {
+  //               groupedRatings[doctorId] = [];
+  //             }
+  //             groupedRatings[doctorId].push(review.rating);
+  //           }
+  //         });
 
-      
-  
-      if (response && response.results) {
-        const allTestimonials: Testimonial[] = response.results || [];
-        const groupedRatings: Record<string, number[]> = {};
-      if (response && response.results) {
-        const allTestimonials: Testimonial[] = response.results || [];
-        const groupedRatings: Record<string, number[]> = {};
-        allTestimonials.forEach((review) => {
-          const doctor = review.doctorId;
-          if (doctor && doctor._id) {
-            const doctorId = doctor._id;
-            if (!groupedRatings[doctorId]) {
-              groupedRatings[doctorId] = [];
-            }
-            groupedRatings[doctorId].push(review.rating);
-          }
-        });
+  //         const finalRatings: Record<string, { avg: number; count: number }> =
+  //           {};
+  //         Object.entries(groupedRatings).forEach(([doctorId, ratings]) => {
+  //           const avg = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
+  //           finalRatings[doctorId] = {
+  //             avg: parseFloat(avg.toFixed(1)),
+  //             count: ratings.length,
+  //           };
+  //         });
 
-        const finalRatings: Record<string, { avg: number; count: number }> = {};
-        Object.entries(groupedRatings).forEach(([doctorId, ratings]) => {
-          const avg = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
-          finalRatings[doctorId] = {
-            avg: parseFloat(avg.toFixed(1)),
-            count: ratings.length,
-          };
-        });
+  //         setRatingsMap(finalRatings);
+  //       }
 
-  
-        setRatingsMap(finalRatings);
-      } 
+  //       setRatingsMap(finalRatings);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching testimonials:", error);
+  //     console.error("Error fetching testimonials:", error);
+  //   }
+  // }, []);
 
-        setRatingsMap(finalRatings);
-      }
-
-    } catch (error) {
-      console.error("Error fetching testimonials:", error);
-      console.error("Error fetching testimonials:", error);
-    }
-  }, []);
-
-
-  useEffect(() => {
-    fetchTestimonials();
-  }, [fetchTestimonials]);
+  // useEffect(() => {
+  //   fetchTestimonials();
+  // }, [fetchTestimonials]);
 
   console.log("selectddoc", doctor);
 
@@ -530,7 +570,7 @@ const ExpertSpecialistSlider: React.FC = () => {
 
                     {/* Rating */}
                     <Rating
-                      value={ratingsMap[doctor._id]?.avg || 0}
+                      value={doctor.averageRating || 0}
                       precision={0.5}
                       readOnly
                       size="small"
@@ -542,20 +582,17 @@ const ExpertSpecialistSlider: React.FC = () => {
                       }}
                     />
                     <br />
-                    {/* Review Count */}
                     <Typography
                       variant="caption"
-                      sx={{
-                        color: "#fff",
-                        fontFamily: "Poppins",
-                        fontWeight: "500",
-                        lineHeight: 1.4,
-                        verticalAlign: "middle",
-                      }}
+                      sx={
+                        {
+                          /* styles */
+                        }
+                      }
                     >
-                      {ratingsMap[doctor._id]
-                        ? `(based on ${ratingsMap[doctor._id].count} patient${
-                            ratingsMap[doctor._id].count > 1 ? "s" : ""
+                      {doctor.totalRatingCount > 0
+                        ? `(based on ${doctor.totalRatingCount} patient${
+                            doctor.totalRatingCount > 1 ? "s" : ""
                           })`
                         : "No reviews yet"}
                     </Typography>

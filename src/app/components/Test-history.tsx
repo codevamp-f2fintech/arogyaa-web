@@ -120,10 +120,10 @@ const TestHistory: React.FC = () => {
     setPage(0);
   };
 
-  const paginatedTests = useMemo(() => {
-    const startIndex = page * rowsPerPage;
-    return tests.slice(startIndex, startIndex + rowsPerPage);
-  }, [tests, page, rowsPerPage]);
+  // const paginatedTests = useMemo(() => {
+  //   const startIndex = page * rowsPerPage;
+  //   return tests.slice(startIndex, startIndex + rowsPerPage);
+  // }, [tests, page, rowsPerPage]);
 
   const handleStatusChange = useCallback(
     async (testId: string, newStatus: string) => {
@@ -301,8 +301,8 @@ const TestHistory: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedTests.length > 0 ? (
-              paginatedTests.map((test) => (
+            {tests.length > 0 ? (
+              tests.map((test) => (
                 <TableRow
                   key={test._id}
                   hover
@@ -585,8 +585,47 @@ const TestHistory: React.FC = () => {
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
           sx={{
-            "& .MuiTablePagination-selectLabel, & .MuiTablePagination-select": {
+            "& .MuiTablePagination-selectLabel": {
               fontWeight: 500,
+              color: "#fff",
+            },
+            "& .MuiTablePagination-select": {
+              fontWeight: 500,
+              color: "#fff",
+              backgroundColor: "#7b56ce",
+              border: "2px solid #7b56ce",
+              borderRadius: "8px",
+            },
+            "& .MuiSelect-icon": {
+              color: "#fff",
+            },
+            "& .MuiTablePagination-displayedRows": {
+              color: "#fff",
+            },
+            "& .MuiTablePagination-actions": {
+              color: "#fff",
+            },
+            "& .MuiIconButton-root": {
+              color: "#fff",
+            },
+          }}
+          SelectProps={{
+            MenuProps: {
+              sx: {
+                "& .MuiPaper-root": {
+                  backgroundColor: "#7b56ce",
+                  color: "#fff",
+                },
+                "& .MuiMenuItem-root": {
+                  color: "#fff",
+                  "&.Mui-selected": {
+                    backgroundColor: "#6a4bb8",
+                  },
+                  "&:hover": {
+                    backgroundColor: "#7050c1",
+                  },
+                },
+              },
             },
           }}
         />
