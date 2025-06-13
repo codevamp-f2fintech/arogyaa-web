@@ -63,7 +63,6 @@ const inputStyles = {
   },
   input: {
     fontFamily: "Poppins",
-
     color: "#000", // Ensure text is black while typing
   },
 };
@@ -257,32 +256,34 @@ const Signup = () => {
       maxWidth={false}
       sx={{
         fontFamily: "Poppins",
-        marginTop: "30px",
+        minHeight: "100vh",
         display: "flex",
-        height: "100vh",
+        flexDirection: { xs: "column", md: "row" },
         alignItems: "center",
-        justifyContent: "space-evenly",
+        justifyContent: { xs: "center", md: "space-evenly" },
         background:
           "linear-gradient(180deg, rgba(188,174,224,1) 0%, rgba(255,255,255,1) 100%)",
         color: "white",
+        padding: { xs: 2, md: 4 },
+        gap: { xs: 2, md: 0 },
       }}
     >
       <Box
         sx={{
-          flex: 1,
+          flex: { md: 1 },
           display: { xs: "none", md: "flex" },
           justifyContent: "center",
+          alignItems: "center",
         }}
       >
         <img
           src="signup.png"
           alt="doctor"
-          width={700}
-          height={430}
           style={{
             borderRadius: 8,
-
-            height: "485px",
+            maxWidth: "100%",
+            height: "auto",
+            maxHeight: "485px",
           }}
         />
       </Box>
@@ -290,8 +291,9 @@ const Signup = () => {
       <Box
         sx={{
           fontFamily: "Poppins",
-          width: "38%",
-          p: 3,
+          width: { xs: "100%", sm: "90%", md: "45%", lg: "38%" },
+          maxWidth: "600px",
+          p: { xs: 2, sm: 3 },
           backgroundColor: "white",
           borderRadius: 2,
           boxShadow: 3,
@@ -304,6 +306,7 @@ const Signup = () => {
             fontWeight: "bold",
             color: "#7A4D9C",
             marginBottom: 2,
+            fontSize: { xs: "1.2rem", sm: "1.5rem" },
           }}
         >
           Please Fill In Patient Details{" "}
@@ -312,8 +315,11 @@ const Signup = () => {
         <form onSubmit={handleSubmit}>
           <Box
             display="grid"
-            gap="10px"
-            gridTemplateColumns="repeat(2, minmax(0, 1fr))"
+            gap="16px"
+            gridTemplateColumns={{
+              xs: "1fr",
+              sm: "repeat(2, minmax(0, 1fr))",
+            }}
           >
             <TextField
               fullWidth
@@ -356,13 +362,15 @@ const Signup = () => {
             />
 
             <TextField
-              style={{ marginTop: 10, width: "100%" }}
               fullWidth
               name="email"
               label="Email"
               variant="outlined"
-              sx={{ ...inputStyles, gridColumn: "span 2" }}
-              autoComplete="off" // Turn off autofill
+              sx={{
+                ...inputStyles,
+                gridColumn: { xs: "1", sm: "span 2" },
+              }}
+              autoComplete="off"
               onChange={handleChange}
               value={formData.email}
               error={!!errors.email}
@@ -410,6 +418,7 @@ const Signup = () => {
                 ),
               }}
             />
+
             <TextField
               fullWidth
               name="confirmPassword"
@@ -446,7 +455,6 @@ const Signup = () => {
               name="contact"
               label="Contact"
               variant="outlined"
-              style={{ marginTop: 10 }}
               sx={inputStyles}
               onChange={handleChange}
               value={formData.contact}
@@ -461,12 +469,7 @@ const Signup = () => {
               }}
             />
 
-            <FormControl
-              fullWidth
-              style={{ marginTop: 10 }}
-              sx={inputStyles}
-              error={!!errors.gender}
-            >
+            <FormControl fullWidth sx={inputStyles} error={!!errors.gender}>
               <InputLabel>Gender</InputLabel>
               <Select
                 name="gender"
@@ -499,15 +502,15 @@ const Signup = () => {
             <Button
               type="submit"
               sx={{
-                m: "10px auto",
+                mt: 2,
                 fontFamily: "Poppins",
                 background:
                   "linear-gradient(180deg, rgba(104,82,164,1) 0%, rgba(126,107,177,1) 100%)",
-
                 "&:hover": {
                   backgroundColor: "#357A9E",
                 },
-                width: "205%",
+                gridColumn: { xs: "1", sm: "span 2" },
+                py: 1.5,
               }}
               variant="contained"
             >
@@ -519,9 +522,10 @@ const Signup = () => {
               fullWidth
               sx={{
                 fontFamily: "Poppins",
-                gridColumn: "span 2",
+                gridColumn: { xs: "1", sm: "span 2" },
                 borderColor: "#1976d2",
                 color: "#1976d2",
+                py: 1.5,
               }}
               onClick={() => {
                 const redirectParam = decodedRedirect
