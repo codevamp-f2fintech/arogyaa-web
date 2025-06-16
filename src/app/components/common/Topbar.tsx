@@ -77,8 +77,8 @@ const Topbar = () => {
   // const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
   //   setAnchorEl(event.currentTarget);
   // };
+  const token = decodedToken();
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    const token = decodedToken();
 
     if (!token?.id && !token?._id) {
       router.push("/signin");
