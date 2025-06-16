@@ -15,28 +15,53 @@ import {
   Box,
   Chip,
   Tooltip,
+  Button,
+  CircularProgress,
 } from "@mui/material";
 import {
   EventAvailable as AppointmentIcon,
   CalendarMonth,
   Phone,
   WhatsApp,
+  VideoCall,
 } from "@mui/icons-material";
 import { Utility } from "@/utils";
-import { fetcher } from "@/apis/apiClient";
+import { creator, fetcher } from "@/apis/apiClient";
+import CreateTestimonialDialog from "./common/createTestimonialDialog";
 
 interface Doctor {
+  _id: string;
   username: string;
   email: string;
   contact: string;
+  gender: string;
+}
+
+interface Patient {
+  _id: string;
+  username: string;
+  gender: string;
 }
 
 interface Appointment {
   _id: string;
-  patientId: string;
+  patientId: Patient;
   doctorId: Doctor;
   appointmentTime: string;
+  appointmentDate: string;
+  appointmentDateTime: string;
+  appointmentType: string;
   status: string;
+  hospitalName: string;
+  paymentStatus: string;
+}
+
+interface RoomResponse {
+  roomId?: string;
+  url?: string;
+  expiresAt?: string;
+  message?: string;
+  scheduledAt?: string;
 }
 
 const AppointmentHistory: React.FC = () => {
@@ -45,6 +70,15 @@ const AppointmentHistory: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [totalCount, setTotalCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [creatingRoom, setCreatingRoom] = useState<string | null>(null);
+  const [activeCall, setActiveCall] = useState<{
+    appointmentId: string;
+    expiresAt: string;
+    doctorName: string;
+  } | null>(null);
+  const [testimonialDialogOpen, setTestimonialDialogOpen] = useState(false);
+  const [doctorId, setDoctorId] = useState<string>("");
+  const [profileData, setProfileData] = useState<any>(null);
 
   const { decodedToken } = Utility();
   const patientId = decodedToken()?.id;
@@ -54,8 +88,7 @@ const AppointmentHistory: React.FC = () => {
       try {
         const response = await fetcher(
           "appointment",
-          `get-patients-appointment/${patientId}?page=${
-            page + 1
+          `get-patients-appointment/${patientId}?page=${page + 1
           }&limit=${rowsPerPage}`
         );
         if (!response || !response.results) {
@@ -72,6 +105,17 @@ const AppointmentHistory: React.FC = () => {
       }
     }
   }, [patientId, page, rowsPerPage]);
+
+  const fetchTestimonials = async () => {
+    // Dummy function - no functionality
+    console.log("Fetching testimonials...");
+  };
+
+  const closeTestimonialDialog = () => {
+    setTestimonialDialogOpen(false);
+    setDoctorId("");
+    setProfileData(null);
+  };
 
   useEffect(() => {
     fetchAppointments();
@@ -101,10 +145,277 @@ const AppointmentHistory: React.FC = () => {
     }
   };
 
-  // const paginatedAppointments = useMemo(() => {
-  //   const startIndex = page * rowsPerPage;
-  //   return appointments.slice(startIndex, startIndex + rowsPerPage);
-  // }, [appointments, page, rowsPerPage]);
+  // Daily.co room creation and management
+  const createRoom = async (appointment: Appointment) => {
+    setCreatingRoom(appointment._id);
+    try {
+      const roomData = {
+        type: "video",
+        doctorId: appointment.doctorId._id,
+        patientId: appointment.patientId._id,
+        duration: "5", // Default 30 minutes, you can adjust this
+        appointmentId: appointment._id,
+        scheduledAt: appointment.appointmentDateTime,
+        appointmentTime: appointment.appointmentTime
+      };
+
+      const response = await creator("chat", "create-room", JSON.stringify(roomData),
+        {
+          "Content-Type": "application/json",
+        }
+      );
+
+      if (response.url && response.expiresAt) {
+        // Store session data for redirection handling
+        const sessionData = {
+          appointmentId: appointment._id,
+          roomUrl: response.url,
+          expiresAt: response.expiresAt,
+          doctorName: appointment.doctorId.username,
+          doctorId: appointment.doctorId._id, // Add this line
+          returnUrl: `${window.location.origin}/profile?rating&doctorId=${appointment.doctorId._id}&doctorName=${encodeURIComponent(appointment.doctorId.username)}`,
+          joinedAt: new Date().toISOString()
+        };
+
+        // Store in sessionStorage
+        Object.entries(sessionData).forEach(([key, value]) => {
+          sessionStorage.setItem(`dailyRoom_${key}`, value);
+        });
+
+        // Set active call state
+        setActiveCall({
+          appointmentId: appointment._id,
+          expiresAt: response.expiresAt,
+          doctorName: appointment.doctorId.username
+        });
+
+        // Open room in a new window/tab
+        const roomWindow = window.open(response.url, '_blank', 'width=1200,height=800');
+
+        // Monitor the room window
+        const checkClosed = setInterval(() => {
+          if (roomWindow?.closed) {
+            clearInterval(checkClosed);
+            handleRoomClosed(appointment._id);
+          }
+        }, 1000);
+
+        // Set up expiration timer
+        const expirationTime = new Date(response.expiresAt).getTime();
+        const currentTime = new Date().getTime();
+        const timeUntilExpiration = expirationTime - currentTime;
+
+        if (timeUntilExpiration > 0) {
+          setTimeout(() => {
+            if (roomWindow && !roomWindow.closed) {
+              roomWindow.close();
+            }
+            handleRoomExpired(appointment._id);
+          }, timeUntilExpiration);
+        }
+
+      } else if (response.message) {
+        // Room was scheduled
+        alert(response.message);
+      }
+    } catch (error) {
+      console.error("Error creating room:", error);
+      alert("Failed to create room. Please try again.");
+    } finally {
+      setCreatingRoom(null);
+    }
+  };
+
+  // Handle room closed (manually by user)
+  const handleRoomClosed = (appointmentId: string) => {
+    console.log('Room closed for appointment:', appointmentId);
+
+    // Get doctor info from session BEFORE clearing
+    const doctorIdFromSession = sessionStorage.getItem('dailyRoom_doctorId') || '';
+    const doctorNameFromSession = sessionStorage.getItem('dailyRoom_doctorName') || '';
+
+    // Clear session data
+    const keysToRemove = ['appointmentId', 'roomUrl', 'expiresAt', 'doctorName', 'doctorId', 'returnUrl', 'joinedAt'];
+    keysToRemove.forEach(key => {
+      sessionStorage.removeItem(`dailyRoom_${key}`);
+    });
+
+    // Clear active call state
+    setActiveCall(null);
+
+    // Show completion message
+    alert('Video call ended. Thank you for using our service!');
+
+    // Set doctor info and open testimonial dialog
+    if (doctorIdFromSession && doctorNameFromSession) {
+      setDoctorId(doctorIdFromSession);
+      setProfileData({ data: { username: doctorNameFromSession } });
+      setTestimonialDialogOpen(true);
+    }
+
+    // Refresh appointments
+    fetchAppointments();
+  };
+
+  // Handle room expiration
+  const handleRoomExpired = (appointmentId: string) => {
+    console.log('Room expired for appointment:', appointmentId);
+
+    // Get doctor info from session BEFORE clearing
+    const doctorIdFromSession = sessionStorage.getItem('dailyRoom_doctorId') || '';
+    const doctorNameFromSession = sessionStorage.getItem('dailyRoom_doctorName') || '';
+
+    // Clear session data
+    const keysToRemove = ['appointmentId', 'roomUrl', 'expiresAt', 'doctorName', 'doctorId', 'returnUrl', 'joinedAt'];
+    keysToRemove.forEach(key => {
+      sessionStorage.removeItem(`dailyRoom_${key}`);
+    });
+
+    // Clear active call state
+    setActiveCall(null);
+
+    // Show expiration message
+    alert('Video call has expired. Thank you for using our service!');
+
+    // Set doctor info and open testimonial dialog
+    if (doctorIdFromSession && doctorNameFromSession) {
+      setDoctorId(doctorIdFromSession);
+      setProfileData({ data: { username: doctorNameFromSession } });
+      setTestimonialDialogOpen(true);
+    }
+
+    // Refresh appointments
+    fetchAppointments();
+  };
+
+  // Check for active sessions on component mount
+  useEffect(() => {
+    const checkActiveSession = () => {
+      const appointmentId = sessionStorage.getItem('dailyRoom_appointmentId');
+      const expiresAt = sessionStorage.getItem('dailyRoom_expiresAt');
+      const doctorName = sessionStorage.getItem('dailyRoom_doctorName');
+
+      if (appointmentId && expiresAt && doctorName) {
+        const expirationTime = new Date(expiresAt).getTime();
+        const currentTime = new Date().getTime();
+
+        if (currentTime < expirationTime) {
+          // Session is still active
+          setActiveCall({
+            appointmentId,
+            expiresAt,
+            doctorName
+          });
+
+          // Set up expiration timer
+          const timeUntilExpiration = expirationTime - currentTime;
+          setTimeout(() => {
+            handleRoomExpired(appointmentId);
+          }, timeUntilExpiration);
+        } else {
+          // Session has expired, clean up
+          handleRoomExpired(appointmentId);
+        }
+      }
+    };
+
+    checkActiveSession();
+  }, []);
+
+  // Handle page visibility change
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        // User returned to the tab, check if there's an active session
+        const appointmentId = sessionStorage.getItem('dailyRoom_appointmentId');
+        const expiresAt = sessionStorage.getItem('dailyRoom_expiresAt');
+
+        if (appointmentId && expiresAt) {
+          const expirationTime = new Date(expiresAt).getTime();
+          const currentTime = new Date().getTime();
+
+          if (currentTime >= expirationTime) {
+            handleRoomExpired(appointmentId);
+          }
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
+
+  // Rejoin active call
+  const rejoinCall = () => {
+    const roomUrl = sessionStorage.getItem('dailyRoom_roomUrl');
+    if (roomUrl) {
+      const roomWindow = window.open(roomUrl, '_blank', 'width=1200,height=800');
+
+      // Monitor the reopened window
+      const checkClosed = setInterval(() => {
+        if (roomWindow?.closed) {
+          clearInterval(checkClosed);
+          const appointmentId = sessionStorage.getItem('dailyRoom_appointmentId');
+          if (appointmentId) {
+            handleRoomClosed(appointmentId);
+          }
+        }
+      }, 1000);
+    }
+  };
+
+  const isAppointmentImminent = (
+    appointmentDate: string,
+    appointmentTime: string,
+    durationMinutes: number = 2
+  ): boolean => {
+    const now = new Date();
+    const appointmentDay = new Date(appointmentDate);
+
+    // Check if it's the same date
+    const isSameDate =
+      now.getFullYear() === appointmentDay.getFullYear() &&
+      now.getMonth() === appointmentDay.getMonth() &&
+      now.getDate() === appointmentDay.getDate();
+
+    if (!isSameDate) return false;
+
+    // Parse appointment time (assuming format like "11:36 AM")
+    const [time, period] = appointmentTime.split(" ");
+    const [hours, minutes] = time.split(":").map(Number);
+
+    let appointmentHours = hours;
+    if (period === "PM" && hours !== 12) {
+      appointmentHours += 12;
+    } else if (period === "AM" && hours === 12) {
+      appointmentHours = 0;
+    }
+
+    // Set full appointment datetime
+    const appointmentDateTime = new Date(appointmentDay);
+    appointmentDateTime.setHours(appointmentHours, minutes, 0, 0);
+
+    // Calculate time difference in minutes
+    const diffMinutes = (appointmentDateTime.getTime() - now.getTime()) / (1000 * 60);
+    const endTime = new Date(appointmentDateTime.getTime() + durationMinutes * 60 * 1000);
+
+    // If current time is between [appointmentTime - 10min] and [appointmentTime + 2min]
+    return diffMinutes <= 10 && now <= endTime;
+  };
+
+
+  const canCreateRoom = (appointment: Appointment) => {
+    return (
+      appointment.appointmentType === "online" &&
+      // appointment.paymentStatus === "pending" &&
+      isAppointmentImminent(appointment.appointmentDate, appointment.appointmentTime)
+    );
+  };
+
+  const paginatedAppointments = useMemo(() => {
+    const startIndex = page * rowsPerPage;
+    return appointments.slice(startIndex, startIndex + rowsPerPage);
+  }, [appointments, page, rowsPerPage]);
 
   const headerStyle = {
     fontWeight: 600,
@@ -122,6 +433,38 @@ const AppointmentHistory: React.FC = () => {
         </Alert>
       )}
 
+      {activeCall && (
+        <Alert
+          severity="info"
+          sx={{
+            mb: 2,
+            borderRadius: 2,
+            backgroundColor: '#e3f2fd',
+            '& .MuiAlert-message': {
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              width: '100%',
+              justifyContent: 'space-between'
+            }
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <VideoCall sx={{ fontSize: 20 }} />
+            Active call with {activeCall.doctorName} -
+            Expires at {new Date(activeCall.expiresAt).toLocaleTimeString()}
+          </Box>
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={rejoinCall}
+            sx={{ ml: 2, flexShrink: 0 }}
+          >
+            Rejoin Call
+          </Button>
+        </Alert>
+      )}
+
       <TableContainer
         component={Paper}
         sx={{ backgroundColor: "#7b56ce", mt: 3 }}
@@ -130,12 +473,13 @@ const AppointmentHistory: React.FC = () => {
           <TableHead>
             <TableRow>
               <TableCell sx={headerStyle}>Doctor</TableCell>
-              {/* <TableCell sx={headerStyle}>Email</TableCell> */}
               <TableCell sx={headerStyle}>Contact</TableCell>
               <TableCell sx={headerStyle}>Date</TableCell>
               <TableCell sx={headerStyle}>Time</TableCell>
+              <TableCell sx={headerStyle}>Type</TableCell>
               <TableCell sx={headerStyle}>Hospital</TableCell>
               <TableCell sx={headerStyle}>Status</TableCell>
+              <TableCell sx={headerStyle}>Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -155,7 +499,6 @@ const AppointmentHistory: React.FC = () => {
                   <TableCell>
                     {appointment?.doctorId?.username || "N/A"}
                   </TableCell>
-                  {/* <TableCell>{appointment?.doctorId?.email || "N/A"}</TableCell> */}
                   <TableCell>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                       <span>{appointment?.doctorId?.contact || "N/A"}</span>
@@ -181,12 +524,20 @@ const AppointmentHistory: React.FC = () => {
                   <TableCell>
                     {appointment?.appointmentDate
                       ? new Date(appointment.appointmentDate)
-                          .toISOString()
-                          .split("T")[0]
+                        .toISOString()
+                        .split("T")[0]
                       : "N/A"}
                   </TableCell>
 
                   <TableCell>{appointment?.appointmentTime || "N/A"}</TableCell>
+                  <TableCell>
+                    <Chip
+                      label={appointment?.appointmentType || "N/A"}
+                      color={appointment?.appointmentType === "online" ? "info" : "default"}
+                      size="small"
+                      variant="outlined"
+                    />
+                  </TableCell>
                   <TableCell>{appointment?.hospitalName || "N/A"}</TableCell>
                   <TableCell>
                     <Chip
@@ -197,11 +548,40 @@ const AppointmentHistory: React.FC = () => {
                       variant="outlined"
                     />
                   </TableCell>
+                  <TableCell>
+                    {canCreateRoom(appointment) && (
+                      <Button
+                        variant="contained"
+                        size="small"
+                        startIcon={
+                          creatingRoom === appointment._id ? (
+                            <CircularProgress size={16} color="inherit" />
+                          ) : (
+                            <VideoCall />
+                          )
+                        }
+                        onClick={() => createRoom(appointment)}
+                        disabled={creatingRoom === appointment._id || activeCall !== null}
+                        sx={{
+                          backgroundColor: "#4caf50",
+                          "&:hover": {
+                            backgroundColor: "#45a049",
+                          },
+                          "&:disabled": {
+                            backgroundColor: "#cccccc",
+                          },
+                          textTransform: "none",
+                        }}
+                      >
+                        {creatingRoom === appointment._id ? "Creating..." : "Join Call"}
+                      </Button>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} align="center">
+                <TableCell colSpan={8} align="center">
                   <Box
                     sx={{
                       display: "flex",
@@ -272,6 +652,14 @@ const AppointmentHistory: React.FC = () => {
               },
             },
           }}
+        />
+
+        <CreateTestimonialDialog
+          open={testimonialDialogOpen}
+          onClose={closeTestimonialDialog}
+          doctorId={doctorId}
+          doctorName={profileData?.data?.username || "Unknown"}
+          fetchTestimonials={fetchTestimonials}
         />
       </TableContainer>
     </Container>
