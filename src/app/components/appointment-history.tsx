@@ -79,16 +79,69 @@ const AppointmentHistory: React.FC = () => {
   const [testimonialDialogOpen, setTestimonialDialogOpen] = useState(false);
   const [doctorId, setDoctorId] = useState<string>("");
   const [profileData, setProfileData] = useState<any>(null);
+  const [countdowns, setCountdowns] = useState<{ [id: string]: string }>({});
 
   const { decodedToken } = Utility();
   const patientId = decodedToken()?.id;
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const newCountdowns: { [id: string]: string } = {};
+
+      appointments.forEach((appointment) => {
+        const { canJoin, minutesLeft, message } = getJoinCallInfo(
+          appointment.appointmentDate,
+          appointment.appointmentTime
+        );
+
+        if (!canJoin && minutesLeft > 0) {
+          const now = new Date();
+          const [time, period] = appointment.appointmentTime.split(" ");
+          const [hours, mins] = time.split(":").map(Number);
+
+          let apptHour = hours;
+          if (period === "PM" && hours !== 12) apptHour += 12;
+          if (period === "AM" && hours === 12) apptHour = 0;
+
+          const apptDateTime = new Date(appointment.appointmentDate);
+          apptDateTime.setHours(apptHour, mins, 0, 0);
+
+          const diffSeconds = Math.max(
+            0,
+            Math.floor((apptDateTime.getTime() - now.getTime()) / 1000)
+          );
+
+          const hrs = Math.floor(diffSeconds / 3600);
+          const minsLeft = Math.floor((diffSeconds % 3600) / 60);
+          const secsLeft = diffSeconds % 60;
+
+          let countdownText = "";
+
+          if (hrs > 0) {
+            countdownText = `Can join in ${hrs}h:${minsLeft}m`;
+          } else {
+            const mm = String(minsLeft).padStart(2, "0");
+            const ss = String(secsLeft).padStart(2, "0");
+            countdownText = `Can join in ${mm}m:${ss}s`;
+          }
+
+          newCountdowns[appointment._id] = countdownText;
+        }
+      });
+
+      setCountdowns(newCountdowns);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [appointments]);
 
   const fetchAppointments = React.useCallback(async () => {
     if (patientId) {
       try {
         const response = await fetcher(
           "appointment",
-          `get-patients-appointment/${patientId}?page=${page + 1
+          `get-patients-appointment/${patientId}?page=${
+            page + 1
           }&limit=${rowsPerPage}`
         );
         if (!response || !response.results) {
@@ -153,13 +206,16 @@ const AppointmentHistory: React.FC = () => {
         type: "video",
         doctorId: appointment.doctorId._id,
         patientId: appointment.patientId._id,
-        duration: "5", // Default 30 minutes, you can adjust this
+        duration: "20", // Default 30 minutes, you can adjust this
         appointmentId: appointment._id,
         scheduledAt: appointment.appointmentDateTime,
-        appointmentTime: appointment.appointmentTime
+        appointmentTime: appointment.appointmentTime,
       };
 
-      const response = await creator("chat", "create-room", JSON.stringify(roomData),
+      const response = await creator(
+        "chat",
+        "create-room",
+        JSON.stringify(roomData),
         {
           "Content-Type": "application/json",
         }
@@ -173,8 +229,10 @@ const AppointmentHistory: React.FC = () => {
           expiresAt: response.expiresAt,
           doctorName: appointment.doctorId.username,
           doctorId: appointment.doctorId._id, // Add this line
-          returnUrl: `${window.location.origin}/profile?rating&doctorId=${appointment.doctorId._id}&doctorName=${encodeURIComponent(appointment.doctorId.username)}`,
-          joinedAt: new Date().toISOString()
+          returnUrl: `${window.location.origin}/profile?rating&doctorId=${
+            appointment.doctorId._id
+          }&doctorName=${encodeURIComponent(appointment.doctorId.username)}`,
+          joinedAt: new Date().toISOString(),
         };
 
         // Store in sessionStorage
@@ -186,11 +244,15 @@ const AppointmentHistory: React.FC = () => {
         setActiveCall({
           appointmentId: appointment._id,
           expiresAt: response.expiresAt,
-          doctorName: appointment.doctorId.username
+          doctorName: appointment.doctorId.username,
         });
 
         // Open room in a new window/tab
-        const roomWindow = window.open(response.url, '_blank', 'width=1200,height=800');
+        const roomWindow = window.open(
+          response.url,
+          "_blank",
+          "width=1200,height=800"
+        );
 
         // Monitor the room window
         const checkClosed = setInterval(() => {
@@ -213,7 +275,6 @@ const AppointmentHistory: React.FC = () => {
             handleRoomExpired(appointment._id);
           }, timeUntilExpiration);
         }
-
       } else if (response.message) {
         // Room was scheduled
         alert(response.message);
@@ -228,15 +289,25 @@ const AppointmentHistory: React.FC = () => {
 
   // Handle room closed (manually by user)
   const handleRoomClosed = (appointmentId: string) => {
-    console.log('Room closed for appointment:', appointmentId);
+    console.log("Room closed for appointment:", appointmentId);
 
     // Get doctor info from session BEFORE clearing
-    const doctorIdFromSession = sessionStorage.getItem('dailyRoom_doctorId') || '';
-    const doctorNameFromSession = sessionStorage.getItem('dailyRoom_doctorName') || '';
+    const doctorIdFromSession =
+      sessionStorage.getItem("dailyRoom_doctorId") || "";
+    const doctorNameFromSession =
+      sessionStorage.getItem("dailyRoom_doctorName") || "";
 
     // Clear session data
-    const keysToRemove = ['appointmentId', 'roomUrl', 'expiresAt', 'doctorName', 'doctorId', 'returnUrl', 'joinedAt'];
-    keysToRemove.forEach(key => {
+    const keysToRemove = [
+      "appointmentId",
+      "roomUrl",
+      "expiresAt",
+      "doctorName",
+      "doctorId",
+      "returnUrl",
+      "joinedAt",
+    ];
+    keysToRemove.forEach((key) => {
       sessionStorage.removeItem(`dailyRoom_${key}`);
     });
 
@@ -244,7 +315,7 @@ const AppointmentHistory: React.FC = () => {
     setActiveCall(null);
 
     // Show completion message
-    alert('Video call ended. Thank you for using our service!');
+    alert("Video call ended. Thank you for using our service!");
 
     // Set doctor info and open testimonial dialog
     if (doctorIdFromSession && doctorNameFromSession) {
@@ -259,15 +330,25 @@ const AppointmentHistory: React.FC = () => {
 
   // Handle room expiration
   const handleRoomExpired = (appointmentId: string) => {
-    console.log('Room expired for appointment:', appointmentId);
+    console.log("Room expired for appointment:", appointmentId);
 
     // Get doctor info from session BEFORE clearing
-    const doctorIdFromSession = sessionStorage.getItem('dailyRoom_doctorId') || '';
-    const doctorNameFromSession = sessionStorage.getItem('dailyRoom_doctorName') || '';
+    const doctorIdFromSession =
+      sessionStorage.getItem("dailyRoom_doctorId") || "";
+    const doctorNameFromSession =
+      sessionStorage.getItem("dailyRoom_doctorName") || "";
 
     // Clear session data
-    const keysToRemove = ['appointmentId', 'roomUrl', 'expiresAt', 'doctorName', 'doctorId', 'returnUrl', 'joinedAt'];
-    keysToRemove.forEach(key => {
+    const keysToRemove = [
+      "appointmentId",
+      "roomUrl",
+      "expiresAt",
+      "doctorName",
+      "doctorId",
+      "returnUrl",
+      "joinedAt",
+    ];
+    keysToRemove.forEach((key) => {
       sessionStorage.removeItem(`dailyRoom_${key}`);
     });
 
@@ -275,7 +356,7 @@ const AppointmentHistory: React.FC = () => {
     setActiveCall(null);
 
     // Show expiration message
-    alert('Video call has expired. Thank you for using our service!');
+    alert("Video call has expired. Thank you for using our service!");
 
     // Set doctor info and open testimonial dialog
     if (doctorIdFromSession && doctorNameFromSession) {
@@ -291,9 +372,9 @@ const AppointmentHistory: React.FC = () => {
   // Check for active sessions on component mount
   useEffect(() => {
     const checkActiveSession = () => {
-      const appointmentId = sessionStorage.getItem('dailyRoom_appointmentId');
-      const expiresAt = sessionStorage.getItem('dailyRoom_expiresAt');
-      const doctorName = sessionStorage.getItem('dailyRoom_doctorName');
+      const appointmentId = sessionStorage.getItem("dailyRoom_appointmentId");
+      const expiresAt = sessionStorage.getItem("dailyRoom_expiresAt");
+      const doctorName = sessionStorage.getItem("dailyRoom_doctorName");
 
       if (appointmentId && expiresAt && doctorName) {
         const expirationTime = new Date(expiresAt).getTime();
@@ -304,7 +385,7 @@ const AppointmentHistory: React.FC = () => {
           setActiveCall({
             appointmentId,
             expiresAt,
-            doctorName
+            doctorName,
           });
 
           // Set up expiration timer
@@ -327,8 +408,8 @@ const AppointmentHistory: React.FC = () => {
     const handleVisibilityChange = () => {
       if (!document.hidden) {
         // User returned to the tab, check if there's an active session
-        const appointmentId = sessionStorage.getItem('dailyRoom_appointmentId');
-        const expiresAt = sessionStorage.getItem('dailyRoom_expiresAt');
+        const appointmentId = sessionStorage.getItem("dailyRoom_appointmentId");
+        const expiresAt = sessionStorage.getItem("dailyRoom_expiresAt");
 
         if (appointmentId && expiresAt) {
           const expirationTime = new Date(expiresAt).getTime();
@@ -341,21 +422,28 @@ const AppointmentHistory: React.FC = () => {
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, []);
 
   // Rejoin active call
   const rejoinCall = () => {
-    const roomUrl = sessionStorage.getItem('dailyRoom_roomUrl');
+    const roomUrl = sessionStorage.getItem("dailyRoom_roomUrl");
     if (roomUrl) {
-      const roomWindow = window.open(roomUrl, '_blank', 'width=1200,height=800');
+      const roomWindow = window.open(
+        roomUrl,
+        "_blank",
+        "width=1200,height=800"
+      );
 
       // Monitor the reopened window
       const checkClosed = setInterval(() => {
         if (roomWindow?.closed) {
           clearInterval(checkClosed);
-          const appointmentId = sessionStorage.getItem('dailyRoom_appointmentId');
+          const appointmentId = sessionStorage.getItem(
+            "dailyRoom_appointmentId"
+          );
           if (appointmentId) {
             handleRoomClosed(appointmentId);
           }
@@ -364,58 +452,154 @@ const AppointmentHistory: React.FC = () => {
     }
   };
 
-  const isAppointmentImminent = (
-    appointmentDate: string,
-    appointmentTime: string,
-    durationMinutes: number = 2
-  ): boolean => {
-    const now = new Date();
-    const appointmentDay = new Date(appointmentDate);
+  // const isAppointmentImminent = (
+  //   appointmentDate: string,
+  //   appointmentTime: string,
+  //   durationMinutes: number = 2
+  // ): boolean => {
+  //   const now = new Date();
+  //   const appointmentDay = new Date(appointmentDate);
 
-    // Check if it's the same date
-    const isSameDate =
-      now.getFullYear() === appointmentDay.getFullYear() &&
-      now.getMonth() === appointmentDay.getMonth() &&
-      now.getDate() === appointmentDay.getDate();
+  //   // Check if it's the same date
+  //   const isSameDate =
+  //     now.getFullYear() === appointmentDay.getFullYear() &&
+  //     now.getMonth() === appointmentDay.getMonth() &&
+  //     now.getDate() === appointmentDay.getDate();
 
-    if (!isSameDate) return false;
+  //   if (!isSameDate) return false;
 
-    // Parse appointment time (assuming format like "11:36 AM")
-    const [time, period] = appointmentTime.split(" ");
-    const [hours, minutes] = time.split(":").map(Number);
+  //   // Parse appointment time (assuming format like "11:36 AM")
+  //   const [time, period] = appointmentTime.split(" ");
+  //   const [hours, minutes] = time.split(":").map(Number);
 
-    let appointmentHours = hours;
-    if (period === "PM" && hours !== 12) {
-      appointmentHours += 12;
-    } else if (period === "AM" && hours === 12) {
-      appointmentHours = 0;
-    }
+  //   let appointmentHours = hours;
+  //   if (period === "PM" && hours !== 12) {
+  //     appointmentHours += 12;
+  //   } else if (period === "AM" && hours === 12) {
+  //     appointmentHours = 0;
+  //   }
 
-    // Set full appointment datetime
-    const appointmentDateTime = new Date(appointmentDay);
-    appointmentDateTime.setHours(appointmentHours, minutes, 0, 0);
+  //   // Set full appointment datetime
+  //   const appointmentDateTime = new Date(appointmentDay);
+  //   appointmentDateTime.setHours(appointmentHours, minutes, 0, 0);
 
-    // Calculate time difference in minutes
-    const diffMinutes = (appointmentDateTime.getTime() - now.getTime()) / (1000 * 60);
-    const endTime = new Date(appointmentDateTime.getTime() + durationMinutes * 60 * 1000);
+  //   // Calculate time difference in minutes
+  //   const diffMinutes =
+  //     (appointmentDateTime.getTime() - now.getTime()) / (1000 * 60);
+  //   const endTime = new Date(
+  //     appointmentDateTime.getTime() + durationMinutes * 60 * 1000
+  //   );
 
-    // If current time is between [appointmentTime - 10min] and [appointmentTime + 2min]
-    return diffMinutes <= 10 && now <= endTime;
-  };
-
+  //   // If current time is between [appointmentTime - 10min] and [appointmentTime + 2min]
+  //   return diffMinutes <= 10 && now <= endTime;
+  // };
 
   const canCreateRoom = (appointment: Appointment) => {
     return (
       appointment.appointmentType === "online" &&
       // appointment.paymentStatus === "pending" &&
-      isAppointmentImminent(appointment.appointmentDate, appointment.appointmentTime)
+      getJoinCallInfo(appointment.appointmentDate, appointment.appointmentTime)
     );
   };
+  const getJoinCallInfo = (
+    appointmentDate: string,
+    appointmentTime: string,
+    durationMinutes: number = 2
+  ): {
+    canJoin: boolean;
+    minutesLeft: number;
+    isFuture: boolean;
+    daysUntil: number;
+    message: string;
+  } => {
+    const now = new Date();
+    const appointmentDay = new Date(appointmentDate);
 
-  const paginatedAppointments = useMemo(() => {
-    const startIndex = page * rowsPerPage;
-    return appointments.slice(startIndex, startIndex + rowsPerPage);
-  }, [appointments, page, rowsPerPage]);
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const apptDateOnly = new Date(
+      appointmentDay.getFullYear(),
+      appointmentDay.getMonth(),
+      appointmentDay.getDate()
+    );
+
+    const isSameDate = today.getTime() === apptDateOnly.getTime();
+    const isFutureDate = apptDateOnly > today;
+    const isPastDate = apptDateOnly < today;
+    const dayDiff = Math.floor(
+      (apptDateOnly.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    // Convert appointmentTime like "01:30 PM" into 24-hour format
+    const [time, period] = appointmentTime.split(" ");
+    const [hours, minutes] = time.split(":").map(Number);
+
+    let apptHour = hours;
+    if (period === "PM" && hours !== 12) apptHour += 12;
+    if (period === "AM" && hours === 12) apptHour = 0;
+
+    const apptDateTime = new Date(appointmentDay);
+    apptDateTime.setHours(apptHour, minutes, 0, 0);
+
+    // ✅ Future Appointment (Not Today)
+    if (isFutureDate) {
+      const diffMinutes = Math.ceil(
+        (apptDateTime.getTime() - now.getTime()) / (1000 * 60)
+      );
+      return {
+        canJoin: false,
+        minutesLeft: diffMinutes,
+        isFuture: true,
+        daysUntil: dayDiff,
+        message:
+          dayDiff === 1
+            ? `Appointment is tomorrow at ${appointmentTime}`
+            : `Appointment in ${dayDiff} days at ${appointmentTime}`,
+      };
+    }
+
+    // ❌ Past Appointment
+    if (isPastDate) {
+      return {
+        canJoin: false,
+        minutesLeft: -1,
+        isFuture: false,
+        daysUntil: -1,
+        message: "Join time has passed",
+      };
+    }
+
+    // ✅ Today: Same-day logic
+    const diffMinutes = (apptDateTime.getTime() - now.getTime()) / (1000 * 60);
+    const endTime = new Date(
+      apptDateTime.getTime() + durationMinutes * 60 * 1000
+    );
+
+    if (diffMinutes <= 10 && now <= endTime) {
+      return {
+        canJoin: true,
+        minutesLeft: Math.ceil(diffMinutes),
+        isFuture: false,
+        daysUntil: 0,
+        message: `Can join in ${Math.ceil(diffMinutes)} mins`,
+      };
+    }
+
+    return {
+      canJoin: false,
+      minutesLeft: Math.ceil(diffMinutes),
+      isFuture: false,
+      daysUntil: 0,
+      message:
+        diffMinutes > 10
+          ? `Can join in ${Math.ceil(diffMinutes)} mins`
+          : "Join time has passed",
+    };
+  };
+
+  // const paginatedAppointments = useMemo(() => {
+  //   const startIndex = page * rowsPerPage;
+  //   return appointments.slice(startIndex, startIndex + rowsPerPage);
+  // }, [appointments, page, rowsPerPage]);
 
   const headerStyle = {
     fontWeight: 600,
@@ -439,20 +623,20 @@ const AppointmentHistory: React.FC = () => {
           sx={{
             mb: 2,
             borderRadius: 2,
-            backgroundColor: '#e3f2fd',
-            '& .MuiAlert-message': {
-              display: 'flex',
-              alignItems: 'center',
+            backgroundColor: "#e3f2fd",
+            "& .MuiAlert-message": {
+              display: "flex",
+              alignItems: "center",
               gap: 1,
-              width: '100%',
-              justifyContent: 'space-between'
-            }
+              width: "100%",
+              justifyContent: "space-between",
+            },
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <VideoCall sx={{ fontSize: 20 }} />
-            Active call with {activeCall.doctorName} -
-            Expires at {new Date(activeCall.expiresAt).toLocaleTimeString()}
+            Active call with {activeCall.doctorName} - Expires at{" "}
+            {new Date(activeCall.expiresAt).toLocaleTimeString()}
           </Box>
           <Button
             size="small"
@@ -476,7 +660,7 @@ const AppointmentHistory: React.FC = () => {
               <TableCell sx={headerStyle}>Contact</TableCell>
               <TableCell sx={headerStyle}>Date</TableCell>
               <TableCell sx={headerStyle}>Time</TableCell>
-              <TableCell sx={headerStyle}>Type</TableCell>
+              {/* <TableCell sx={headerStyle}>Type</TableCell> */}
               <TableCell sx={headerStyle}>Hospital</TableCell>
               <TableCell sx={headerStyle}>Status</TableCell>
               <TableCell sx={headerStyle}>Action</TableCell>
@@ -524,20 +708,24 @@ const AppointmentHistory: React.FC = () => {
                   <TableCell>
                     {appointment?.appointmentDate
                       ? new Date(appointment.appointmentDate)
-                        .toISOString()
-                        .split("T")[0]
+                          .toISOString()
+                          .split("T")[0]
                       : "N/A"}
                   </TableCell>
 
                   <TableCell>{appointment?.appointmentTime || "N/A"}</TableCell>
-                  <TableCell>
+                  {/* <TableCell>
                     <Chip
                       label={appointment?.appointmentType || "N/A"}
-                      color={appointment?.appointmentType === "online" ? "info" : "default"}
+                      color={
+                        appointment?.appointmentType === "online"
+                          ? "info"
+                          : "default"
+                      }
                       size="small"
                       variant="outlined"
                     />
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell>{appointment?.hospitalName || "N/A"}</TableCell>
                   <TableCell>
                     <Chip
@@ -549,33 +737,68 @@ const AppointmentHistory: React.FC = () => {
                     />
                   </TableCell>
                   <TableCell>
-                    {canCreateRoom(appointment) && (
-                      <Button
-                        variant="contained"
-                        size="small"
-                        startIcon={
-                          creatingRoom === appointment._id ? (
-                            <CircularProgress size={16} color="inherit" />
-                          ) : (
-                            <VideoCall />
-                          )
-                        }
-                        onClick={() => createRoom(appointment)}
-                        disabled={creatingRoom === appointment._id || activeCall !== null}
-                        sx={{
-                          backgroundColor: "#4caf50",
-                          "&:hover": {
-                            backgroundColor: "#45a049",
-                          },
-                          "&:disabled": {
-                            backgroundColor: "#cccccc",
-                          },
-                          textTransform: "none",
-                        }}
-                      >
-                        {creatingRoom === appointment._id ? "Creating..." : "Join Call"}
-                      </Button>
-                    )}
+                    {canCreateRoom(appointment) &&
+                      appointment.appointmentType === "online" && (
+                        <>
+                          {(() => {
+                            const { canJoin, message } = getJoinCallInfo(
+                              appointment.appointmentDate,
+                              appointment.appointmentTime
+                            );
+
+                            return (
+                              <>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  startIcon={
+                                    creatingRoom === appointment._id ? (
+                                      <CircularProgress
+                                        size={16}
+                                        color="inherit"
+                                      />
+                                    ) : (
+                                      <VideoCall />
+                                    )
+                                  }
+                                  onClick={() => createRoom(appointment)}
+                                  disabled={
+                                    creatingRoom === appointment._id ||
+                                    activeCall !== null ||
+                                    !canJoin
+                                  }
+                                  sx={{
+                                    backgroundColor: "#4caf50",
+                                    "&:hover": {
+                                      backgroundColor: "#45a049",
+                                    },
+                                    "&:disabled": {
+                                      backgroundColor: "#cccccc",
+                                    },
+                                    textTransform: "none",
+                                  }}
+                                >
+                                  {creatingRoom === appointment._id
+                                    ? "Creating..."
+                                    : "Join Call"}
+                                </Button>
+
+                                {!canJoin && (
+                                  <Box
+                                    sx={{
+                                      mt: 1,
+                                      fontSize: "12px",
+                                      color: "#fff",
+                                    }}
+                                  >
+                                    {countdowns[appointment._id] || message}
+                                  </Box>
+                                )}
+                              </>
+                            );
+                          })()}
+                        </>
+                      )}
                   </TableCell>
                 </TableRow>
               ))
