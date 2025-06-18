@@ -1,6 +1,13 @@
 "use client";
 
-import { Box, Typography, Tabs, Tab, Button, Popover } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Tabs,
+  Tab,
+  Button,
+  Popover,
+} from "@mui/material";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -44,43 +51,41 @@ export default function NotificationPopover({
   const tokenData = decodedToken();
   const patientId = tokenData?.id;
 
-  console.log(tokenData, "decodedToken");
-  console.log(patientId, "patientId");
-
-  // Function to request notification permissions
+  // Request browser notification permission
   const requestNotificationPermission = () => {
     if (Notification.permission !== "granted") {
       Notification.requestPermission().then((permission) => {
         if (permission === "granted") {
-          console.log("Notification permission granted");
+          console.log("🔔 Notification permission granted");
         }
       });
     }
   };
 
-  // Function to show browser notification
+  // Wrapper function for browser notifications
   const showBrowserNotification = (notification: Notification) => {
+    console.log("🔔 Trying to show browser notification", notification);
     if (Notification.permission === "granted") {
       new Notification(notification.message);
-      console.log("🔔 Browser Notification:", notification.message);
+      console.log("✅ Browser Notification Triggered");
+    } else {
+      console.warn("🚫 Notification not shown. Permission:", Notification.permission);
     }
   };
 
+  // Real-time socket notification
   useSocket(patientId, (newNotification) => {
-    // Update state with new notification
+    console.log("📥 New Notification in Popover:", newNotification);
     dispatch(setNotifications((prev) => [newNotification, ...prev]));
     setSnackbarMsg(newNotification.message);
     setShowSnackbar(true);
-    console.log("📥 New Socket Notification:", newNotification);
-    // Show browser notification
-    showBrowserNotification(newNotification);
+    showBrowserNotification(newNotification); // ✅ CALL HERE
   });
 
   const unreadCount = notifications.filter((n) => n.status === "unread").length;
 
   const fetchNotifications = async () => {
     if (!patientId) return;
-
     try {
       const response = await fetcher(
         "notification",
@@ -93,7 +98,7 @@ export default function NotificationPopover({
   };
 
   useEffect(() => {
-    requestNotificationPermission(); // Request permission on mount
+    requestNotificationPermission();
     fetchNotifications();
   }, []);
 
@@ -232,6 +237,24 @@ export default function NotificationPopover({
           </>
         )}
       </Box>
+
+      {/* Optional test button (you can remove this later) */}
+      <Box sx={{ textAlign: "center", p: 1 }}>
+        <Button
+          variant="outlined"
+          size="small"
+          onClick={() =>
+            showBrowserNotification({
+              _id: "test",
+              message: "✅ Test browser notification",
+              status: "unread",
+            })
+          }
+        >
+          Test Notification
+        </Button>
+      </Box>
+
       <SnackbarComponent
         alerting={showSnackbar}
         message={snackbarMsg}
