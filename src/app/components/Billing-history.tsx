@@ -85,7 +85,7 @@ const BillingHistory: React.FC = () => {
     }
   };
   const getPaymentIcon = (method: string) => {
-    switch (method.toLowerCase()) {
+    switch (method) {
       case "card":
         return (
           <CreditCard
@@ -111,7 +111,7 @@ const BillingHistory: React.FC = () => {
     }
   };
   const getCurrencyIcon = (currency: string) => {
-    switch (currency.toUpperCase()) {
+    switch (currency) {
       case "USD":
         return (
           <AttachMoney
@@ -244,12 +244,10 @@ const BillingHistory: React.FC = () => {
                       }}
                     >
                       {getPaymentIcon(bill.transactionMethod)}
-                      <span>{bill.transactionMethod.replace("_", " ")}</span>
+                      <span>{bill.transactionMethod}</span>
                     </span>
                   </TableCell>
-                  <TableCell align="center">
-                    {bill.transactionId.toLocaleString()}
-                  </TableCell>
+                  <TableCell align="center">{bill.transactionId}</TableCell>
                   <TableCell align="center">
                     <span
                       style={{
