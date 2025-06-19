@@ -83,49 +83,57 @@ const AppointmentHistory: React.FC = () => {
 
   const { decodedToken } = Utility();
   const patientId = decodedToken()?.id;
-
   useEffect(() => {
     const interval = setInterval(() => {
       const newCountdowns: { [id: string]: string } = {};
 
       appointments.forEach((appointment) => {
-        const { canJoin, minutesLeft, message } = getJoinCallInfo(
-          appointment.appointmentDate,
-          appointment.appointmentTime
-        );
-
-        if (!canJoin && minutesLeft > 0) {
-          const now = new Date();
-          const [time, period] = appointment.appointmentTime.split(" ");
-          const [hours, mins] = time.split(":").map(Number);
-
-          let apptHour = hours;
-          if (period === "PM" && hours !== 12) apptHour += 12;
-          if (period === "AM" && hours === 12) apptHour = 0;
-
-          const apptDateTime = new Date(appointment.appointmentDate);
-          apptDateTime.setHours(apptHour, mins, 0, 0);
-
-          const diffSeconds = Math.max(
-            0,
-            Math.floor((apptDateTime.getTime() - now.getTime()) / 1000)
+        const { canJoin, minutesLeft, message, isFuture, daysUntil } =
+          getJoinCallInfo(
+            appointment.appointmentDate,
+            appointment.appointmentTime
           );
 
-          const hrs = Math.floor(diffSeconds / 3600);
-          const minsLeft = Math.floor((diffSeconds % 3600) / 60);
-          const secsLeft = diffSeconds % 60;
+        const appointmentId = appointment._id;
 
-          let countdownText = "";
+        if (daysUntil === 0) {
+          // ✅ Only for today's appointments
+          if (!canJoin && minutesLeft > 0) {
+            const now = new Date();
+            const [time, period] = appointment.appointmentTime.split(" ");
+            const [hours, mins] = time.split(":").map(Number);
 
-          if (hrs > 0) {
-            countdownText = `Can join in ${hrs}h:${minsLeft}m`;
+            let apptHour = hours;
+            if (period === "PM" && hours !== 12) apptHour += 12;
+            if (period === "AM" && hours === 12) apptHour = 0;
+
+            const apptDateTime = new Date(appointment.appointmentDate);
+            apptDateTime.setHours(apptHour, mins, 0, 0);
+
+            const diffSeconds = Math.max(
+              0,
+              Math.floor((apptDateTime.getTime() - now.getTime()) / 1000)
+            );
+
+            const hrs = Math.floor(diffSeconds / 3600);
+            const minsLeft = Math.floor((diffSeconds % 3600) / 60);
+            const secsLeft = diffSeconds % 60;
+
+            const countdownText =
+              hrs > 0
+                ? `Can join in ${hrs}h:${minsLeft}m`
+                : `Can join in ${String(minsLeft).padStart(2, "0")}m:${String(
+                    secsLeft
+                  ).padStart(2, "0")}s`;
+
+            newCountdowns[appointmentId] = countdownText;
           } else {
-            const mm = String(minsLeft).padStart(2, "0");
-            const ss = String(secsLeft).padStart(2, "0");
-            countdownText = `Can join in ${mm}m:${ss}s`;
+            // Either can join or time has passed
+            newCountdowns[appointmentId] = message;
           }
-
-          newCountdowns[appointment._id] = countdownText;
+        } else {
+          // ❌ Not today — show static message
+          newCountdowns[appointmentId] = message;
         }
       });
 

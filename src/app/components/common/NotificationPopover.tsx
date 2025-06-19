@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Box,
-  Typography,
-  Tabs,
-  Tab,
-  Button,
-  Popover,
-} from "@mui/material";
+import { Box, Typography, Tabs, Tab, Button, Popover } from "@mui/material";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -51,35 +44,88 @@ export default function NotificationPopover({
   const tokenData = decodedToken();
   const patientId = tokenData?.id;
 
-  // Request browser notification permission
-  const requestNotificationPermission = () => {
-    if (Notification.permission !== "granted") {
-      Notification.requestPermission().then((permission) => {
+  const requestNotificationPermission = async () => {
+    try {
+      if (!("Notification" in window)) {
+        console.warn("❌ This browser does not support notifications.");
+        return;
+      }
+
+      console.log(
+        "🔍 Current Notification Permission:",
+        Notification.permission
+      );
+
+      if (Notification.permission === "default") {
+        const permission = await Notification.requestPermission();
+        console.log("📥 Permission granted status:", permission);
         if (permission === "granted") {
-          console.log("🔔 Notification permission granted");
+          new Notification("✅ Notifications Enabled!", {
+            body: "You'll now get alerts here.",
+            icon: "/notification-icon.png",
+          });
+        } else {
+          setSnackbarMsg("Please enable browser notifications in settings.");
+          setShowSnackbar(true);
         }
-      });
+      }
+    } catch (err) {
+      console.error("⚠️ Error requesting notification permission:", err);
     }
   };
 
-  // Wrapper function for browser notifications
   const showBrowserNotification = (notification: Notification) => {
     console.log("🔔 Trying to show browser notification", notification);
-    if (Notification.permission === "granted") {
-      new Notification(notification.message);
-      console.log("✅ Browser Notification Triggered");
-    } else {
-      console.warn("🚫 Notification not shown. Permission:", Notification.permission);
+
+    if (!("Notification" in window)) {
+      console.warn("🚫 Notification API not supported");
+      alert(notification.message); 
+      return;
     }
+
+    if (Notification.permission !== "granted") {
+      console.warn("🔕 Notification permission not granted");
+      requestNotificationPermission();
+      alert(notification.message); 
+      return;
+    }
+
+    const isTabFocused = document.hasFocus();
+
+    if (isTabFocused) {
+      console.log("🟡 Tab is focused — showing alert()");
+      alert(notification.message); 
+    } else {
+      try {
+        const n = new Notification("📢 New Notification", {
+          body: notification.message || "You have a new alert!",
+          icon: "https://cdn-icons-png.flaticon.com/512/1827/1827392.png",
+          tag: notification._id,
+        });
+
+        n.onclick = () => {
+          window.focus();
+          n.close();
+        };
+
+        setTimeout(() => n.close(), 5000);
+      } catch (err) {
+        console.error("❌ Notification creation failed:", err);
+        alert(notification.message); // fallback
+      }
+    }
+
+    // Always show Snackbar as fallback
+    setSnackbarMsg(notification.message);
+    // setShowSnackbar(true);
   };
 
-  // Real-time socket notification
   useSocket(patientId, (newNotification) => {
     console.log("📥 New Notification in Popover:", newNotification);
     dispatch(setNotifications((prev) => [newNotification, ...prev]));
     setSnackbarMsg(newNotification.message);
-    setShowSnackbar(true);
-    showBrowserNotification(newNotification); // ✅ CALL HERE
+    // setShowSnackbar(true);
+    showBrowserNotification(newNotification);
   });
 
   const unreadCount = notifications.filter((n) => n.status === "unread").length;
@@ -91,7 +137,17 @@ export default function NotificationPopover({
         "notification",
         `get-notifications/${patientId}`
       );
-      dispatch(setNotifications(Array.isArray(response) ? response : []));
+
+      if (Array.isArray(response)) {
+        dispatch(setNotifications(response));
+
+      
+        response.forEach((notification: Notification) => {
+          if (notification.status === "unread") {
+            showBrowserNotification(notification);
+          }
+        });
+      }
     } catch (err) {
       console.error("Fetch error:", err);
     }
@@ -238,28 +294,11 @@ export default function NotificationPopover({
         )}
       </Box>
 
-      {/* Optional test button (you can remove this later) */}
-      <Box sx={{ textAlign: "center", p: 1 }}>
-        <Button
-          variant="outlined"
-          size="small"
-          onClick={() =>
-            showBrowserNotification({
-              _id: "test",
-              message: "✅ Test browser notification",
-              status: "unread",
-            })
-          }
-        >
-          Test Notification
-        </Button>
-      </Box>
-
       <SnackbarComponent
         alerting={showSnackbar}
         message={snackbarMsg}
         severity="info"
-        onClose={() => setShowSnackbar(false)}
+        // onClose={() => setShowSnackbar(false)}
       />
     </Popover>
   );

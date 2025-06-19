@@ -50,9 +50,9 @@ const Topbar = () => {
   const patientId = decodedToken()?.id;
   console.log(patientId, "patientId in Topbar");
   useSocket(patientId, (newNotification) => {
-      console.log("📥 Notification received in Topbar:", newNotification);
-      dispatch(setNotifications([...(notifications || []), newNotification]));
-    });
+    console.log("📥 Notification received in Topbar:", newNotification);
+    dispatch(setNotifications([...(notifications || []), newNotification]));
+  });
   const userPopover = usePopover<HTMLDivElement>();
   const { notifications } = useSelector(
     (state: RootState) => state.notifications
@@ -79,7 +79,6 @@ const Topbar = () => {
   // };
   const token = decodedToken();
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-
     if (!token?.id && !token?._id) {
       router.push("/signin");
       return;
@@ -294,6 +293,7 @@ const Topbar = () => {
             notifications={notifications}
             readNotifications={readNotification}
             markAsRead={markAsRead}
+            setUnreadCount={setUnreadCount} // ✅ Pass this
           />
         </Box>
 
