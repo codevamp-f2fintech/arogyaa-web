@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
@@ -24,6 +24,8 @@ import {
   List,
   ListItemText,
   Link,
+  Alert,
+  CircularProgress,
 } from "@mui/material";
 import { motion } from "framer-motion";
 import { fetcher } from "@/apis/apiClient";
@@ -33,8 +35,57 @@ import AIAssistant from "./AIAssistant";
 const BannerComponentTest: React.FC = () => {
   const [keyword, setKeyword] = useState<string>("");
   const [results, setResults] = useState<any[]>([]);
+  const [userLocation, setUserLocation] = useState<{
+    latitude: number;
+    longitude: number;
+    city?: string;
+  } | null>(null);
+  const [locationError, setLocationError] = useState<string>("");
+  const [isLoadingLocation, setIsLoadingLocation] = useState<boolean>(false);
+  const [isSearchingNearby, setIsSearchingNearby] = useState<boolean>(false);
+
   const { capitalizeFirstLetter } = Utility();
   const router = useRouter();
+
+  // Get user's current location
+  const getCurrentLocation = (): Promise<GeolocationPosition> => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error("Geolocation is not supported by this browser."));
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(resolve, reject, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 300000, // 5 minutes
+      });
+    });
+  };
+
+  // Get city name from coordinates using reverse geocoding
+  const getCityFromCoordinates = async (
+    latitude: number,
+    longitude: number
+  ): Promise<string> => {
+    try {
+      // Using a free geocoding service (you can replace with your preferred service)
+      const response = await fetch(
+        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+      );
+      const data = await response.json();
+
+      return (
+        data.city ||
+        data.locality ||
+        data.principalSubdivision ||
+        "Unknown City"
+      );
+    } catch (error) {
+      console.error("Error getting city name:", error);
+      return "Unknown City";
+    }
+  };
 
   // Debounce function to prevent unnecessary API calls
   const debounce = (func: (...args: any[]) => void, delay: number) => {
@@ -69,15 +120,51 @@ const BannerComponentTest: React.FC = () => {
       setResults([]);
     }
   };
-  const getIconColor = (index) => {
+
+  // Fetch doctors based on location
+  const fetchDoctorsByLocation = async (
+    latitude: number,
+    longitude: number,
+    city?: string
+  ) => {
+    setIsSearchingNearby(true);
+    try {
+      // You can modify this API call based on your backend implementation
+      let apiUrl = `get-doctors-by-location?latitude=${latitude}&longitude=${longitude}`;
+
+      // If you prefer to search by city name instead of coordinates
+      if (city) {
+        apiUrl = `get-doctors?location=${encodeURIComponent(city)}`;
+      }
+
+      const response = await fetcher("doctor", apiUrl);
+
+      if (response && response.results && Array.isArray(response.results)) {
+        setResults(response.results);
+        setKeyword(`Doctors near ${city || "your location"}`);
+      } else {
+        setResults([]);
+        setLocationError("No doctors found in your area");
+      }
+    } catch (error) {
+      console.error("Error fetching doctors by location:", error);
+      setLocationError("Failed to fetch doctors in your area");
+      setResults([]);
+    } finally {
+      setIsSearchingNearby(false);
+    }
+  };
+
+  const getIconColor = (index: number) => {
     const colors = ["#fff", "#fff", "#fff", "#fff"];
-    return colors[index % colors.length]; // It will cycle through colors
+    return colors[index % colors.length];
   };
 
   const debouncedFetchResults = useCallback(
     debounce(fetchDoctorResults, 500),
     []
   );
+
   const features = [
     "100% Expert Doctors",
     "Medicine & Instrument",
@@ -88,12 +175,54 @@ const BannerComponentTest: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const keyword = e.target.value;
     setKeyword(keyword);
+    setLocationError(""); // Clear location error when user starts typing
     debouncedFetchResults(keyword);
   };
 
   const handleClear = () => {
     setKeyword("");
     setResults([]);
+    setLocationError("");
+  };
+
+  const handleNearMeClick = async () => {
+    setLocationError("");
+    setIsLoadingLocation(true);
+
+    try {
+      const position = await getCurrentLocation();
+      const { latitude, longitude } = position.coords;
+
+      // Get city name from coordinates
+      const cityName = await getCityFromCoordinates(latitude, longitude);
+
+      setUserLocation({
+        latitude,
+        longitude,
+        city: cityName,
+      });
+
+      // Fetch doctors in the area
+      await fetchDoctorsByLocation(latitude, longitude, cityName);
+    } catch (error: any) {
+      console.error("Error getting location:", error);
+
+      if (error.code === 1) {
+        setLocationError(
+          "Location access denied. Please enable location services."
+        );
+      } else if (error.code === 2) {
+        setLocationError("Unable to retrieve your location. Please try again.");
+      } else if (error.code === 3) {
+        setLocationError("Location request timed out. Please try again.");
+      } else {
+        setLocationError(
+          "Failed to get your location. Please search manually."
+        );
+      }
+    } finally {
+      setIsLoadingLocation(false);
+    }
   };
 
   const handleNavigation = (link: string) => {
@@ -173,11 +302,11 @@ const BannerComponentTest: React.FC = () => {
               letterSpacing: "0.5px",
               lineHeight: "1.2",
               textShadow: "0 4px 8px rgba(0,0,0,0.2)",
-              width: { xs: "100%", sm: "80%", md: "inherit" }, // Ensure it takes full width on smaller screens
+              width: { xs: "100%", sm: "80%", md: "inherit" },
               display: "flex",
-              justifyContent: "center", // Ensure center alignment
-              alignItems: "center", // Vertically center the content
-              flexDirection: { xs: "column", md: "row" }, // Stack content on small screens
+              justifyContent: "center",
+              alignItems: "center",
+              flexDirection: { xs: "column", md: "row" },
             }}
           >
             Welcome to{" "}
@@ -225,7 +354,7 @@ const BannerComponentTest: React.FC = () => {
                 whileHover={{ scale: 1.05 }}
                 sx={{
                   display: "flex",
-                  flexDirection: { xs: "column", sm: "row", md: "row" }, // xs for mobile screens, sm for larger screens
+                  flexDirection: { xs: "column", sm: "row", md: "row" },
                 }}
               >
                 Find & Book
@@ -234,6 +363,28 @@ const BannerComponentTest: React.FC = () => {
             </Typography>
           </motion.div>
         </motion.div>
+
+        {/* Location Error Alert */}
+        {locationError && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            style={{ marginBottom: "10px", width: "100%", maxWidth: "600px" }}
+          >
+            <Alert
+              severity="warning"
+              onClose={() => setLocationError("")}
+              sx={{
+                backgroundColor: "rgba(255, 193, 7, 0.1)",
+                color: "#fff",
+                "& .MuiAlert-icon": { color: "#ffb74d" },
+              }}
+            >
+              {locationError}
+            </Alert>
+          </motion.div>
+        )}
 
         {/* Search Input and Near Me Button */}
         <motion.div
@@ -256,7 +407,7 @@ const BannerComponentTest: React.FC = () => {
               padding: "4px 15px",
               borderRadius: "50px",
               background: "#fff",
-              width: { xs: "90%", sm: "75%", md: "33vw" }, // Adjust width based on screen size
+              width: { xs: "90%", sm: "75%", md: "33vw" },
               justifyContent: "space-between",
               boxShadow: "0px 4px 15px rgba(0,0,0,0.1)",
               gap: 0,
@@ -306,6 +457,8 @@ const BannerComponentTest: React.FC = () => {
                   </IconButton>
                 )}
                 <Button
+                  onClick={handleNearMeClick}
+                  disabled={isLoadingLocation || isSearchingNearby}
                   sx={{
                     textTransform: "none",
                     fontSize: "0.8rem",
@@ -326,10 +479,24 @@ const BannerComponentTest: React.FC = () => {
                         color: "#fff",
                       },
                     },
+                    "&:disabled": {
+                      backgroundColor: "#ddd",
+                      color: "#999",
+                    },
                   }}
                 >
-                  <LocationOnIcon sx={{ fontSize: "1.3rem" }} />
-                  Near Me
+                  {isLoadingLocation || isSearchingNearby ? (
+                    <CircularProgress size={16} sx={{ mr: 1 }} />
+                  ) : (
+                    <LocationOnIcon sx={{ fontSize: "1.3rem" }} />
+                  )}
+                  {isLoadingLocation
+                    ? "Getting Location..."
+                    : isSearchingNearby
+                    ? "Searching..."
+                    : userLocation?.city
+                    ? `Near ${userLocation.city}`
+                    : "Near Me"}
                 </Button>
               </motion.div>
             </Box>
@@ -350,7 +517,12 @@ const BannerComponentTest: React.FC = () => {
               <Box
                 sx={{
                   position: "absolute",
-                  bottom: results.length < 2 ? "110px" : results.length < 3 ? "60px" : "-80px",
+                  bottom:
+                    results.length < 2
+                      ? "110px"
+                      : results.length < 3
+                      ? "60px"
+                      : "-80px",
                   left: 0,
                   right: 0,
                   backgroundColor: "white",
@@ -388,24 +560,24 @@ const BannerComponentTest: React.FC = () => {
                         padding: "10px 15px",
                         cursor: "pointer",
                         transition: "background-color 0.3s",
-
                         ":hover": {
                           backgroundColor: "#f4f4f4",
                         },
                       }}
                     >
-                      <Link href={`/doctors/profile/${doctor._id}`} passHref
-                        sx={{
-                          textDecoration: "none"
-                        }}
+                      <Link
+                        href={`/doctors/profile/${doctor._id}`}
+                        passHref
+                        sx={{ textDecoration: "none" }}
                       >
                         <ListItemText
-                          primary={`${doctor.username || "Unknown"} - ${doctor.specializationIds
-                            ?.map((spec: any) =>
-                              capitalizeFirstLetter(spec.name)
-                            )
-                            .join(", ") || "Specialty not available"
-                            }`}
+                          primary={`${doctor.username || "Unknown"} - ${
+                            doctor.specializationIds
+                              ?.map((spec: any) =>
+                                capitalizeFirstLetter(spec.name)
+                              )
+                              .join(", ") || "Specialty not available"
+                          }`}
                           sx={{
                             fontSize: "0.9rem",
                             textDecoration: "none",
@@ -429,18 +601,18 @@ const BannerComponentTest: React.FC = () => {
                 <Box
                   sx={{
                     display: "flex",
-                    gap: { xs: "20px", sm: "50px" }, // Adjust gap for mobile and tablet sizes
+                    gap: { xs: "20px", sm: "50px" },
                     mt: 30,
                     maxWidth: "1200px",
-                    flexWrap: { xs: "nowrap", sm: "nowrap" }, // Allow wrapping on mobile
+                    flexWrap: { xs: "nowrap", sm: "nowrap" },
                     justifyContent: { xs: "center", sm: "center" },
-                    padding: { xs: "10px", sm: "0" }, // Add padding for smaller screens to prevent overlap
+                    padding: { xs: "10px", sm: "0" },
                     height: {
-                      xs: "auto", // Allow height to adjust for mobile devices
+                      xs: "auto",
                       sm: "inherit",
                     },
                     width: {
-                      xs: "100%", // Take full width on small devices
+                      xs: "100%",
                       sm: "inherit",
                     },
                   }}
@@ -490,7 +662,7 @@ const BannerComponentTest: React.FC = () => {
                           cursor: "pointer",
                           color: "#b497d6",
                           height: "60px",
-                          width: { xs: "70px", sm: "75px" }, // Adjust width on smaller screens
+                          width: { xs: "70px", sm: "75px" },
                           background: "rgba(255, 255, 255, 0.1)",
                           backdropFilter: "blur(5px)",
                           padding: "15px",
@@ -547,7 +719,7 @@ const BannerComponentTest: React.FC = () => {
             </Container>
           </Box>
         </motion.div>
-      </Box >
+      </Box>
       <Box
         component={motion.div}
         initial={{ opacity: 0, x: 50 }}
@@ -556,8 +728,8 @@ const BannerComponentTest: React.FC = () => {
         sx={{
           flex: 1,
           position: "relative",
-          height: { xs: "300px", sm: "400px", md: "400px" }, // Height adjusted for mobile and tablet
-          width: "100%", // Full width for all devices
+          height: { xs: "300px", sm: "400px", md: "400px" },
+          width: "100%",
           overflow: "hidden",
           display: {
             xs: "none",
@@ -566,7 +738,7 @@ const BannerComponentTest: React.FC = () => {
             lg: "flex",
           },
           borderRadius: "20px",
-          margin: { xs: "0 10px", sm: "0 15px", md: "0 20px" }, // Adjust margins for mobile and tablet
+          margin: { xs: "0 10px", sm: "0 15px", md: "0 20px" },
         }}
       >
         <motion.div
@@ -588,12 +760,12 @@ const BannerComponentTest: React.FC = () => {
             bottom: 0,
             left: 0,
             right: 0,
-            padding: { xs: "15px", sm: "20px", md: "20px" }, // Adjust padding for mobile and tablet
+            padding: { xs: "15px", sm: "20px", md: "20px" },
             display: "flex",
             justifyContent: "center",
-            width: "100%", // Ensure the Box takes full width on all screen sizes
+            width: "100%",
             "@media (max-width: 600px)": {
-              padding: "10px", // Custom padding for smaller mobile screens
+              padding: "10px",
             },
           }}
         >
@@ -623,9 +795,9 @@ const BannerComponentTest: React.FC = () => {
             </Stack>
           </motion.div>
         </Box>
-      </Box>{" "}
+      </Box>
       <AIAssistant />
-    </Box >
+    </Box>
   );
 };
 

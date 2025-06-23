@@ -44,6 +44,7 @@ const Topbar = () => {
   const [unreadCount, setUnreadCount] = useState(0);
 
   const { capitalizeFirstLetter, decodedToken, getCookies } = Utility();
+  const token = decodedToken(); // define token
   const router = useRouter();
   const pathname = usePathname();
 
@@ -152,10 +153,11 @@ const Topbar = () => {
   };
 
   useEffect(() => {
+    console.log("tokenWithAdnan", token);
     if (session?.user?.email && !token) {
       handleLogin(session.user.email);
     }
-  }, [session]);
+  }, [session, token]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
