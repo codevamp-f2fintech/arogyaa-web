@@ -102,6 +102,7 @@ interface TestItem {
   description: string;
   category: string;
   emptyStomach: boolean;
+  status: string; // added
 }
 
 interface CreateTestDialogProps {
@@ -116,6 +117,7 @@ const initialTestItem: TestItem = {
   description: "",
   category: "blood_test",
   emptyStomach: false,
+  status: "scheduled", // default
 };
 
 const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
@@ -257,6 +259,7 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
           description: item.description,
           category: item.category,
           emptyStomach: item.emptyStomach,
+          status: item.status, // newly included
         })),
         status: formData.status,
         type: formData.type,
@@ -446,6 +449,81 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
               </Grid>
 
               <Grid item xs={12} sm={4}>
+                <StyledAutocomplete
+                  options={optionsStatus}
+                  getOptionLabel={(o) => o.label}
+                  value={optionsStatus.find((opt) => opt.value === item.status)}
+                  onChange={(e, newVal) =>
+                    handleTestItemChange(index, "status", newVal?.value || "")
+                  }
+                  fullWidth
+                  popupIcon={<ArrowDropDown sx={{ color: "#56428B" }} />}
+                  PaperComponent={({ children }) => (
+                    <Paper
+                      sx={{
+                        backgroundColor: "#56428B", // Dropdown background
+                        color: "white", // Text color
+                        borderRadius: 2,
+                        mt: 1,
+                      }}
+                    >
+                      {children}
+                    </Paper>
+                  )}
+                  sx={{
+                    "& .MuiAutocomplete-option": {
+                      backgroundColor: "#56428B",
+                      color: "white",
+                      "&[aria-selected='true']": {
+                        backgroundColor: "#453278",
+                      },
+                      "&:hover": {
+                        backgroundColor: "#453278",
+                      },
+                    },
+                    "& .MuiOutlinedInput-root": {
+                      backgroundColor: "#FFFFFF", // White input background
+                      borderRadius: "12px",
+                      color: "#56428B",
+                      "& fieldset": {
+                        borderColor: "#56428B",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#56428B",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#56428B",
+                      },
+                    },
+                    "& .MuiAutocomplete-popupIndicator": {
+                      color: "#56428B",
+                    },
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Status"
+                      variant="outlined"
+                      sx={{
+                        "& .MuiInputBase-root": {
+                          color: "#56428B",
+                          borderRadius: "12px",
+                        },
+                        "& .MuiInputLabel-root": {
+                          color: "#56428B",
+                          fontWeight: 500,
+                        },
+                        "& input": {
+                          color: "#56428B",
+                          fontWeight: 300,
+                        },
+                      }}
+                    />
+                  )}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={4}>
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -500,7 +578,7 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
           </Button>
 
           <Grid container spacing={3}>
-            <Grid item xs={12} sm={4}>
+            {/* <Grid item xs={12} sm={4}>
               <StyledAutocomplete
                 options={optionsStatus}
                 getOptionLabel={(option) => option.label}
@@ -578,7 +656,7 @@ const CreateTestDialog: React.FC<CreateTestDialogProps> = ({
                   />
                 )}
               />
-            </Grid>
+            </Grid> */}
 
             <Grid item xs={12} sm={4}>
               <StyledAutocomplete

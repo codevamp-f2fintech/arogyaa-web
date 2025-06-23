@@ -139,7 +139,7 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
   const initialTreatmentItem: TreatmentItem = {
     _id: "",
     doctorId: "",
-    status: "",
+    status: "in progress", // Add this line
     diagnosis: "",
     isFollowUp: false,
     name: "",
@@ -309,6 +309,7 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
           frequency: item.frequency,
           duration: item.duration,
           isEmptyStomach: item.isEmptyStomach,
+          status: item.status, // Add this line
         })),
         type: formData.type,
         diagnosis: formData.diagnosis,
@@ -361,6 +362,12 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
         )
     );
   };
+
+  const optionsMedicationStatus = [
+    { label: "In Progress", value: "in progress" },
+    { label: "Completed", value: "completed" },
+    { label: "Cancelled", value: "cancelled" },
+  ];
   return (
     <Dialog
       open={open}
@@ -544,6 +551,59 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                       color: "#56428B", // Input text color
                     },
                   }}
+                />
+              </Grid>
+              {/* Add this after the Duration field */}
+              <Grid item xs={12} sm={2}>
+                <StyledAutocomplete
+                  options={optionsMedicationStatus}
+                  getOptionLabel={(option) => option.label}
+                  value={optionsMedicationStatus.find(
+                    (option) => option.value === item.status
+                  )}
+                  onChange={(event, newValue) =>
+                    handleTreatmentItemChange(
+                      index,
+                      "status",
+                      newValue?.value || "in progress"
+                    )
+                  }
+                  fullWidth
+                  popupIcon={<ArrowDropDown sx={{ color: "#56428B" }} />}
+                  PaperComponent={({ children }) => (
+                    <Paper
+                      sx={{
+                        backgroundColor: "#56428B",
+                        color: "#fff",
+                        borderRadius: 2,
+                        mt: 1,
+                        "& .MuiAutocomplete-option": {
+                          color: "#fff",
+                          '&[aria-selected="true"]': {
+                            backgroundColor: "#3E2E6E",
+                          },
+                          "&:hover": {
+                            backgroundColor: "#3E2E6E",
+                          },
+                        },
+                      }}
+                    >
+                      {children}
+                    </Paper>
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Status"
+                      InputProps={{
+                        ...params.InputProps,
+                        sx: { color: "#56428B" },
+                      }}
+                      InputLabelProps={{
+                        sx: { color: "#56428B" },
+                      }}
+                    />
+                  )}
                 />
               </Grid>
               <Grid item xs={12} sm={4}>
@@ -822,7 +882,7 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                 />
               </Grid>
             )}
-            <Grid item xs={12} sm={4}>
+            {/* <Grid item xs={12} sm={4}>
               <StyledAutocomplete
                 options={optionsStatus}
                 getOptionLabel={(option) => option.label}
@@ -885,7 +945,7 @@ const CreateTreatmentDialog: React.FC<CreateTreatmentDialogProps> = ({
                   />
                 )}
               />
-            </Grid>
+            </Grid> */}
             <Grid item xs={12} sm={4} sx={{ mt: 0 }}>
               <Button
                 component="label"

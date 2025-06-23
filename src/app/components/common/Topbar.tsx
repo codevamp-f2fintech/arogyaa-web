@@ -44,15 +44,16 @@ const Topbar = () => {
   const [unreadCount, setUnreadCount] = useState(0);
 
   const { capitalizeFirstLetter, decodedToken, getCookies } = Utility();
+  const token = decodedToken(); // define token
   const router = useRouter();
   const pathname = usePathname();
 
   const patientId = decodedToken()?.id;
   console.log(patientId, "patientId in Topbar");
   useSocket(patientId, (newNotification) => {
-      console.log("📥 Notification received in Topbar:", newNotification);
-      dispatch(setNotifications([...(notifications || []), newNotification]));
-    });
+    console.log("📥 Notification received in Topbar:", newNotification);
+    dispatch(setNotifications([...(notifications || []), newNotification]));
+  });
   const userPopover = usePopover<HTMLDivElement>();
   const { notifications } = useSelector(
     (state: RootState) => state.notifications
@@ -153,10 +154,11 @@ const Topbar = () => {
   };
 
   useEffect(() => {
+    console.log("tokenWithAdnan", token);
     if (session?.user?.email && !token) {
       handleLogin(session.user.email);
     }
-  }, [session]);
+  }, [session, token]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
