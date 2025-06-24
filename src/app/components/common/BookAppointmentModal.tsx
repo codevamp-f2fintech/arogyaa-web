@@ -524,7 +524,7 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
         };
 
         const response = await createAppointment(appointmentData);
-
+        console.log(response, appointmentData, 'response of api')
         if (response?.statusCode === 201) {
           const paymentData = {
             patientId,
@@ -554,7 +554,7 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
             "error",
             "Failed to book appointment",
             null,
-            true
+            false
           );
         }
       } catch (error: any) {
@@ -780,7 +780,7 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                         fontSize: "1rem",
                         fontWeight: 300,
                         color: "#000",
-                        marginBottom: "16px",
+                        marginBottom: "15px",
                         display: "flex",
                         alignItems: "center",
                         "& svg": {
@@ -842,15 +842,15 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                                 },
                               }}
                             >
-                              Hospital
+                              Choose Hospital Name *
                             </InputLabel>
                             <Select
                               value={selectedHospital || ""}
                               onChange={handleHospitalChange}
-                              label="Hospital"
+                              label="Select Hospital *"
                               sx={inputStyles}
                             >
-                              {data?.availability.map((slot) => (
+                              {data?.availability?.map((slot) => (
                                 <MenuItem
                                   key={slot.hospital.name}
                                   value={slot.hospital.name}
@@ -890,7 +890,7 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                         >
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DatePicker
-                              label="Date Of Appointment *"
+                              label="Choose Appointment Date *"
                               disablePast
                               inputFormat="YYYY-MM-DD"
                               value={
@@ -959,44 +959,6 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                             />
                           </LocalizationProvider>
                         </Box>
-                        {/*Display Message*/}
-                        {!values.appointmentDate ? (
-                          <Typography
-                            sx={{
-                              textAlign: "center",
-                              backgroundColor: "#fff",
-                              border: "1px solid #ccc",
-                              borderRadius: "6px",
-                              padding: "3px",
-                              color: "#29175E",
-                              marginBottom: "15px",
-                              fontSize: "1rem",
-                              fontWeight: 450,
-                              fontFamily: "Poppins",
-                            }}
-                          >
-                            Choose an appointment date.
-                          </Typography>
-                        ) : !timeBuckets ||
-                          Object.values(timeBuckets).every(
-                            (bucket) => bucket.length === 0
-                          ) ? (
-                          <Typography
-                            sx={{
-                              textAlign: "center",
-                              backgroundColor: "#f8f8ff",
-                              border: "1px solid #ccc",
-                              borderRadius: "6px",
-                              padding: "2px",
-                              color: "#29175E",
-                              marginBottom: "10px",
-                              fontSize: "1rem",
-                              fontWeight: 500,
-                            }}
-                          >
-                            No slots available.
-                          </Typography>
-                        ) : null}
                         {/* === Appointment Type === */}
                         <TextField
                           fullWidth
@@ -1008,7 +970,7 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                             setFieldValue("appointmentType", e.target.value)
                           }
                           sx={{
-                            marginBottom: "7px",
+                            marginBottom: "20px",
                             "& input": {
                               background: "#fff",
                               borderRadius: "6px",
@@ -1017,8 +979,8 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                             },
                             "& .MuiInputBase-root": {
                               fontSize: "0.9rem",
-                              color: "black !important", // Change color to black for input text
                               fontFamily: "Poppins",
+                              color: "black !important", // Change color to black for input text
                             },
                             "& .MuiFormLabel-root": {
                               color: "black !important", // Change color to black for label text
@@ -1046,7 +1008,7 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                           }}
                           sx={{
                             ...inputStyles,
-                            marginBottom: "2px",
+                            marginBottom: "15px",
                           }}
                         >
                           <MenuItem value="online">Online</MenuItem>
@@ -1100,12 +1062,13 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                             ...inputStyles,
                             background: "#fff",
                             padding: "4px 2px",
+                            marginBottom: "15px"
                           }}
                           renderInput={(params) => (
                             <TextField
                               {...params}
                               id="symptoms-autocomplete"
-                              label="Symptom *"
+                              label="Symptom"
                               name="symptomIds"
                               type="text"
                               error={
@@ -1619,7 +1582,6 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                               <span className="spntx2">
                                 {values.appointmentDate &&
                                   values.appointmentTime &&
-                                  values.symptomIds.length > 0 &&
                                   values.appointmentType
                                   ? `₹${data?.consultationFee}`
                                   : "--"}
