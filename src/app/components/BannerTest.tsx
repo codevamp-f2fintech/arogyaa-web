@@ -349,17 +349,13 @@ const BannerComponentTest: React.FC = () => {
                 },
               }}
             >
-              <span
+              <motion.span
                 style={{ color: "#fff", fontWeight: "bold" }}
                 whileHover={{ scale: 1.05 }}
-                sx={{
-                  display: "flex",
-                  flexDirection: { xs: "column", sm: "row", md: "row" },
-                }}
               >
-                Find & Book
-              </span>{" "}
-              Healthcare Services Instantly
+                Find & Book &nbsp;
+              </motion.span>
+               Healthcare Services Instantly
             </Typography>
           </motion.div>
         </motion.div>

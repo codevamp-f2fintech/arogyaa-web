@@ -196,62 +196,59 @@ const SpecialitySlider: React.FC = () => {
       //   },
       // }}
       >
-        <Slider {...sliderSettings}>
-          {speciality && speciality?.results?.length > 0 ? (
-            speciality.results.map((item) => {
-              return (
-                <Box
-                  key={item._id}
+        {speciality && speciality?.results?.length > 0 ? (
+          <Slider {...sliderSettings}>
+            {speciality.results.map((item) => (
+              <Box
+                key={item._id}
+                sx={{
+                  height: "100%",
+                  p: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Paper
+                  elevation={2}
                   sx={{
-                    height: "100%",
-                    p: 1,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    height: { md: "100%" },
+                    width: {
+                      xs: "85vw",
+                      md: "inherit",
+                    },
+                    ml: 0.6,
+                    borderRadius: 2,
+                    overflow: "hidden",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      transform: "translateY(-8px)",
+                      boxShadow: (theme) => theme.shadows[8],
+                    },
                   }}
                 >
-                  <Paper
-                    elevation={2}
-                    sx={{
-                      height: { md: "100%" },
-                      width: {
-                        xs: "85vw",
-                        md: "inherit",
-                      },
-                      ml: 0.6,
-                      borderRadius: 2,
-                      overflow: "hidden",
-                      transition: "all 0.3s ease",
-
-                      "&:hover": {
-                        transform: "translateY(-8px)",
-                        boxShadow: (theme) => theme.shadows[8],
-                      },
-                    }}
-                  >
-                    <SpecialistCard
-                      icon={item?.icon || ""}
-                      name={item.name}
-                      description={item.description.slice(0, 90) + "..."}
-                      onConsult={() => handleConsult(item.name)}
-                    />
-                  </Paper>
-                </Box>
-              );
-            })
-          ) : (
-            <Typography
-              variant="h6"
-              sx={{
-                textAlign: "center",
-                color: "text.secondary",
-                py: 8,
-              }}
-            >
-              No Specialities Found
-            </Typography>
-          )}
-        </Slider>
+                  <SpecialistCard
+                    icon={item?.icon || ""}
+                    name={item.name}
+                    description={item.description.slice(0, 90) + "..."}
+                    onConsult={() => handleConsult(item.name)}
+                  />
+                </Paper>
+              </Box>
+            ))}
+          </Slider>
+        ) : (
+          <Typography
+            variant="h6"
+            sx={{
+              textAlign: "center",
+              color: "text.secondary",
+              py: 8,
+            }}
+          >
+            No Specialities Found
+          </Typography>
+        )}
       </Box>
 
       <Box

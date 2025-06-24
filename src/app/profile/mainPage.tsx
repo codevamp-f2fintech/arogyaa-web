@@ -694,18 +694,14 @@ const UserProfile = () => {
                             },
                           }}
                         >
-                          <MenuItem value="Male">Male</MenuItem>
-                          <MenuItem value="Female">Female</MenuItem>
-                          <MenuItem value="Other">Other</MenuItem>
+                          <MenuItem value="male">Male</MenuItem>
+                          <MenuItem value="female">Female</MenuItem>
+                          <MenuItem value="other">Other</MenuItem>
                         </Select>
                       ) : (
                         <TextField
                           size="small"
-                          value={
-                            item.key === "bloodGroup"
-                              ? editValues[item.key] || "A+"
-                              : editValues[item.key] || ""
-                          }
+                          value={editValues[item.key] || ""}
                           onChange={(e) =>
                             handleInputChange(item.key, e.target.value)
                           }

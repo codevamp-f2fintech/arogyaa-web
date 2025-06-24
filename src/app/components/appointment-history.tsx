@@ -123,8 +123,8 @@ const AppointmentHistory: React.FC = () => {
               hrs > 0
                 ? `Can join in ${hrs}h:${minsLeft}m`
                 : `Can join in ${String(minsLeft).padStart(2, "0")}m:${String(
-                    secsLeft
-                  ).padStart(2, "0")}s`;
+                  secsLeft
+                ).padStart(2, "0")}s`;
 
             newCountdowns[appointmentId] = countdownText;
           } else {
@@ -148,8 +148,7 @@ const AppointmentHistory: React.FC = () => {
       try {
         const response = await fetcher(
           "appointment",
-          `get-patients-appointment/${patientId}?page=${
-            page + 1
+          `get-patients-appointment/${patientId}?page=${page + 1
           }&limit=${rowsPerPage}`
         );
         if (!response || !response.results) {
@@ -237,9 +236,8 @@ const AppointmentHistory: React.FC = () => {
           expiresAt: response.expiresAt,
           doctorName: appointment.doctorId.username,
           doctorId: appointment.doctorId._id, // Add this line
-          returnUrl: `${window.location.origin}/profile?rating&doctorId=${
-            appointment.doctorId._id
-          }&doctorName=${encodeURIComponent(appointment.doctorId.username)}`,
+          returnUrl: `${window.location.origin}/profile?rating&doctorId=${appointment.doctorId._id
+            }&doctorName=${encodeURIComponent(appointment.doctorId.username)}`,
           joinedAt: new Date().toISOString(),
         };
 
@@ -716,8 +714,8 @@ const AppointmentHistory: React.FC = () => {
                   <TableCell>
                     {appointment?.appointmentDate
                       ? new Date(appointment.appointmentDate)
-                          .toISOString()
-                          .split("T")[0]
+                        .toISOString()
+                        .split("T")[0]
                       : "N/A"}
                   </TableCell>
 
@@ -823,7 +821,7 @@ const AppointmentHistory: React.FC = () => {
                     }}
                   >
                     <CalendarMonth sx={{ fontSize: 18, color: "#fff" }} />
-                    No Appointment Booked
+                    No Appointment History
                   </Box>
                 </TableCell>
               </TableRow>
