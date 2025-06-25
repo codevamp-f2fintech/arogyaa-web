@@ -112,8 +112,9 @@ const Topbar = () => {
       });
 
       if (response?.statusCode === 200) {
-        document.cookie = `token=${response.token}; path=/; max-age=${1 * 24 * 60 * 60
-          }; secure; samesite=strict`;
+        document.cookie = `token=${response.token}; path=/; max-age=${
+          1 * 24 * 60 * 60
+        }; secure; samesite=strict`;
 
         snackbarAndNavigate(
           dispatch,

@@ -219,7 +219,7 @@ const TreatmentHistory: React.FC = () => {
 
   return (
     <Container maxWidth="lg">
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+      {/* <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
         <Button
           onClick={() => setOpenCreateDialog(true)}
           sx={{
@@ -241,7 +241,7 @@ const TreatmentHistory: React.FC = () => {
           <AddCircle sx={{ fontSize: 20 }} />
           Create
         </Button>
-      </Box>
+      </Box> */}
       <CreateTreatmentDialog
         open={openCreateDialog}
         onClose={() => setOpenCreateDialog(false)}
