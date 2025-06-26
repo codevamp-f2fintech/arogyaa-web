@@ -125,9 +125,10 @@ export default function Login() {
   );
 
   const handleGoogleSignIn = () => {
-    signIn("google", { callbackUrl: "/" });
+    signIn("google", {
+      callbackUrl: rawRedirect ? decodeURIComponent(rawRedirect) : "/",
+    });
   };
-
   const emailInputRef = React.useRef<HTMLInputElement>(null);
 
   // Add this effect

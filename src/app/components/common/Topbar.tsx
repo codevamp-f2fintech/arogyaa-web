@@ -24,7 +24,7 @@ import useSocket from "@/hooks/useSocket";
 
 import { creator } from "@/apis/apiClient";
 import { Utility } from "@/utils";
-import SnackbarComponent from "../common/Snackbar";
+import SnackbarComponent from "./Snackbar";
 
 import { IconButton, Link, Tooltip } from "@mui/material";
 import { usePopover } from "@/hooks/use-popover";

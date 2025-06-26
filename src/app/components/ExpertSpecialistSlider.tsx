@@ -34,7 +34,7 @@ import { useGetDoctors } from "@/hooks/doctor";
 import styles from "../page.module.css";
 import en from "@/locales/en.json";
 import Loader from "./common/Loader";
-import BookAppointmentModal from "../Components/common/BookAppointmentModal";
+import BookAppointmentModal from "./common/BookAppointmentModal";
 import { DoctorData } from "@/types/doctor";
 import Cookies from "js-cookie";
 import { fetcher } from "@/apis/apiClient";
