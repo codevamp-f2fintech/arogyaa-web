@@ -24,7 +24,7 @@ import useSocket from "@/hooks/useSocket";
 
 import { creator } from "@/apis/apiClient";
 import { Utility } from "@/utils";
-import SnackbarComponent from "../common/Snackbar";
+import SnackbarComponent from "./Snackbar";
 
 import { IconButton, Link, Tooltip } from "@mui/material";
 import { usePopover } from "@/hooks/use-popover";
@@ -112,8 +112,9 @@ const Topbar = () => {
       });
 
       if (response?.statusCode === 200) {
-        document.cookie = `token=${response.token}; path=/; max-age=${1 * 24 * 60 * 60
-          }; secure; samesite=strict`;
+        document.cookie = `token=${response.token}; path=/; max-age=${
+          1 * 24 * 60 * 60
+        }; secure; samesite=strict`;
 
         snackbarAndNavigate(
           dispatch,

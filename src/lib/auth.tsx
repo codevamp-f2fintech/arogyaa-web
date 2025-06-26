@@ -71,13 +71,13 @@ export const authOptions: NextAuthOptions = {
 
           if (loginData.statusCode === 200) {
             // Store the JWT token in a cookie
-            return true
+            return true;
           } else {
             console.log("Login failed");
           }
         } else {
           console.log("Patient found, skipping creation");
-          return true
+          return true;
         }
         return true;
       } catch (err) {
@@ -86,7 +86,10 @@ export const authOptions: NextAuthOptions = {
       }
     },
 
-    async redirect({ url, baseUrl }) {
+    redirect({ url, baseUrl }) {
+      // Allow only internal redirects (prevent open redirect vulnerability)
+      if (url.startsWith(baseUrl)) return url;
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
       return baseUrl;
     },
   },

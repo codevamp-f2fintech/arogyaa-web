@@ -34,7 +34,7 @@ import { useGetDoctors } from "@/hooks/doctor";
 import styles from "../page.module.css";
 import en from "@/locales/en.json";
 import Loader from "./common/Loader";
-import BookAppointmentModal from "../components/common/BookAppointmentModal";
+import BookAppointmentModal from "./common/BookAppointmentModal";
 import { DoctorData } from "@/types/doctor";
 import Cookies from "js-cookie";
 import { fetcher } from "@/apis/apiClient";
@@ -302,80 +302,83 @@ const ExpertSpecialistSlider: React.FC = () => {
                     },
                   }}
                 >
-                  <Box
-                    sx={{
-                      top: "1%",
-                      right: "10%",
-                      backgroundColor: "#b497d6",
-                      position: "absolute",
-                      zIndex: 2,
-                      "&::after": {
-                        content: '""',
-                        position: "absolute",
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        height: "40px",
-                      },
-                    }}
-                  >
-                    {/* Verified Badge Box (Text + Icon) */}
+                  {/* Conditionally render verified badge only if doctor is verified */}
+                  {doctor.isVerified && (
                     <Box
-                      className="verified-badge-text"
                       sx={{
+                        top: "1%",
+                        right: "10%",
+                        backgroundColor: "#b497d6",
                         position: "absolute",
-                        top: "6px",
-                        right: "1px",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        opacity: 0,
-                        visibility: "hidden", // Initially hidden
-                        transition:
-                          "opacity 0.3s ease, visibility 0s linear 0.3s",
-                        backgroundColor: "#29175e",
-                        padding: "3px 10px",
-                        borderRadius: "30px",
-                        boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.2)",
-                        fontSize: "1rem",
-                        color: "#fff",
-                        fontWeight: "600",
-                        letterSpacing: "0.5px",
+                        zIndex: 2,
+                        "&::after": {
+                          content: '""',
+                          position: "absolute",
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          height: "40px",
+                        },
                       }}
                     >
-                      {/* Verified Icon inside the text badge */}
+                      {/* Verified Badge Box (Text + Icon) */}
+                      <Box
+                        className="verified-badge-text"
+                        sx={{
+                          position: "absolute",
+                          top: "6px",
+                          right: "1px",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                          opacity: 0,
+                          visibility: "hidden", // Initially hidden
+                          transition:
+                            "opacity 0.3s ease, visibility 0s linear 0.3s",
+                          backgroundColor: "#29175e",
+                          padding: "3px 10px",
+                          borderRadius: "30px",
+                          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.2)",
+                          fontSize: "1rem",
+                          color: "#fff",
+                          fontWeight: "600",
+                          letterSpacing: "0.5px",
+                        }}
+                      >
+                        {/* Verified Icon inside the text badge */}
+                        <VerifiedIcon
+                          sx={{
+                            color: "#fff",
+                            fontSize: "15px",
+                          }}
+                        />
+                        {/* Text */}
+                        <Typography
+                          sx={{
+                            fontFamily: "Poppins",
+                            fontWeight: "500",
+                            color: "#fff",
+                            fontSize: "0.7rem",
+                          }}
+                        >
+                          Verified
+                        </Typography>
+                      </Box>
+
                       <VerifiedIcon
+                        className="default-icon"
                         sx={{
                           color: "#fff",
                           fontSize: "15px",
+                          position: "absolute",
+                          top: "4px",
+                          right: "5px",
+                          opacity: 1,
+                          transition: "opacity 0.3s ease",
                         }}
                       />
-                      {/* Text */}
-                      <Typography
-                        sx={{
-                          fontFamily: "Poppins",
-                          fontWeight: "500",
-                          color: "#fff",
-                          fontSize: "0.7rem",
-                        }}
-                      >
-                        Verified
-                      </Typography>
                     </Box>
-
-                    <VerifiedIcon
-                      className="default-icon"
-                      sx={{
-                        color: "#fff",
-                        fontSize: "15px",
-                        position: "absolute",
-                        top: "4px",
-                        right: "5px",
-                        opacity: 1,
-                        transition: "opacity 0.3s ease",
-                      }}
-                    />
-                  </Box>
+                  )}
 
                   <Box
                     sx={{
