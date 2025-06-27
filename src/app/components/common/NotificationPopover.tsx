@@ -6,10 +6,17 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Utility } from "@/utils";
 import { fetcher, modifier } from "@/apis/apiClient";
-import { setNotifications } from "@/redux/features/notificationsSlice";
+
 import { RootState } from "@/redux/store";
 import useSocket from "@/hooks/useSocket";
 import SnackbarComponent from "./Snackbar";
+import {
+  selectUnreadCount,
+  selectReadCount,
+  selectNotifications,
+  addNotification,
+  setNotifications,
+} from "@/redux/features/notificationsSlice";
 
 interface Notification {
   _id: string;
@@ -22,6 +29,7 @@ interface NotificationPopoverProps {
   anchorEl: HTMLButtonElement | null;
   onClose: () => void;
   setUnreadCount?: (count: number) => void;
+  setReadCount?: (count: number) => void;
 }
 
 export default function NotificationPopover({
@@ -29,6 +37,7 @@ export default function NotificationPopover({
   anchorEl,
   onClose,
   setUnreadCount,
+  setReadCount,
 }: NotificationPopoverProps) {
   const [tabValue, setTabValue] = useState(0);
   const [visibleNotifications, setVisibleNotifications] = useState(5);
@@ -36,9 +45,8 @@ export default function NotificationPopover({
   const [snackbarMsg, setSnackbarMsg] = useState("");
 
   const dispatch = useDispatch();
-  const notifications = useSelector(
-    (state: RootState) => state.notifications.notifications
-  );
+  const notifications = useSelector(selectNotifications);
+  console.log("🧪 Fetched from selector:", notifications);
 
   const { decodedToken } = Utility();
   const tokenData = decodedToken();
@@ -79,14 +87,14 @@ export default function NotificationPopover({
 
     if (!("Notification" in window)) {
       console.warn("🚫 Notification API not supported");
-      alert(notification.message); 
+      alert(notification.message);
       return;
     }
 
     if (Notification.permission !== "granted") {
       console.warn("🔕 Notification permission not granted");
       requestNotificationPermission();
-      alert(notification.message); 
+      alert(notification.message);
       return;
     }
 
@@ -94,7 +102,7 @@ export default function NotificationPopover({
 
     if (isTabFocused) {
       console.log("🟡 Tab is focused — showing alert()");
-      alert(notification.message); 
+      // alert(notification.message);
     } else {
       try {
         const n = new Notification("📢 New Notification", {
@@ -111,7 +119,7 @@ export default function NotificationPopover({
         setTimeout(() => n.close(), 5000);
       } catch (err) {
         console.error("❌ Notification creation failed:", err);
-        alert(notification.message); // fallback
+        // alert(notification.message); // fallback
       }
     }
 
@@ -120,15 +128,14 @@ export default function NotificationPopover({
     // setShowSnackbar(true);
   };
 
+
   useSocket(patientId, (newNotification) => {
     console.log("📥 New Notification in Popover:", newNotification);
-    dispatch(setNotifications((prev) => [newNotification, ...prev]));
-    setSnackbarMsg(newNotification.message);
-    // setShowSnackbar(true);
+    dispatch(addNotification(newNotification));
     showBrowserNotification(newNotification);
   });
-
-  const unreadCount = notifications.filter((n) => n.status === "unread").length;
+  const unreadCount = useSelector(selectUnreadCount);
+  const readCount = useSelector(selectReadCount);
 
   const fetchNotifications = async () => {
     if (!patientId) return;
@@ -141,7 +148,6 @@ export default function NotificationPopover({
       if (Array.isArray(response)) {
         dispatch(setNotifications(response));
 
-      
         response.forEach((notification: Notification) => {
           if (notification.status === "unread") {
             showBrowserNotification(notification);
@@ -163,6 +169,12 @@ export default function NotificationPopover({
       setUnreadCount(unreadCount);
     }
   }, [unreadCount, setUnreadCount]);
+
+  useEffect(() => {
+    if (setReadCount) {
+      setReadCount(readCount);
+    }
+  }, [readCount, setReadCount]);
 
   const markAsRead = async (id: string) => {
     try {
@@ -244,7 +256,7 @@ export default function NotificationPopover({
         }}
       >
         <Tab label={`Unread (${unreadCount})`} />
-        <Tab label="Read" />
+        <Tab label={`read (${readCount})`} />
       </Tabs>
 
       <Box sx={{ maxHeight: 400, overflowY: "auto", px: 2, py: 1 }}>
@@ -298,7 +310,7 @@ export default function NotificationPopover({
         alerting={showSnackbar}
         message={snackbarMsg}
         severity="info"
-        // onClose={() => setShowSnackbar(false)}
+         onClose={() => setShowSnackbar(false)}
       />
     </Popover>
   );

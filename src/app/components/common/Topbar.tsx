@@ -42,9 +42,10 @@ const Topbar = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const dispatch: AppDispatch = useDispatch();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [readCount, setReadCount] = useState(0);
 
   const { capitalizeFirstLetter, decodedToken, getCookies } = Utility();
-  const token = decodedToken(); // define token
+  const token = decodedToken();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -295,7 +296,8 @@ const Topbar = () => {
             notifications={notifications}
             readNotifications={readNotification}
             markAsRead={markAsRead}
-            setUnreadCount={setUnreadCount} // ✅ Pass this
+            setUnreadCount={setUnreadCount}
+            setReadCount={setReadCount}
           />
         </Box>
 
