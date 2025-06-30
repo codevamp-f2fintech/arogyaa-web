@@ -23,7 +23,6 @@ import {
 } from "@mui/material";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import InfoIcon from "@mui/icons-material/Info";
 import {
@@ -41,8 +40,8 @@ import { DoctorData } from "@/types/doctor";
 import { useCreateAppointment } from "@/hooks/appointment";
 import { useGetSymptom } from "@/hooks/symptoms";
 import { Utility } from "@/utils";
-import { useCreateSymptom } from "@/hooks/symptoms";
-import { fetcher } from "@/apis/apiClient";
+import { fontFamily } from "@mui/system";
+import { creator, fetcher } from "@/apis/apiClient";
 
 dayjs.extend(customParseFormat);
 
@@ -53,6 +52,8 @@ const ModalOneSchema = Yup.object().shape({
   appointmentTime: Yup.string().required("Appointment Time is required"),
   appointmentType: Yup.string().required("Appointment Type is required"),
   symptomIds: Yup.array()
+    .min(1, "At least one symptom is required")
+    .required("Symptom is required"),
 });
 
 interface AppointmentFormValues {
@@ -79,10 +80,6 @@ interface ModalProps {
   data: DoctorData | undefined;
 }
 const today = dayjs().format("YYYY-MM-DD");
-
-const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
-);
 
 const inputStyles = {
   fontFamily: "Poppins",
@@ -118,75 +115,13 @@ const inputStyles = {
   },
 };
 
-const priceWrapSx = {
-  "& .price_header_txt": {
-    fontSize: "1.1rem",
-    fontWeight: 600,
-
-    color: "#fff",
-    lineHeight: "1.9rem",
-    padding: "2px 10px",
-    background: "#7A4D9C",
-  },
-  "& .tx1": {
-    fontSize: "1.1rem",
-    fontWeight: 500,
-    color: "#29175E",
-    marginTop: "10px",
-  },
-  "& .tx2": {
-    fontSize: "1rem",
-    fontWeight: "normal",
-    color: "#29175E",
-    marginTop: "5px",
-    paddingBottom: "10px",
-  },
-  "& .tx3": {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "10px 0px",
-    borderTop: "1px solid #29175E",
-    "& .spntx1": {
-      fontSize: "0.9rem",
-      fontWeight: "normal",
-      color: "#29175E",
-    },
-    "& .spntx2": {
-      fontSize: "0.9rem",
-      fontWeight: "normal",
-      color: "#29175E",
-    },
-  },
-  "& .tx4": {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "10px 0px",
-    borderTop: "1px solid #bababa",
-    "& .spntx1": {
-      fontSize: "1rem",
-      fontWeight: 500,
-      color: "#29175E",
-    },
-    "& .spntx2": {
-      fontSize: "1rem",
-      fontWeight: 500,
-      color: "#29175E",
-    },
-  },
-  "& .prc_contnt": {
-    padding: "10px",
-    paddingBottom: "0px",
-  },
-};
-
-const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) => {
+const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [showPaymentForm, setShowPaymentForm] = useState<boolean>(false);
-  const [paymentInfo, setPaymentInfo] = useState<object>();
+
   const { snackbar } = useSelector((state: RootState) => state.snackbar);
   const dispatch: AppDispatch = useDispatch();
+  const [selectedSymptoms, setSelectedSymptoms] = useState<any[]>([]);
 
   const {
     capitalizeFirstLetter,
@@ -218,7 +153,6 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
   const [bookedSlots, setBookedSlots] = useState<string[]>([]);
 
   const { createAppointment } = useCreateAppointment("create-appointment");
-  const { createSymptom } = useCreateSymptom("create-symptom");
 
   useEffect(() => {
     const fetchBookedSlots = async () => {
@@ -232,7 +166,7 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
       try {
         const params = new URLSearchParams({
           page: "1",
-          limit: "10",
+          limit: "100",
           dateFilter: selectedDate,
         });
         const response = await fetcher(
@@ -251,7 +185,7 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
       } catch (error) {
         console.error("Error fetching appointments:", error);
       } finally {
-        setLoading(false);
+        setLoading(true);
       }
     };
 
@@ -271,8 +205,7 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
 
   useEffect(() => {
     const otherOption = { _id: "other", name: "Other" };
-    console.log(symptoms?.results, 'symptom')
-    // setSymtopOptionsDropdown([...(symptoms?.results || []), otherOption]);
+    setSymtopOptionsDropdown([...(symptoms?.results || []), otherOption]);
   }, [symptoms?.results]);
 
   useEffect(() => {
@@ -280,7 +213,7 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
     setSelectedDayName(null);
     setTimeBuckets({ morning: [], afternoon: [], evening: [], night: [] });
     setBookedSlots([]);
-  }, [data?._id]);
+  }, [data]);
 
   // Handle hospital change
   const handleHospitalChange = (
@@ -398,7 +331,7 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
     }
   };
 
-  const handleCreateCustomSymptom = async () => {
+ const handleCreateCustomSymptom = async () => {
     if (!customSymptom.trim()) return;
 
     try {
@@ -416,20 +349,22 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
       const data = await response.json();
 
       if (response.ok) {
-        const newSymptom = data.data;
-        // Reset custom symptom input and hide it
-        setCustomSymptom("");
+        const newSymptom = { ...data.data, createdByUser: true };
+
+        const updatedSelected = selectedSymptoms
+          .filter((item) => item._id !== "other")
+          .concat(newSymptom);
+        setSelectedSymptoms(updatedSelected);
+
         setShowOtherInput(false);
-        refetch();
+        setCustomSymptom("");
       } else {
-        // Handle error (you might want to show a snackbar or error message)
         console.error(data.message);
       }
     } catch (error) {
       console.error("Error creating symptom", error);
     }
   };
-
   const handleTimeSlotClick = (time: string, setFieldValue: Function) => {
     if (!bookedSlots.includes(time)) {
       setSelectedTimeSlot(time);
@@ -504,7 +439,7 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
           dispatch,
           true,
           "error",
-          "Missing doctorId or patientId—cannot create appointment",
+          "Missing doctorId or patientId — cannot create appointment",
           null,
           true
         );
@@ -518,35 +453,62 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
           ...values,
           patientId,
           doctorId,
-          status: "pending",
+
           symptomIds: getIdsFromObject(values.symptomIds),
           hospitalName: selectedHospital,
         };
 
         const response = await createAppointment(appointmentData);
-        console.log(response, appointmentData, 'response of api')
+
         if (response?.statusCode === 201) {
+          const appointmentId = response.data._id;
+          const consultationFee = Number(data?.consultationFee);
+
+          if (isNaN(consultationFee) || consultationFee <= 0) {
+            snackbarAndNavigate(
+              dispatch,
+              true,
+              "error",
+              "Invalid consultation fee — please contact support",
+              null,
+              true
+            );
+            return;
+          }
+
           const paymentData = {
             patientId,
             doctorId,
-            appointmentId: response.data._id,
-            status: "successful",
-            amount: parseInt(data?.consultationFee) * 1,
+            appointmentId,
+            amount: consultationFee,
             currency: "inr",
             transactionMethod: "card",
+
+            patientName: "",
+            doctorName: "",
           };
 
-          setShowPaymentForm(true);
-          setPaymentInfo(paymentData);
-
-          snackbarAndNavigate(
-            dispatch,
-            true,
-            "success",
-            "Appointment booked successfully!",
-            null,
-            false
+          const res = await creator(
+            "payment",
+            "/initiate-payment",
+            paymentData
           );
+
+          if (res?.txnid && res?.html) {
+            const container = document.createElement("div");
+            container.innerHTML = res.html;
+            document.body.appendChild(container);
+            container.querySelector("form")?.submit();
+          } else {
+            snackbarAndNavigate(
+              dispatch,
+              true,
+              "error",
+              "Payment initiation failed.",
+              null,
+              true
+            );
+          }
         } else {
           snackbarAndNavigate(
             dispatch,
@@ -554,20 +516,85 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
             "error",
             "Failed to book appointment",
             null,
-            false
+            true
           );
         }
       } catch (error: any) {
+        console.error("Error:", error);
         const errorMessage =
           error?.response?.data?.message ||
-          "Error creating appointment, please try again.";
+          error?.message ||
+          "Something went wrong. Please try again.";
         snackbarAndNavigate(dispatch, true, "error", errorMessage, null, true);
       } finally {
         setLoading(false);
       }
     },
-    [data?._id, selectedHospital]
+    [data?._id, createAppointment, selectedHospital]
   );
+
+  const priceWrapSx = {
+    "& .price_header_txt": {
+      fontSize: "1.1rem",
+      fontWeight: 600,
+
+      color: "#fff",
+      lineHeight: "1.9rem",
+      padding: "2px 10px",
+      background: "#7A4D9C",
+    },
+    "& .tx1": {
+      fontSize: "1.1rem",
+      fontWeight: 500,
+      color: "#29175E",
+      marginTop: "10px",
+    },
+    "& .tx2": {
+      fontSize: "1rem",
+      fontWeight: "normal",
+      color: "#29175E",
+      marginTop: "5px",
+      paddingBottom: "10px",
+    },
+    "& .tx3": {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: "10px 0px",
+      borderTop: "1px solid #29175E",
+      "& .spntx1": {
+        fontSize: "0.9rem",
+        fontWeight: "normal",
+        color: "#29175E",
+      },
+      "& .spntx2": {
+        fontSize: "0.9rem",
+        fontWeight: "normal",
+        color: "#29175E",
+      },
+    },
+    "& .tx4": {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: "10px 0px",
+      borderTop: "1px solid #bababa",
+      "& .spntx1": {
+        fontSize: "1rem",
+        fontWeight: 500,
+        color: "#29175E",
+      },
+      "& .spntx2": {
+        fontSize: "1rem",
+        fontWeight: 500,
+        color: "#29175E",
+      },
+    },
+    "& .prc_contnt": {
+      padding: "10px",
+      paddingBottom: "0px",
+    },
+  };
 
   if (!isOpen) return null;
 
@@ -684,18 +711,18 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                 >
                   {selectedHospital
                     ? (() => {
-                      const daysForSelectedHospital = data?.availability
-                        ?.filter(
-                          (slot) => slot.hospital.name === selectedHospital
-                        )
-                        .map((slot) => slot.day);
-                      return daysForSelectedHospital &&
-                        daysForSelectedHospital.length > 0
-                        ? `Available on: ${daysForSelectedHospital.join(
-                          ", "
-                        )}`
-                        : "No Days Available";
-                    })()
+                        const daysForSelectedHospital = data?.availability
+                          ?.filter(
+                            (slot) => slot.hospital.name === selectedHospital
+                          )
+                          .map((slot) => slot.day);
+                        return daysForSelectedHospital &&
+                          daysForSelectedHospital.length > 0
+                          ? `Available on: ${daysForSelectedHospital.join(
+                              ", "
+                            )}`
+                          : "No Days Available";
+                      })()
                     : "Select a hospital to view available days"}
                 </Typography>
               </Box>
@@ -780,7 +807,7 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                         fontSize: "1rem",
                         fontWeight: 300,
                         color: "#000",
-                        marginBottom: "15px",
+                        marginBottom: "16px",
                         display: "flex",
                         alignItems: "center",
                         "& svg": {
@@ -842,15 +869,15 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                                 },
                               }}
                             >
-                              Choose Hospital Name *
+                              Hospital
                             </InputLabel>
                             <Select
                               value={selectedHospital || ""}
                               onChange={handleHospitalChange}
-                              label="Select Hospital *"
+                              label="Hospital"
                               sx={inputStyles}
                             >
-                              {data?.availability?.map((slot) => (
+                              {data?.availability.map((slot) => (
                                 <MenuItem
                                   key={slot.hospital.name}
                                   value={slot.hospital.name}
@@ -890,7 +917,7 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                         >
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DatePicker
-                              label="Choose Appointment Date *"
+                              label="Date Of Appointment *"
                               disablePast
                               inputFormat="YYYY-MM-DD"
                               value={
@@ -959,6 +986,44 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                             />
                           </LocalizationProvider>
                         </Box>
+                        {/*Display Message*/}
+                        {!values.appointmentDate ? (
+                          <Typography
+                            sx={{
+                              textAlign: "center",
+                              backgroundColor: "#fff",
+                              border: "1px solid #ccc",
+                              borderRadius: "6px",
+                              padding: "3px",
+                              color: "#29175E",
+                              marginBottom: "15px",
+                              fontSize: "1rem",
+                              fontWeight: 450,
+                              fontFamily: "Poppins",
+                            }}
+                          >
+                            Choose an appointment date.
+                          </Typography>
+                        ) : !timeBuckets ||
+                          Object.values(timeBuckets).every(
+                            (bucket) => bucket.length === 0
+                          ) ? (
+                          <Typography
+                            sx={{
+                              textAlign: "center",
+                              backgroundColor: "#f8f8ff",
+                              border: "1px solid #ccc",
+                              borderRadius: "6px",
+                              padding: "2px",
+                              color: "#29175E",
+                              marginBottom: "10px",
+                              fontSize: "1rem",
+                              fontWeight: 500,
+                            }}
+                          >
+                            No slots available.
+                          </Typography>
+                        ) : null}
                         {/* === Appointment Type === */}
                         <TextField
                           fullWidth
@@ -970,7 +1035,7 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                             setFieldValue("appointmentType", e.target.value)
                           }
                           sx={{
-                            marginBottom: "20px",
+                            marginBottom: "7px",
                             "& input": {
                               background: "#fff",
                               borderRadius: "6px",
@@ -979,11 +1044,11 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                             },
                             "& .MuiInputBase-root": {
                               fontSize: "0.9rem",
-                              fontFamily: "Poppins",
                               color: "black !important", // Change color to black for input text
+                              fontFamily: "Poppins",
                             },
                             "& .MuiFormLabel-root": {
-                              color: "black !important", // Change color to black for label text
+                              color: "black !important",
                             },
                           }}
                           error={
@@ -1008,7 +1073,7 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                           }}
                           sx={{
                             ...inputStyles,
-                            marginBottom: "15px",
+                            marginBottom: "2px",
                           }}
                         >
                           <MenuItem value="online">Online</MenuItem>
@@ -1017,40 +1082,39 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                         {/* === Symptoms Selection === */}
                         <Autocomplete
                           multiple
-                          disableCloseOnSelect={!showOtherInput} // Only disable close when not showing other input
+                          disableCloseOnSelect={!showOtherInput}
                           options={[...symptomOptionsDropdown]}
                           getOptionLabel={(option) => option.name}
                           isOptionEqualToValue={(option, value) =>
                             option._id === value._id
                           }
-                          value={values.symptomIds || []}
-                          onChange={(event, selected, reason) => {
-                            // Check if "Other" was just selected
+                          value={selectedSymptoms}
+                          onChange={(event, selected) => {
                             const justSelectedOther =
                               selected.some((item) => item._id === "other") &&
-                              !values.symptomIds.some(
+                              !selectedSymptoms.some(
                                 (item) => item._id === "other"
                               );
 
-                            // If "Other" was just selected, show the custom input and close the dropdown
                             if (justSelectedOther) {
                               setShowOtherInput(true);
-                              // Close the dropdown by blurring the input
+                              setCustomSymptom("");
                               const input =
                                 document.activeElement as HTMLElement;
                               if (input) input.blur();
                             }
 
-                            // Remove "Other" from the actual selected symptoms
-                            const filteredSelected = selected.filter(
-                              (item) => item._id !== "other"
+                            const stillHasOther = selected.some(
+                              (item) => item._id === "other"
                             );
+                            if (!stillHasOther) {
+                              setShowOtherInput(false);
+                            }
 
-                            // Update Formik field value
-                            setFieldValue("symptomIds", filteredSelected);
+                            setSelectedSymptoms(selected); // ✅ Keep "other"
+                            setFieldValue("symptomIds", selected); // ✅ Keep "other"
                           }}
                           onClose={() => {
-                            // This ensures the dropdown stays closed when showing other input
                             if (showOtherInput) {
                               const input = document.getElementById(
                                 "symptoms-autocomplete"
@@ -1062,13 +1126,12 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                             ...inputStyles,
                             background: "#fff",
                             padding: "4px 2px",
-                            marginBottom: "15px"
                           }}
                           renderInput={(params) => (
                             <TextField
                               {...params}
                               id="symptoms-autocomplete"
-                              label="Symptom"
+                              label="Symptom *"
                               name="symptomIds"
                               type="text"
                               error={
@@ -1076,7 +1139,7 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                               }
                               helperText={
                                 touched.symptomIds &&
-                                  typeof errors.symptomIds === "string"
+                                typeof errors.symptomIds === "string"
                                   ? errors.symptomIds
                                   : ""
                               }
@@ -1096,7 +1159,6 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                             />
                           )}
                           renderOption={(props, option, { selected }) => {
-                            // Special styling for the "Other" option
                             const isOther = option._id === "other";
                             return (
                               <li
@@ -1114,54 +1176,52 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                             );
                           }}
                         />
-                        {showOtherInput && (
-                          <Box mt={2}>
-                            <TextField
-                              label="Enter Custom Symptom"
-                              value={customSymptom}
-                              onChange={(e) => setCustomSymptom(e.target.value)}
-                              fullWidth
-                              variant="outlined"
-                              sx={{
-                                backgroundColor: "white",
-                                "& .MuiOutlinedInput-root": {
-                                  "& fieldset": {
-                                    borderColor: "black",
+                        {/* Custom input for "Other" symptom */}
+                        {showOtherInput &&
+                          !selectedSymptoms.some((s) => s.createdByUser) && (
+                            <Box mt={0.5}>
+                              <TextField
+                                label="Enter Your Symptom"
+                                value={customSymptom}
+                                onChange={(e) =>
+                                  setCustomSymptom(e.target.value)
+                                }
+                                fullWidth
+                                variant="outlined"
+                                sx={{
+                                  backgroundColor: "white",
+                                  "& .MuiOutlinedInput-root": {
+                                    "& fieldset": { borderColor: "#29175E" },
+                                    "&:hover fieldset": {
+                                      borderColor: "#29175E",
+                                    },
+                                    "&.Mui-focused fieldset": {
+                                      borderColor: "#29175E",
+                                    },
                                   },
-                                  "&:hover fieldset": {
-                                    borderColor: "black",
-                                  },
-                                  "&.Mui-focused fieldset": {
-                                    borderColor: "black",
-                                  },
-                                },
-                                "& .MuiInputLabel-root": {
-                                  color: "black",
-                                },
-                              }}
-                            />
+                                  "& .MuiInputLabel-root": { color: "#29175E" },
+                                }}
+                              />
 
-                            <Button
-                              onClick={handleCreateCustomSymptom}
-                              variant="contained"
-                              // fullWidth
-                              disabled={!customSymptom.trim()}
-                              sx={{
-                                mt: 1,
-                                backgroundColor: "#2E1065", // Deep purple like your screenshot
-                                color: "#fff",
-                                borderRadius: "8px",
-                                fontWeight: "bold",
-                                textTransform: "none",
-                                "&:hover": {
-                                  backgroundColor: "#23094f",
-                                },
-                              }}
-                            >
-                              Add Symptom
-                            </Button>
-                          </Box>
-                        )}
+                              <Button
+                                onClick={handleCreateCustomSymptom}
+                                variant="contained"
+                                disabled={!customSymptom.trim()}
+                                sx={{
+                                  mt: 1,
+                                  backgroundColor: "#2E1065",
+                                  color: "#fff",
+                                  marginTop: "5px",
+                                  padding: "4px 8px",
+                                  fontWeight: "bold",
+                                  textTransform: "none",
+                                  "&:hover": { backgroundColor: "#23094f" },
+                                }}
+                              >
+                                Add Symptom
+                              </Button>
+                            </Box>
+                          )}
                         {/* === Short Description === */}
                         <Field
                           as={TextField}
@@ -1173,6 +1233,7 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                           sx={{
                             ...inputStyles,
                             background: "#fff",
+                            marginTop: "10px",
                             marginBottom: "2px",
                             "&:hover": {
                               boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.1)",
@@ -1202,212 +1263,211 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                       </Grid>
                       {/* ===== Middle Section (Dynamic Time Slots) ===== */}
                       <Field type="hidden" name="appointmentTime" />{" "}
-                      {/* Hidden Formik Field so Formik tracks appointmenttime errors*/}
                       <Grid item xs={12} sm={4} md={4}>
                         <Box sx={priceWrapSx}>
                           {/* Morning Slots */}
                           {(!values.appointmentDate ||
                             timeBuckets.morning.length > 0) && (
-                              <Box
-                                component="fieldset"
-                                className="fieldset_wrap"
-                                sx={{ marginTop: "-7px" }}
-                              >
-                                <legend className="fldset_lgend">
-                                  Morning Slots
-                                </legend>
-                                <ul className="time_box">
-                                  {timeBuckets.morning.map((time) => {
-                                    const isBooked = bookedSlots.includes(time);
-                                    return (
-                                      <li
-                                        key={time}
-                                        onClick={() => {
-                                          if (!isBooked) {
-                                            handleTimeSlotClick(
-                                              time,
-                                              setFieldValue
-                                            );
-                                          }
-                                        }}
-                                        style={{
-                                          background:
-                                            selectedTimeSlot === time
-                                              ? "#29175E"
-                                              : isBooked
-                                                ? "#ccc"
-                                                : "",
-                                          color:
-                                            selectedTimeSlot === time
-                                              ? "white"
-                                              : isBooked
-                                                ? "#666"
-                                                : "black",
-                                          cursor: isBooked
-                                            ? "not-allowed"
-                                            : "pointer",
-                                          pointerEvents: isBooked
-                                            ? "none"
-                                            : "auto",
-                                        }}
-                                      >
-                                        {time}
-                                      </li>
-                                    );
-                                  })}
-                                </ul>
-                              </Box>
-                            )}
+                            <Box
+                              component="fieldset"
+                              className="fieldset_wrap"
+                              sx={{ marginTop: "-7px" }}
+                            >
+                              <legend className="fldset_lgend">
+                                Morning Slots
+                              </legend>
+                              <ul className="time_box">
+                                {timeBuckets.morning.map((time) => {
+                                  const isBooked = bookedSlots.includes(time);
+                                  return (
+                                    <li
+                                      key={time}
+                                      onClick={() => {
+                                        if (!isBooked) {
+                                          handleTimeSlotClick(
+                                            time,
+                                            setFieldValue
+                                          );
+                                        }
+                                      }}
+                                      style={{
+                                        background:
+                                          selectedTimeSlot === time
+                                            ? "#29175E"
+                                            : isBooked
+                                            ? "#ccc"
+                                            : "",
+                                        color:
+                                          selectedTimeSlot === time
+                                            ? "white"
+                                            : isBooked
+                                            ? "#666"
+                                            : "black",
+                                        cursor: isBooked
+                                          ? "not-allowed"
+                                          : "pointer",
+                                        pointerEvents: isBooked
+                                          ? "none"
+                                          : "auto",
+                                      }}
+                                    >
+                                      {time}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </Box>
+                          )}
 
                           {/* Afternoon Slots */}
                           {(!values.appointmentDate ||
                             timeBuckets.afternoon.length > 0) && (
-                              <Box component="fieldset" className="fieldset_wrap">
-                                <legend className="fldset_lgend">
-                                  Afternoon Slots
-                                </legend>
-                                <ul className="time_box">
-                                  {timeBuckets.afternoon.map((time) => {
-                                    const isBooked = bookedSlots.includes(time);
-                                    return (
-                                      <li
-                                        key={time}
-                                        onClick={() => {
-                                          if (!isBooked) {
-                                            handleTimeSlotClick(
-                                              time,
-                                              setFieldValue
-                                            );
-                                          }
-                                        }}
-                                        style={{
-                                          background:
-                                            selectedTimeSlot === time
-                                              ? "#29175E"
-                                              : isBooked
-                                                ? "#ccc"
-                                                : "",
-                                          color:
-                                            selectedTimeSlot === time
-                                              ? "white"
-                                              : isBooked
-                                                ? "#666"
-                                                : "black",
-                                          cursor: isBooked
-                                            ? "not-allowed"
-                                            : "pointer",
-                                          pointerEvents: isBooked
-                                            ? "none"
-                                            : "auto",
-                                        }}
-                                      >
-                                        {time}
-                                      </li>
-                                    );
-                                  })}
-                                </ul>
-                              </Box>
-                            )}
+                            <Box component="fieldset" className="fieldset_wrap">
+                              <legend className="fldset_lgend">
+                                Afternoon Slots
+                              </legend>
+                              <ul className="time_box">
+                                {timeBuckets.afternoon.map((time) => {
+                                  const isBooked = bookedSlots.includes(time);
+                                  return (
+                                    <li
+                                      key={time}
+                                      onClick={() => {
+                                        if (!isBooked) {
+                                          handleTimeSlotClick(
+                                            time,
+                                            setFieldValue
+                                          );
+                                        }
+                                      }}
+                                      style={{
+                                        background:
+                                          selectedTimeSlot === time
+                                            ? "#29175E"
+                                            : isBooked
+                                            ? "#ccc"
+                                            : "",
+                                        color:
+                                          selectedTimeSlot === time
+                                            ? "white"
+                                            : isBooked
+                                            ? "#666"
+                                            : "black",
+                                        cursor: isBooked
+                                          ? "not-allowed"
+                                          : "pointer",
+                                        pointerEvents: isBooked
+                                          ? "none"
+                                          : "auto",
+                                      }}
+                                    >
+                                      {time}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </Box>
+                          )}
 
                           {/* Evening Slots */}
                           {(!values.appointmentDate ||
                             timeBuckets.evening.length > 0) && (
-                              <Box component="fieldset" className="fieldset_wrap">
-                                <legend className="fldset_lgend">
-                                  Evening Slots
-                                </legend>
-                                <ul className="time_box">
-                                  {timeBuckets.evening.map((time) => {
-                                    const isBooked = bookedSlots.includes(time);
-                                    return (
-                                      <li
-                                        key={time}
-                                        onClick={() => {
-                                          if (!isBooked) {
-                                            handleTimeSlotClick(
-                                              time,
-                                              setFieldValue
-                                            );
-                                          }
-                                        }}
-                                        style={{
-                                          background:
-                                            selectedTimeSlot === time
-                                              ? "#29175E"
-                                              : isBooked
-                                                ? "#ccc"
-                                                : "",
-                                          color:
-                                            selectedTimeSlot === time
-                                              ? "white"
-                                              : isBooked
-                                                ? "#666"
-                                                : "black",
-                                          cursor: isBooked
-                                            ? "not-allowed"
-                                            : "pointer",
-                                          pointerEvents: isBooked
-                                            ? "none"
-                                            : "auto",
-                                        }}
-                                      >
-                                        {time}
-                                      </li>
-                                    );
-                                  })}
-                                </ul>
-                              </Box>
-                            )}
+                            <Box component="fieldset" className="fieldset_wrap">
+                              <legend className="fldset_lgend">
+                                Evening Slots
+                              </legend>
+                              <ul className="time_box">
+                                {timeBuckets.evening.map((time) => {
+                                  const isBooked = bookedSlots.includes(time);
+                                  return (
+                                    <li
+                                      key={time}
+                                      onClick={() => {
+                                        if (!isBooked) {
+                                          handleTimeSlotClick(
+                                            time,
+                                            setFieldValue
+                                          );
+                                        }
+                                      }}
+                                      style={{
+                                        background:
+                                          selectedTimeSlot === time
+                                            ? "#29175E"
+                                            : isBooked
+                                            ? "#ccc"
+                                            : "",
+                                        color:
+                                          selectedTimeSlot === time
+                                            ? "white"
+                                            : isBooked
+                                            ? "#666"
+                                            : "black",
+                                        cursor: isBooked
+                                          ? "not-allowed"
+                                          : "pointer",
+                                        pointerEvents: isBooked
+                                          ? "none"
+                                          : "auto",
+                                      }}
+                                    >
+                                      {time}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </Box>
+                          )}
 
                           {/* Night Slots */}
                           {(!values.appointmentDate ||
                             timeBuckets.night.length > 0) && (
-                              <Box component="fieldset" className="fieldset_wrap">
-                                <legend className="fldset_lgend">
-                                  Night Slots
-                                </legend>
-                                <ul className="time_box">
-                                  {timeBuckets.night.map((time) => {
-                                    const isBooked = bookedSlots.includes(time);
-                                    return (
-                                      <li
-                                        key={time}
-                                        onClick={() => {
-                                          if (!isBooked) {
-                                            handleTimeSlotClick(
-                                              time,
-                                              setFieldValue
-                                            );
-                                          }
-                                        }}
-                                        style={{
-                                          background:
-                                            selectedTimeSlot === time
-                                              ? "#29175E"
-                                              : isBooked
-                                                ? "#ccc"
-                                                : "",
-                                          color:
-                                            selectedTimeSlot === time
-                                              ? "white"
-                                              : isBooked
-                                                ? "#666"
-                                                : "black",
-                                          cursor: isBooked
-                                            ? "not-allowed"
-                                            : "pointer",
-                                          pointerEvents: isBooked
-                                            ? "none"
-                                            : "auto",
-                                        }}
-                                      >
-                                        {time}
-                                      </li>
-                                    );
-                                  })}
-                                </ul>
-                              </Box>
-                            )}
+                            <Box component="fieldset" className="fieldset_wrap">
+                              <legend className="fldset_lgend">
+                                Night Slots
+                              </legend>
+                              <ul className="time_box">
+                                {timeBuckets.night.map((time) => {
+                                  const isBooked = bookedSlots.includes(time);
+                                  return (
+                                    <li
+                                      key={time}
+                                      onClick={() => {
+                                        if (!isBooked) {
+                                          handleTimeSlotClick(
+                                            time,
+                                            setFieldValue
+                                          );
+                                        }
+                                      }}
+                                      style={{
+                                        background:
+                                          selectedTimeSlot === time
+                                            ? "#29175E"
+                                            : isBooked
+                                            ? "#ccc"
+                                            : "",
+                                        color:
+                                          selectedTimeSlot === time
+                                            ? "white"
+                                            : isBooked
+                                            ? "#666"
+                                            : "black",
+                                        cursor: isBooked
+                                          ? "not-allowed"
+                                          : "pointer",
+                                        pointerEvents: isBooked
+                                          ? "none"
+                                          : "auto",
+                                      }}
+                                    >
+                                      {time}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </Box>
+                          )}
                         </Box>
 
                         {/* Error Message for appointmentTime */}
@@ -1507,13 +1567,13 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                                     backgroundColor: "#fff",
                                     borderRadius: "6px",
                                     "&:hover .MuiOutlinedInput-notchedOutline":
-                                    {
-                                      borderColor: "#29175E",
-                                    },
+                                      {
+                                        borderColor: "#29175E",
+                                      },
                                     "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                    {
-                                      borderColor: "#29175E",
-                                    },
+                                      {
+                                        borderColor: "#29175E",
+                                      },
                                   },
                                   "& input": {
                                     padding: "12px 10px 12px 0",
@@ -1581,8 +1641,9 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
                               </span>
                               <span className="spntx2">
                                 {values.appointmentDate &&
-                                  values.appointmentTime &&
-                                  values.appointmentType
+                                values.appointmentTime &&
+                                values.symptomIds.length > 0 &&
+                                values.appointmentType
                                   ? `₹${data?.consultationFee}`
                                   : "--"}
                               </span>
@@ -1660,96 +1721,7 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
           </Box>
 
           {/* Payment Form (Visible after Booking) */}
-          <Box
-            sx={{
-              display: showPaymentForm ? "flex" : "none",
-              opacity: showPaymentForm ? 1 : 0,
-              transition: "opacity 2s ease-in-out",
-              padding: "20px",
-              width: "100%",
-              maxWidth: "900px",
-              margin: "0 auto",
-              height: "auto",
-              background: "white",
-              borderRadius: "8px",
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-            }}
-          >
-            {/* Left Column - Payment Form */}
-            <Box
-              sx={{
-                flex: "1",
-                paddingRight: "20px",
-              }}
-            >
-              <Typography
-                variant="h4"
-                sx={{
-                  marginBottom: "1rem",
-                  color: "#20ADA0",
-                  textAlign: "center",
-                }}
-              >
-                Complete Payment
-              </Typography>
-              <Elements stripe={stripePromise}>
-                <PaymentForm
-                  setShowPaymentForm={setShowPaymentForm}
-                  paymentInfo={paymentInfo}
-                />
-              </Elements>
-            </Box>
 
-            {/* Right Column - Design/Content */}
-            <Box
-              sx={{
-                flex: "1",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "#f8f8ff",
-                borderRadius: "8px",
-                padding: "20px",
-              }}
-            >
-              <Typography
-                variant="h5"
-                sx={{
-                  marginBottom: "1rem",
-                  color: "#20ADA0",
-                  textAlign: "center",
-                }}
-              >
-                Payment Information
-              </Typography>
-              <Typography
-                variant="body1"
-                sx={{
-                  marginBottom: "1rem",
-                  textAlign: "center",
-                  color: "#555",
-                }}
-              >
-                100% Secure payment.
-              </Typography>
-              <img
-                src="/iconimg.jpg"
-                alt="Secure Payment"
-                style={{
-                  width: "80%",
-                  maxWidth: "200px",
-                  marginBottom: "1rem",
-                }}
-              />
-              <Typography
-                variant="body2"
-                sx={{ textAlign: "center", color: "#888" }}
-              >
-                Your payment details are encrypted and secure.
-              </Typography>
-            </Box>
-          </Box>
           <SnackbarComponent
             alerting={snackbar.snackbarAlert}
             severity={snackbar.snackbarSeverity}
@@ -1760,6 +1732,6 @@ const ModalOne: React.FC<ModalProps> = React.memo(({ isOpen, onClose, data }) =>
       </Modal>
     </>
   );
-});
+};
 
 export default ModalOne;
