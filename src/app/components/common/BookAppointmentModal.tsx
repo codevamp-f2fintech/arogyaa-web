@@ -331,7 +331,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
     }
   };
 
-  const handleCreateCustomSymptom = async () => {
+ const handleCreateCustomSymptom = async () => {
     if (!customSymptom.trim()) return;
 
     try {
@@ -365,7 +365,6 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
       console.error("Error creating symptom", error);
     }
   };
-
   const handleTimeSlotClick = (time: string, setFieldValue: Function) => {
     if (!bookedSlots.includes(time)) {
       setSelectedTimeSlot(time);
@@ -454,7 +453,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
           ...values,
           patientId,
           doctorId,
-          status: "pending",
+
           symptomIds: getIdsFromObject(values.symptomIds),
           hospitalName: selectedHospital,
         };
@@ -484,7 +483,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
             amount: consultationFee,
             currency: "inr",
             transactionMethod: "card",
-            status: "successful",
+
             patientName: "",
             doctorName: "",
           };
