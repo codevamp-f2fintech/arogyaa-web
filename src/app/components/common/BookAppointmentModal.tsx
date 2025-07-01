@@ -330,41 +330,32 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
       return;
     }
   };
-
- const handleCreateCustomSymptom = async () => {
+  const handleCreateCustomSymptom = async () => {
     if (!customSymptom.trim()) return;
 
     try {
-      const response = await fetch(
-        "http://localhost:4002/api/v1/symptom-service/create-symptom",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ name: customSymptom.trim() }),
-        }
-      );
+      const response = await creator("symptom", "/create-symptom", {
+        name: customSymptom.trim(),
+      });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        const newSymptom = { ...data.data, createdByUser: true };
+      if (response.statusCode === 201 || response.statusCode === 200) {
+        const newSymptom = { ...response.data, createdByUser: true };
 
         const updatedSelected = selectedSymptoms
           .filter((item) => item._id !== "other")
           .concat(newSymptom);
-        setSelectedSymptoms(updatedSelected);
 
+        setSelectedSymptoms(updatedSelected);
         setShowOtherInput(false);
         setCustomSymptom("");
       } else {
-        console.error(data.message);
+        console.error(response.message || "Failed to create symptom");
       }
     } catch (error) {
-      console.error("Error creating symptom", error);
+      console.error("Error creating symptom:", error);
     }
   };
+
   const handleTimeSlotClick = (time: string, setFieldValue: Function) => {
     if (!bookedSlots.includes(time)) {
       setSelectedTimeSlot(time);
