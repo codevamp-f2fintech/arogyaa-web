@@ -207,16 +207,18 @@ const AppointmentHistory: React.FC = () => {
 
   // Daily.co room creation and management
   const createRoom = async (appointment: Appointment) => {
+    const now = new Date();
     setCreatingRoom(appointment._id);
     try {
       const roomData = {
         type: "video",
         doctorId: appointment.doctorId._id,
         patientId: appointment.patientId._id,
-        duration: "20", // Default 30 minutes, you can adjust this
+        duration: "20",
         appointmentId: appointment._id,
         scheduledAt: appointment.appointmentDateTime,
         appointmentTime: appointment.appointmentTime,
+        now
       };
 
       const response = await creator(
