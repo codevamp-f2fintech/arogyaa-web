@@ -207,7 +207,6 @@ const AppointmentHistory: React.FC = () => {
 
   // Daily.co room creation and management
   const createRoom = async (appointment: Appointment) => {
-    const now = new Date();
     setCreatingRoom(appointment._id);
     try {
       const roomData = {
@@ -217,8 +216,7 @@ const AppointmentHistory: React.FC = () => {
         duration: "20",
         appointmentId: appointment._id,
         scheduledAt: appointment.appointmentDateTime,
-        appointmentTime: appointment.appointmentTime,
-        now
+        appointmentTime: appointment.appointmentTime
       };
 
       const response = await creator(
