@@ -245,7 +245,6 @@ export default function DoctorListing() {
         return;
       }
 
-      console.log("Fetching more doctors...");
       setIsFetching(true);
     };
 
@@ -261,7 +260,6 @@ export default function DoctorListing() {
     setIsFetching(false);
   }, [isFetching]);
   const userToken = Cookies.get("token");
-  console.log(" const userToken = Cookie>>>", userToken)
 
   const openModal = (doctor: DoctorData): void => {
     const userToken = Cookies.get("token");
@@ -878,36 +876,43 @@ export default function DoctorListing() {
                           }}
                         >
                           {doctor.availability?.length > 0
-                            ? doctor.availability.map((slot, index) => (
-                              <Typography
-                                key={index}
-                                variant="body2"
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  whiteSpace: "nowrap",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  mb: 0.5,
-                                }}
-                              >
-                                <LocalHospitalIcon
-                                  fontSize="small"
-                                  color="primary"
-                                  sx={{ marginRight: "4px", flexShrink: 0 }}
-                                />
-                                <span
-                                  style={{
-                                    display: "inline-block",
-                                    whiteSpace: "normal",
+                            ? [
+                                ...new Map(
+                                  doctor.availability.map((slot) => [
+                                    `${slot.hospital?.name}-${slot.hospital?.location}`,
+                                    slot,
+                                  ])
+                                ).values(),
+                              ].map((slot, index) => (
+                                <Typography
+                                  key={index}
+                                  variant="body2"
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    mb: 0.5,
                                   }}
                                 >
-                                  {slot.hospital?.name || "Unknown Hospital"},{" "}
-                                  {slot.hospital?.location ||
-                                    "Unknown Location"}
-                                </span>
-                              </Typography>
-                            ))
+                                  <LocalHospitalIcon
+                                    fontSize="small"
+                                    color="primary"
+                                    sx={{ marginRight: "4px", flexShrink: 0 }}
+                                  />
+                                  <span
+                                    style={{
+                                      display: "inline-block",
+                                      whiteSpace: "normal",
+                                    }}
+                                  >
+                                    {slot.hospital?.name || "Unknown Hospital"},{" "}
+                                    {slot.hospital?.location ||
+                                      "Unknown Location"}
+                                  </span>
+                                </Typography>
+                              ))
                             : "Availability not available"}
                         </Typography>
                       </Box>
