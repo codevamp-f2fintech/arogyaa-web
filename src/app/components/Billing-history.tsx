@@ -13,8 +13,8 @@ import {
   Paper,
   TablePagination,
   Chip,
-  alpha,
   Box,
+  Button,
 } from "@mui/material";
 import {
   CheckCircle,
@@ -22,23 +22,18 @@ import {
   Cancel,
   Refresh,
   ReceiptLong,
-} from "@mui/icons-material";
-import {
   CreditCard,
   AccountBalance,
   AccountBalanceWallet,
   Payment,
-} from "@mui/icons-material";
-import {
   AttachMoney,
   CurrencyRupee,
   Euro,
   CurrencyBitcoin,
 } from "@mui/icons-material";
 
-import { fetcher } from "@/apis/apiClient";
+import { fetcher, creator } from "@/apis/apiClient";
 import { Utility } from "@/utils";
-import { border } from "@mui/system";
 
 const BillingHistory: React.FC = () => {
   const { decodedToken } = Utility();
@@ -51,18 +46,20 @@ const BillingHistory: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [message, setMessage] = useState("");
+
   const getStatusChip = (status: string) => {
     switch (status.toLowerCase()) {
       case "success":
         return (
           <Chip
             icon={<CheckCircle />}
-            label="success"
+            label="Success"
             color="success"
             size="small"
           />
         );
-
       case "pending":
         return (
           <Chip
@@ -84,6 +81,7 @@ const BillingHistory: React.FC = () => {
         return <Chip label="Unknown" color="default" size="small" />;
     }
   };
+
   const getPaymentIcon = (method: string) => {
     switch (method) {
       case "card":
@@ -110,6 +108,7 @@ const BillingHistory: React.FC = () => {
         );
     }
   };
+
   const getCurrencyIcon = (currency: string) => {
     switch (currency) {
       case "USD":
@@ -118,7 +117,7 @@ const BillingHistory: React.FC = () => {
             sx={{ color: "#B497D6", fontSize: 16, marginRight: 0.5 }}
           />
         );
-      case "INR":
+      case "inr":
         return (
           <CurrencyRupee
             sx={{ color: "#B497D6", fontSize: 16, marginRight: 0.5 }}
@@ -176,7 +175,7 @@ const BillingHistory: React.FC = () => {
     fetchBillingData();
   }, [patientId, page, rowsPerPage]);
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
@@ -185,6 +184,51 @@ const BillingHistory: React.FC = () => {
   ) => {
     setRowsPerPage(Number.parseInt(event.target.value, 10));
     setPage(0);
+  };
+
+  const handlePayNow = async (bill: any) => {
+    setIsProcessing(true);
+    setMessage("");
+    try {
+      const consultationFee = bill.amount;
+
+      if (!consultationFee || consultationFee <= 0) {
+        setIsProcessing(false);
+        return;
+      }
+
+      const paymentData = {
+        patientId: bill.patientId?._id || bill.patientId,
+        doctorId: bill.doctorId?._id || bill.doctorId,
+        appointmentId: bill.appointmentId,
+        amount: Number(consultationFee),
+        currency: bill.currency || "INR",
+        transactionMethod: "card",
+        patientName: "",
+        doctorName: "",
+      };
+ 
+      const res = await creator("payment", "/initiate-payment", paymentData);
+
+
+      if (res?.txnid && res?.html) {
+        const container = document.createElement("div");
+        container.innerHTML = res.html;
+        document.body.appendChild(container);
+        container.querySelector("form")?.submit();
+        setMessage("Payment initiation was successful! Redirecting...");
+      } else {
+        console.error(
+          "❌ Payment initiation failed: No txnid or HTML in response"
+        );
+        setMessage("Payment initiation failed.");
+      }
+    } catch (error: any) {
+      console.error("🚨 Error during Pay Now:", error);
+      setMessage(error.message || "Error initiating payment.");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -197,9 +241,9 @@ const BillingHistory: React.FC = () => {
           backgroundColor: "#7b56ce",
         }}
       >
-        <Table sx={{}}>
-          <TableHead sx={{}}>
-            <TableRow sx={{ textAlign: "center" }}>
+        <Table>
+          <TableHead>
+            <TableRow>
               {[
                 "Doctor's Name",
                 "Payment Method",
@@ -235,19 +279,27 @@ const BillingHistory: React.FC = () => {
                     {bill.doctorId?.username || "N/A"}
                   </TableCell>
                   <TableCell align="center" sx={{ whiteSpace: "nowrap" }}>
-                    <span
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 6,
-                      }}
-                    >
-                      {getPaymentIcon(bill.transactionMethod)}
-                      <span>{bill.transactionMethod}</span>
-                    </span>
+                    {bill.status.toLowerCase() === "success" ? (
+                      <span
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 6,
+                        }}
+                      >
+                        {getPaymentIcon(bill.transactionMethod)}
+                        <span>{bill.transactionMethod}</span>
+                      </span>
+                    ) : (
+                      "-"
+                    )}
                   </TableCell>
-                  <TableCell align="center">{bill.transactionId}</TableCell>
+                  <TableCell align="center">
+                    {bill.status.toLowerCase() === "success"
+                      ? bill.transactionId
+                      : "-"}
+                  </TableCell>
                   <TableCell align="center">
                     <span
                       style={{
@@ -257,7 +309,7 @@ const BillingHistory: React.FC = () => {
                         borderRadius: "8px",
                         fontWeight: 700,
                         fontSize: "1rem",
-                        color: "#56428B",
+                        color: "#fff",
                         backgroundColor:
                           bill.amount >= 500
                             ? "rgba(46, 125, 50, 0.1)"
@@ -266,17 +318,52 @@ const BillingHistory: React.FC = () => {
                       }}
                     >
                       {getCurrencyIcon(bill.currency)}
-                      {bill.amount} {bill.currency}
+                      {bill.amount}
                     </span>
                   </TableCell>
                   <TableCell align="center">
                     {getStatusChip(bill.status)}
+                    {bill.status.toLowerCase() !== "success" && (
+                      <Box sx={{ mt: 1 }}>
+                        <Button
+                          variant="contained"
+                          size="medium"
+                          onClick={() => handlePayNow(bill)}
+                          disabled={isProcessing}
+                          sx={{
+                            background:
+                              "linear-gradient(90deg, #7b56ce 0%, #9e6df7 100%)",
+                            color: "#fff",
+                            fontWeight: "bold",
+                            textTransform: "none",
+                            borderRadius: "30px",
+                            px: 1,
+                            py: 0.5,
+                            boxShadow: "0 4px 15px rgba(123, 86, 206, 0.4)",
+                            transition: "all 0.3s ease",
+                            "&:hover": {
+                              background:
+                                "linear-gradient(90deg, #9e6df7 0%, #7b56ce 100%)",
+                              boxShadow: "0 6px 20px rgba(123, 86, 206, 0.5)",
+                            },
+                            "&:disabled": {
+                              background:
+                                "linear-gradient(90deg, #cfcfcf 0%, #ddd 100%)",
+                              color: "#666",
+                              boxShadow: "none",
+                            },
+                          }}
+                        >
+                          {isProcessing ? "Processing..." : "💳 Pay Now"}
+                        </Button>
+                      </Box>
+                    )}
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={9} align="center">
+                <TableCell colSpan={5} align="center">
                   <Box
                     sx={{
                       display: "flex",
@@ -310,6 +397,18 @@ const BillingHistory: React.FC = () => {
           }}
         />
       </TableContainer>
+
+      {message && (
+        <Box
+          sx={{
+            mt: 2,
+            textAlign: "center",
+            color: message.includes("successful") ? "green" : "red",
+          }}
+        >
+          {message}
+        </Box>
+      )}
     </Container>
   );
 };
