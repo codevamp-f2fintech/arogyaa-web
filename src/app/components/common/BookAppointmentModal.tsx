@@ -862,18 +862,27 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                             >
                               Hospital
                             </InputLabel>
+
                             <Select
                               value={selectedHospital || ""}
                               onChange={handleHospitalChange}
                               label="Hospital"
                               sx={inputStyles}
                             >
-                              {data?.availability.map((slot) => (
+                              {[
+                                
+                                ...new Map(
+                                  data?.availability.map((slot) => [
+                                    `${slot.hospital.name}-${slot.hospital.location}`,
+                                    slot.hospital,
+                                  ])
+                                ).values(),
+                              ].map((hospital) => (
                                 <MenuItem
-                                  key={slot.hospital.name}
-                                  value={slot.hospital.name}
+                                  key={`${hospital.name}-${hospital.location}`}
+                                  value={hospital.name}
                                 >
-                                  {slot.hospital.name}, {slot.hospital.location}
+                                  {hospital.name}, {hospital.location}
                                 </MenuItem>
                               ))}
                             </Select>
