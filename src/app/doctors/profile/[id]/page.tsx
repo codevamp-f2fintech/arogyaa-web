@@ -1003,9 +1003,13 @@ const DrProfile: React.FC = () => {
                             sx={{
                               ...cardStyle,
                               padding: "16px",
-                              borderRadius: "0",
+                              borderRadius: 0,
                               backgroundColor: "#29175e",
                               boxShadow: "0 5px 100px rgba(46,204,113,0.5)",
+                              height: "35vh", // Fixed height
+                              display: "flex",
+                              flexDirection: "column",
+                              overflow: "hidden", // Hide overflow from parent
                             }}
                           >
                             <Typography
@@ -1049,8 +1053,10 @@ const DrProfile: React.FC = () => {
                               borderRadius: 0,
                               backgroundColor: "#29175e",
                               boxShadow: "0 5px 100px rgba(46,204,113,0.5)",
-                              height: "auto",
-                              overflow: "visible",
+                              height: "35vh", // Fixed height
+                              display: "flex",
+                              flexDirection: "column",
+                              overflow: "hidden", // Hide overflow from parent
                             }}
                           >
                             <Typography
@@ -1065,77 +1071,95 @@ const DrProfile: React.FC = () => {
                               Availability
                             </Typography>
 
-                            {profileData.data?.availability?.length ? (
-                              profileData.data.availability.map(
-                                (slot, index) => (
-                                  <Box
-                                    key={index}
-                                    sx={{
-                                      padding: "8px",
-                                      borderRadius: "8px",
-                                      backgroundColor: "transparent",
-                                      marginBottom: "10px",
-                                    }}
-                                  >
-                                    {/* Day with Calendar Icon */}
+                            <Box
+                              sx={{
+                                overflowY: "auto", // Add scroll when content overflows
+                                flex: 1, // Take up remaining space
+                                paddingRight: "8px", // Prevent content from touching scrollbar
+                                "&::-webkit-scrollbar": {
+                                  width: "6px",
+                                },
+                                "&::-webkit-scrollbar-track": {
+                                  background: "transparent",
+                                },
+                                "&::-webkit-scrollbar-thumb": {
+                                  background: "#2ecc71",
+                                  borderRadius: "3px",
+                                },
+                              }}
+                            >
+                              {profileData.data?.availability?.length ? (
+                                profileData.data.availability.map(
+                                  (slot, index) => (
                                     <Box
-                                      display="flex"
-                                      alignItems="center"
-                                      gap={1}
-                                      sx={{ marginBottom: "4px" }}
+                                      key={index}
+                                      sx={{
+                                        padding: "8px",
+                                        borderRadius: "8px",
+                                        backgroundColor: "transparent",
+                                        marginBottom: "10px",
+                                      }}
                                     >
-                                      <CalendarTodayIcon
-                                        fontSize="small"
-                                        sx={{ color: "#2ecc71" }}
-                                      />
-                                      <Typography
-                                        variant="body2"
-                                        sx={{
-                                          fontSize: "0.9rem",
-                                          fontWeight: "500",
-                                          color: "#fff",
-                                        }}
+                                      {/* Day with Calendar Icon */}
+                                      <Box
+                                        display="flex"
+                                        alignItems="center"
+                                        gap={1}
+                                        sx={{ marginBottom: "4px" }}
                                       >
-                                        {slot.day}
-                                      </Typography>
-                                    </Box>
+                                        <CalendarTodayIcon
+                                          fontSize="small"
+                                          sx={{ color: "#2ecc71" }}
+                                        />
+                                        <Typography
+                                          variant="body2"
+                                          sx={{
+                                            fontSize: "0.9rem",
+                                            fontWeight: "500",
+                                            color: "#fff",
+                                          }}
+                                        >
+                                          {slot.day}
+                                        </Typography>
+                                      </Box>
 
-                                    {/* Time with Clock Icon */}
-                                    <Box
-                                      display="flex"
-                                      alignItems="center"
-                                      gap={1}
-                                    >
-                                      <AccessTimeIcon
-                                        fontSize="small"
-                                        sx={{ color: "#2ecc71" }}
-                                      />
-                                      <Typography
-                                        variant="body2"
-                                        sx={{
-                                          fontSize: "0.85rem",
-                                          fontWeight: "400",
-                                          color: "#fff",
-                                        }}
+                                      {/* Time with Clock Icon */}
+                                      <Box
+                                        display="flex"
+                                        alignItems="center"
+                                        gap={1}
                                       >
-                                        {slot.startTime} - {slot.endTime}
-                                      </Typography>
+                                        <AccessTimeIcon
+                                          fontSize="small"
+                                          sx={{ color: "#2ecc71" }}
+                                        />
+                                        <Typography
+                                          variant="body2"
+                                          sx={{
+                                            fontSize: "0.85rem",
+                                            fontWeight: "400",
+                                            color: "#fff",
+                                          }}
+                                        >
+                                          {slot.startTime} - {slot.endTime}
+                                        </Typography>
+                                      </Box>
                                     </Box>
-                                  </Box>
+                                  )
                                 )
-                              )
-                            ) : (
-                              <Typography
-                                variant="body2"
-                                sx={{
-                                  fontSize: "0.85rem",
-                                  fontWeight: "400",
-                                  color: "#354c5c",
-                                }}
-                              >
-                                No Availability
-                              </Typography>
-                            )}
+                              ) : (
+                                <Typography
+                                  variant="body2"
+                                  sx={{
+                                    fontSize: "0.85rem",
+                                    fontWeight: "400",
+                                    color: "#354c5c",
+                                  }}
+                                >
+                                  No Availability
+                                </Typography>
+                              )}
+                            </Box>
                           </Box>
                         </Grid>
 
@@ -1145,10 +1169,13 @@ const DrProfile: React.FC = () => {
                             sx={{
                               ...cardStyle,
                               padding: "16px",
-                              padding: "16px",
-                              borderRadius: "0",
+                              borderRadius: 0,
                               backgroundColor: "#29175e",
                               boxShadow: "0 5px 100px rgba(46,204,113,0.5)",
+                              height: "35vh", // Fixed height
+                              display: "flex",
+                              flexDirection: "column",
+                              overflow: "hidden", // Hide overflow from parent
                             }}
                           >
                             <Typography
@@ -1240,7 +1267,7 @@ const DrProfile: React.FC = () => {
                                 padding: "12px",
                                 borderRadius: "8px",
                                 boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-                                backgroundColor: "#f9f9f9",
+                                backgroundColor: "transparent", // Remove white background
                               }}
                             >
                               <Typography
@@ -1248,7 +1275,7 @@ const DrProfile: React.FC = () => {
                                 sx={{
                                   fontSize: "1.6rem",
                                   fontWeight: "600",
-                                  color: "#20ada0",
+                                  color: "rgb(47, 204, 112)", // Green color for title
                                 }}
                               >
                                 {article.title}:
@@ -1259,7 +1286,7 @@ const DrProfile: React.FC = () => {
                                 sx={{
                                   marginTop: "10px",
                                   fontSize: "1rem",
-                                  color: "#666",
+                                  color: "#ffffff", // Change to white text
                                   lineHeight: "1.6rem",
                                 }}
                               >

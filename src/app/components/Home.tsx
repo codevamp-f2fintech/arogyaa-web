@@ -97,7 +97,14 @@ const Home = () => {
       <SymptomCards />
       <SpecialitySlider />
       <AboutUs />
-      <Testimonials />
+      <Box
+        sx={{
+          background:
+            "linear-gradient(180deg, rgba(162,143,213,1) 0%, rgba(175,159,219,1) 100%)!important",
+        }}
+      >
+        <Testimonials />
+      </Box>
 
       {/* <ConditionMarquee /> */}
 

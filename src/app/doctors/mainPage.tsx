@@ -260,6 +260,10 @@ export default function DoctorListing() {
     setIsFetching(false);
   }, [isFetching]);
   const userToken = Cookies.get("token");
+<<<<<<< Updated upstream
+=======
+  console.log(" const userToken = Cookie>>>", userToken);
+>>>>>>> Stashed changes
 
   const openModal = (doctor: DoctorData): void => {
     const userToken = Cookies.get("token");
@@ -868,14 +872,29 @@ export default function DoctorListing() {
                         <Typography
                           variant="body2"
                           sx={{
-                            color: "#fff",
-                            mt: 1,
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "flex-start",
+                            color: "white", // Set text color to white
+                            maxHeight: "30vh", // 30% of viewport height
+                            minHeight: "80px",
+                            overflowY: "auto", // Add scroll when content overflows
+                            flex: 1, // Take up remaining space
+                            paddingRight: "8px", // Prevent content from touching scrollbar
+                            "&::-webkit-scrollbar": {
+                              width: "6px",
+                              height: "20px",
+                            },
+                            "&::-webkit-scrollbar-track": {
+                              background: "transparent",
+                            },
+                            "&::-webkit-scrollbar-thumb": {
+                              background: "#2ecc71",
+                              borderRadius: "3px",
+                            },
+                            width: "25vw",
+                            mt: 2,
                           }}
                         >
                           {doctor.availability?.length > 0
+<<<<<<< Updated upstream
                             ? [
                                 ...new Map(
                                   doctor.availability.map((slot) => [
@@ -884,6 +903,9 @@ export default function DoctorListing() {
                                   ])
                                 ).values(),
                               ].map((slot, index) => (
+=======
+                            ? doctor.availability.map((slot, index) => (
+>>>>>>> Stashed changes
                                 <Typography
                                   key={index}
                                   variant="body2"
