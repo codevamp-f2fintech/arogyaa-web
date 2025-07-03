@@ -87,14 +87,14 @@ export default function NotificationPopover({
 
     if (!("Notification" in window)) {
       console.warn("🚫 Notification API not supported");
-      alert(notification.message);
+
       return;
     }
 
     if (Notification.permission !== "granted") {
       console.warn("🔕 Notification permission not granted");
       requestNotificationPermission();
-      alert(notification.message);
+
       return;
     }
 
@@ -102,7 +102,7 @@ export default function NotificationPopover({
 
     if (isTabFocused) {
       console.log("🟡 Tab is focused — showing alert()");
-      // alert(notification.message);
+     
     } else {
       try {
         const n = new Notification("📢 New Notification", {
@@ -119,7 +119,7 @@ export default function NotificationPopover({
         setTimeout(() => n.close(), 5000);
       } catch (err) {
         console.error("❌ Notification creation failed:", err);
-        // alert(notification.message); // fallback
+  
       }
     }
 
@@ -127,7 +127,6 @@ export default function NotificationPopover({
     setSnackbarMsg(notification.message);
     // setShowSnackbar(true);
   };
-
 
   useSocket(patientId, (newNotification) => {
     console.log("📥 New Notification in Popover:", newNotification);
@@ -310,7 +309,7 @@ export default function NotificationPopover({
         alerting={showSnackbar}
         message={snackbarMsg}
         severity="info"
-         onClose={() => setShowSnackbar(false)}
+        onClose={() => setShowSnackbar(false)}
       />
     </Popover>
   );

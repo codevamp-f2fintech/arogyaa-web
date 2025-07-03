@@ -50,7 +50,7 @@ const BillingHistory: React.FC = () => {
   const [message, setMessage] = useState("");
 
   const getStatusChip = (status: string) => {
-    switch (status.toLowerCase()) {
+    switch (status) {
       case "success":
         return (
           <Chip
@@ -207,9 +207,8 @@ const BillingHistory: React.FC = () => {
         patientName: "",
         doctorName: "",
       };
- 
-      const res = await creator("payment", "/initiate-payment", paymentData);
 
+      const res = await creator("payment", "/initiate-payment", paymentData);
 
       if (res?.txnid && res?.html) {
         const container = document.createElement("div");
@@ -248,6 +247,7 @@ const BillingHistory: React.FC = () => {
                 "Doctor's Name",
                 "Payment Method",
                 "Transaction Id",
+                "Date",
                 "Amount",
                 "Status",
               ].map((header) => (
@@ -279,7 +279,7 @@ const BillingHistory: React.FC = () => {
                     {bill.doctorId?.username || "N/A"}
                   </TableCell>
                   <TableCell align="center" sx={{ whiteSpace: "nowrap" }}>
-                    {bill.status.toLowerCase() === "success" ? (
+                    {bill.status === "success" ? (
                       <span
                         style={{
                           display: "flex",
@@ -296,10 +296,9 @@ const BillingHistory: React.FC = () => {
                     )}
                   </TableCell>
                   <TableCell align="center">
-                    {bill.status.toLowerCase() === "success"
-                      ? bill.transactionId
-                      : "-"}
+                    {bill.status === "success" ? bill.transactionId : "-"}
                   </TableCell>
+                  <TableCell align="center">{bill.createdAt}</TableCell>
                   <TableCell align="center">
                     <span
                       style={{
@@ -322,8 +321,9 @@ const BillingHistory: React.FC = () => {
                     </span>
                   </TableCell>
                   <TableCell align="center">
-                    {getStatusChip(bill.status)}
-                    {bill.status.toLowerCase() !== "success" && (
+                    {bill.status === "success" ? (
+                      getStatusChip(bill.status)
+                    ) : (
                       <Box sx={{ mt: 1 }}>
                         <Button
                           variant="contained"
