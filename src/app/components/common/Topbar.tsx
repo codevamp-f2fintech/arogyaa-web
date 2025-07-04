@@ -50,9 +50,8 @@ const Topbar = () => {
   const pathname = usePathname();
 
   const patientId = decodedToken()?.id;
-  console.log(patientId, "patientId in Topbar");
+
   useSocket(patientId, (newNotification) => {
-    console.log("📥 Notification received in Topbar:", newNotification);
     dispatch(setNotifications([...(notifications || []), newNotification]));
   });
   const userPopover = usePopover<HTMLDivElement>();
@@ -154,7 +153,6 @@ const Topbar = () => {
   };
 
   useEffect(() => {
-    console.log("tokenWithAdnan", token);
     if (session?.user?.email && !token) {
       handleLogin(session.user.email);
     }
@@ -169,8 +167,6 @@ const Topbar = () => {
 
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
-
-  console.log("session>>", session?.user?.name, decodedToken());
 
   return (
     <AppBar
@@ -271,20 +267,20 @@ const Topbar = () => {
               }}
             >
               <Badge
-                badgeContent={unreadCount > 0 ? unreadCount : null}
-                color="error"
+                variant={unreadCount > 0 ? "dot" : undefined}
+                color="success"
                 overlap="circular"
                 sx={{
-                  "& .MuiBadge-badge": {
-                    fontSize: "0.7rem",
-                    height: 18,
-                    minWidth: 18,
+                  "& .MuiBadge-dot": {
+                    backgroundColor: "#00BFA5",
+                    height: 10,
+                    minWidth: 10,
                     top: 4,
-                    right: 4,
+                    right: 1,
                   },
                 }}
               >
-                <NotificationsIcon sx={{ color: "white" }} />
+                <NotificationsIcon sx={{ color: "#fff", fontSize: "30px" }} />
               </Badge>
             </IconButton>
           </Tooltip>

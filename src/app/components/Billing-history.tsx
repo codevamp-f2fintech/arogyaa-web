@@ -215,7 +215,7 @@ const BillingHistory: React.FC = () => {
         container.innerHTML = res.html;
         document.body.appendChild(container);
         container.querySelector("form")?.submit();
-        setMessage("Payment initiation was successful! Redirecting...");
+        
       } else {
         console.error(
           "❌ Payment initiation failed: No txnid or HTML in response"
@@ -298,7 +298,10 @@ const BillingHistory: React.FC = () => {
                   <TableCell align="center">
                     {bill.status === "success" ? bill.transactionId : "-"}
                   </TableCell>
-                  <TableCell align="center">{bill.createdAt}</TableCell>
+                  <TableCell align="center">
+                    {new Date(bill.createdAt).toLocaleDateString()}
+                  </TableCell>
+
                   <TableCell align="center">
                     <span
                       style={{

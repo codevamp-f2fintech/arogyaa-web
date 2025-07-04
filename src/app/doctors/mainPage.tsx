@@ -35,7 +35,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import styles from "../page.module.css";
-import ChatIcon from "@mui/icons-material/Chat";
+// import ChatIcon from "@mui/icons-material/Chat";
 import CloseIcon from "@mui/icons-material/Close";
 import EventIcon from "@mui/icons-material/Event";
 import WorkIcon from "@mui/icons-material/Work";
@@ -630,7 +630,7 @@ export default function DoctorListing() {
           )}
         </Grid>
 
-        <Box
+        {/* <Box
           sx={{
             position: "fixed",
             bottom: "20px",
@@ -656,7 +656,7 @@ export default function DoctorListing() {
               <ChatIcon fontSize="large" />
             </IconButton>
           </Link>
-        </Box>
+        </Box> */}
         {/* Doctor List */}
         <Grid
           container
