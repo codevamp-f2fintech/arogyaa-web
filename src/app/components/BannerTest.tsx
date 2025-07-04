@@ -309,7 +309,7 @@ const BannerComponentTest: React.FC = () => {
               flexDirection: { xs: "column", md: "row" },
             }}
           >
-            Welcome to{" "}
+            <span style={{ marginRight: "8px" }}>Welcome to</span>
             <motion.span
               style={{ color: "#b497d6", fontSize: "50px" }}
               animate={{
@@ -355,7 +355,7 @@ const BannerComponentTest: React.FC = () => {
               >
                 Find & Book &nbsp;
               </motion.span>
-               Healthcare Services Instantly
+              Healthcare Services Instantly
             </Typography>
           </motion.div>
         </motion.div>

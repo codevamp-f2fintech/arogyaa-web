@@ -672,21 +672,21 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
               {/* Right: Available Days */}
               <Box
                 sx={{
-                  display: "flex",
+                  display: "inline-flex",
                   alignItems: "center",
                   backgroundColor: "#7A4D9C",
                   border: "1px solid #ccc",
                   padding: "5px 10px",
                   borderRadius: "8px",
-                  width: "100%",
-                  maxWidth: {
-                    xs: "100%",
-                    sm: "26vw",
-                  },
-                  justifyContent: {
-                    xs: "center",
-                    sm: "flex-end",
-                  },
+                  // width: "100%",
+                  // maxWidth: {
+                  //   xs: "100%",
+                  //   sm: "26vw",
+                  // },
+                  // justifyContent: {
+                  //   xs: "center",
+                  //   sm: "flex-end",
+                  // },
                 }}
               >
                 <EventAvailableIcon
@@ -697,7 +697,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                     fontSize: "1.1rem",
                     fontWeight: 400,
                     color: "#fff",
-                    whiteSpace: "nowrap",
+                    // whiteSpace: "nowrap",
                   }}
                 >
                   {selectedHospital
@@ -870,7 +870,6 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                               sx={inputStyles}
                             >
                               {[
-                                
                                 ...new Map(
                                   data?.availability.map((slot) => [
                                     `${slot.hospital.name}-${slot.hospital.location}`,

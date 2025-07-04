@@ -103,6 +103,11 @@ const AboutUs: React.FC = () => {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
+              marginBottom: {
+                xs: "",
+                md: "15rem",
+                sm: "",
+              },
               order: { xs: 2, md: 1 },
             }}
             component={motion.div}

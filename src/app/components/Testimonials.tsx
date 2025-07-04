@@ -39,7 +39,6 @@ const Testimonials = () => {
   return (
     <Box
       sx={{
-        background: "rgb(162,143,213)",
         background:
           "linear-gradient(180deg, rgba(162,143,213,1) 0%, rgba(175,159,219,1) 100%)!important",
       }}

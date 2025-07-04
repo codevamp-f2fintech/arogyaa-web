@@ -45,6 +45,8 @@ interface Treatment {
   status: string;
   type: string;
   photo: string;
+  createdAt: string;
+  updatedAt: string;
 }
 const statuses = ["in progress", "completed"];
 
@@ -76,6 +78,16 @@ const TreatmentHistory: React.FC = () => {
   const { snackbarAndNavigate, decodedToken, capitalizeFirstLetter } =
     Utility();
   const patientId = decodedToken()?.id;
+
+  // Function to format date
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
 
   // Function to fetch treatment data from API
   const fetchTreatments = useCallback(async () => {
@@ -183,6 +195,36 @@ const TreatmentHistory: React.FC = () => {
     setViewImageUrl(imageUrl);
     setViewImageModal(true);
   };
+
+  // Download image function
+  const handleDownloadImage = async (
+    imageUrl: string,
+    treatmentName: string
+  ) => {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${treatmentName || "treatment"}_image.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      snackbarAndNavigate(
+        dispatch,
+        true,
+        "success",
+        "Image downloaded successfully"
+      );
+    } catch (error) {
+      console.error("Error downloading image:", error);
+      snackbarAndNavigate(dispatch, true, "error", "Failed to download image");
+    }
+  };
+
   const handleCloseViewImageModal = (event: React.MouseEvent) => {
     event.stopPropagation();
     setViewImageModal(false);
@@ -266,6 +308,7 @@ const TreatmentHistory: React.FC = () => {
           >
             <TableRow sx={{ textAlign: "center" }}>
               {[
+                "Date",
                 "doctor's Name",
                 "Name",
                 "Description",
@@ -294,7 +337,7 @@ const TreatmentHistory: React.FC = () => {
           <TableBody>
             {error ? (
               <TableRow>
-                <TableCell colSpan={5} align="center" style={{ color: "red" }}>
+                <TableCell colSpan={10} align="center" style={{ color: "red" }}>
                   {error}
                 </TableCell>
               </TableRow>
@@ -317,6 +360,16 @@ const TreatmentHistory: React.FC = () => {
                       textAlign: "center",
                     }}
                   >
+                    <TableCell
+                      sx={{
+                        textAlign: "center",
+                        color: "white",
+                        fontWeight: 300,
+                        fontFamily: "Poppins",
+                      }}
+                    >
+                      {formatDate(treatment.createdAt)}
+                    </TableCell>
                     <TableCell sx={{ textAlign: "center" }}>
                       {capitalizeFirstLetter(
                         treatment?.doctorId?.username || "N/A"
@@ -470,11 +523,12 @@ const TreatmentHistory: React.FC = () => {
                     <TableCell sx={{ textAlign: "center" }}>
                       {capitalizeFirstLetter(treatment.type)}
                     </TableCell>
-                    <TableCell
+                    {/* <TableCell
                       sx={{
-                        width: 150,
+                        width: 100,
                         textAlign: "center",
                         verticalAlign: "middle",
+                        padding: "8px 4px",
                       }}
                     >
                       <Select
@@ -486,41 +540,39 @@ const TreatmentHistory: React.FC = () => {
                         size="small"
                         displayEmpty
                         sx={{
-                          borderRadius: "20px",
-                          width: "100%",
-                          height: "36px",
+                          borderRadius: "12px",
+                          width: "90px",
+                          height: "28px",
+                          fontSize: "0.75rem",
                           textAlign: "center",
-                          backgroundColor:
-                            treatment.status.toLowerCase() === "in progress"
-                              ? "#cce5ff"
-                              : treatment.status.toLowerCase() === "completed"
-                              ? "#d4edda"
-                              : "#f8f9fa",
-                          color:
-                            treatment.status.toLowerCase() === "in progress"
-                              ? "#0056b3"
-                              : treatment.status.toLowerCase() === "completed"
-                              ? "#2D9735"
-                              : "#000",
+                          backgroundColor: "#fff",
+                          color: "#333",
                           "& .MuiOutlinedInput-notchedOutline": {
-                            border: "none",
+                            border: "1px solid #e0e0e0",
+                          },
+                          "&:hover .MuiOutlinedInput-notchedOutline": {
+                            border: "1px solid #ccc",
+                          },
+                          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                            border: "1px solid #999",
                           },
                           "& .MuiSelect-select": {
-                            borderRadius: "20px",
-                            padding: "6px 14px !important",
+                            borderRadius: "12px",
+                            padding: "4px 8px !important",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            fontSize: "0.875rem",
-                            fontWeight: 500,
+                            fontSize: "0.75rem",
+                            fontWeight: 400,
                             boxSizing: "border-box",
                             overflow: "hidden",
                             whiteSpace: "nowrap",
-                            paddingRight: "28px !important",
+                            paddingRight: "20px !important",
                           },
                           "& .MuiSelect-icon": {
-                            fontSize: "1.2rem",
-                            right: 4,
+                            fontSize: "1rem",
+                            right: 2,
+                            color: "#666",
                           },
                         }}
                       >
@@ -529,12 +581,13 @@ const TreatmentHistory: React.FC = () => {
                             sx={{
                               display: "flex",
                               alignItems: "center",
-                              gap: 1.5,
-                              color: "#0056b3",
+                              gap: 0.5,
+                              color: "#333",
+                              fontSize: "0.75rem",
                             }}
                           >
-                            <HourglassEmpty fontSize="small" />
-                            In Progress
+                            <HourglassEmpty fontSize="inherit" />
+                            Progress
                           </Box>
                         </MenuItem>
                         <MenuItem value="completed">
@@ -542,23 +595,58 @@ const TreatmentHistory: React.FC = () => {
                             sx={{
                               display: "flex",
                               alignItems: "center",
-                              gap: 1.5,
-                              color: "#2D9735",
+                              gap: 0.5,
+                              color: "#333",
+                              fontSize: "0.75rem",
                             }}
                           >
-                            <CheckCircle fontSize="small" />
-                            Completed
+                            <CheckCircle fontSize="inherit" />
+                            Done
                           </Box>
                         </MenuItem>
                       </Select>
+                    </TableCell> */}
+                    <TableCell
+                      sx={{
+                        width: 100,
+                        textAlign: "center",
+                        verticalAlign: "middle",
+                        padding: "8px 4px",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 0.5,
+                          fontSize: "0.75rem",
+                          color: "#fff", // White text
+                        }}
+                      >
+                        {treatment.status === "in progress" ? (
+                          <>
+                            <HourglassEmpty fontSize="inherit" />
+                            Progress
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle fontSize="inherit" />
+                            Done
+                          </>
+                        )}
+                      </Box>
                     </TableCell>
-                    <TableCell sx={{ textAlign: "center" }}>
-                      {capitalizeFirstLetter(treatment.type)}
-                    </TableCell>{" "}
+
                     <TableCell sx={{ textAlign: "center" }}>
                       {treatment.photo ? (
                         <Box
-                          sx={{ position: "relative", display: "inline-block" }}
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: 1,
+                          }}
                         >
                           <img
                             src={treatment.photo || "/placeholder.svg"}
@@ -572,36 +660,61 @@ const TreatmentHistory: React.FC = () => {
                               margin: "0 auto",
                             }}
                           />
-                          <IconButton
-                            sx={{ position: "absolute", top: 0, right: 0 }}
-                            onClick={() =>
-                              handleOpenViewImageModal(treatment.photo)
-                            }
-                          >
-                            <Visibility sx={{ color: "#B497D6" }} />
-                          </IconButton>
+                          <Box sx={{ display: "flex", gap: 0.5 }}>
+                            <Button
+                              onClick={() =>
+                                handleOpenViewImageModal(treatment.photo)
+                              }
+                              sx={{
+                                minWidth: "auto",
+                                padding: "4px 8px",
+                                fontSize: "0.7rem",
+                                background: "#56428B",
+                                color: "white",
+                                borderRadius: "4px",
+                                "&:hover": {
+                                  background: "#483980",
+                                },
+                              }}
+                            >
+                              View
+                            </Button>
+                            <Button
+                              onClick={() =>
+                                handleDownloadImage(
+                                  treatment.photo,
+                                  treatment.name
+                                )
+                              }
+                              sx={{
+                                minWidth: "auto",
+                                padding: "4px 8px",
+                                fontSize: "0.7rem",
+                                background: "#28a745",
+                                color: "white",
+                                borderRadius: "4px",
+                                "&:hover": {
+                                  background: "#218838",
+                                },
+                              }}
+                            >
+                              Download
+                            </Button>
+                          </Box>
                         </Box>
                       ) : (
-                        <Button
-                          onClick={() => handleOpenModal(treatment._id)}
+                        <Box
                           sx={{
-                            display: "block",
-                            margin: "0 auto",
-                            background: "#56428B",
-                            color: "white",
-                            fontWeight: "bold",
-                            textDecoration: "none",
-                            borderRadius: "4px",
-                            padding: "5px 10px",
-                            "&:hover": {
-                              background: "#483980",
-                              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
-                            },
-                            transition: "all 0.3s ease",
+                            fontSize: "0.75rem",
+                            color: "#fff", // same as status text
+                            fontWeight: 400,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
                           }}
                         >
-                          Upload
-                        </Button>
+                          No Prescription
+                        </Box>
                       )}
                     </TableCell>
                   </TableRow>
@@ -609,7 +722,7 @@ const TreatmentHistory: React.FC = () => {
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={9} align="center">
+                <TableCell colSpan={10} align="center">
                   <Box
                     sx={{
                       display: "flex",
