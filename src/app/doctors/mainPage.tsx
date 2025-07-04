@@ -260,10 +260,6 @@ export default function DoctorListing() {
     setIsFetching(false);
   }, [isFetching]);
   const userToken = Cookies.get("token");
-<<<<<<< Updated upstream
-=======
-  console.log(" const userToken = Cookie>>>", userToken);
->>>>>>> Stashed changes
 
   const openModal = (doctor: DoctorData): void => {
     const userToken = Cookies.get("token");
@@ -894,7 +890,6 @@ export default function DoctorListing() {
                           }}
                         >
                           {doctor.availability?.length > 0
-<<<<<<< Updated upstream
                             ? [
                                 ...new Map(
                                   doctor.availability.map((slot) => [
@@ -903,9 +898,6 @@ export default function DoctorListing() {
                                   ])
                                 ).values(),
                               ].map((slot, index) => (
-=======
-                            ? doctor.availability.map((slot, index) => (
->>>>>>> Stashed changes
                                 <Typography
                                   key={index}
                                   variant="body2"
