@@ -427,7 +427,7 @@ const DrProfile: React.FC = () => {
                     </Box>
 
                     {/* Email & Contact Section */}
-                    <Box
+                    {/* <Box
                       sx={{
                         display: "flex",
                         alignItems: "center",
@@ -464,25 +464,8 @@ const DrProfile: React.FC = () => {
                         }}
                       ></Box>
 
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          color: "#fff",
-                        }}
-                      >
-                        <PhoneIcon
-                          sx={{
-                            fontSize: "18px",
-                            color: "#2ECC71",
-                            marginRight: "5px",
-                          }}
-                        />
-                        <Typography variant="body3">
-                          {profileData.data?.contact || "No Contact"}
-                        </Typography>
-                      </Box>
-                    </Box>
+               
+                    </Box> */}
 
                     {/* Hospital Affiliations */}
                     <Box
@@ -514,17 +497,26 @@ const DrProfile: React.FC = () => {
                               whiteSpace: "normal",
                             }}
                           >
-                            {profileData.data.availability
-                              .map(
-                                (slot) =>
-                                  `${
-                                    slot.hospital?.name || "Unknown Hospital"
-                                  }, ${
+                            {(() => {
+                              const seen = new Set();
+                              return profileData.data.availability
+                                .filter((slot) => {
+                                  const name =
+                                    slot.hospital?.name || "Unknown Hospital";
+                                  if (seen.has(name)) return false;
+                                  seen.add(name);
+                                  return true;
+                                })
+                                .map((slot) => {
+                                  const name =
+                                    slot.hospital?.name || "Unknown Hospital";
+                                  const location =
                                     slot.hospital?.location ||
-                                    "Unknown Location"
-                                  }`
-                              )
-                              .join(" || ")}
+                                    "Unknown Location";
+                                  return `${name}, ${location}`;
+                                })
+                                .join(" || ");
+                            })()}
                           </span>
                         ) : (
                           "No hospital affiliations"
@@ -652,7 +644,7 @@ const DrProfile: React.FC = () => {
                           paddingY: "1px",
                           color: "#29175e",
                           background: "#b497d6",
-                          marginTop: "20px",
+                          marginTop: "45px",
                           boxShadow: "0px 3px 6px rgba(0, 0, 0, 0.2)",
                           fontSize: "1rem",
                           textTransform: "none",
@@ -800,6 +792,7 @@ const DrProfile: React.FC = () => {
                           fontWeight: "400",
                           lineHeight: "1.6rem",
                           marginBottom: "20px",
+                          color: "#fff",
                         }}
                       >
                         Meet{" "}
