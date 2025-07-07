@@ -704,13 +704,13 @@ const DrProfile: React.FC = () => {
                       sx={{
                         fontSize: "2rem",
                         textAlign: "center",
-                        color: "#20ADA0",
+                        color: "#5d4993",
                         fontWeight: "bold",
                       }}
                     >
                       {existingReview.rating}/5
                     </Typography>
-                    <Rating
+                    <Rating sx={{ color: "#2ecc71" }}
                       value={Number(existingReview.rating)}
                       readOnly
                       precision={0.1}

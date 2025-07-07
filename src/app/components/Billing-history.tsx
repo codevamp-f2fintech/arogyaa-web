@@ -117,7 +117,7 @@ const BillingHistory: React.FC = () => {
             sx={{ color: "#B497D6", fontSize: 16, marginRight: 0.5 }}
           />
         );
-      case "inr":
+      case "INR":
         return (
           <CurrencyRupee
             sx={{ color: "#B497D6", fontSize: 16, marginRight: 0.5 }}
@@ -215,7 +215,6 @@ const BillingHistory: React.FC = () => {
         container.innerHTML = res.html;
         document.body.appendChild(container);
         container.querySelector("form")?.submit();
-        
       } else {
         console.error(
           "❌ Payment initiation failed: No txnid or HTML in response"
@@ -244,8 +243,8 @@ const BillingHistory: React.FC = () => {
           <TableHead>
             <TableRow>
               {[
-                "Doctor's Name",
-                "Payment Method",
+                "Doctor",
+                "Method",
                 "Transaction Id",
                 "Date",
                 "Amount",
@@ -335,29 +334,32 @@ const BillingHistory: React.FC = () => {
                           disabled={isProcessing}
                           sx={{
                             background:
-                              "linear-gradient(90deg, #7b56ce 0%, #9e6df7 100%)",
+                              "linear-gradient(90deg, #9e6df7 0%, #7b56ce 100%)",
+                            boxShadow: "0 6px 20px rgba(123, 86, 206, 0.5)",
                             color: "#fff",
                             fontWeight: "bold",
                             textTransform: "none",
-                            borderRadius: "30px",
-                            px: 1,
+                            borderRadius: "18px",
+                            px: 1.7,
+                            whiteSpace: "nowrap",
                             py: 0.5,
-                            boxShadow: "0 4px 15px rgba(123, 86, 206, 0.4)",
+
                             transition: "all 0.3s ease",
                             "&:hover": {
                               background:
-                                "linear-gradient(90deg, #9e6df7 0%, #7b56ce 100%)",
-                              boxShadow: "0 6px 20px rgba(123, 86, 206, 0.5)",
+                                "linear-gradient(90deg, #7b56ce 0%, #9e6df7 100%)",
+                              boxShadow: "0 4px 15px rgba(123, 86, 206, 0.4)",
                             },
                             "&:disabled": {
                               background:
                                 "linear-gradient(90deg, #cfcfcf 0%, #ddd 100%)",
                               color: "#666",
                               boxShadow: "none",
+                              whiteSpace: "nowrap",
                             },
                           }}
                         >
-                          {isProcessing ? "Processing..." : "💳 Pay Now"}
+                          {isProcessing ? "Processing..." : "Pay Now"}
                         </Button>
                       </Box>
                     )}
