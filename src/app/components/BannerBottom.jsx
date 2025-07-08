@@ -232,7 +232,7 @@ export default function FAQpage() {
                 sx={{
                   color: "#29175e",
                   fontSize: { xs: "0.9rem", sm: "1rem" }, // Adjust font size for mobile and tablet
-                  fontWeight: 535,
+                  fontWeight: 400,
                   fontFamily: "Poppins",
                   lineHeight: 1.6,
                 }}

@@ -397,7 +397,10 @@ const BannerComponentTest: React.FC = () => {
         >
           <Paper
             sx={{
-              mb: "70px",
+              marginBottom: {
+                xs: "170px",
+                md: "70px",
+              },
               display: "flex",
               alignItems: "center",
               padding: "4px 15px",
@@ -599,6 +602,10 @@ const BannerComponentTest: React.FC = () => {
                     display: "flex",
                     gap: { xs: "20px", sm: "50px" },
                     mt: 30,
+                    marginBottom: {
+                      xs: "15vh",
+                      md: "0px",
+                    },
                     maxWidth: "1200px",
                     flexWrap: { xs: "nowrap", sm: "nowrap" },
                     justifyContent: { xs: "center", sm: "center" },
@@ -716,6 +723,7 @@ const BannerComponentTest: React.FC = () => {
           </Box>
         </motion.div>
       </Box>
+      {/* Image Section - Only visible on sm breakpoint and larger */}
       <Box
         component={motion.div}
         initial={{ opacity: 0, x: 50 }}
@@ -726,12 +734,13 @@ const BannerComponentTest: React.FC = () => {
           position: "relative",
           height: { xs: "300px", sm: "400px", md: "400px" },
           width: "100%",
+          minWidth: "50%",
+          backgroundRepeat: "no-repeat",
           overflow: "hidden",
           display: {
-            xs: "none",
-            sm: "flex",
-            md: "flex",
-            lg: "flex",
+            xs: "none", // Hidden on mobile
+            sm: "none", // Now also hidden on tablets
+            md: "flex", // Only shown on desktop (md) and larger
           },
           borderRadius: "20px",
           margin: { xs: "0 10px", sm: "0 15px", md: "0 20px" },

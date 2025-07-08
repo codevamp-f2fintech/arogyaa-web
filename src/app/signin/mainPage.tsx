@@ -456,21 +456,25 @@ export default function Login() {
                           }}
                           sx={{
                             backgroundColor: "#fff",
-                            color: "#7A4D9C", // Purple text color matching your theme
+                            color: "#7A4D9C",
                             fontFamily: "Poppins",
                             fontWeight: 500,
                             textTransform: "none",
-                            border: "1px solid #BCAEE0", // Light purple border
+                            border: "1px solid #BCAEE0",
                             borderRadius: "4px",
-                            padding: "8px 16px",
-                            fontSize: "14px",
-                            boxShadow: "0 1px 2px rgba(122, 77, 156, 0.1)", // Purple tinted shadow
+                            padding: { xs: "8px 12px", sm: "8px 16px" }, // Slightly less horizontal padding on very small screens
+                            fontSize: { xs: "13px", sm: "14px" }, // Slightly smaller font on very small screens
+                            boxShadow: "0 1px 2px rgba(122, 77, 156, 0.1)",
                             marginTop: "10px",
                             "&:hover": {
-                              backgroundColor: "#F3EFF9", // Light purple hover
+                              backgroundColor: "#F3EFF9",
                               boxShadow: "0 2px 4px rgba(122, 77, 156, 0.15)",
                               border: "1px solid transparent",
                             },
+                            // Ensure text doesn't wrap on small screens
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
                           }}
                         >
                           Don't have an account?{" "}

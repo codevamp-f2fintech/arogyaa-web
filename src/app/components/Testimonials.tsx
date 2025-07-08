@@ -145,10 +145,21 @@ const Testimonials = () => {
                     alignItems: "center",
                     justifyContent: "center",
                     mt: 1,
+                    color: "white",
                   }}
                 >
                   <Rating
-                    sx={{ color: "#ffd700" }}
+                    sx={{
+                      "& .MuiRating-icon": {
+                        color: "white", // Color for non-selected stars
+                      },
+                      "& .MuiRating-iconFilled": {
+                        color: "#ffd700", // Color for selected stars
+                      },
+                      "& .MuiRating-iconHover": {
+                        color: "#ffd700", // Color on hover (since it's readOnly, this won't matter)
+                      },
+                    }}
                     value={testimonial?.rating}
                     readOnly
                     precision={0.1}
