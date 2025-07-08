@@ -158,8 +158,8 @@ const Footer = () => {
   // Mock data - would typically come from a localization file
   const content = {
     title: "Arogyaa",
-    tagline:
-      "The Best Medical Care for Your Family(Owned By F2 Fintech Private Limited)",
+    tagline: "The Best Medical Care for Your Family",
+    secondTagline: "An initiative by F2 Fintech Private Limited",
     address:
       "A-25, M-1 Arv Park, A-Block, Sector-63, Noida, Uttar Pradesh - 201301",
     phone: "+918810600135",
@@ -219,7 +219,7 @@ const Footer = () => {
       description: "Subscribe to our newsletter for health tips and updates",
     },
     copyright:
-      "© Copyright 2024, All rights reserved with Arogyaa HealthCare — Healing with Care",
+      "© Copyright 2025, All rights reserved with Arogyaa HealthCare — Healing with Care",
     bottomLinks: [
       {
         label: "Contact Us",
@@ -337,9 +337,22 @@ const Footer = () => {
               {/* Main Tagline */}
               <Typography
                 sx={{
-                  fontSize: "1.8rem",
+                  fontSize: "1.5rem",
                   fontWeight: 100,
-                  mb: 4,
+                  mb: 0, // Changed from mb: 4 to remove bottom margin
+                  color: THEME.colors.text.dark,
+                  lineHeight: 1.6,
+                  position: "relative",
+                }}
+              >
+                {content.tagline}
+              </Typography>
+
+              {/* Second tagline  */}
+
+              <Typography
+                sx={{
+                  fontSize: "1rem",
                   color: THEME.colors.text.dark,
                   lineHeight: 1.6,
                   position: "relative",
@@ -355,7 +368,7 @@ const Footer = () => {
                   },
                 }}
               >
-                {content.tagline}
+                {content.secondTagline}
               </Typography>
 
               {/* Contact Information */}

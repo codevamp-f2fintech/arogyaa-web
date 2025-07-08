@@ -459,10 +459,12 @@ const ExpertSpecialistSlider: React.FC = () => {
                         mb: 2,
                       }}
                     >
+                      {/* Top row: Qualification + Experience */}
                       <Box
                         sx={{
                           display: "flex",
                           justifyContent: "center",
+                          alignItems: "center",
                           gap: 1,
                           flexWrap: "wrap",
                         }}
@@ -496,16 +498,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                             />
                           )
                         )}
-                      </Box>
 
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "center",
-                          gap: 1,
-                          flexWrap: "wrap",
-                        }}
-                      >
                         <Chip
                           icon={
                             <SchoolIcon sx={{ color: "#29175e!important" }} />
@@ -525,12 +518,22 @@ const ExpertSpecialistSlider: React.FC = () => {
                             },
                           }}
                         />
+                      </Box>
+
+                      {/* Bottom: Location only */}
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          mt: 1,
+                        }}
+                      >
                         <Tooltip
                           title={doctor.clinicAddress}
                           componentsProps={{
                             tooltip: {
                               sx: {
-                                backgroundColor: "#29175e",
+                                backgroundColor: "#5b4791", // light transparent gray
                                 color: "#fff",
                                 fontFamily: "Poppins",
                                 fontWeight: 500,

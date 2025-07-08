@@ -256,24 +256,24 @@ const Signup = () => {
       maxWidth={false}
       sx={{
         fontFamily: "Poppins",
-        minHeight: "100vh",
+        marginTop: { xs: "10px", sm: "20px", md: "30px" },
         display: "flex",
         flexDirection: { xs: "column", md: "row" },
+        minHeight: "100vh",
         alignItems: "center",
-        justifyContent: { xs: "center", md: "space-evenly" },
+        justifyContent: "space-evenly",
         background:
           "linear-gradient(180deg, rgba(188,174,224,1) 0%, rgba(255,255,255,1) 100%)",
         color: "white",
-        padding: { xs: 2, md: 4 },
-        gap: { xs: 2, md: 0 },
+        padding: { xs: "10px", sm: "15px", md: "20px" },
       }}
     >
       <Box
         sx={{
-          flex: { md: 1 },
+          flex: 1,
           display: { xs: "none", md: "flex" },
           justifyContent: "center",
-          alignItems: "center",
+          maxWidth: { md: "50%", lg: "45%" },
         }}
       >
         <img
@@ -291,13 +291,19 @@ const Signup = () => {
       <Box
         sx={{
           fontFamily: "Poppins",
-          width: { xs: "100%", sm: "90%", md: "45%", lg: "38%" },
+          width: {
+            xs: "100%",
+            sm: "90%",
+            md: "45%",
+            lg: "38%",
+          },
           maxWidth: "600px",
           p: { xs: 2, sm: 3 },
           backgroundColor: "white",
           borderRadius: 2,
           boxShadow: 3,
           textAlign: "center",
+          margin: { xs: "10px 0", md: "0" },
         }}
       >
         <Typography
@@ -362,15 +368,16 @@ const Signup = () => {
             />
 
             <TextField
+              style={{ marginTop: 10, width: "100%" }}
               fullWidth
               name="email"
               label="Email"
               variant="outlined"
               sx={{
                 ...inputStyles,
-                gridColumn: { xs: "1", sm: "span 2" },
+                gridColumn: { xs: "span 1", sm: "span 2" },
               }}
-              autoComplete="off"
+              autoComplete="off" // Turn off autofill
               onChange={handleChange}
               value={formData.email}
               error={!!errors.email}
@@ -418,7 +425,6 @@ const Signup = () => {
                 ),
               }}
             />
-
             <TextField
               fullWidth
               name="confirmPassword"
@@ -455,6 +461,7 @@ const Signup = () => {
               name="contact"
               label="Contact"
               variant="outlined"
+              style={{ marginTop: 10 }}
               sx={inputStyles}
               onChange={handleChange}
               value={formData.contact}
@@ -469,7 +476,12 @@ const Signup = () => {
               }}
             />
 
-            <FormControl fullWidth sx={inputStyles} error={!!errors.gender}>
+            <FormControl
+              fullWidth
+              style={{ marginTop: 10 }}
+              sx={inputStyles}
+              error={!!errors.gender}
+            >
               <InputLabel>Gender</InputLabel>
               <Select
                 name="gender"
@@ -502,15 +514,20 @@ const Signup = () => {
             <Button
               type="submit"
               sx={{
-                mt: 2,
+                m: "10px auto",
                 fontFamily: "Poppins",
                 background:
                   "linear-gradient(180deg, rgba(104,82,164,1) 0%, rgba(126,107,177,1) 100%)",
                 "&:hover": {
                   backgroundColor: "#357A9E",
                 },
-                gridColumn: { xs: "1", sm: "span 2" },
-                py: 1.5,
+                width: {
+                  xs: "100%",
+                  sm: "100%",
+                },
+                gridColumn: { xs: "span 1", sm: "span 2" },
+                fontSize: { xs: "0.875rem", sm: "1rem" },
+                padding: { xs: "10px 16px", sm: "12px 24px" },
               }}
               variant="contained"
             >
