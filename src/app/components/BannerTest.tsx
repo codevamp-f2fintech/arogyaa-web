@@ -9,6 +9,7 @@ import LocalPharmacyIcon from "@mui/icons-material/LocalPharmacy";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import ScienceIcon from "@mui/icons-material/Science";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import PersonIcon from "@mui/icons-material/Person";
 
 import {
   Box,
@@ -26,6 +27,7 @@ import {
   Link,
   Alert,
   CircularProgress,
+  Divider,
 } from "@mui/material";
 import { motion } from "framer-motion";
 import { fetcher } from "@/apis/apiClient";
@@ -33,61 +35,109 @@ import { Utility } from "@/utils";
 import AIAssistant from "./AIAssistant";
 
 const BannerComponentTest: React.FC = () => {
-  const [keyword, setKeyword] = useState<string>("");
+  const [nameKeyword, setNameKeyword] = useState<string>("");
+  const [locationKeyword, setLocationKeyword] = useState<string>("");
   const [results, setResults] = useState<any[]>([]);
   const [userLocation, setUserLocation] = useState<{
-    latitude: number;
-    longitude: number;
+    latitude?: number;
+    longitude?: number;
     city?: string;
+    region?: string;
+    country?: string;
+    pincode?: string;
   } | null>(null);
   const [locationError, setLocationError] = useState<string>("");
   const [isLoadingLocation, setIsLoadingLocation] = useState<boolean>(false);
   const [isSearchingNearby, setIsSearchingNearby] = useState<boolean>(false);
+  const [activeSearchBar, setActiveSearchBar] = useState<
+    "name" | "location" | null
+  >(null);
 
   const { capitalizeFirstLetter } = Utility();
   const router = useRouter();
 
-  // Get user's current location
-  const getCurrentLocation = (): Promise<GeolocationPosition> => {
+  // Browser-based geolocation with reverse geocode
+  const getLocationUsingBrowser = async (): Promise<{
+    latitude?: number;
+    longitude?: number;
+    city?: string;
+    region?: string;
+    country?: string;
+    pincode?: string;
+  }> => {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
         reject(new Error("Geolocation is not supported by this browser."));
         return;
       }
 
-      navigator.geolocation.getCurrentPosition(resolve, reject, {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 300000, // 5 minutes
-      });
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          try {
+            const res = await fetch(
+              `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=b4953ca380c5441399830b0c05c656b6`
+            );
+
+            if (!res.ok) {
+              throw new Error("Failed to fetch location details");
+            }
+
+            const data = await res.json();
+            const components = data.results[0]?.components || {};
+            resolve({
+              latitude,
+              longitude,
+              city:
+                components.city ||
+                components.town ||
+                components.village ||
+                "Unknown",
+              region: components.state || "Unknown",
+              country: components.country || "Unknown",
+              pincode: components.postcode || "N/A",
+            });
+          } catch (err) {
+            console.error("Reverse geocoding failed:", err);
+            resolve({
+              latitude,
+              longitude,
+              city: "Unknown",
+              region: "Unknown",
+              country: "Unknown",
+              pincode: "N/A",
+            });
+          }
+        },
+        (err) => {
+          let errorMessage = "Location access denied or unavailable";
+          switch (err.code) {
+            case err.PERMISSION_DENIED:
+              errorMessage =
+                "Location access denied. Please enable location permissions.";
+              break;
+            case err.POSITION_UNAVAILABLE:
+              errorMessage = "Location information is unavailable.";
+              break;
+            case err.TIMEOUT:
+              errorMessage = "Location request timed out.";
+              break;
+            default:
+              errorMessage = `Location error: ${err.message}`;
+              break;
+          }
+          reject(new Error(errorMessage));
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000,
+        }
+      );
     });
   };
 
-  // Get city name from coordinates using reverse geocoding
-  const getCityFromCoordinates = async (
-    latitude: number,
-    longitude: number
-  ): Promise<string> => {
-    try {
-      // Using a free geocoding service (you can replace with your preferred service)
-      const response = await fetch(
-        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
-      );
-      const data = await response.json();
-
-      return (
-        data.city ||
-        data.locality ||
-        data.principalSubdivision ||
-        "Unknown City"
-      );
-    } catch (error) {
-      console.error("Error getting city name:", error);
-      return "Unknown City";
-    }
-  };
-
-  // Debounce function to prevent unnecessary API calls
+  // Debounce function
   const debounce = (func: (...args: any[]) => void, delay: number) => {
     let timer: NodeJS.Timeout;
     return (...args: any[]) => {
@@ -98,18 +148,27 @@ const BannerComponentTest: React.FC = () => {
     };
   };
 
-  // Fetch doctors based on search input
-  const fetchDoctorResults = async (searchTerm: string) => {
-    if (!searchTerm.trim()) {
+  // Combined search function
+  const performSearch = async (nameSearch: string, locationSearch: string) => {
+    if (!nameSearch.trim() && !locationSearch.trim()) {
       setResults([]);
       return;
     }
 
     try {
-      const response = await fetcher(
-        "doctor",
-        `get-doctors?keyword=${encodeURIComponent(searchTerm)}`
-      );
+      let apiUrl = "get-doctors?";
+      const params = new URLSearchParams();
+
+      if (nameSearch.trim()) {
+        params.append("keyword", nameSearch.trim());
+      }
+
+      if (locationSearch.trim()) {
+        params.append("location", locationSearch.trim());
+      }
+
+      const response = await fetcher("doctor", apiUrl + params.toString());
+
       if (response && response.results && Array.isArray(response.results)) {
         setResults(response.results);
       } else {
@@ -122,26 +181,49 @@ const BannerComponentTest: React.FC = () => {
   };
 
   // Fetch doctors based on location
-  const fetchDoctorsByLocation = async (
-    latitude: number,
-    longitude: number,
-    city?: string
-  ) => {
+  const fetchDoctorsByLocation = async (locationData: {
+    latitude?: number;
+    longitude?: number;
+    city?: string;
+    region?: string;
+    country?: string;
+    pincode?: string;
+  }) => {
     setIsSearchingNearby(true);
     try {
-      // You can modify this API call based on your backend implementation
-      let apiUrl = `get-doctors-by-location?latitude=${latitude}&longitude=${longitude}`;
+      let apiUrl = "";
+      let searchLocation = "";
 
-      // If you prefer to search by city name instead of coordinates
-      if (city) {
-        apiUrl = `get-doctors?location=${encodeURIComponent(city)}`;
+      if (locationData.city && locationData.city !== "Unknown") {
+        searchLocation = locationData.city;
+        setLocationKeyword(locationData.city);
+        apiUrl = `get-doctors?location=${encodeURIComponent(
+          locationData.city
+        )}`;
+      } else if (locationData.region && locationData.region !== "Unknown") {
+        searchLocation = locationData.region;
+        setLocationKeyword(locationData.region);
+        apiUrl = `get-doctors?location=${encodeURIComponent(
+          locationData.region
+        )}`;
+      } else if (locationData.country && locationData.country !== "Unknown") {
+        searchLocation = locationData.country;
+        setLocationKeyword(locationData.country);
+        apiUrl = `get-doctors?location=${encodeURIComponent(
+          locationData.country
+        )}`;
+      } else if (locationData.latitude && locationData.longitude) {
+        searchLocation = "your location";
+        setLocationKeyword("Near me");
+        apiUrl = `get-doctors-by-location?latitude=${locationData.latitude}&longitude=${locationData.longitude}`;
+      } else {
+        throw new Error("No valid location data available");
       }
 
       const response = await fetcher("doctor", apiUrl);
 
       if (response && response.results && Array.isArray(response.results)) {
         setResults(response.results);
-        setKeyword(`Doctors near ${city || "your location"}`);
       } else {
         setResults([]);
         setLocationError("No doctors found in your area");
@@ -155,71 +237,65 @@ const BannerComponentTest: React.FC = () => {
     }
   };
 
-  const getIconColor = (index: number) => {
-    const colors = ["#fff", "#fff", "#fff", "#fff"];
-    return colors[index % colors.length];
-  };
-
-  const debouncedFetchResults = useCallback(
-    debounce(fetchDoctorResults, 500),
+  const debouncedSearch = useCallback(
+    debounce((nameSearch: string, locationSearch: string) => {
+      performSearch(nameSearch, locationSearch);
+    }, 500),
     []
   );
 
-  const features = [
-    "100% Expert Doctors",
-    "Medicine & Instrument",
-    "From Scientific Journal",
-    "Instant Operation",
-  ];
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const keyword = e.target.value;
-    setKeyword(keyword);
-    setLocationError(""); // Clear location error when user starts typing
-    debouncedFetchResults(keyword);
+  // Handle name/specialty search
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setNameKeyword(value);
+    setLocationError("");
+    setActiveSearchBar("name");
+    debouncedSearch(value, locationKeyword);
   };
 
-  const handleClear = () => {
-    setKeyword("");
+  // Handle location search
+  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setLocationKeyword(value);
+    setLocationError("");
+    setActiveSearchBar("location");
+    debouncedSearch(nameKeyword, value);
+  };
+
+  const handleClearName = () => {
+    setNameKeyword("");
     setResults([]);
     setLocationError("");
+    setActiveSearchBar(null);
+    if (locationKeyword) {
+      debouncedSearch("", locationKeyword);
+    }
+  };
+
+  const handleClearLocation = () => {
+    setLocationKeyword("");
+    setResults([]);
+    setLocationError("");
+    setActiveSearchBar(null);
+    if (nameKeyword) {
+      debouncedSearch(nameKeyword, "");
+    }
   };
 
   const handleNearMeClick = async () => {
     setLocationError("");
     setIsLoadingLocation(true);
+    setActiveSearchBar("location");
 
     try {
-      const position = await getCurrentLocation();
-      const { latitude, longitude } = position.coords;
-
-      // Get city name from coordinates
-      const cityName = await getCityFromCoordinates(latitude, longitude);
-
-      setUserLocation({
-        latitude,
-        longitude,
-        city: cityName,
-      });
-
-      // Fetch doctors in the area
-      await fetchDoctorsByLocation(latitude, longitude, cityName);
+      const locationData = await getLocationUsingBrowser();
+      setUserLocation(locationData);
+      await fetchDoctorsByLocation(locationData);
     } catch (error: any) {
-      console.error("Error getting location:", error);
-
-      if (error.code === 1) {
-        setLocationError(
-          "Location access denied. Please enable location services."
-        );
-      } else if (error.code === 2) {
-        setLocationError("Unable to retrieve your location. Please try again.");
-      } else if (error.code === 3) {
-        setLocationError("Location request timed out. Please try again.");
-      } else {
-        setLocationError(
-          "Failed to get your location. Please search manually."
-        );
-      }
+      console.error("Error getting browser location:", error);
+      setLocationError(
+        error.message || "Failed to get your location. Please search manually."
+      );
     } finally {
       setIsLoadingLocation(false);
     }
@@ -233,6 +309,18 @@ const BannerComponentTest: React.FC = () => {
     }
     router.push(link);
   };
+
+  const getIconColor = (index: number) => {
+    const colors = ["#fff", "#fff", "#fff", "#fff"];
+    return colors[index % colors.length];
+  };
+
+  const features = [
+    "100% Expert Doctors",
+    "Medicine & Instrument",
+    "From Scientific Journal",
+    "Instant Operation",
+  ];
 
   return (
     <Box
@@ -272,6 +360,7 @@ const BannerComponentTest: React.FC = () => {
           zIndex: 1,
         }}
       />
+
       <Box
         sx={{
           flex: 1,
@@ -381,8 +470,6 @@ const BannerComponentTest: React.FC = () => {
             </Alert>
           </motion.div>
         )}
-
-        {/* Search Input and Near Me Button */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -391,339 +478,304 @@ const BannerComponentTest: React.FC = () => {
             display: "flex",
             justifyContent: "center",
             width: "100%",
-            maxWidth: "1000px",
-            marginTop: "15px",
+            maxWidth: "700px",
+            marginTop: "20px",
           }}
         >
           <Paper
             sx={{
-              marginBottom: {
-                xs: "170px",
-                md: "70px",
-              },
               display: "flex",
               alignItems: "center",
-              padding: "4px 15px",
-              borderRadius: "50px",
-              background: "#fff",
-              width: { xs: "90%", sm: "75%", md: "33vw" },
-              justifyContent: "space-between",
-              boxShadow: "0px 4px 15px rgba(0,0,0,0.1)",
-              gap: 0,
+              borderRadius: "8px",
+              width: "100%",
+              border: "1px solid #ccc",
+              boxShadow: "none",
               overflow: "hidden",
             }}
           >
-            <InputBase
-              value={keyword}
-              onChange={handleChange}
-              placeholder="Search by name, specialties, location.."
-              sx={{
-                flex: 1,
-                minWidth: 0,
-                color: "#29175e",
-                fontWeight: 310,
-                fontSize: ".9rem",
-                fontFamily: "Poppins",
-                zIndex: 10,
-              }}
-            />
-
+            {/* Location Field */}
             <Box
               sx={{
                 display: "flex",
-                justifyContent: "center",
                 alignItems: "center",
+                flex: 1,
+                px: 2,
+                py: 1.5,
+                gap: 1,
               }}
             >
-              <motion.div
-                whileHover={{
-                  scale: 1.05,
-                  transition: { duration: 0.3 },
+              <LocationOnIcon fontSize="small" sx={{ color: "gray" }} />
+              <InputBase
+                placeholder="Enter location..."
+                value={locationKeyword}
+                onChange={handleLocationChange}
+                sx={{
+                  flex: 1,
+                  fontSize: "0.95rem",
+                  fontFamily: "Poppins",
+                  color: "#333",
                 }}
-                style={{
-                  position: "relative",
-                  display: "inline-block",
-                  zIndex: 10,
+              />
+              <Button
+                onClick={handleNearMeClick}
+                disabled={isLoadingLocation || isSearchingNearby}
+                sx={{
+                  textTransform: "none",
+                  fontSize: "0.75rem",
+                  fontFamily: "Poppins",
+                  borderRadius: "20px",
+                  backgroundColor: "#b497d6",
+                  color: "#29175e",
+                  px: 1.5,
+                  py: 0.5,
+                  minWidth: "auto",
+                  "&:hover": {
+                    backgroundColor: "#29175e",
+                    color: "#fff",
+                  },
+                  "&:disabled": {
+                    backgroundColor: "#ddd",
+                    color: "#999",
+                  },
                 }}
               >
-                {keyword ? (
-                  <IconButton onClick={handleClear} sx={{ color: "#29175e" }}>
-                    <CloseIcon />
-                  </IconButton>
+                {isLoadingLocation || isSearchingNearby ? (
+                  <CircularProgress size={14} />
                 ) : (
-                  <IconButton sx={{ color: "#29175e" }}>
-                    <SearchIcon />
-                  </IconButton>
+                  "Near Me"
                 )}
-                <Button
-                  onClick={handleNearMeClick}
-                  disabled={isLoadingLocation || isSearchingNearby}
-                  sx={{
-                    textTransform: "none",
-                    fontSize: "0.8rem",
-                    fontWeight: 500,
-                    fontFamily: "Poppins",
-                    borderRadius: "20px",
-                    backgroundColor: "#b497d6",
-                    color: "#29175e",
-                    px: 0.8,
-                    py: 0.2,
-                    "& .MuiButton-startIcon": {
-                      marginRight: "4px",
-                    },
-                    "&:hover": {
-                      backgroundColor: "#29175e",
-                      color: "#fff",
-                      "& .MuiButton-startIcon": {
-                        color: "#fff",
-                      },
-                    },
-                    "&:disabled": {
-                      backgroundColor: "#ddd",
-                      color: "#999",
-                    },
-                  }}
-                >
-                  {isLoadingLocation || isSearchingNearby ? (
-                    <CircularProgress size={16} sx={{ mr: 1 }} />
-                  ) : (
-                    <LocationOnIcon sx={{ fontSize: "1.3rem" }} />
-                  )}
-                  {isLoadingLocation
-                    ? "Getting Location..."
-                    : isSearchingNearby
-                    ? "Searching..."
-                    : userLocation?.city
-                    ? `Near ${userLocation.city}`
-                    : "Near Me"}
-                </Button>
-              </motion.div>
+              </Button>
+            </Box>
+
+            {/* Divider */}
+            <Divider orientation="vertical" flexItem />
+
+            {/* Doctor Name / Specialty Field */}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                flex: 1,
+                px: 2,
+                py: 1.5,
+                gap: 1,
+              }}
+            >
+              <SearchIcon fontSize="small" sx={{ color: "gray" }} />
+              <InputBase
+                placeholder="Search by doctor or specialty..."
+                value={nameKeyword}
+                onChange={handleNameChange}
+                sx={{
+                  flex: 1,
+                  fontSize: "0.95rem",
+                  fontFamily: "Poppins",
+                  color: "#333",
+                }}
+              />
             </Box>
           </Paper>
+        </motion.div>
+
+        {/* Search Results */}
+        {results.length > 0 && (
           <Box
             sx={{
-              position: "absolute",
-              bottom: 0,
-              width: "65%",
-              padding: "12px 0",
-              textAlign: "center",
-              justifyContent: "center",
-              zIndex: 5,
-              mb: "1px",
+              backgroundColor: "white",
+              borderRadius: "10px",
+              overflow: "auto", // allow scroll if needed
+              boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+              mt: 1,
+              display: "flex",
+              flexDirection: "column",
+              width: {
+                xs: "90vw",
+                sm: "70vw",
+                md: "50vw",
+                lg: "40vw",
+                xl: "30vw",
+              },
+              maxHeight: "50vh", // optional: max to prevent going off-screen
+              zIndex: 10,
             }}
           >
-            {results.length > 0 && (
-              <Box
-                sx={{
-                  position: "absolute",
-                  bottom:
-                    results.length < 2
-                      ? "110px"
-                      : results.length < 3
-                      ? "60px"
-                      : "-80px",
-                  left: 0,
-                  right: 0,
-                  backgroundColor: "white",
-                  borderRadius: "5px",
-                  overflow: "scroll",
-                  maxHeight: "300px",
-                  zIndex: 10,
-                  boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-                  "&::-webkit-scrollbar": {
-                    width: "8px",
-                  },
-                  "&::-webkit-scrollbar-track": {
-                    background: "#f1f1f1",
-                    borderRadius: "10px",
-                  },
-                  "&::-webkit-scrollbar-thumb": {
-                    background: "#b497d6",
-                    borderRadius: "10px",
-                  },
-                }}
-              >
-                <List
+            <List
+              sx={{
+                padding: 0,
+                width: "100%",
+                "&::-webkit-scrollbar": {
+                  width: "6px",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  backgroundColor: "#b497d6",
+                  borderRadius: "6px",
+                },
+              }}
+            >
+              {results.map((doctor: any, index: number) => (
+                <ListItem
+                  key={doctor._id || index}
                   sx={{
-                    padding: "0px",
-                    maxHeight: "250px",
-                    overflowY: "auto",
-                    border: "1px solid #ddd",
-                    borderRadius: "10px",
+                    padding: "10px 15px",
+                    cursor: "pointer",
+                    transition: "background-color 0.3s",
+                    "&:hover": {
+                      backgroundColor: "#f4f4f4",
+                    },
                   }}
                 >
-                  {results.map((doctor: any, index: number) => (
-                    <ListItem
-                      key={doctor._id || index}
+                  <Link
+                    href={`/doctors/profile/${doctor._id}`}
+                    passHref
+                    sx={{ textDecoration: "none", width: "100%" }}
+                  >
+                    <ListItemText
+                      primary={`${doctor.username || "Unknown"} - ${
+                        doctor.specializationIds
+                          ?.map((spec: any) => capitalizeFirstLetter(spec.name))
+                          .join(", ") || "Specialty not available"
+                      }`}
                       sx={{
-                        padding: "10px 15px",
+                        "& .MuiListItemText-primary": {
+                          fontSize: "0.9rem",
+                          fontFamily: "Poppins",
+                          color: "#29175e",
+                        },
+                      }}
+                    />
+                  </Link>
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+        )}
+        {/* Action Buttons */}
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: 0,
+            width: "100%",
+            padding: "12px 0",
+            textAlign: "center",
+            justifyContent: "center",
+            zIndex: 5,
+            mb: "20px",
+          }}
+        >
+          <Container>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 1 }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: { xs: "15px", sm: "30px" },
+                  justifyContent: "center",
+                  flexWrap: "wrap",
+                  maxWidth: "600px",
+                  mx: "auto",
+                }}
+              >
+                {[
+                  {
+                    icon: <CalendarMonthIcon />,
+                    text: "View Appointment",
+                    link: "/profile?view=appointments",
+                  },
+                  {
+                    icon: <ScienceIcon />,
+                    text: "View Test",
+                    link: "/profile?view=tests",
+                  },
+                  {
+                    icon: <AssignmentIcon />,
+                    text: "View Treatment",
+                    link: "/profile?view=treatments",
+                  },
+                  {
+                    icon: <LocalPharmacyIcon />,
+                    text: "Billing Details",
+                    link: "/profile?view=billings",
+                  },
+                ].map((item, index) => (
+                  <motion.div
+                    key={index}
+                    whileHover={{ scale: 1.1, y: -5 }}
+                    whileTap={{ scale: 0.95 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                      transition: { delay: 1.2 + index * 0.1 },
+                    }}
+                  >
+                    <Box
+                      onClick={() => handleNavigation(item.link)}
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
                         cursor: "pointer",
-                        transition: "background-color 0.3s",
-                        ":hover": {
-                          backgroundColor: "#f4f4f4",
+                        color: "#b497d6",
+                        background: "rgba(255, 255, 255, 0.1)",
+                        backdropFilter: "blur(5px)",
+                        padding: "15px",
+                        borderRadius: "12px",
+                        transition: "all 0.3s ease",
+                        width: {
+                          xs: "100px", // small screens
+                          sm: "110px", // tablets
+                          md: "100px", // medium+ screens
+                        },
+                        height: {
+                          xs: "100px",
+                          sm: "110px",
+                          md: "100px",
+                        },
+                        "&:hover": {
+                          background: "rgba(255, 255, 255, 0.2)",
+                          boxShadow: "0 8px 15px rgba(0,0,0,0.1)",
                         },
                       }}
                     >
-                      <Link
-                        href={`/doctors/profile/${doctor._id}`}
-                        passHref
-                        sx={{ textDecoration: "none" }}
-                      >
-                        <ListItemText
-                          primary={`${doctor.username || "Unknown"} - ${
-                            doctor.specializationIds
-                              ?.map((spec: any) =>
-                                capitalizeFirstLetter(spec.name)
-                              )
-                              .join(", ") || "Specialty not available"
-                          }`}
-                          sx={{
-                            fontSize: "0.9rem",
-                            textDecoration: "none",
-                            fontfamily: "Poppins",
-                            color: "#29175e",
-                          }}
-                        />
-                      </Link>
-                    </ListItem>
-                  ))}
-                </List>
-              </Box>
-            )}
-
-            <Container>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0, delay: 0 }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    gap: { xs: "20px", sm: "50px" },
-                    mt: 30,
-                    marginBottom: {
-                      xs: "15vh",
-                      md: "0px",
-                    },
-                    maxWidth: "1200px",
-                    flexWrap: { xs: "nowrap", sm: "nowrap" },
-                    justifyContent: { xs: "center", sm: "center" },
-                    padding: { xs: "10px", sm: "0" },
-                    height: {
-                      xs: "auto",
-                      sm: "inherit",
-                    },
-                    width: {
-                      xs: "100%",
-                      sm: "inherit",
-                    },
-                  }}
-                >
-                  {[
-                    {
-                      icon: <CalendarMonthIcon />,
-                      text: "View Appointment",
-                      link: "/profile?view=appointments",
-                    },
-                    {
-                      icon: <ScienceIcon />,
-                      text: "View Test",
-                      link: "/profile?view=tests",
-                    },
-                    {
-                      icon: <AssignmentIcon />,
-                      text: "View Treatment",
-                      link: "/profile?view=treatments",
-                    },
-                    {
-                      icon: <LocalPharmacyIcon />,
-                      text: "Billing Details",
-                      link: "/profile?view=billings",
-                    },
-                  ].map((item, index) => (
-                    <motion.div
-                      key={index}
-                      whileHover={{
-                        scale: 1.1,
-                        y: -5,
-                      }}
-                      whileTap={{ scale: 0.95 }}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{
-                        opacity: 1,
-                        y: 0,
-                        transition: { delay: 0.9 + index * 0.1 },
-                      }}
-                    >
-                      <Box
-                        onClick={() => handleNavigation(item.link)}
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          cursor: "pointer",
-                          color: "#b497d6",
-                          height: "60px",
-                          width: { xs: "70px", sm: "75px" },
-                          background: "rgba(255, 255, 255, 0.1)",
-                          backdropFilter: "blur(5px)",
-                          padding: "15px",
-                          borderRadius: "12px",
-                          transition: "all 0.3s ease",
-                          "&:hover": {
-                            background: "rgba(255, 255, 255, 0.2)",
-                            boxShadow: "0 8px 15px rgba(0,0,0,0.1)",
-                          },
+                      <motion.div
+                        whileHover={{
+                          rotate: [0, -10, 10, -10, 0],
+                          transition: { duration: 0.5 },
+                        }}
+                        style={{
+                          fontSize: "28px",
+                          marginBottom: "8px",
+                          color: getIconColor(index),
                         }}
                       >
-                        <motion.div
-                          whileHover={{
-                            rotate: [0, -10, 10, -10, 0],
-                            transition: { duration: 0.5 },
-                          }}
-                          style={{
-                            fontSize: "25px",
-                            marginBottom: "8px",
-                            color: getIconColor(index),
-                          }}
-                        >
-                          {item.icon}
-                        </motion.div>
-                        <motion.span
-                          style={{
-                            color: "#fff",
-                            fontSize: "14px",
-                            fontFamily: "Poppins",
-                            fontWeight: 550,
-                            marginTop: "10px",
-                          }}
-                          animate={{
-                            color: ["#fff", "#fff", "#b497d6"],
-                            textShadow: [
-                              "0 0 10px rgba(180,151,214,0.5)",
-                              "0 0 20px rgba(180,151,214,0.8)",
-                              "0 0 10px rgba(180,151,214,0.5)",
-                            ],
-                          }}
-                          transition={{
-                            duration: 3,
-                            repeat: Number.POSITIVE_INFINITY,
-                            repeatType: "reverse",
-                          }}
-                        >
-                          {item.text}
-                        </motion.span>
-                      </Box>
-                    </motion.div>
-                  ))}
-                </Box>
-              </motion.div>
-            </Container>
-          </Box>
-        </motion.div>
+                        {item.icon}
+                      </motion.div>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: "#fff",
+                          fontSize: "12px",
+                          fontFamily: "Poppins",
+                          fontWeight: 500,
+                          textAlign: "center",
+                        }}
+                      >
+                        {item.text}
+                      </Typography>
+                    </Box>
+                  </motion.div>
+                ))}
+              </Box>
+            </motion.div>
+          </Container>
+        </Box>
       </Box>
-      {/* Image Section - Only visible on sm breakpoint and larger */}
+
+      {/* Image Section */}
       <Box
         component={motion.div}
         initial={{ opacity: 0, x: 50 }}
@@ -738,9 +790,9 @@ const BannerComponentTest: React.FC = () => {
           backgroundRepeat: "no-repeat",
           overflow: "hidden",
           display: {
-            xs: "none", // Hidden on mobile
-            sm: "none", // Now also hidden on tablets
-            md: "flex", // Only shown on desktop (md) and larger
+            xs: "none",
+            sm: "none",
+            md: "flex",
           },
           borderRadius: "20px",
           margin: { xs: "0 10px", sm: "0 15px", md: "0 20px" },
@@ -769,9 +821,6 @@ const BannerComponentTest: React.FC = () => {
             display: "flex",
             justifyContent: "center",
             width: "100%",
-            "@media (max-width: 600px)": {
-              padding: "10px",
-            },
           }}
         >
           <motion.div
@@ -801,6 +850,7 @@ const BannerComponentTest: React.FC = () => {
           </motion.div>
         </Box>
       </Box>
+
       <AIAssistant />
     </Box>
   );
