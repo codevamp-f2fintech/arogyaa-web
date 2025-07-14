@@ -67,6 +67,7 @@ interface RoomResponse {
   scheduledAt?: string;
 }
 
+
 const AppointmentHistory: React.FC = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [page, setPage] = useState(0);
@@ -172,7 +173,11 @@ const AppointmentHistory: React.FC = () => {
     }
   }, [patientId, page, rowsPerPage]);
 
-  const handlePayNow = async (appointment: Appointment) => {
+ 
+  const handlePayNow = async (
+    appointment: Appointment,
+    isExtension: boolean = false
+  ) => {
     setIsProcessing(true);
     setMessage("");
 
@@ -206,6 +211,8 @@ const AppointmentHistory: React.FC = () => {
         container.innerHTML = res.html;
         document.body.appendChild(container);
         container.querySelector("form")?.submit();
+
+      
       } else {
         setMessage("Payment initiation failed.");
       }
@@ -215,6 +222,49 @@ const AppointmentHistory: React.FC = () => {
       setIsProcessing(false);
     }
   };
+  // const handlePayNow = async (appointment: Appointment) => {
+  //   setIsProcessing(true);
+  //   setMessage("");
+
+  //   try {
+  //     const consultationFeeStr = appointment.doctorId?.consultationFee;
+  //     const consultationFee = Number(consultationFeeStr);
+
+  //     if (!consultationFee || consultationFee <= 0) {
+  //       setMessage(
+  //         "Doctor's consultation fee is not set. Please contact support."
+  //       );
+  //       setIsProcessing(false);
+  //       return;
+  //     }
+
+  //     const paymentData = {
+  //       patientId: appointment.patientId?._id || appointment.patientId,
+  //       doctorId: appointment.doctorId?._id || appointment.doctorId,
+  //       appointmentId: appointment._id,
+  //       amount: consultationFee,
+  //       currency: "INR",
+  //       transactionMethod: "card",
+  //       patientName: appointment.patientId?.username || "",
+  //       doctorName: appointment.doctorId?.username || "",
+  //     };
+
+  //     const res = await creator("payment", "/initiate-payment", paymentData);
+
+  //     if (res?.txnid && res?.html) {
+  //       const container = document.createElement("div");
+  //       container.innerHTML = res.html;
+  //       document.body.appendChild(container);
+  //       container.querySelector("form")?.submit();
+  //     } else {
+  //       setMessage("Payment initiation failed.");
+  //     }
+  //   } catch (error: any) {
+  //     setMessage(error.message || "Error initiating payment.");
+  //   } finally {
+  //     setIsProcessing(false);
+  //   }
+  // };
 
   const fetchTestimonials = async () => {
     // Dummy function - no functionality
@@ -691,16 +741,24 @@ const AppointmentHistory: React.FC = () => {
               display: "flex",
               alignItems: "center",
               gap: 1,
-              width: "100%",
               justifyContent: "space-between",
+              flexWrap: "wrap",
             },
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              flexWrap: "wrap",
+            }}
+          >
             <VideoCall sx={{ fontSize: 20 }} />
             Active call with {activeCall.doctorName} - Expires at{" "}
             {new Date(activeCall.expiresAt).toLocaleTimeString()}
           </Box>
+        
           <Button
             size="small"
             variant="outlined"
@@ -709,6 +767,7 @@ const AppointmentHistory: React.FC = () => {
           >
             Rejoin Call
           </Button>
+
         </Alert>
       )}
 
@@ -722,13 +781,22 @@ const AppointmentHistory: React.FC = () => {
               <TableCell sx={headerStyle} align="center">
                 Doctor
               </TableCell>
-              {anyJoinable && <TableCell sx={headerStyle}align="center">Contact</TableCell>}
-              <TableCell sx={headerStyle}align="center">Date</TableCell>
-              <TableCell sx={headerStyle}align="center">Time</TableCell>
+              <TableCell sx={headerStyle} align="center">
+                Contact
+              </TableCell>
+
+              <TableCell sx={headerStyle} align="center">
+                Date
+              </TableCell>
+              <TableCell sx={headerStyle} align="center">
+                Time
+              </TableCell>
               {/* <TableCell sx={headerStyle}>Type</TableCell> */}
               {/* <TableCell sx={headerStyle}>Hospital</TableCell> */}
               <TableCell sx={headerStyle}>Fees</TableCell>
-              <TableCell sx={headerStyle}align="center">Status</TableCell>
+              <TableCell sx={headerStyle} align="center">
+                Status
+              </TableCell>
               <TableCell sx={headerStyle} align="center">
                 Action
               </TableCell>
@@ -751,48 +819,40 @@ const AppointmentHistory: React.FC = () => {
                   <TableCell>
                     {appointment?.doctorId?.username || "N/A"}
                   </TableCell>
-
-                  {anyJoinable && (
+                  {appointment.paymentStatus === "success" &&
+                  appointment.appointmentType === "online" &&
+                  (() => {
+                    const { canJoin } = getJoinCallInfo(
+                      appointment.appointmentDate,
+                      appointment.appointmentTime
+                    );
+                    return canJoin;
+                  })() ? (
                     <TableCell>
-                      {(() => {
-                        const { canJoin } = getJoinCallInfo(
-                          appointment.appointmentDate,
-                          appointment.appointmentTime
-                        );
-                        if (canJoin) {
-                          return (
-                            <Box
-                              sx={{
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <span>{appointment?.doctorId?.contact || "N/A"}</span>
+                        {appointment?.doctorId?.contact && (
+                          <Tooltip title="Message on WhatsApp">
+                            <a
+                              href={`https://wa.me/91${appointment?.doctorId?.contact}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                color: "#25D366",
                                 display: "flex",
                                 alignItems: "center",
-                                gap: 1,
                               }}
                             >
-                              <span>
-                                {appointment?.doctorId?.contact || "N/A"}
-                              </span>
-                              {appointment?.doctorId?.contact && (
-                                <Tooltip title="Message on WhatsApp">
-                                  <a
-                                    href={`https://wa.me/91${appointment?.doctorId?.contact}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    style={{
-                                      color: "#25D366",
-                                      display: "flex",
-                                      alignItems: "center",
-                                    }}
-                                  >
-                                    <WhatsApp fontSize="small" />
-                                  </a>
-                                </Tooltip>
-                              )}
-                            </Box>
-                          );
-                        }
-                        return "N/A";
-                      })()}
+                              <WhatsApp fontSize="small" />
+                            </a>
+                          </Tooltip>
+                        )}
+                      </Box>
                     </TableCell>
+                  ) : (
+                    <TableCell>-</TableCell>
                   )}
 
                   <TableCell sx={{ textAlign: "center" }}>
@@ -836,7 +896,8 @@ const AppointmentHistory: React.FC = () => {
                     {appointment.appointmentType === "online" ? (
                       <>
                         {appointment.paymentStatus === "success" &&
-                        canCreateRoom(appointment) ? (
+                        canCreateRoom(appointment) &&
+                        appointment.status === "scheduled" ? (
                           <>
                             {(() => {
                               const { canJoin, message } = getJoinCallInfo(
