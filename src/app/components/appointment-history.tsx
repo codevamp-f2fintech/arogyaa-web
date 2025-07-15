@@ -536,11 +536,7 @@ const AppointmentHistory: React.FC = () => {
   const rejoinCall = () => {
     const roomUrl = sessionStorage.getItem("dailyRoom_roomUrl");
     if (roomUrl) {
-      const roomWindow = window.open(
-        roomUrl,
-        "_blank",
-        "width=1200,height=800"
-      );
+      const roomWindow = window.open(roomUrl, "_blank");
 
       // Monitor the reopened window
       const checkClosed = setInterval(() => {
@@ -751,7 +747,7 @@ const AppointmentHistory: React.FC = () => {
           >
             <VideoCall sx={{ fontSize: 20 }} />
             Active call with {activeCall.doctorName} - Expires at{" "}
-            {new Date(activeCall.expiresAt).toLocaleTimeString()}
+            {new Date(activeCall.expiresAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
           </Box>
           {sessionStorage.getItem("dailyRoom_isActive") === "true" ? (
             <Box sx={{ color: "green", fontWeight: "bold" }}>Already Joined</Box>
