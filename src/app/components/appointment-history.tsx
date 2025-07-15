@@ -129,8 +129,8 @@ const AppointmentHistory: React.FC = () => {
               hrs > 0
                 ? `Can join in ${hrs}h:${minsLeft}m`
                 : `Can join in ${String(minsLeft).padStart(2, "0")}m:${String(
-                    secsLeft
-                  ).padStart(2, "0")}s`;
+                  secsLeft
+                ).padStart(2, "0")}s`;
 
             newCountdowns[appointmentId] = countdownText;
           } else {
@@ -154,8 +154,7 @@ const AppointmentHistory: React.FC = () => {
       try {
         const response = await fetcher(
           "appointment",
-          `get-patients-appointment/${patientId}?page=${
-            page + 1
+          `get-patients-appointment/${patientId}?page=${page + 1
           }&limit=${rowsPerPage}`
         );
         if (!response || !response.results) {
@@ -173,7 +172,7 @@ const AppointmentHistory: React.FC = () => {
     }
   }, [patientId, page, rowsPerPage]);
 
- 
+
   const handlePayNow = async (
     appointment: Appointment,
     isExtension: boolean = false
@@ -212,7 +211,7 @@ const AppointmentHistory: React.FC = () => {
         document.body.appendChild(container);
         container.querySelector("form")?.submit();
 
-      
+
       } else {
         setMessage("Payment initiation failed.");
       }
@@ -336,9 +335,8 @@ const AppointmentHistory: React.FC = () => {
           expiresAt: response.expiresAt,
           doctorName: appointment.doctorId.username,
           doctorId: appointment.doctorId._id, // Add this line
-          returnUrl: `${window.location.origin}/profile?rating&doctorId=${
-            appointment.doctorId._id
-          }&doctorName=${encodeURIComponent(appointment.doctorId.username)}`,
+          returnUrl: `${window.location.origin}/profile?rating&doctorId=${appointment.doctorId._id
+            }&doctorName=${encodeURIComponent(appointment.doctorId.username)}`,
           joinedAt: new Date().toISOString(),
         };
 
@@ -610,8 +608,7 @@ const AppointmentHistory: React.FC = () => {
   };
   const getJoinCallInfo = (
     appointmentDate: string,
-    appointmentTime: string,
-    durationMinutes: number = 2
+    appointmentTime: string
   ): {
     canJoin: boolean;
     minutesLeft: number;
@@ -677,9 +674,7 @@ const AppointmentHistory: React.FC = () => {
 
     // ✅ Today: Same-day logic
     const diffMinutes = (apptDateTime.getTime() - now.getTime()) / (1000 * 60);
-    const endTime = new Date(
-      apptDateTime.getTime() + durationMinutes * 60 * 1000
-    );
+    const endTime = new Date(apptDateTime.getTime() + 10 * 60 * 1000); // Allow joining up to 10 minutes after
 
     if (diffMinutes <= 10 && now <= endTime) {
       return {
@@ -687,7 +682,7 @@ const AppointmentHistory: React.FC = () => {
         minutesLeft: Math.ceil(diffMinutes),
         isFuture: false,
         daysUntil: 0,
-        message: `Can join in ${Math.ceil(diffMinutes)} mins`,
+        message: diffMinutes > 0 ? `Can join in ${Math.ceil(diffMinutes)} mins` : "Join now",
       };
     }
 
@@ -758,7 +753,7 @@ const AppointmentHistory: React.FC = () => {
             Active call with {activeCall.doctorName} - Expires at{" "}
             {new Date(activeCall.expiresAt).toLocaleTimeString()}
           </Box>
-        
+
           <Button
             size="small"
             variant="outlined"
@@ -791,8 +786,6 @@ const AppointmentHistory: React.FC = () => {
               <TableCell sx={headerStyle} align="center">
                 Time
               </TableCell>
-              {/* <TableCell sx={headerStyle}>Type</TableCell> */}
-              {/* <TableCell sx={headerStyle}>Hospital</TableCell> */}
               <TableCell sx={headerStyle}>Fees</TableCell>
               <TableCell sx={headerStyle} align="center">
                 Status
@@ -820,14 +813,14 @@ const AppointmentHistory: React.FC = () => {
                     {appointment?.doctorId?.username || "N/A"}
                   </TableCell>
                   {appointment.paymentStatus === "success" &&
-                  appointment.appointmentType === "online" &&
-                  (() => {
-                    const { canJoin } = getJoinCallInfo(
-                      appointment.appointmentDate,
-                      appointment.appointmentTime
-                    );
-                    return canJoin;
-                  })() ? (
+                    appointment.appointmentType === "online" &&
+                    (() => {
+                      const { canJoin } = getJoinCallInfo(
+                        appointment.appointmentDate,
+                        appointment.appointmentTime
+                      );
+                      return canJoin;
+                    })() ? (
                     <TableCell>
                       <Box
                         sx={{ display: "flex", alignItems: "center", gap: 1 }}
@@ -858,25 +851,12 @@ const AppointmentHistory: React.FC = () => {
                   <TableCell sx={{ textAlign: "center" }}>
                     {appointment?.appointmentDate
                       ? new Date(appointment.appointmentDate)
-                          .toISOString()
-                          .split("T")[0]
+                        .toISOString()
+                        .split("T")[0]
                       : "N/A"}
                   </TableCell>
 
                   <TableCell>{appointment?.appointmentTime || "N/A"}</TableCell>
-                  {/* <TableCell>
-                    <Chip
-                      label={appointment?.appointmentType || "N/A"}
-                      color={
-                        appointment?.appointmentType === "online"
-                          ? "info"
-                          : "default"
-                      }
-                      size="small"
-                      variant="outlined"
-                    />
-                  </TableCell> */}
-                  {/* <TableCell>{appointment?.hospitalName || "N/A"}</TableCell> */}
                   <TableCell align="center">
                     {appointment?.doctorId?.consultationFee
                       ? `₹${appointment.doctorId.consultationFee}`
@@ -896,8 +876,8 @@ const AppointmentHistory: React.FC = () => {
                     {appointment.appointmentType === "online" ? (
                       <>
                         {appointment.paymentStatus === "success" &&
-                        canCreateRoom(appointment) &&
-                        appointment.status === "scheduled" ? (
+                          canCreateRoom(appointment) &&
+                          appointment.status === "scheduled" ? (
                           <>
                             {(() => {
                               const { canJoin, message } = getJoinCallInfo(
@@ -959,7 +939,7 @@ const AppointmentHistory: React.FC = () => {
                         ) : (
                           <>
                             <Tooltip
-                              title="First do payment for join call"
+                              title="Payment is required to join the session"
                               arrow
                               componentsProps={{
                                 tooltip: {
