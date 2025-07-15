@@ -353,11 +353,9 @@ const AppointmentHistory: React.FC = () => {
         });
 
         // Open room in a new window/tab
-        const roomWindow = window.open(
-          response.url,
-          "_blank",
-          "width=1200,height=800"
-        );
+        const roomWindow = window.open(response.url, "_blank");
+        // Flag to track if the call is opened in
+        sessionStorage.setItem("dailyRoom_isActive", "true");
 
         // Monitor the room window
         const checkClosed = setInterval(() => {
@@ -411,6 +409,7 @@ const AppointmentHistory: React.FC = () => {
       "doctorId",
       "returnUrl",
       "joinedAt",
+      "dailyRoom_isActive"
     ];
     keysToRemove.forEach((key) => {
       sessionStorage.removeItem(`dailyRoom_${key}`);
@@ -452,6 +451,7 @@ const AppointmentHistory: React.FC = () => {
       "doctorId",
       "returnUrl",
       "joinedAt",
+      "dailyRoom_isActive"
     ];
     keysToRemove.forEach((key) => {
       sessionStorage.removeItem(`dailyRoom_${key}`);
@@ -753,16 +753,19 @@ const AppointmentHistory: React.FC = () => {
             Active call with {activeCall.doctorName} - Expires at{" "}
             {new Date(activeCall.expiresAt).toLocaleTimeString()}
           </Box>
-
-          <Button
-            size="small"
-            variant="outlined"
-            onClick={rejoinCall}
-            sx={{ ml: 2, flexShrink: 0 }}
-          >
-            Rejoin Call
-          </Button>
-
+          {sessionStorage.getItem("dailyRoom_isActive") === "true" ? (
+            <Box sx={{ color: "green", fontWeight: "bold" }}>Already Joined</Box>
+          ) : (
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={rejoinCall}
+              disabled={sessionStorage.getItem("dailyRoom_isActive") === "true"}
+              sx={{ ml: 2, flexShrink: 0 }}
+            >
+              Rejoin Call
+            </Button>
+          )}
         </Alert>
       )}
 
