@@ -149,8 +149,7 @@ const BillingHistory: React.FC = () => {
     try {
       const response = await fetcher(
         "payment",
-        `get-payments-by-patientId/${patientId}?page=${
-          page + 1
+        `get-payments-by-patientId/${patientId}?page=${page + 1
         }&limit=${rowsPerPage}`
       );
 
@@ -327,40 +326,51 @@ const BillingHistory: React.FC = () => {
                       getStatusChip(bill.status)
                     ) : (
                       <Box sx={{ mt: 1 }}>
-                        <Button
-                          variant="contained"
-                          size="medium"
-                          onClick={() => handlePayNow(bill)}
-                          disabled={isProcessing}
-                          sx={{
-                            background:
-                              "linear-gradient(90deg, #9e6df7 0%, #7b56ce 100%)",
-                            boxShadow: "0 6px 20px rgba(123, 86, 206, 0.5)",
-                            color: "#fff",
-                            fontWeight: "bold",
-                            textTransform: "none",
-                            borderRadius: "18px",
-                            px: 1.7,
-                            whiteSpace: "nowrap",
-                            py: 0.5,
+                        {(() => {
+                          const now = new Date(); // Current date and time
+                          const billDate = new Date(bill.createdAt);
+                          const isPast = now > billDate;
 
-                            transition: "all 0.3s ease",
-                            "&:hover": {
-                              background:
-                                "linear-gradient(90deg, #7b56ce 0%, #9e6df7 100%)",
-                              boxShadow: "0 4px 15px rgba(123, 86, 206, 0.4)",
-                            },
-                            "&:disabled": {
-                              background:
-                                "linear-gradient(90deg, #cfcfcf 0%, #ddd 100%)",
-                              color: "#666",
-                              boxShadow: "none",
-                              whiteSpace: "nowrap",
-                            },
-                          }}
-                        >
-                          {isProcessing ? "Processing..." : "Pay Now"}
-                        </Button>
+                          return isPast ? (
+                            <Box sx={{ color: "#fff", fontStyle: "italic" }}>
+                              Payment window has expired
+                            </Box>
+                          ) : (
+                            <Button
+                              variant="contained"
+                              size="medium"
+                              onClick={() => handlePayNow(bill)}
+                              disabled={isProcessing}
+                              sx={{
+                                background:
+                                  "linear-gradient(90deg, #9e6df7 0%, #7b56ce 100%)",
+                                boxShadow: "0 6px 20px rgba(123, 86, 206, 0.5)",
+                                color: "#fff",
+                                fontWeight: "bold",
+                                textTransform: "none",
+                                borderRadius: "18px",
+                                px: 1.7,
+                                whiteSpace: "nowrap",
+                                py: 0.5,
+                                transition: "all 0.3s ease",
+                                "&:hover": {
+                                  background:
+                                    "linear-gradient(90deg, #7b56ce 0%, #9e6df7 100%)",
+                                  boxShadow: "0 4px 15px rgba(123, 86, 206, 0.4)",
+                                },
+                                "&:disabled": {
+                                  background:
+                                    "linear-gradient(90deg, #cfcfcf 0%, #ddd 100%)",
+                                  color: "#666",
+                                  boxShadow: "none",
+                                  whiteSpace: "nowrap",
+                                },
+                              }}
+                            >
+                              {isProcessing ? "Processing..." : "Pay Now"}
+                            </Button>
+                          );
+                        })()}
                       </Box>
                     )}
                   </TableCell>
