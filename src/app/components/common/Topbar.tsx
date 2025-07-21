@@ -314,7 +314,11 @@ const Topbar = () => {
                 backgroundColor: "#5d4993 !important",
                 color: "#fff !important",
                 fontWeight: "bold",
-                borderRadius: "20px",
+                borderRadius: {
+                  xs: "50vh",
+                  sm: "20px",
+                  md: "20px",
+                },
                 boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
                 transition: "all 0.3s ease",
                 display: "flex",
@@ -330,7 +334,7 @@ const Topbar = () => {
                   sm: "4vh",
                 },
                 width: {
-                  xs: "35vw",
+                  xs: "5vw",
                   md: "15vw",
                   sm: "30vw",
                 },

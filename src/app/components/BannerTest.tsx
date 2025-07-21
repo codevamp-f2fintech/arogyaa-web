@@ -396,6 +396,9 @@ const BannerComponentTest: React.FC = () => {
               justifyContent: "center",
               alignItems: "center",
               flexDirection: { xs: "column", md: "row" },
+              ml: {
+                sm: 4,
+              },
             }}
           >
             <span style={{ marginRight: "8px" }}>Welcome to</span>
