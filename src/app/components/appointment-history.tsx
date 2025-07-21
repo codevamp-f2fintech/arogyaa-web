@@ -67,6 +67,7 @@ interface RoomResponse {
   scheduledAt?: string;
 }
 
+
 const AppointmentHistory: React.FC = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [page, setPage] = useState(0);
@@ -128,8 +129,8 @@ const AppointmentHistory: React.FC = () => {
               hrs > 0
                 ? `Can join in ${hrs}h:${minsLeft}m`
                 : `Can join in ${String(minsLeft).padStart(2, "0")}m:${String(
-                    secsLeft
-                  ).padStart(2, "0")}s`;
+                  secsLeft
+                ).padStart(2, "0")}s`;
 
             newCountdowns[appointmentId] = countdownText;
           } else {
@@ -153,8 +154,7 @@ const AppointmentHistory: React.FC = () => {
       try {
         const response = await fetcher(
           "appointment",
-          `get-patients-appointment/${patientId}?page=${
-            page + 1
+          `get-patients-appointment/${patientId}?page=${page + 1
           }&limit=${rowsPerPage}`
         );
         if (!response || !response.results) {
@@ -172,7 +172,11 @@ const AppointmentHistory: React.FC = () => {
     }
   }, [patientId, page, rowsPerPage]);
 
-  const handlePayNow = async (appointment: Appointment) => {
+
+  const handlePayNow = async (
+    appointment: Appointment,
+    isExtension: boolean = false
+  ) => {
     setIsProcessing(true);
     setMessage("");
 
@@ -206,6 +210,8 @@ const AppointmentHistory: React.FC = () => {
         container.innerHTML = res.html;
         document.body.appendChild(container);
         container.querySelector("form")?.submit();
+
+
       } else {
         setMessage("Payment initiation failed.");
       }
@@ -215,6 +221,49 @@ const AppointmentHistory: React.FC = () => {
       setIsProcessing(false);
     }
   };
+  // const handlePayNow = async (appointment: Appointment) => {
+  //   setIsProcessing(true);
+  //   setMessage("");
+
+  //   try {
+  //     const consultationFeeStr = appointment.doctorId?.consultationFee;
+  //     const consultationFee = Number(consultationFeeStr);
+
+  //     if (!consultationFee || consultationFee <= 0) {
+  //       setMessage(
+  //         "Doctor's consultation fee is not set. Please contact support."
+  //       );
+  //       setIsProcessing(false);
+  //       return;
+  //     }
+
+  //     const paymentData = {
+  //       patientId: appointment.patientId?._id || appointment.patientId,
+  //       doctorId: appointment.doctorId?._id || appointment.doctorId,
+  //       appointmentId: appointment._id,
+  //       amount: consultationFee,
+  //       currency: "INR",
+  //       transactionMethod: "card",
+  //       patientName: appointment.patientId?.username || "",
+  //       doctorName: appointment.doctorId?.username || "",
+  //     };
+
+  //     const res = await creator("payment", "/initiate-payment", paymentData);
+
+  //     if (res?.txnid && res?.html) {
+  //       const container = document.createElement("div");
+  //       container.innerHTML = res.html;
+  //       document.body.appendChild(container);
+  //       container.querySelector("form")?.submit();
+  //     } else {
+  //       setMessage("Payment initiation failed.");
+  //     }
+  //   } catch (error: any) {
+  //     setMessage(error.message || "Error initiating payment.");
+  //   } finally {
+  //     setIsProcessing(false);
+  //   }
+  // };
 
   const fetchTestimonials = async () => {
     // Dummy function - no functionality
@@ -286,9 +335,8 @@ const AppointmentHistory: React.FC = () => {
           expiresAt: response.expiresAt,
           doctorName: appointment.doctorId.username,
           doctorId: appointment.doctorId._id, // Add this line
-          returnUrl: `${window.location.origin}/profile?rating&doctorId=${
-            appointment.doctorId._id
-          }&doctorName=${encodeURIComponent(appointment.doctorId.username)}`,
+          returnUrl: `${window.location.origin}/profile?rating&doctorId=${appointment.doctorId._id
+            }&doctorName=${encodeURIComponent(appointment.doctorId.username)}`,
           joinedAt: new Date().toISOString(),
         };
 
@@ -305,11 +353,9 @@ const AppointmentHistory: React.FC = () => {
         });
 
         // Open room in a new window/tab
-        const roomWindow = window.open(
-          response.url,
-          "_blank",
-          "width=1200,height=800"
-        );
+        const roomWindow = window.open(response.url, "_blank");
+        // Flag to track if the call is opened in
+        sessionStorage.setItem("dailyRoom_isActive", "true");
 
         // Monitor the room window
         const checkClosed = setInterval(() => {
@@ -363,6 +409,7 @@ const AppointmentHistory: React.FC = () => {
       "doctorId",
       "returnUrl",
       "joinedAt",
+      "dailyRoom_isActive"
     ];
     keysToRemove.forEach((key) => {
       sessionStorage.removeItem(`dailyRoom_${key}`);
@@ -404,6 +451,7 @@ const AppointmentHistory: React.FC = () => {
       "doctorId",
       "returnUrl",
       "joinedAt",
+      "dailyRoom_isActive"
     ];
     keysToRemove.forEach((key) => {
       sessionStorage.removeItem(`dailyRoom_${key}`);
@@ -488,11 +536,7 @@ const AppointmentHistory: React.FC = () => {
   const rejoinCall = () => {
     const roomUrl = sessionStorage.getItem("dailyRoom_roomUrl");
     if (roomUrl) {
-      const roomWindow = window.open(
-        roomUrl,
-        "_blank",
-        "width=1200,height=800"
-      );
+      const roomWindow = window.open(roomUrl, "_blank");
 
       // Monitor the reopened window
       const checkClosed = setInterval(() => {
@@ -560,8 +604,7 @@ const AppointmentHistory: React.FC = () => {
   };
   const getJoinCallInfo = (
     appointmentDate: string,
-    appointmentTime: string,
-    durationMinutes: number = 2
+    appointmentTime: string
   ): {
     canJoin: boolean;
     minutesLeft: number;
@@ -627,9 +670,7 @@ const AppointmentHistory: React.FC = () => {
 
     // ✅ Today: Same-day logic
     const diffMinutes = (apptDateTime.getTime() - now.getTime()) / (1000 * 60);
-    const endTime = new Date(
-      apptDateTime.getTime() + durationMinutes * 60 * 1000
-    );
+    const endTime = new Date(apptDateTime.getTime() + 10 * 60 * 1000); // Allow joining up to 10 minutes after
 
     if (diffMinutes <= 10 && now <= endTime) {
       return {
@@ -637,7 +678,7 @@ const AppointmentHistory: React.FC = () => {
         minutesLeft: Math.ceil(diffMinutes),
         isFuture: false,
         daysUntil: 0,
-        message: `Can join in ${Math.ceil(diffMinutes)} mins`,
+        message: diffMinutes > 0 ? `Can join in ${Math.ceil(diffMinutes)} mins` : "Join now",
       };
     }
 
@@ -691,24 +732,36 @@ const AppointmentHistory: React.FC = () => {
               display: "flex",
               alignItems: "center",
               gap: 1,
-              width: "100%",
               justifyContent: "space-between",
+              flexWrap: "wrap",
             },
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              flexWrap: "wrap",
+            }}
+          >
             <VideoCall sx={{ fontSize: 20 }} />
             Active call with {activeCall.doctorName} - Expires at{" "}
-            {new Date(activeCall.expiresAt).toLocaleTimeString()}
+            {new Date(activeCall.expiresAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
           </Box>
-          <Button
-            size="small"
-            variant="outlined"
-            onClick={rejoinCall}
-            sx={{ ml: 2, flexShrink: 0 }}
-          >
-            Rejoin Call
-          </Button>
+          {sessionStorage.getItem("dailyRoom_isActive") === "true" ? (
+            <Box sx={{ color: "green", fontWeight: "bold" }}>Already Joined</Box>
+          ) : (
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={rejoinCall}
+              disabled={sessionStorage.getItem("dailyRoom_isActive") === "true"}
+              sx={{ ml: 2, flexShrink: 0 }}
+            >
+              Rejoin Call
+            </Button>
+          )}
         </Alert>
       )}
 
@@ -722,13 +775,20 @@ const AppointmentHistory: React.FC = () => {
               <TableCell sx={headerStyle} align="center">
                 Doctor
               </TableCell>
-              {anyJoinable && <TableCell sx={headerStyle}align="center">Contact</TableCell>}
-              <TableCell sx={headerStyle}align="center">Date</TableCell>
-              <TableCell sx={headerStyle}align="center">Time</TableCell>
-              {/* <TableCell sx={headerStyle}>Type</TableCell> */}
-              {/* <TableCell sx={headerStyle}>Hospital</TableCell> */}
+              <TableCell sx={headerStyle} align="center">
+                Contact
+              </TableCell>
+
+              <TableCell sx={headerStyle} align="center">
+                Date
+              </TableCell>
+              <TableCell sx={headerStyle} align="center">
+                Time
+              </TableCell>
               <TableCell sx={headerStyle}>Fees</TableCell>
-              <TableCell sx={headerStyle}align="center">Status</TableCell>
+              <TableCell sx={headerStyle} align="center">
+                Status
+              </TableCell>
               <TableCell sx={headerStyle} align="center">
                 Action
               </TableCell>
@@ -751,72 +811,51 @@ const AppointmentHistory: React.FC = () => {
                   <TableCell>
                     {appointment?.doctorId?.username || "N/A"}
                   </TableCell>
-
-                  {anyJoinable && (
+                  {appointment.paymentStatus === "success" &&
+                    appointment.appointmentType === "online" &&
+                    (() => {
+                      const { canJoin } = getJoinCallInfo(
+                        appointment.appointmentDate,
+                        appointment.appointmentTime
+                      );
+                      return canJoin;
+                    })() ? (
                     <TableCell>
-                      {(() => {
-                        const { canJoin } = getJoinCallInfo(
-                          appointment.appointmentDate,
-                          appointment.appointmentTime
-                        );
-                        if (canJoin) {
-                          return (
-                            <Box
-                              sx={{
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <span>{appointment?.doctorId?.contact || "N/A"}</span>
+                        {appointment?.doctorId?.contact && (
+                          <Tooltip title="Message on WhatsApp">
+                            <a
+                              href={`https://wa.me/91${appointment?.doctorId?.contact}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                color: "#25D366",
                                 display: "flex",
                                 alignItems: "center",
-                                gap: 1,
                               }}
                             >
-                              <span>
-                                {appointment?.doctorId?.contact || "N/A"}
-                              </span>
-                              {appointment?.doctorId?.contact && (
-                                <Tooltip title="Message on WhatsApp">
-                                  <a
-                                    href={`https://wa.me/91${appointment?.doctorId?.contact}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    style={{
-                                      color: "#25D366",
-                                      display: "flex",
-                                      alignItems: "center",
-                                    }}
-                                  >
-                                    <WhatsApp fontSize="small" />
-                                  </a>
-                                </Tooltip>
-                              )}
-                            </Box>
-                          );
-                        }
-                        return "N/A";
-                      })()}
+                              <WhatsApp fontSize="small" />
+                            </a>
+                          </Tooltip>
+                        )}
+                      </Box>
                     </TableCell>
+                  ) : (
+                    <TableCell>-</TableCell>
                   )}
 
                   <TableCell sx={{ textAlign: "center" }}>
                     {appointment?.appointmentDate
                       ? new Date(appointment.appointmentDate)
-                          .toISOString()
-                          .split("T")[0]
+                        .toISOString()
+                        .split("T")[0]
                       : "N/A"}
                   </TableCell>
 
                   <TableCell>{appointment?.appointmentTime || "N/A"}</TableCell>
-                  {/* <TableCell>
-                    <Chip
-                      label={appointment?.appointmentType || "N/A"}
-                      color={
-                        appointment?.appointmentType === "online"
-                          ? "info"
-                          : "default"
-                      }
-                      size="small"
-                      variant="outlined"
-                    />
-                  </TableCell> */}
-                  {/* <TableCell>{appointment?.hospitalName || "N/A"}</TableCell> */}
                   <TableCell align="center">
                     {appointment?.doctorId?.consultationFee
                       ? `₹${appointment.doctorId.consultationFee}`
@@ -835,120 +874,144 @@ const AppointmentHistory: React.FC = () => {
                   <TableCell align="center">
                     {appointment.appointmentType === "online" ? (
                       <>
-                        {appointment.paymentStatus === "success" &&
-                        canCreateRoom(appointment) ? (
-                          <>
+                        {appointment.paymentStatus === "pending" ? (
+                          // Show Pay Now button when paymentStatus is "pending"
+                          <Tooltip
+                            title={
+                              (() => {
+                                const now = new Date();
+                                const apptDate = new Date(appointment.appointmentDate);
+                                const [time, period] = appointment.appointmentTime.split(" ");
+                                const [hours, minutes] = time.split(":").map(Number);
+                                let apptHour = hours;
+                                if (period === "PM" && hours !== 12) apptHour += 12;
+                                if (period === "AM" && hours === 12) apptHour = 0;
+                                apptDate.setHours(apptHour, minutes, 0, 0);
+                                const isPast = now > apptDate;
+                                return isPast ? "Payment window has expired" : "Payment is required to join the session";
+                              })()
+                            }
+                            arrow
+                            componentsProps={{
+                              tooltip: {
+                                sx: {
+                                  backgroundColor: "#fff",
+                                  color: "#7b56ce",
+                                  fontSize: "14px",
+                                  fontWeight: "bold",
+                                  borderRadius: "8px",
+                                  px: 1,
+                                  py: 0.6,
+                                },
+                              },
+                              arrow: {
+                                sx: {
+                                  color: "#fff",
+                                },
+                              },
+                            }}
+                          >
                             {(() => {
-                              const { canJoin, message } = getJoinCallInfo(
-                                appointment.appointmentDate,
-                                appointment.appointmentTime
-                              );
+                              const now = new Date();
+                              const apptDate = new Date(appointment.appointmentDate);
+                              const [time, period] = appointment.appointmentTime.split(" ");
+                              const [hours, minutes] = time.split(":").map(Number);
+                              let apptHour = hours;
+                              if (period === "PM" && hours !== 12) apptHour += 12;
+                              if (period === "AM" && hours === 12) apptHour = 0;
+                              apptDate.setHours(apptHour, minutes, 0, 0);
+                              const isPast = now > apptDate;
 
-                              return (
-                                <>
-                                  <Button
-                                    variant="contained"
-                                    size="small"
-                                    startIcon={
-                                      creatingRoom === appointment._id ? (
-                                        <CircularProgress
-                                          size={16}
-                                          color="inherit"
-                                        />
-                                      ) : (
-                                        <VideoCall />
-                                      )
-                                    }
-                                    onClick={() => createRoom(appointment)}
-                                    disabled={
-                                      creatingRoom === appointment._id ||
-                                      activeCall !== null ||
-                                      !canJoin
-                                    }
-                                    sx={{
-                                      backgroundColor: "#4caf50",
-                                      "&:hover": { backgroundColor: "#45a049" },
-                                      "&:disabled": {
-                                        backgroundColor: "#cccccc",
-                                      },
-                                      textTransform: "none",
-                                      whiteSpace: "nowrap",
-                                    }}
-                                  >
-                                    {creatingRoom === appointment._id
-                                      ? "Creating..."
-                                      : "Join Call"}
-                                  </Button>
-
-                                  {!canJoin && (
-                                    <Box
-                                      sx={{
-                                        mt: 1,
-                                        fontSize: "12px",
-                                        color: "#fff",
-                                      }}
-                                    >
-                                      {countdowns[appointment._id] || message}
-                                    </Box>
-                                  )}
-                                </>
+                              return isPast ? (
+                                <Box sx={{ color: "#fff", fontStyle: "italic" }}>
+                                  Payment window has expired
+                                </Box>
+                              ) : (
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  color="warning"
+                                  onClick={() => handlePayNow(appointment)}
+                                  sx={{
+                                    background: "linear-gradient(90deg, #7b56ce 0%, #9e6df7 100%)",
+                                    color: "#fff",
+                                    fontWeight: "bold",
+                                    textTransform: "none",
+                                    borderRadius: "30px",
+                                    px: 2,
+                                    py: 0.5,
+                                    boxShadow: "0 4px 15px rgba(123, 86, 206, 0.4)",
+                                    transition: "all 0.3s ease",
+                                    whiteSpace: "nowrap",
+                                    "&:hover": {
+                                      background: "linear-gradient(90deg, #9e6df7 0%, #7b56ce 100%)",
+                                      boxShadow: "0 6px 20px rgba(123, 86, 206, 0.5)",
+                                    },
+                                  }}
+                                >
+                                  Pay Now
+                                </Button>
                               );
                             })()}
-                          </>
+                          </Tooltip>
+                        ) : appointment.paymentStatus === "success" ? (
+                          // Handle cases when paymentStatus is "success"
+                          appointment.status === "scheduled" && canCreateRoom(appointment) ? (
+                            // Show Join Call button when status is "scheduled" and room can be created
+                            <>
+                              {(() => {
+                                const { canJoin, message } = getJoinCallInfo(
+                                  appointment.appointmentDate,
+                                  appointment.appointmentTime
+                                );
+                                return (
+                                  <>
+                                    <Button
+                                      variant="contained"
+                                      size="small"
+                                      startIcon={
+                                        creatingRoom === appointment._id ? (
+                                          <CircularProgress size={16} color="inherit" />
+                                        ) : (
+                                          <VideoCall />
+                                        )
+                                      }
+                                      onClick={() => createRoom(appointment)}
+                                      disabled={
+                                        creatingRoom === appointment._id ||
+                                        activeCall !== null ||
+                                        !canJoin
+                                      }
+                                      sx={{
+                                        backgroundColor: "#4caf50",
+                                        "&:hover": { backgroundColor: "#45a049" },
+                                        "&:disabled": { backgroundColor: "#cccccc" },
+                                        textTransform: "none",
+                                        whiteSpace: "nowrap",
+                                      }}
+                                    >
+                                      {creatingRoom === appointment._id ? "Creating..." : "Join Call"}
+                                    </Button>
+                                    {!canJoin && (
+                                      <Box sx={{ mt: 1, fontSize: "12px", color: "#fff" }}>
+                                        {countdowns[appointment._id] || message}
+                                      </Box>
+                                    )}
+                                  </>
+                                );
+                              })()}
+                            </>
+                          ) : (
+                            // Show message when status is "pending" (or not "scheduled")
+                            <Box sx={{ color: "#fff", fontStyle: "italic" }}>
+                              {appointment.status === "completed" ? "Attended The Session" : appointment.status === "rejected" ? "Doctor is busy, choose another appointment slot" : "Doctor has not yet scheduled this appointment."}
+                            </Box>
+                          )
                         ) : (
-                          <>
-                            <Tooltip
-                              title="First do payment for join call"
-                              arrow
-                              componentsProps={{
-                                tooltip: {
-                                  sx: {
-                                    backgroundColor: "#fff",
-                                    color: "#7b56ce",
-                                    fontSize: "14px",
-                                    fontWeight: "bold",
-                                    borderRadius: "8px",
-                                    px: 1,
-                                    py: 0.6,
-                                  },
-                                },
-                                arrow: {
-                                  sx: {
-                                    color: "#fff",
-                                  },
-                                },
-                              }}
-                            >
-                              <Button
-                                variant="contained"
-                                size="small"
-                                color="warning"
-                                onClick={() => handlePayNow(appointment)}
-                                sx={{
-                                  background:
-                                    "linear-gradient(90deg, #7b56ce 0%, #9e6df7 100%)",
-                                  color: "#fff",
-                                  fontWeight: "bold",
-                                  textTransform: "none",
-                                  borderRadius: "30px",
-                                  px: 2,
-                                  py: 0.5,
-                                  boxShadow:
-                                    "0 4px 15px rgba(123, 86, 206, 0.4)",
-                                  transition: "all 0.3s ease",
-                                  whiteSpace: "nowrap",
-                                  "&:hover": {
-                                    background:
-                                      "linear-gradient(90deg, #9e6df7 0%, #7b56ce 100%)",
-                                    boxShadow:
-                                      "0 6px 20px rgba(123, 86, 206, 0.5)",
-                                  },
-                                }}
-                              >
-                                Pay Now
-                              </Button>
-                            </Tooltip>
-                          </>
+                          // Optional: Handle other payment statuses (e.g., "failed", null)
+                          <Box sx={{ color: "#fff" }}>
+                            Payment status: {appointment.paymentStatus || "Unknown"}
+                          </Box>
                         )}
                       </>
                     ) : (
