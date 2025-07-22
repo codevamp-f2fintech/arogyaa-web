@@ -336,7 +336,6 @@ const UserProfile = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(135deg, #20ADA0 0%, #B6DADA 100%)",
         }}
       ></Box>
     );
@@ -368,7 +367,17 @@ const UserProfile = () => {
           },
         }}
       >
-        <Grid item xs={12} md={4}>
+        <Grid
+          item
+          xs={12}
+          md={4}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+
+            alignItems: "center",
+          }}
+        >
           <Box
             sx={{
               background: "linear-gradient(135deg, #6B46C1 0%, #9F7AEA 100%)",

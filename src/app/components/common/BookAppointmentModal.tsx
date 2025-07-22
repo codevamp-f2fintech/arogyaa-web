@@ -83,10 +83,13 @@ const today = dayjs().format("YYYY-MM-DD");
 
 const inputStyles = {
   fontFamily: "Poppins",
-  backgroundColor: "white",
+  backgroundColor: "transparent",
   "& .MuiInputBase-root": {
     fontFamily: "Poppins",
-    backgroundColor: "white",
+    backgroundColor: "transparent",
+  },
+  "& .MuiSelect-select": {
+    color: "#29175E", // 👈 Selected text color
   },
   "& .MuiInputLabel-root": {
     color: "#29175E",
@@ -113,6 +116,9 @@ const inputStyles = {
   InputAdornment: {
     color: "#7A4D9C",
   },
+  // "& .css-6hp17o-MuiList-root-MuiMenu-list": {
+  //   background: "#000 !important",
+  // },
 };
 
 const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
@@ -525,10 +531,22 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
   );
 
   const priceWrapSx = {
+    width: {
+      xs: "97%",
+      md: "inherit",
+      sm: "inherit",
+      xl: "inherit",
+    },
+    overflowX: {
+      xs: "auto",
+      sm: "inherit",
+      md: "inherit",
+    },
+    maxWidth: "100%",
+
     "& .price_header_txt": {
       fontSize: "1.1rem",
       fontWeight: 600,
-
       color: "#fff",
       lineHeight: "1.9rem",
       padding: "2px 10px",
@@ -608,9 +626,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
             transform: "translate(-50%, -50%)",
             width: "90%",
             maxWidth: "1200px",
-            background: "rgb(188,174,224)",
-            background:
-              "linear-gradient(180deg, rgba(188,174,224,1) 0%, rgba(255,255,255,1) 100%)",
+            background: "#beb0e1",
             boxShadow: 24,
             borderRadius: "8px",
             overflowY: "hidden",
@@ -632,7 +648,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                 display: "flex",
                 flexDirection: {
                   xs: "column",
-                  sm: "row",
+                  sm: "column",
                 },
                 justifyContent: "space-between",
                 alignItems: {
@@ -825,7 +841,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         paddingTop: "10px",
                         borderColor: "#efefef",
                         marginBottom: "10px",
-                        border: "1px solid #b1b1b1",
+                        border: "1px solid #000",
                       },
                       "& .MuiPickersTextField": {
                         width: "100%",
@@ -868,6 +884,23 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                               onChange={handleHospitalChange}
                               label="Hospital"
                               sx={inputStyles}
+                              MenuProps={{
+                                disablePortal: false,
+                                PaperProps: {
+                                  sx: {
+                                    backgroundColor: "#fff",
+                                    color: "#000",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    "& li": {
+                                      color: "#000",
+                                      backgroundColor: "transparent",
+                                    },
+                                  },
+                                },
+                                ...inputStyles,
+                              }}
                             >
                               {[
                                 ...new Map(
@@ -890,16 +923,19 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         <Box
                           sx={{
                             marginBottom: 2,
-
                             "& .MuiFormLabel-root": {
                               color: "#29175E",
                               fontFamily: "Poppins",
                             },
                             "& .MuiInputBase-root": {
-                              backgroundColor: "#fff",
+                              backgroundColor: "transparent",
                               borderRadius: "4px",
                               fontFamily: "Poppins",
-                              width: "130%",
+                              width: {
+                                xs: "73.5vw",
+                                md: "25.6vw !important",
+                                sm: "100%",
+                              },
                             },
                             "& .MuiOutlinedInput-root": {
                               "& fieldset": {
@@ -916,6 +952,38 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         >
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DatePicker
+                              slotProps={{
+                                calendarHeader: {
+                                  sx: {
+                                    "& .MuiDayCalendar-weekDayLabel": {
+                                      fontFamily: "Poppins",
+                                    },
+                                  },
+                                },
+                                day: {
+                                  sx: {
+                                    fontFamily: "Poppins",
+                                    "&.Mui-selected": {
+                                      backgroundColor: "#000",
+                                      color: "#fff", // Selected date text
+                                    },
+
+                                    "&:hover": {
+                                      backgroundColor: "#E0D7FF",
+                                    },
+                                  },
+                                },
+                                desktopPaper: {
+                                  sx: {
+                                    backgroundColor: "#fff", // Calendar overall background
+                                    borderRadius: 2,
+                                    color: "black !important",
+                                  },
+                                },
+                              }}
+                              renderInput={(params) => (
+                                <TextField {...params} fullWidth /*...*/ />
+                              )}
                               label="Date Of Appointment *"
                               disablePast
                               inputFormat="YYYY-MM-DD"
@@ -974,7 +1042,9 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                                     shrink: true,
                                     sx: {
                                       fontFamily: "Poppins",
-                                      color: "#29175E",
+                                      color: "#000",
+                                      width: "10vw",
+
                                       "&.Mui-focused": {
                                         color: "#29175E",
                                       },
@@ -1036,7 +1106,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           sx={{
                             marginBottom: "7px",
                             "& input": {
-                              background: "#fff",
+                              background: "transparent !important",
                               borderRadius: "6px",
                               padding: "12px 12px",
                               fontFamily: "Poppins",
@@ -1123,7 +1193,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           }}
                           sx={{
                             ...inputStyles,
-                            background: "#fff",
+                            background: "transparent",
                             padding: "4px 2px",
                           }}
                           renderInput={(params) => (
@@ -1188,7 +1258,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                                 fullWidth
                                 variant="outlined"
                                 sx={{
-                                  backgroundColor: "white",
+                                  backgroundColor: "",
                                   "& .MuiOutlinedInput-root": {
                                     "& fieldset": { borderColor: "#29175E" },
                                     "&:hover fieldset": {
@@ -1231,7 +1301,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           autoFocus
                           sx={{
                             ...inputStyles,
-                            background: "#fff",
+                            background: "transparent",
                             marginTop: "10px",
                             marginBottom: "2px",
                             "&:hover": {
@@ -1258,11 +1328,25 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                             touched.description && Boolean(errors.description)
                           }
                           helperText={touched.description && errors.description}
-                        />{" "}
+                        />
                       </Grid>
                       {/* ===== Middle Section (Dynamic Time Slots) ===== */}
                       <Field type="hidden" name="appointmentTime" />{" "}
-                      <Grid item xs={12} sm={4} md={4}>
+                      <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                        md={4}
+                        sx={{
+                          height: {
+                            xs: "",
+                            md: "",
+                            sm: "45vh",
+                          },
+                          display: "flex",
+                          flexDirection: "column",
+                        }}
+                      >
                         <Box sx={priceWrapSx}>
                           {/* Morning Slots */}
                           {(!values.appointmentDate ||
@@ -1270,7 +1354,11 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                             <Box
                               component="fieldset"
                               className="fieldset_wrap"
-                              sx={{ marginTop: "-7px" }}
+                              sx={
+                                {
+                                  // marginTop: "-7px",
+                                }
+                              }
                             >
                               <legend className="fldset_lgend">
                                 Morning Slots
@@ -1479,20 +1567,170 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                             {errors.appointmentTime}
                           </Typography>
                         )}
+                        {/* // Upload a video section in Tab // */}
+                        {/* <Field name="video">
+                          {({ field }) => (
+                            <Box
+                              sx={{
+                                mt: 2,
+                                p: 1,
+                                border: "1px solid #e0e0e0",
+                                borderRadius: "8px",
+                                backgroundColor: "#d9d1ed",
+                                boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+                                transition: "all 0.3s ease",
+                                display: {
+                                  xs: "none",
+                                  md: "none",
+                                  sm: "flow",
+                                  xl: "none",
+                                },
+                                "&:hover": {
+                                  boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                                  borderColor: "#29175E",
+                                },
+                              }}
+                            >
+                              <Typography
+                                variant="h6"
+                                sx={{
+                                  fontSize: "1rem",
+                                  fontWeight: 600,
+                                  color: "#29175E",
+                                  mb: 1,
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <BookOnlineIcon sx={{ mr: 1 }} />
+                                Upload a Video
+                              </Typography>
+
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  marginBottom: "10px",
+                                  mb: 0.6,
+                                  color: "#555",
+                                  backgroundColor: "29175E",
+                                  p: 0.8,
+                                  borderRadius: "4px",
+                                  borderLeft: "4px solid #29175E",
+                                  fontWeight: 400,
+                                }}
+                              >
+                                <strong>
+                                  Explain your symptoms in video (optional):
+                                </strong>{" "}
+                                "Record a short video explaining your symptoms,
+                                This will help your doctor prepare for your
+                                appointment."
+                              </Typography>
+
+                              <TextField
+                                type="file"
+                                inputProps={{ accept: "video/*" }}
+                                onChange={(event) => {
+                                  const file = event.target.files?.[0];
+                                  if (file && file.size > 50 * 1024 * 1024) {
+                                    // 50MB in bytes
+                                    alert(
+                                      "File size exceeds 50MB. Please upload a smaller file."
+                                    );
+                                  } else {
+                                    setFieldValue("videoUrl", file);
+                                  }
+                                }}
+                                fullWidth
+                                variant="outlined"
+                                placeholder="No file chosen"
+                                InputProps={{
+                                  startAdornment: (
+                                    <InputAdornment position="start">
+                                      <CalendarMonthIcon
+                                        sx={{
+                                          color: "#29175E",
+                                          fontSize: "20px",
+                                        }}
+                                      />
+                                    </InputAdornment>
+                                  ),
+                                }}
+                                sx={{
+                                  "& .MuiOutlinedInput-root": {
+                                    backgroundColor: "#fff",
+                                    borderRadius: "6px",
+                                    fontSize: "15px",
+                                    "&:hover .MuiOutlinedInput-notchedOutline":
+                                      {
+                                        borderColor: "#29175E",
+                                      },
+                                    "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                      {
+                                        borderColor: "#29175E",
+                                      },
+                                  },
+                                  "& input": {
+                                    padding: "12px 10px 12px 5px",
+                                    color: "#000",
+                                  },
+                                }}
+                                error={
+                                  touched.videoUrl && Boolean(errors.videoUrl)
+                                }
+                                helperText={touched.videoUrl && errors.videoUrl}
+                              />
+
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  display: "block",
+                                  mt: 0.4,
+                                  color: "#666",
+                                }}
+                              >
+                                Supported formats: MP4, MOV, AVI (max size 50MB)
+                              </Typography>
+                            </Box>
+                          )}
+                        </Field> */}
                       </Grid>
                       {/* ===== Right Section (Price/Consultation/Payment Details) ===== */}
-                      <Grid item xs={12} sm={4} md={4}>
+                      <Grid
+                        item
+                        xs={12}
+                        sm={14}
+                        md={4}
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: {
+                            xs: "center",
+                            md: "inherit",
+                            sm: "inherit",
+                            xl: "inherit",
+                          },
+                        }}
+                      >
                         <Field name="video">
                           {({ field }) => (
+                            // Upload a video section //
                             <Box
                               sx={{
                                 mt: 0,
                                 p: 1,
                                 border: "1px solid #e0e0e0",
                                 borderRadius: "8px",
-                                backgroundColor: "#f8f8ff",
+                                backgroundColor: "#d9d1ed",
                                 boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
                                 transition: "all 0.3s ease",
+                                display: {
+                                  sm: "flow",
+                                  md: "flow",
+                                  xs: "flow",
+                                  xl: "flow",
+                                },
                                 "&:hover": {
                                   boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
                                   borderColor: "#29175E",
@@ -1563,7 +1801,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                                 }}
                                 sx={{
                                   "& .MuiOutlinedInput-root": {
-                                    backgroundColor: "#fff",
+                                    backgroundColor: "#d9d1ed",
                                     borderRadius: "6px",
                                     "&:hover .MuiOutlinedInput-notchedOutline":
                                       {
@@ -1575,7 +1813,8 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                                       },
                                   },
                                   "& input": {
-                                    padding: "12px 10px 12px 0",
+                                    padding: "12px 10px 12px 5px",
+                                    color: "#000",
                                   },
                                 }}
                                 error={
@@ -1599,7 +1838,11 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         </Field>
                         <br />
                         <Box
-                          sx={{ ...priceWrapSx, border: "1px solid #7A4D9C" }}
+                          sx={{
+                            ...priceWrapSx,
+                            border: "1px solid #7A4D9C",
+                            borderRadius: "15px",
+                          }}
                         >
                           <Typography
                             sx={{
@@ -1649,7 +1892,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                             </Typography>
                           </Box>
                         </Box>
-                      </Grid>{" "}
+                      </Grid>
                     </Grid>
                   </Box>
 

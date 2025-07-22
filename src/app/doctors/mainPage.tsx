@@ -354,8 +354,8 @@ export default function DoctorListing() {
             alignItems: "center",
           }}
         >
-          {/* Search Bar on the Left */}
-          <Grid item xs={12} sm={8} md={8}>
+          {/* Search Bar Section */}
+          <Grid item xs={12} md={8} lg={8}>
             <Paper
               component="form"
               className={styles.searchBarWrapper}
@@ -404,37 +404,66 @@ export default function DoctorListing() {
             </Paper>
           </Grid>
 
-          {/* Filters on the Right */}
-          <Grid item xs={12} sm={4} md={4}>
+          {/* Filters Section */}
+          <Grid item xs={12} md={4} lg={4}>
             <Box
               sx={{
                 display: "flex",
-                justifyContent: "flex-end",
-                gap: "16px",
+                flexDirection: {
+                  xs: "column",
+                  sm: "row",
+                  md: "column",
+                  lg: "row",
+                },
+                justifyContent: {
+                  xs: "center",
+                  sm: "flex-start",
+                  md: "flex-end",
+                },
+                gap: { xs: 2, sm: 1, md: 2 },
+                alignItems: {
+                  xs: "stretch",
+                  sm: "center",
+                  md: "stretch",
+                  lg: "center",
+                },
+                width: "100%",
               }}
             >
               {/* Location Filter */}
               <FormControl
-                fullWidth
                 variant="outlined"
                 size="small"
                 sx={{
-                  background: "#f7f6fb",
+                  background: "#f7f6f5",
                   borderRadius: "40px",
-                  minWidth: 190,
+                  minWidth: { xs: "100%", sm: 160, md: 180, lg: 190 },
+                  width: { xs: "100%", sm: "auto" },
                   "&:hover": {
                     "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#665dfe",
+                      borderColor: "#2ecc71",
                     },
+                  },
+                  "& .MuiOutlinedInput-input": {
+                    py: "10px",
+                    px: 1,
+                    fontSize: { xs: "0.875rem", sm: "1rem" },
+                  },
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "transparent",
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#2ecc71 !important", // ✅ Hover border black
                   },
                 }}
               >
                 <InputLabel
                   htmlFor="location-search"
                   sx={{
-                    backgroundColor: "#f7f6fb",
+                    backgroundColor: "#f7f6f5",
                     px: 1,
                     transition: "all 0.3s ease-in-out",
+                    fontSize: { xs: "0.875rem", sm: "1rem" },
                     "&.MuiInputLabel-shrink": {
                       transform: "translate(14px, -9px) scale(0.75)",
                       px: 1,
@@ -457,7 +486,7 @@ export default function DoctorListing() {
                       position="start"
                       sx={{ color: "#665dfe", ml: 1 }}
                     >
-                      <LocationOnIcon /> {/* Changed from SearchIcon */}
+                      <LocationOnIcon />
                     </InputAdornment>
                   }
                   sx={{
@@ -465,6 +494,7 @@ export default function DoctorListing() {
                     "& .MuiOutlinedInput-input": {
                       py: "10px",
                       px: 1,
+                      fontSize: { xs: "0.875rem", sm: "1rem" },
                     },
                     "& .MuiOutlinedInput-notchedOutline": {
                       borderColor: "transparent",
@@ -482,21 +512,22 @@ export default function DoctorListing() {
 
               {/* Gender Filter */}
               <FormControl
-                fullWidth
                 variant="outlined"
                 size="small"
                 sx={{
-                  background: "#f7f6fb",
+                  background: "#f7f6f5",
                   borderRadius: "30px",
-                  minWidth: 190,
+                  minWidth: { xs: "100%", sm: 160, md: 180, lg: 190 },
+                  width: { xs: "100%", sm: "auto" },
                 }}
               >
                 <InputLabel
                   id="gender-label"
                   sx={{
-                    backgroundColor: "#f7f6fb",
+                    backgroundColor: "#f7f6f5",
                     px: 1,
                     transition: "all 0.3s ease-in-out",
+                    fontSize: { xs: "0.875rem", sm: "1rem" },
                     "&.MuiInputLabel-shrink": {
                       px: 1,
                       borderRadius: "100px",
@@ -515,6 +546,9 @@ export default function DoctorListing() {
                     "& .MuiOutlinedInput-notchedOutline": {
                       borderRadius: "40px",
                     },
+                    "& .MuiSelect-select": {
+                      fontSize: { xs: "0.875rem", sm: "1rem" },
+                    },
                   }}
                 >
                   <MenuItem value="">
@@ -528,22 +562,23 @@ export default function DoctorListing() {
 
               {/* Experience Filter */}
               <FormControl
-                fullWidth
                 variant="outlined"
                 size="small"
                 sx={{
-                  background: "#f7f6fb",
+                  background: "#f7f6f5",
                   borderRadius: "30px",
-                  minWidth: 190,
+                  minWidth: { xs: "100%", sm: 160, md: 180, lg: 190 },
+                  width: { xs: "100%", sm: "auto" },
                 }}
               >
                 <InputLabel
                   id="experience-label"
                   sx={{
-                    backgroundColor: "#f7f6fb",
+                    backgroundColor: "#f7f6f5",
                     borderRadius: "100px",
                     px: 1,
                     transition: "all 0.3s ease-in-out",
+                    fontSize: { xs: "0.875rem", sm: "1rem" },
                     "&.MuiInputLabel-shrink": {
                       px: 1,
                       borderRadius: "100px",
@@ -564,6 +599,9 @@ export default function DoctorListing() {
                     "& .MuiOutlinedInput-notchedOutline": {
                       borderRadius: "40px",
                     },
+                    "& .MuiSelect-select": {
+                      fontSize: { xs: "0.875rem", sm: "1rem" },
+                    },
                   }}
                 >
                   <MenuItem value="">
@@ -577,22 +615,23 @@ export default function DoctorListing() {
 
               {/* Fees Filter */}
               <FormControl
-                fullWidth
                 variant="outlined"
                 size="small"
                 sx={{
-                  background: "#f7f6fb",
+                  background: "#f7f6f5",
                   borderRadius: "30px",
-                  minWidth: 190,
+                  minWidth: { xs: "100%", sm: 160, md: 180, lg: 190 },
+                  width: { xs: "100%", sm: "auto" },
                 }}
               >
                 <InputLabel
                   id="fees-label"
                   sx={{
-                    backgroundColor: "#f7f6fb",
+                    backgroundColor: "#f7f6f5",
                     borderRadius: "100px",
                     px: 1,
                     transition: "all 0.3s ease-in-out",
+                    fontSize: { xs: "0.875rem", sm: "1rem" },
                     "&.MuiInputLabel-shrink": {
                       px: 1,
                       borderRadius: "100px",
@@ -611,6 +650,9 @@ export default function DoctorListing() {
                     "& .MuiOutlinedInput-notchedOutline": {
                       borderRadius: "40px",
                     },
+                    "& .MuiSelect-select": {
+                      fontSize: { xs: "0.875rem", sm: "1rem" },
+                    },
                   }}
                 >
                   <MenuItem value="">
@@ -622,6 +664,7 @@ export default function DoctorListing() {
               </FormControl>
             </Box>
           </Grid>
+
           {/* Skeleton Shown When No Keyword */}
           {loading && (
             <Grid item xs={12} sm={6} md={4}>

@@ -102,7 +102,6 @@ export default function NotificationPopover({
 
     if (isTabFocused) {
       console.log("🟡 Tab is focused — showing alert()");
-     
     } else {
       try {
         const n = new Notification("📢 New Notification", {
@@ -119,7 +118,6 @@ export default function NotificationPopover({
         setTimeout(() => n.close(), 5000);
       } catch (err) {
         console.error("❌ Notification creation failed:", err);
-  
       }
     }
 
@@ -209,7 +207,7 @@ export default function NotificationPopover({
         gap: 1,
       }}
     >
-      <NotificationsNoneIcon sx={{ fontSize: 40, color: "#b0b0b0" }} />
+      <NotificationsNoneIcon sx={{ fontSize: 40, color: "#000" }} />
       <Typography variant="body1">{text}</Typography>
     </Box>
   );
@@ -237,7 +235,7 @@ export default function NotificationPopover({
           ml: 18,
           borderRadius: 2,
           boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
-          backgroundColor: "#fff",
+          backgroundColor: "#b9abdf",
         },
       }}
     >
@@ -249,16 +247,25 @@ export default function NotificationPopover({
         indicatorColor="primary"
         sx={{
           borderBottom: "1px solid #eee",
-          backgroundColor: "#f9f9f9",
+          backgroundColor: "#29175e",
           borderTopLeftRadius: 8,
           borderTopRightRadius: 8,
+          "& .MuiTab-root": {
+            color: "#fff", // Gray color for tab labels
+          },
+          "& .MuiTabs-indicator": {
+            backgroundColor: "#fff", // Change this to your desired color (e.g., purple, blue, etc.)
+            height: 2, // Optional: Adjust the height of the indicator
+          },
         }}
       >
         <Tab label={`Unread (${unreadCount})`} />
         <Tab label={`read (${readCount})`} />
       </Tabs>
 
-      <Box sx={{ maxHeight: 400, overflowY: "auto", px: 2, py: 1 }}>
+      <Box
+        sx={{ maxHeight: 400, overflowY: "auto", px: 2, py: 1, color: "#000" }}
+      >
         {filteredNotifications.length === 0 ? (
           renderEmptyState(
             tabValue === 0 ? "No unread notifications" : "No read notifications"

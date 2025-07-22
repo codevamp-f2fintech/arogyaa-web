@@ -109,6 +109,8 @@ const theme = createTheme({
 const SymptomCards = () => {
   const router = useRouter();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md")); // sm to md = tablet
+
   const firstControls = useAnimation();
   const secondControls = useAnimation();
   const firstRef = useRef(null);
@@ -238,8 +240,10 @@ const SymptomCards = () => {
             initial={{ x: "0%" }}
             animate={firstControls}
             style={{
-              display: isMobile ? "none" : "flex",
+              display: isMobile || isTablet ? "none" : "flex",
+
               width: "200%",
+
               gap: "2rem",
               overflow: "visible",
             }}
@@ -387,7 +391,7 @@ const SymptomCards = () => {
             initial={{ x: "-50%" }}
             animate={secondControls}
             style={{
-              display: isMobile ? "none" : "flex",
+              display: isMobile || isTablet ? "none" : "flex",
               width: "200%",
               gap: "2rem",
               overflow: "visible",

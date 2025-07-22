@@ -44,6 +44,7 @@ import BookAppointmentModal from "../../../components/common/BookAppointmentModa
 import CreateTestimonialDialog from "@/app/components/common/createTestimonialDialog";
 import { fetcher } from "@/apis/apiClient";
 import { Utility } from "@/utils";
+import ShareButton from "@/app/components/ShareButton";
 
 interface Qualification {
   _id: string;
@@ -184,7 +185,6 @@ const DrProfile: React.FC = () => {
 
   const [testimonialDialogOpen, setTestimonialDialogOpen] = useState(false);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-
   const openTestimonialDialog = () => {
     const userToken = Cookies.get("token"); // Check if user is logged in
     if (!userToken) {
@@ -302,11 +302,13 @@ const DrProfile: React.FC = () => {
                 sx={{
                   display: "flex",
                   flexDirection: { xs: "column", sm: "row" }, // responsive layout
-                  padding: { xs: "20px", sm: "30px" },
-                  marginTop: "50px",
+                  padding: { xs: "15px", sm: "20px", md: "30px" },
+                  marginTop: { xs: "20px", sm: "30px", md: "50px" },
                   position: "relative",
-                  backgroundColor: "#29175e",
+                  backgroundColor: "#56428b",
                   borderRadius: "0 !important",
+                  height: { sm: "55vh" },
+                  border: "1px solid ",
                 }}
               >
                 {/* Doctor Details */}
@@ -316,11 +318,23 @@ const DrProfile: React.FC = () => {
                     flexDirection: { xs: "column", sm: "row" }, // stack on small screens
                     justifyContent: "center",
                     flex: 2,
-                    backgroundColor: "#29175e",
                     alignItems: "center",
                     borderRadius: "0 !important",
                   }}
                 >
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: 10,
+                      right: {
+                        xs: 10,
+                        sm: 20,
+                      },
+                      p: 1,
+                    }}
+                  >
+                    <ShareButton />
+                  </Box>
                   {/* Doctor Image */}
                   <Box
                     component="img"
@@ -330,22 +344,21 @@ const DrProfile: React.FC = () => {
                       "/assets/images/online-doctor-with-white-coat.png"
                     }
                     sx={{
-                      width: { xs: "100px", sm: "150px" },
-                      height: { xs: "100px", sm: "150px" },
-                      marginLeft: { xs: "0", sm: "20px" },
-                      marginTop: "20px",
+                      width: { xs: "80px", sm: "120px", md: "150px" },
+                      height: { xs: "80px", sm: "120px", md: "150px" },
+                      marginLeft: { xs: "0", sm: "15px", md: "20px" },
+                      marginTop: { xs: "10px", sm: "15px", md: "20px" },
                       borderRadius: "50%",
                       objectFit: "cover",
                       border: "5px",
                     }}
                   />
-
                   {/* Doctor Information */}
                   <Box
                     sx={{
                       flex: 1,
-                      marginLeft: { xs: "0", sm: "20px" },
-                      marginTop: { xs: "20px", sm: "30px" },
+                      marginLeft: { xs: "0", sm: "15px", md: "20px" },
+                      marginTop: { xs: "15px", sm: "20px", md: "30px" },
                       borderRadius: "0",
                       backgroundColor: "transparent",
                       width: "100%",
@@ -355,11 +368,13 @@ const DrProfile: React.FC = () => {
                     <Typography
                       variant="h5"
                       sx={{
-                        fontSize: { xs: "1.6rem", sm: "2.2rem" },
+                        fontSize: { xs: "1.3rem", sm: "1.8rem", md: "2.2rem" },
                         fontWeight: "700",
                         color: "#fff",
                         display: "flex",
                         alignItems: "center",
+                        flexWrap: "wrap",
+                        gap: { xs: "5px", sm: "10px" },
                       }}
                     >
                       {profileData.data?.username || "Doctor Name"}
@@ -370,13 +385,13 @@ const DrProfile: React.FC = () => {
                           <VerifiedIcon
                             sx={{
                               color: "#2ECC71",
-                              marginLeft: "10px",
-                              fontSize: "24px",
+                              marginLeft: { xs: "5px", sm: "10px" },
+                              fontSize: { xs: "20px", sm: "24px" },
                             }}
                           />
                           <Typography
                             sx={{
-                              fontSize: "14px",
+                              fontSize: { xs: "12px", sm: "14px" },
                               fontWeight: "500",
                               color: "#2ECC71",
                               marginLeft: "5px",
@@ -395,8 +410,8 @@ const DrProfile: React.FC = () => {
                         display: "flex",
                         alignItems: "center",
                         flexWrap: "wrap",
-                        gap: "10px",
-                        marginLeft: "10px",
+                        gap: { xs: "6px", sm: "8px", md: "10px" },
+                        marginLeft: { xs: "5px", sm: "8px", md: "10px" },
                       }}
                     >
                       {profileData.data?.tags?.length > 0 ? (
@@ -408,86 +423,79 @@ const DrProfile: React.FC = () => {
                               alignItems: "center",
                               backgroundColor: "#2ECC71",
                               color: "#f2f2f2",
-                              padding: "2px 7px",
+                              padding: {
+                                xs: "1px 5px",
+                                sm: "2px 6px",
+                                md: "2px 7px",
+                              },
                               borderRadius: "16px",
-                              fontSize: "12px",
+                              fontSize: { xs: "10px", sm: "11px", md: "12px" },
                             }}
                           >
                             <LocalOfferIcon
-                              sx={{ fontSize: "16px", marginRight: "6px" }}
+                              sx={{
+                                fontSize: {
+                                  xs: "14px",
+                                  sm: "15px",
+                                  md: "16px",
+                                },
+                                marginRight: {
+                                  xs: "4px",
+                                  sm: "5px",
+                                  md: "6px",
+                                },
+                              }}
                             />
-                            <Typography variant="body2">{tag}</Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                fontSize: {
+                                  xs: "10px",
+                                  sm: "11px",
+                                  md: "12px",
+                                },
+                              }}
+                            >
+                              {tag}
+                            </Typography>
                           </Box>
                         ))
                       ) : (
-                        <Typography variant="body2" sx={{ color: "#ddd" }}>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: "#ddd",
+                            fontSize: { xs: "12px", sm: "14px" },
+                          }}
+                        >
                           No specialties listed
                         </Typography>
                       )}
                     </Box>
-
-                    {/* Email & Contact Section */}
-                    {/* <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "15px",
-                        marginTop: "10px",
-                        marginLeft: "10px",
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          color: "#fff",
-                        }}
-                      >
-                        <EmailIcon
-                          sx={{
-                            fontSize: "18px",
-                            color: "#2ECC71",
-                            marginRight: "5px",
-                          }}
-                        />
-                        <Typography variant="body3">
-                          {profileData.data?.email || "No Email"}
-                        </Typography>
-                      </Box>
-
-                      <Box
-                        sx={{
-                          width: "1px",
-                          height: "20px",
-                          background: "#fff",
-                        }}
-                      ></Box>
-
-               
-                    </Box> */}
-
                     {/* Hospital Affiliations */}
                     <Box
                       sx={{
                         display: "flex",
-                        alignItems: "center",
-                        marginTop: "8px",
-                        marginLeft: "10px",
+                        alignItems: "flex-start",
+                        marginTop: { xs: "6px", sm: "8px" },
+                        marginLeft: { xs: "5px", sm: "8px", md: "10px" },
                       }}
                     >
                       <LocalHospitalIcon
                         sx={{
-                          fontSize: "18px",
+                          fontSize: { xs: "16px", sm: "17px", md: "18px" },
                           color: "#2ECC71",
-                          marginRight: "8px",
+                          marginRight: { xs: "6px", sm: "7px", md: "8px" },
+                          marginTop: "2px",
                         }}
                       />
                       <Typography
                         variant="body3"
                         sx={{
                           color: "#fff",
-                          width: "50vw",
+                          width: { xs: "100%", sm: "70%", md: "50vw" },
+                          fontSize: { xs: "12px", sm: "13px", md: "14px" },
+                          lineHeight: 1.4,
                         }}
                       >
                         {profileData.data?.availability?.length > 0 ? (
@@ -523,69 +531,96 @@ const DrProfile: React.FC = () => {
                         )}
                       </Typography>
                     </Box>
-
                     {/* Bio */}
                     <Box
                       sx={{
                         display: "flex",
-                        alignItems: "center",
-                        marginTop: "8px",
-                        marginLeft: "10px",
+                        alignItems: "flex-start",
+                        marginTop: { xs: "6px", sm: "8px" },
+                        marginLeft: { xs: "5px", sm: "8px", md: "10px" },
                       }}
                     >
                       <WorkIcon
                         sx={{
-                          fontSize: "18px",
+                          fontSize: { xs: "16px", sm: "17px", md: "18px" },
                           color: "#2ECC71",
-                          marginRight: "8px",
+                          marginRight: { xs: "6px", sm: "7px", md: "8px" },
+                          marginTop: "2px",
                         }}
                       />
                       <Typography
                         variant="body3"
                         sx={{
                           color: "#fff",
-                          maxWidth: "70%",
-                          fontFamily: "Poppins !importaant",
+                          maxWidth: { xs: "100%", sm: "80%", md: "70%" },
+                          fontFamily: "Poppins !important",
+                          fontSize: { xs: "12px", sm: "13px", md: "14px" },
+                          lineHeight: 1.4,
                         }}
                       >
                         {profileData.data?.bio || "No bio available"}
                       </Typography>
                     </Box>
-
                     {/* Appointment Buttons */}
                     <Box
                       sx={{
                         display: "flex",
                         flexDirection: "column",
                         alignItems: { xs: "center", sm: "flex-end" },
-                        marginTop: { xs: "20px", sm: "-30px" },
+                        justifyContent: "center",
+                        marginTop: { xs: "15px", sm: "20px", md: "-30px" },
                         paddingBottom: "8px",
-                        gap: existingReview ? "0px" : "10px",
-                        marginRight: { xs: "0", sm: "10px" },
+                        gap: existingReview ? "0px" : { xs: "8px", sm: "10px" },
+                        marginRight: { xs: "0", sm: "", md: "28px" },
                       }}
                     >
                       {!existingReview && (
                         <Box
                           sx={{
-                            position: { xs: "relative", sm: "absolute" },
-                            right: { xs: "0", sm: "45px" },
-                            top: { xs: "0", sm: "70px" },
+                            position: {
+                              xs: "relative",
+                              sm: "",
+                              md: "absolute",
+                            },
+                            right: {
+                              xs: "0",
+                              // sm: "35px",
+                              md: "45px",
+                              lg: "55px",
+                            },
+                            top: {
+                              xs: "0",
+                              // sm: "60px",
+                              md: "70px",
+                              lg: "80px",
+                            },
                             backgroundColor: "#b497d6",
-                            padding: "12px",
+                            padding: { xs: "10px", sm: "12px", md: "14px" },
                             borderRadius: "5px",
                             boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
                             textAlign: "center",
-                            width: "200px",
+                            width: {
+                              xs: "100%",
+                              sm: "280px",
+                              md: "200px",
+                              lg: "220px",
+                            },
+                            maxWidth: { xs: "280px", sm: "none" },
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "center",
-                            marginBottom: { xs: "15px", sm: "0" },
+                            marginBottom: { xs: "12px", sm: "0" },
+                            zIndex: 1,
                           }}
                         >
                           <Typography
                             variant="h6"
                             sx={{
-                              fontSize: "1rem",
+                              fontSize: {
+                                xs: "0.9rem",
+                                sm: "1rem",
+                                md: "1.1rem",
+                              },
                               fontWeight: "bold",
                               color: "#29175e",
                               marginBottom: "4px",
@@ -597,9 +632,17 @@ const DrProfile: React.FC = () => {
                             variant="body2"
                             sx={{
                               color: "#29175e",
-                              fontSize: ".9rem",
+                              fontSize: {
+                                xs: "0.8rem",
+                                sm: "0.9rem",
+                                md: "0.95rem",
+                              },
                               fontWeight: "600",
-                              marginBottom: "12px",
+                              marginBottom: {
+                                xs: "10px",
+                                sm: "12px",
+                                md: "14px",
+                              },
                             }}
                           >
                             Help others by sharing your experience.
@@ -610,7 +653,11 @@ const DrProfile: React.FC = () => {
                             startIcon={
                               <Create
                                 sx={{
-                                  fontSize: "10px",
+                                  fontSize: {
+                                    xs: "8px",
+                                    sm: "10px",
+                                    md: "12px",
+                                  },
                                   marginLeft: "5px",
                                 }}
                               />
@@ -618,10 +665,14 @@ const DrProfile: React.FC = () => {
                             sx={{
                               backgroundColor: "#29175e",
                               color: "#fff",
-                              fontSize: "0.9rem",
+                              fontSize: {
+                                xs: "0.8rem",
+                                sm: "0.9rem",
+                                md: "1rem",
+                              },
                               fontWeight: "600",
-                              paddingX: "8px",
-                              paddingY: "2px",
+                              paddingX: { xs: "6px", sm: "8px", md: "10px" },
+                              paddingY: { xs: "2px", sm: "4px" },
                               boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)",
                               transition: "transform 0.2s, box-shadow 0.2s",
                               "&:hover": {
@@ -638,16 +689,24 @@ const DrProfile: React.FC = () => {
                       <Button
                         onClick={openModal}
                         variant="contained"
-                        startIcon={<EventIcon sx={{ fontSize: "20px" }} />}
+                        startIcon={
+                          <EventIcon
+                            sx={{ fontSize: { xs: "18px", sm: "20px" } }}
+                          />
+                        }
                         sx={{
-                          paddingX: "22px",
+                          paddingX: { xs: "16px", sm: "20px", md: "22px" },
                           paddingY: "1px",
                           color: "#29175e",
                           background: "#b497d6",
-                          marginTop: "45px",
+                          marginTop: { xs: "10px", sm: "35px", md: "45px" },
                           boxShadow: "0px 3px 6px rgba(0, 0, 0, 0.2)",
-                          fontSize: "1rem",
+                          fontSize: { xs: "0.9rem", sm: "1rem" },
                           textTransform: "none",
+                          marginRight: {
+                            sm: "35px",
+                            md: "2px",
+                          },
                           transition:
                             "transform 0.2s, box-shadow 0.2s, background-color 0.3s, color 0.3s",
                           "&:hover": {
@@ -669,11 +728,12 @@ const DrProfile: React.FC = () => {
                   <Box
                     sx={{
                       position: { xs: "relative", sm: "absolute" },
-                      top: { xs: "10px", sm: "70px" },
-                      right: { xs: "0", sm: "45px" },
+                      top: { xs: "10px", sm: "60px", md: "70px" },
+                      right: { xs: "0", sm: "35px", md: "45px" },
                       backgroundColor: "#f8f9fa",
-                      width: "200px",
-                      padding: "12px",
+                      width: { xs: "100%", sm: "180px", md: "200px" },
+                      maxWidth: { xs: "280px", sm: "none" },
+                      padding: { xs: "10px", sm: "12px" },
                       borderRadius: "10px",
                       boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
                       display: "flex",
@@ -682,14 +742,15 @@ const DrProfile: React.FC = () => {
                       backgroundImage: 'url("/assets/images/vector_plus.png")',
                       backgroundPosition: "center",
                       backgroundRepeat: "no-repeat",
-                      backgroundSize: "90px",
-                      marginTop: { xs: "20px", sm: "0" },
+                      backgroundSize: { xs: "70px", sm: "80px", md: "90px" },
+                      marginTop: { xs: "15px", sm: "0" },
+                      marginX: { xs: "auto", sm: "0" },
                     }}
                   >
                     <Typography
                       variant="h6"
                       sx={{
-                        fontSize: "1.3rem",
+                        fontSize: { xs: "1.1rem", sm: "1.2rem", md: "1.3rem" },
                         textAlign: "center",
                         color: "#333",
                         fontWeight: "500",
@@ -702,7 +763,7 @@ const DrProfile: React.FC = () => {
                     <Typography
                       variant="h6"
                       sx={{
-                        fontSize: "2rem",
+                        fontSize: { xs: "1.6rem", sm: "1.8rem", md: "2rem" },
                         textAlign: "center",
                         color: "#5d4993",
                         fontWeight: "bold",
@@ -710,7 +771,11 @@ const DrProfile: React.FC = () => {
                     >
                       {existingReview.rating}/5
                     </Typography>
-                    <Rating sx={{ color: "#2ecc71" }}
+                    <Rating
+                      sx={{
+                        color: "#2ecc71",
+                        fontSize: { xs: "1.2rem", sm: "1.5rem" },
+                      }}
                       value={Number(existingReview.rating)}
                       readOnly
                       precision={0.1}
@@ -758,11 +823,8 @@ const DrProfile: React.FC = () => {
                       color: "#fff",
                       height: "48px",
                       "&.Mui-selected": {
-                        backgroundColor: "#29175e",
+                        backgroundColor: "#56428b",
                         color: "#fff",
-                        borderLeft: "1px solid #2ecc71",
-                        borderRight: "1px solid #2ecc71",
-                        borderTop: "1px solid #2ecc71",
                       },
                     },
                     height: "48px",
@@ -779,7 +841,7 @@ const DrProfile: React.FC = () => {
                     p: 3,
                     flex: 1,
                     overflowY: "auto",
-                    background: "#29175e",
+                    background: "#56428b",
                   }}
                 >
                   {tabValue === 0 && (
@@ -989,16 +1051,22 @@ const DrProfile: React.FC = () => {
 
                   {tabValue === 1 && (
                     <Box sx={{ height: "100%" }}>
-                      <Grid container spacing={4}>
+                      <Grid
+                        container
+                        spacing={4}
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                        }}
+                      >
                         {/* Clinic Location */}
-                        <Grid item xs={12} sm={4} md={4}>
+                        <Grid item xs={12} sm={8} md={4}>
                           <Box
                             sx={{
                               ...cardStyle,
                               padding: "16px",
                               borderRadius: 0,
                               backgroundColor: "#29175e",
-                              boxShadow: "0 5px 100px rgba(46,204,113,0.5)",
                               height: "35vh", // Fixed height
                               display: "flex",
                               flexDirection: "column",
@@ -1038,14 +1106,13 @@ const DrProfile: React.FC = () => {
                         </Grid>
 
                         {/* Availability */}
-                        <Grid item xs={12} sm={4} md={4}>
+                        <Grid item xs={12} sm={8} md={4}>
                           <Box
                             sx={{
                               ...cardStyle,
                               padding: "16px",
                               borderRadius: 0,
                               backgroundColor: "#29175e",
-                              boxShadow: "0 5px 100px rgba(46,204,113,0.5)",
                               height: "35vh", // Fixed height
                               display: "flex",
                               flexDirection: "column",
@@ -1157,14 +1224,13 @@ const DrProfile: React.FC = () => {
                         </Grid>
 
                         {/* In-Clinic Visit */}
-                        <Grid item xs={12} sm={4} md={4}>
+                        <Grid item xs={12} sm={8} md={4}>
                           <Box
                             sx={{
                               ...cardStyle,
                               padding: "16px",
                               borderRadius: 0,
                               backgroundColor: "#29175e",
-                              boxShadow: "0 5px 100px rgba(46,204,113,0.5)",
                               height: "35vh", // Fixed height
                               display: "flex",
                               flexDirection: "column",
@@ -1259,7 +1325,6 @@ const DrProfile: React.FC = () => {
                                 marginTop: "15px",
                                 padding: "12px",
                                 borderRadius: "8px",
-                                boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
                                 backgroundColor: "transparent", // Remove white background
                               }}
                             >
@@ -1294,9 +1359,13 @@ const DrProfile: React.FC = () => {
               </Box>
             </Grid>
 
-            <Grid item xs={12} sm={4} md={4}>
+            <Grid item xs={12} sm={12} md={4}>
               <Box
-                sx={{ width: "100%", background: "white", borderRadius: "8px" }}
+                sx={{
+                  width: "100%",
+                  background: "white",
+                  borderRadius: "8px",
+                }}
               >
                 <Tabs
                   value={appointmentTabValue}
@@ -1311,11 +1380,8 @@ const DrProfile: React.FC = () => {
                       backgroundColor: "#b497d6",
                       color: "#fff",
                       "&.Mui-selected": {
-                        backgroundColor: "#29175e",
+                        backgroundColor: "#56428b",
                         color: "#fff",
-                        borderLeft: "1px solid #20ADA0",
-                        borderRight: "1px solid #20ADA0",
-                        borderTop: "1px solid #20ADA0",
                       },
                     },
                   }}
@@ -1327,14 +1393,13 @@ const DrProfile: React.FC = () => {
                 <Box
                   sx={{
                     p: 3,
-                    backgroundColor: "#29175e",
+                    backgroundColor: "#56428b",
                   }}
                 >
                   <Box
                     sx={{
                       padding: "15px",
                       backgroundColor: "#29175e",
-                      boxShadow: "0 4px 30px rgba(46,204,113,0.5)",
                       color: "#fff",
                       borderRadius: "0px",
                     }}
@@ -1448,7 +1513,6 @@ const DrProfile: React.FC = () => {
                             color: "#fff",
                             background: "#29175e",
                             borderRadius: "0px",
-                            boxShadow: "0 4px 30px rgba(46,204,113,0.5)",
                             fontSize: "1rem",
                             textTransform: "none",
                             transition:
@@ -1456,7 +1520,6 @@ const DrProfile: React.FC = () => {
                             "&:hover": {
                               backgroundColor: "#29175e",
                               transform: "scale(1.05)",
-                              boxShadow: "0 4px 30px rgba(46,204,113,0.5)",
                             },
                           }}
                         >
@@ -1514,7 +1577,6 @@ const DrProfile: React.FC = () => {
                             color: "#fff",
                             background: "#29175e",
                             borderRadius: "0px",
-                            boxShadow: "0 4px 30px rgba(46,204,113,0.5)",
                             fontSize: "1rem",
                             textTransform: "none",
                             transition:
@@ -1557,7 +1619,6 @@ const DrProfile: React.FC = () => {
                         sx={{
                           padding: "15px",
                           backgroundColor: "#29175e",
-                          boxShadow: "0 4px 30px rgba(46,204,113,0.5)",
                           color: "#fff",
                           borderRadius: "0px",
                         }}
