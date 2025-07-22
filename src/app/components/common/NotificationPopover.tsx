@@ -230,9 +230,10 @@ export default function NotificationPopover({
       transformOrigin={{ vertical: "top", horizontal: "right" }}
       PaperProps={{
         sx: {
-          width: 360,
+          width: {
+            md: "55vh",
+          },
           mt: 0.5,
-          ml: 18,
           borderRadius: 2,
           boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
           backgroundColor: "#b9abdf",
@@ -245,6 +246,7 @@ export default function NotificationPopover({
         variant="fullWidth"
         textColor="primary"
         indicatorColor="primary"
+        // ontopview//
         sx={{
           borderBottom: "1px solid #eee",
           backgroundColor: "#29175e",
