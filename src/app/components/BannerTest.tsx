@@ -29,7 +29,7 @@ import {
   CircularProgress,
   Divider,
 } from "@mui/material";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { fetcher } from "@/apis/apiClient";
 import { Utility } from "@/utils";
 import AIAssistant from "./AIAssistant";
@@ -243,6 +243,41 @@ const BannerComponentTest: React.FC = () => {
     }, 500),
     []
   );
+
+  // Handle Enter key press for location field
+  const handleLocationKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+
+      if (locationKeyword.trim()) {
+        // Navigate to doctor listing page with location pre-filled
+        router.push(
+          `/doctors?location=${encodeURIComponent(locationKeyword.trim())}`
+        );
+      }
+    }
+  };
+
+  // Handle Enter key press for name/specialty field
+  const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+
+      // Navigate to doctor listing page with search parameters
+      const params = new URLSearchParams();
+
+      if (nameKeyword.trim()) {
+        params.append("keyword", nameKeyword.trim());
+      }
+
+      if (locationKeyword.trim()) {
+        params.append("location", locationKeyword.trim());
+      }
+
+      const queryString = params.toString();
+      router.push(`/doctors${queryString ? `?${queryString}` : ""}`);
+    }
+  };
 
   // Handle name/specialty search
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -477,19 +512,20 @@ const BannerComponentTest: React.FC = () => {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.5 }}
+          layout
           style={{
             display: "flex",
             justifyContent: "center",
-            width: "100%",
+            width: "70%",
             maxWidth: "700px",
-            marginTop: "20px",
+            marginTop: "10px",
           }}
         >
           <Paper
             sx={{
               display: "flex",
               alignItems: "center",
-              borderRadius: "8px",
+              borderRadius: "50px",
               width: "100%",
               border: "1px solid #ccc",
               boxShadow: "none",
@@ -512,11 +548,22 @@ const BannerComponentTest: React.FC = () => {
                 placeholder="Enter location..."
                 value={locationKeyword}
                 onChange={handleLocationChange}
+                onKeyDown={handleLocationKeyDown}
                 sx={{
                   flex: 1,
                   fontSize: "0.95rem",
                   fontFamily: "Poppins",
                   color: "#333",
+                  "&::placeholder": {
+                    fontSize: "0.75rem", // might not work directly
+                  },
+                }}
+                inputProps={{
+                  sx: {
+                    "::placeholder": {
+                      fontSize: "0.75rem", // ✅ placeholder font size
+                    },
+                  },
                 }}
               />
               <Button
@@ -569,11 +616,22 @@ const BannerComponentTest: React.FC = () => {
                 placeholder="Search by doctor or specialty..."
                 value={nameKeyword}
                 onChange={handleNameChange}
+                onKeyDown={handleNameKeyDown}
                 sx={{
                   flex: 1,
                   fontSize: "0.95rem",
                   fontFamily: "Poppins",
                   color: "#333",
+                  "&::placeholder": {
+                    fontSize: "0.75rem", // might not work directly
+                  },
+                }}
+                inputProps={{
+                  sx: {
+                    "::placeholder": {
+                      fontSize: "0.75rem", // ✅ placeholder font size
+                    },
+                  },
                 }}
               />
             </Box>
@@ -581,77 +639,126 @@ const BannerComponentTest: React.FC = () => {
         </motion.div>
 
         {/* Search Results */}
-        {results.length > 0 && (
-          <Box
-            sx={{
-              backgroundColor: "white",
-              borderRadius: "10px",
-              overflow: "auto", // allow scroll if needed
-              boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-              mt: 1,
-              display: "flex",
-              flexDirection: "column",
-              width: {
-                xs: "90vw",
-                sm: "70vw",
-                md: "50vw",
-                lg: "40vw",
-                xl: "30vw",
-              },
-              maxHeight: "50vh", // optional: max to prevent going off-screen
-              zIndex: 10,
-            }}
-          >
-            <List
-              sx={{
-                padding: 0,
-                width: "100%",
-                "&::-webkit-scrollbar": {
-                  width: "6px",
-                },
-                "&::-webkit-scrollbar-thumb": {
-                  backgroundColor: "#b497d6",
-                  borderRadius: "6px",
+        <AnimatePresence>
+          {results.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -20, height: 0 }}
+              animate={{
+                opacity: 1,
+                y: 0,
+                height: "auto",
+                transition: {
+                  duration: 0.6,
+                  ease: "easeOut",
+                  height: {
+                    duration: 0.8,
+                    ease: "easeInOut",
+                  },
                 },
               }}
+              exit={{
+                opacity: 0,
+                y: -20,
+                height: 0,
+                transition: {
+                  duration: 0.4,
+                  ease: "easeIn",
+                },
+              }}
+              style={{
+                overflow: "hidden",
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+              }}
             >
-              {results.map((doctor: any, index: number) => (
-                <ListItem
-                  key={doctor._id || index}
+              <Box
+                sx={{
+                  backgroundColor: "white",
+                  borderRadius: "10px",
+                  overflow: "auto",
+                  boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                  mt: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  width: {
+                    xs: "90vw",
+                    sm: "70vw",
+                    md: "50vw",
+                    lg: "40vw",
+                    xl: "30vw",
+                  },
+                  maxHeight: "50vh",
+                  zIndex: 10,
+                }}
+              >
+                <List
                   sx={{
-                    padding: "10px 15px",
-                    cursor: "pointer",
-                    transition: "background-color 0.3s",
-                    "&:hover": {
-                      backgroundColor: "#f4f4f4",
+                    padding: 0,
+                    width: "100%",
+                    "&::-webkit-scrollbar": {
+                      width: "6px",
+                    },
+                    "&::-webkit-scrollbar-thumb": {
+                      backgroundColor: "#b497d6",
+                      borderRadius: "6px",
                     },
                   }}
                 >
-                  <Link
-                    href={`/doctors/profile/${doctor._id}`}
-                    passHref
-                    sx={{ textDecoration: "none", width: "100%" }}
-                  >
-                    <ListItemText
-                      primary={`${doctor.username || "Unknown"} - ${
-                        doctor.specializationIds
-                          ?.map((spec: any) => capitalizeFirstLetter(spec.name))
-                          .join(", ") || "Specialty not available"
-                      }`}
-                      sx={{
-                        "& .MuiListItemText-primary": {
-                          fontSize: "0.9rem",
-                          fontFamily: "Poppins",
-                          color: "#29175e",
+                  {results.map((doctor: any, index: number) => (
+                    <motion.div
+                      key={doctor._id || index}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{
+                        opacity: 1,
+                        x: 0,
+                        transition: {
+                          delay: index * 0.1,
+                          duration: 0.4,
+                          ease: "easeOut",
                         },
                       }}
-                    />
-                  </Link>
-                </ListItem>
-              ))}
-            </List>
-          </Box>
-        )}
+                    >
+                      <ListItem
+                        sx={{
+                          padding: "10px 15px",
+                          cursor: "pointer",
+                          transition: "background-color 0.3s",
+                          "&:hover": {
+                            backgroundColor: "#f4f4f4",
+                          },
+                        }}
+                      >
+                        <Link
+                          href={`/doctors/profile/${doctor._id}`}
+                          passHref
+                          sx={{ textDecoration: "none", width: "100%" }}
+                        >
+                          <ListItemText
+                            primary={`${doctor.username || "Unknown"} - ${
+                              doctor.specializationIds
+                                ?.map((spec: any) =>
+                                  capitalizeFirstLetter(spec.name)
+                                )
+                                .join(", ") || "Specialty not available"
+                            }`}
+                            sx={{
+                              "& .MuiListItemText-primary": {
+                                fontSize: "0.9rem",
+                                fontFamily: "Poppins",
+                                color: "#29175e",
+                              },
+                            }}
+                          />
+                        </Link>
+                      </ListItem>
+                    </motion.div>
+                  ))}
+                </List>
+              </Box>
+            </motion.div>
+          )}
+        </AnimatePresence>
         {/* Action Buttons */}
         <Box
           sx={{

@@ -170,8 +170,10 @@ export default function DoctorListing() {
     gender: "",
     experienceFilter: "",
     sortBy: "",
-    location: "", // Add location to initial state
+    location: searchParams.get("location") || "", // Initialize with location from URL
   });
+
+  console.log(location, "locationMonis");
 
   const queryParams = {
     ...filters,
@@ -197,6 +199,25 @@ export default function DoctorListing() {
     setKeyword("");
     setDebouncedKeyword("");
   };
+
+  // Add this code here:
+  const debouncedLocationChange = useCallback(
+    debounce((value: string) => {
+      // Update the URL without page reload
+      const params = new URLSearchParams(window.location.search);
+      if (value) {
+        params.set("location", value);
+      } else {
+        params.delete("location");
+      }
+      window.history.replaceState(
+        {},
+        "",
+        `${window.location.pathname}?${params.toString()}`
+      );
+    }, 500),
+    []
+  );
 
   const handleFilterChange = (field: string, value: string) => {
     setFilters((prevFilters) => ({
@@ -305,9 +326,15 @@ export default function DoctorListing() {
 
   useEffect(() => {
     const urlKeyword = searchParams.get("keyword") || "";
+    const urlLocation = searchParams.get("location") || "";
+
     if (urlKeyword && urlKeyword !== keyword) {
       setKeyword(urlKeyword);
       debouncedSearch(urlKeyword);
+    }
+
+    if (urlLocation && urlLocation !== filters.location) {
+      handleFilterChange("location", urlLocation);
     }
   }, [searchParams]);
 
@@ -488,6 +515,19 @@ export default function DoctorListing() {
                     >
                       <LocationOnIcon />
                     </InputAdornment>
+                  }
+                  endAdornment={
+                    filters.location && (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => handleFilterChange("location", "")}
+                          edge="end"
+                          size="small"
+                        >
+                          <CloseIcon fontSize="small" />
+                        </IconButton>
+                      </InputAdornment>
+                    )
                   }
                   sx={{
                     borderRadius: "40px",

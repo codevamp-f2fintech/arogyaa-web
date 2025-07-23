@@ -26,7 +26,13 @@ import { creator } from "@/apis/apiClient";
 import { Utility } from "@/utils";
 import SnackbarComponent from "./Snackbar";
 
-import { IconButton, Link, Tooltip } from "@mui/material";
+import {
+  IconButton,
+  Link,
+  Tooltip,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { usePopover } from "@/hooks/use-popover";
 import { Notifications } from "@/types/notifications";
 
@@ -43,6 +49,11 @@ const Topbar = () => {
   const dispatch: AppDispatch = useDispatch();
   const [unreadCount, setUnreadCount] = useState(0);
   const [readCount, setReadCount] = useState(0);
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
 
   const { capitalizeFirstLetter, decodedToken, getCookies } = Utility();
   const token = decodedToken();
@@ -75,9 +86,6 @@ const Topbar = () => {
     const newUnreadNotifications = notifications.filter((_, i) => i !== index);
     dispatch(setNotifications(newUnreadNotifications));
   };
-  // const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-  //   setAnchorEl(event.currentTarget);
-  // };
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (!token?.id && !token?._id) {
@@ -152,6 +160,12 @@ const Topbar = () => {
     }
   };
 
+  // Handler for the new button
+  // const handleNewButtonClick = () => {
+  //   console.log("New button clicked!");
+  //   // Example: router.push("/some-page");
+  // };
+
   useEffect(() => {
     if (session?.user?.email && !token) {
       handleLogin(session.user.email);
@@ -168,6 +182,53 @@ const Topbar = () => {
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
 
+  // Common button styles with responsive sizing
+  const getButtonStyles = (isCompact = false) => ({
+    backgroundColor: "#5d4993 !important",
+    color: "#fff !important",
+    fontWeight: "bold",
+    borderRadius: "20px",
+    boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
+    transition: "all 0.3s ease",
+    display: "flex",
+    alignItems: "center",
+    textTransform: "capitalize" as const,
+    minWidth: 0, // Allow buttons to shrink
+    padding: {
+      xs: isCompact ? "4px 8px" : "6px 12px",
+      sm: isCompact ? "6px 12px" : "8px 16px",
+      md: "8px 20px",
+    },
+    height: {
+      xs: "36px",
+      sm: "40px",
+      md: "48px",
+    },
+    fontSize: {
+      xs: "11px",
+      sm: "13px",
+      md: "14px",
+    },
+    "&:hover": {
+      backgroundColor: "#af9fdb !important",
+      color: "#29175e",
+      boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.3)",
+    },
+  });
+
+  // Logo responsive styles
+  const logoStyles = {
+    display: "flex",
+    width: "auto",
+    height: {
+      xs: 40,
+      sm: 50,
+      md: 60,
+    },
+    maxWidth: "auto",
+    mr: { xs: 0.5, sm: 1, md: 1.5 },
+  };
+
   return (
     <AppBar
       className={styles.appBar}
@@ -175,242 +236,266 @@ const Topbar = () => {
         backgroundColor: appBarBg,
         boxShadow: "none",
         transition: "background-color 0.3s ease",
-        // "&.MuiAppBar-root": {
-        //   // Additional custom styles for the AppBar root
-        //   backgroundColor: "#56428b", // This will override the transparent background if not scrolled
-        // },
       }}
     >
-      <Toolbar disableGutters>
+      <Toolbar
+        disableGutters
+        sx={{
+          px: { xs: 1, sm: 2, md: 3 },
+          minHeight: { xs: 56, sm: 64, md: 64 },
+          gap: { xs: 0.5, sm: 1, md: 1.5 },
+        }}
+      >
+        {/* Logo */}
         <Link href="/">
-          <Box
-            component="img"
-            src="/logomain.png"
-            alt="Logo"
-            sx={{
-              display: "flex",
-              width: "auto",
-              height: { xs: 45, sm: 60, md: 65 },
-              maxWidth: "auto",
-              mr: 1,
-            }}
-          />
+          <Box component="img" src="/logomain.png" alt="Logo" sx={logoStyles} />
         </Link>
 
+        {/* Spacer to push all buttons to the right */}
+        <Box sx={{ flexGrow: 1 }} />
+
+        {/* All buttons container - positioned on the right */}
         <Box
           sx={{
-            flexGrow: 1,
-            display: {
-              xs: "none",
-              md: "flex",
-              justifyContent: "center",
-            },
+            display: "flex",
+            gap: { xs: 0.5, sm: 1, md: 1.5 },
+            alignItems: "center",
+            flexWrap: { xs: "wrap", sm: "nowrap" },
+            justifyContent: "flex-end",
           }}
-        ></Box>
-        <Box className={styles.appointmentButtonContainer}>
-          {pathname !== "/doctors" &&
-            !pathname.startsWith("/doctors/profile/") && (
-              <Button
-                onClick={() => router.push("/doctors")}
-                variant="contained"
-                startIcon={<EventIcon />}
-                sx={{
-                  backgroundColor: "#5d4993 !important",
-                  color: "#fff !important",
-                  fontWeight: "bold",
-                  borderRadius: "20px",
-                  boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
-                  transition: "all 0.3s ease",
-                  display: "flex",
-                  alignItems: "center",
-                  textTransform: "capitalize",
-                  padding: {
-                    xs: "0",
-                    md: "5px 16px",
-                  },
-                  height: {
-                    xs: "3vh",
-                    md: "6vh",
-                    sm: "4vh",
-                  },
-                  width: {
-                    xs: "35vw",
-                    md: "15vw",
-                    sm: "30vw",
-                  },
-                  fontSize: {
-                    xs: "10px",
-                    md: "15px",
-                  },
-                  "&:hover": {
-                    backgroundColor: "#af9fdb !important",
-                    color: "#29175e",
-                    boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.3)",
-                  },
-                }}
-              >
-                {en.topbar.appointment}
-              </Button>
-            )}
-        </Box>
-
-        {/* Notification Bell */}
-        <Box>
-          <Tooltip title="Notifications">
-            <IconButton
-              aria-describedby={id}
-              onClick={handleClick}
+        >
+          {/* Mobile layout: Stack buttons or use smaller sizes */}
+          {isMobile ? (
+            <Box
               sx={{
-                padding: "10px",
-                borderRadius: "50%",
-                margin: "0 10px 0 5px",
-              }}
-            >
-              <Badge
-                variant={unreadCount > 0 ? "dot" : undefined}
-                color="success"
-                overlap="circular"
-                sx={{
-                  "& .MuiBadge-dot": {
-                    backgroundColor: "#00BFA5",
-                    height: 10,
-                    minWidth: 10,
-                    top: 4,
-                    right: 1,
-                  },
-                }}
-              >
-                <NotificationsIcon sx={{ color: "#fff", fontSize: "30px" }} />
-              </Badge>
-            </IconButton>
-          </Tooltip>
-
-          <NotificationPopover
-            open={open}
-            anchorEl={anchorEl}
-            onClose={handleClose}
-            notifications={notifications}
-            readNotifications={readNotification}
-            markAsRead={markAsRead}
-            setUnreadCount={setUnreadCount}
-            setReadCount={setReadCount}
-          />
-        </Box>
-
-        {session || decodedToken()?.id ? (
-          <Box>
-            <Button
-              variant="contained"
-              onClick={userPopover.handleOpen}
-              ref={userPopover.anchorRef}
-              startIcon={
-                <PersonOutlineIcon
-                  sx={{
-                    fontSize: "18px",
-                  }}
-                />
-              }
-              sx={{
-                backgroundColor: "#5d4993 !important",
-                color: "#fff !important",
-                fontWeight: "bold",
-                borderRadius: {
-                  xs: "50vh",
-                  sm: "20px",
-                  md: "20px",
-                },
-                boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
-                transition: "all 0.3s ease",
                 display: "flex",
+                gap: 0.5,
                 alignItems: "center",
-                textTransform: "capitalize",
-                padding: {
-                  xs: "0",
-                  md: "5px 16px",
-                },
-                height: {
-                  xs: "3vh",
-                  md: "6vh",
-                  sm: "4vh",
-                },
-                width: {
-                  xs: "5vw",
-                  md: "15vw",
-                  sm: "30vw",
-                },
-                fontSize: {
-                  xs: "10px",
-                  md: "15px",
-                },
-                "&:hover": {
-                  backgroundColor: "#af9fdb !important",
-                  color: "#29175e",
-                  boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.3)",
-                },
+                flexWrap: "wrap",
+                justifyContent: "flex-end",
               }}
             >
-              {session?.user?.name ||
-                capitalizeFirstLetter(decodedToken()?.patientName)}
-            </Button>
+              {/* Top Doctors Button - Mobile */}
+              {/* <Button
+                onClick={handleNewButtonClick}
+                variant="contained"
+                startIcon={<PersonOutlineIcon sx={{ fontSize: "16px" }} />}
+                sx={{
+                  ...getButtonStyles(true),
+                  order: 1,
+                  flexShrink: 1,
+                  minWidth: "80px",
+                }}
+              >
+                Top Dr's
+              </Button> */}
 
-            <UserPopover
-              anchorEl={userPopover.anchorRef.current}
-              onClose={userPopover.handleClose}
-              open={userPopover.open}
-            />
-          </Box>
-        ) : (
-          <Button
-            variant="contained"
-            sx={{
-              backgroundColor: "#5d4993 !important",
-              color: "#fff !important",
-              fontWeight: "bold",
-              borderRadius: "20px",
-              boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
-              transition: "all 0.3s ease",
-              display: "flex",
-              alignItems: "center",
-              textTransform: "capitalize",
-              padding: {
-                xs: "0",
-                md: "6px 16px",
-              },
-              height: {
-                xs: "3vh",
-                md: "6vh",
-                sm: "4vh",
-              },
-              width: {
-                xs: "15vw",
-                md: "7vw",
-                sm: "30vw",
-              },
-              fontSize: {
-                xs: "10px",
-                md: "15px",
-              },
-              "&:hover": {
-                backgroundColor: "#af9fdb !important",
-                color: "#29175e",
-                boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.3)",
-              },
-            }}
-          >
-            <Link
-              href="/signin"
-              underline="none"
-              sx={{
-                color: "white",
-                textDecoration: "none",
-                fontWeight: "600",
-                textTransform: "capitalize",
-              }}
-            >
-              Login
-            </Link>
-            <PersonAddAltOutlinedIcon sx={{ fontSize: "18px" }} />
-          </Button>
+              {/* Appointment Button - Mobile */}
+              {pathname !== "/doctors" &&
+                !pathname.startsWith("/doctors/profile/") && (
+                  <Button
+                    onClick={() => router.push("/doctors")}
+                    variant="contained"
+                    startIcon={<EventIcon sx={{ fontSize: "16px" }} />}
+                    sx={{
+                      ...getButtonStyles(true),
+                      order: 2,
+                      flexShrink: 1,
+                      minWidth: "90px",
+                    }}
+                  >
+                    Book
+                  </Button>
+                )}
+
+              {/* User/Login Button - Mobile */}
+              {session || decodedToken()?.id ? (
+                <Button
+                  variant="contained"
+                  onClick={userPopover.handleOpen}
+                  ref={userPopover.anchorRef}
+                  startIcon={<PersonOutlineIcon sx={{ fontSize: "16px" }} />}
+                  sx={{
+                    ...getButtonStyles(true),
+                    order: 3,
+                    flexShrink: 1,
+                    maxWidth: "100px",
+                  }}
+                >
+                  {(
+                    session?.user?.name ||
+                    capitalizeFirstLetter(decodedToken()?.patientName)
+                  )?.split(" ")[0] || "User"}
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  sx={{
+                    ...getButtonStyles(true),
+                    order: 3,
+                    flexShrink: 1,
+                    minWidth: "70px",
+                  }}
+                >
+                  <Link
+                    href="/signin"
+                    underline="none"
+                    sx={{
+                      color: "white",
+                      textDecoration: "none",
+                      fontWeight: "600",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.5,
+                    }}
+                  >
+                    Login
+                    <PersonAddAltOutlinedIcon sx={{ fontSize: "16px" }} />
+                  </Link>
+                </Button>
+              )}
+
+              {/* Notification Bell - Mobile */}
+              <IconButton
+                aria-describedby={id}
+                onClick={handleClick}
+                sx={{
+                  padding: "6px",
+                  borderRadius: "50%",
+                  order: 4,
+                }}
+              >
+                <Badge
+                  variant={unreadCount > 0 ? "dot" : undefined}
+                  color="success"
+                  overlap="circular"
+                  sx={{
+                    "& .MuiBadge-dot": {
+                      backgroundColor: "#00BFA5",
+                      height: 8,
+                      minWidth: 8,
+                      top: 2,
+                      right: 2,
+                    },
+                  }}
+                >
+                  <NotificationsIcon sx={{ color: "#fff", fontSize: "24px" }} />
+                </Badge>
+              </IconButton>
+            </Box>
+          ) : (
+            // Tablet and Desktop layout
+            <>
+              {/* Top Doctors Button - Tablet/Desktop */}
+              {/* <Button
+                onClick={handleNewButtonClick}
+                variant="contained"
+                startIcon={<PersonOutlineIcon />}
+                sx={getButtonStyles()}
+              >
+                Top Doctor's
+              </Button> */}
+
+              {/* Appointment Button - Tablet/Desktop */}
+              {pathname !== "/doctors" &&
+                !pathname.startsWith("/doctors/profile/") && (
+                  <Button
+                    onClick={() => router.push("/doctors")}
+                    variant="contained"
+                    startIcon={<EventIcon />}
+                    sx={getButtonStyles()}
+                  >
+                    {en.topbar.appointment}
+                  </Button>
+                )}
+
+              {/* User/Login Button - Tablet/Desktop */}
+              {session || decodedToken()?.id ? (
+                <Button
+                  variant="contained"
+                  onClick={userPopover.handleOpen}
+                  ref={userPopover.anchorRef}
+                  startIcon={<PersonOutlineIcon sx={{ fontSize: "18px" }} />}
+                  sx={getButtonStyles()}
+                >
+                  {session?.user?.name ||
+                    capitalizeFirstLetter(decodedToken()?.patientName)}
+                </Button>
+              ) : (
+                <Button variant="contained" sx={getButtonStyles()}>
+                  <Link
+                    href="/signin"
+                    underline="none"
+                    sx={{
+                      color: "white",
+                      textDecoration: "none",
+                      fontWeight: "600",
+                      textTransform: "capitalize",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                    }}
+                  >
+                    Login
+                    <PersonAddAltOutlinedIcon sx={{ fontSize: "18px" }} />
+                  </Link>
+                </Button>
+              )}
+
+              {/* Notification Bell - Tablet/Desktop */}
+              <Tooltip title="Notifications">
+                <IconButton
+                  aria-describedby={id}
+                  onClick={handleClick}
+                  sx={{
+                    padding: { sm: "8px", md: "10px" },
+                    borderRadius: "50%",
+                    margin: "0 8px 0 4px",
+                  }}
+                >
+                  <Badge
+                    variant={unreadCount > 0 ? "dot" : undefined}
+                    color="success"
+                    overlap="circular"
+                    sx={{
+                      "& .MuiBadge-dot": {
+                        backgroundColor: "#00BFA5",
+                        height: 10,
+                        minWidth: 10,
+                        top: 4,
+                        right: 1,
+                      },
+                    }}
+                  >
+                    <NotificationsIcon
+                      sx={{ color: "#fff", fontSize: "28px" }}
+                    />
+                  </Badge>
+                </IconButton>
+              </Tooltip>
+            </>
+          )}
+        </Box>
+
+        {/* Notification Popover */}
+        <NotificationPopover
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleClose}
+          notifications={notifications}
+          readNotifications={readNotification}
+          markAsRead={markAsRead}
+          setUnreadCount={setUnreadCount}
+          setReadCount={setReadCount}
+        />
+
+        {/* User Popover */}
+        {(session || decodedToken()?.id) && (
+          <UserPopover
+            anchorEl={userPopover.anchorRef.current}
+            onClose={userPopover.handleClose}
+            open={userPopover.open}
+          />
         )}
       </Toolbar>
     </AppBar>
