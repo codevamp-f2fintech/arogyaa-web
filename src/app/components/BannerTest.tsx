@@ -3,13 +3,11 @@ import React, { useState, useCallback, useEffect } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-import CloseIcon from "@mui/icons-material/Close";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import LocalPharmacyIcon from "@mui/icons-material/LocalPharmacy";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import ScienceIcon from "@mui/icons-material/Science";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
-import PersonIcon from "@mui/icons-material/Person";
 
 import {
   Box,
@@ -17,7 +15,6 @@ import {
   Paper,
   InputBase,
   Typography,
-  IconButton,
   Container,
   Chip,
   Stack,
@@ -33,8 +30,13 @@ import { AnimatePresence, motion } from "framer-motion";
 import { fetcher } from "@/apis/apiClient";
 import { Utility } from "@/utils";
 import AIAssistant from "./AIAssistant";
-
+import useMediaQuery from "@mui/material/useMediaQuery";
 const BannerComponentTest: React.FC = () => {
+  const isMobile = useMediaQuery("(max-width:599px)", { noSsr: true });
+  const isTablet = useMediaQuery("(min-width:600px) and (max-width:899px)", {
+    noSsr: true,
+  });
+  const isiPhoneSE = useMediaQuery("(max-width:320px)", { noSsr: true });
   const [nameKeyword, setNameKeyword] = useState<string>("");
   const [locationKeyword, setLocationKeyword] = useState<string>("");
   const [results, setResults] = useState<any[]>([]);
@@ -401,7 +403,7 @@ const BannerComponentTest: React.FC = () => {
           flex: 1,
           position: "relative",
           zIndex: 2,
-          height: "70vh",
+          height: isMobile ? "80vh" : isTablet ? "60vh" : "80vh",
           justifyContent: "center",
           display: "flex",
           alignItems: "center",
@@ -409,6 +411,13 @@ const BannerComponentTest: React.FC = () => {
         }}
       >
         <motion.div
+          style={{
+            width: isMobile ? "80vw" : isTablet ? "60vw" : "inherit",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            marginBottom: isMobile ? "1rem" : isTablet ? "8rem" : "inherit",
+          }}
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
@@ -418,7 +427,7 @@ const BannerComponentTest: React.FC = () => {
             sx={{
               textAlign: "center",
               marginBottom: { xs: "10px", sm: "20px" },
-              fontSize: { xs: "34px", sm: "32px", md: "40px", lg: "48px" },
+              fontSize: { xs: "34px", sm: "42px", md: "40px", lg: "48px" },
               marginTop: { xs: "2px", sm: "10px" },
               fontWeight: 600,
               color: "#fff",
@@ -431,9 +440,6 @@ const BannerComponentTest: React.FC = () => {
               justifyContent: "center",
               alignItems: "center",
               flexDirection: { xs: "column", md: "row" },
-              ml: {
-                sm: 4,
-              },
             }}
           >
             <span style={{ marginRight: "8px" }}>Welcome to</span>
@@ -516,7 +522,7 @@ const BannerComponentTest: React.FC = () => {
           style={{
             display: "flex",
             justifyContent: "center",
-            width: "70%",
+            width: isMobile ? "90%" : isTablet ? "70%" : "70%",
             maxWidth: "700px",
             marginTop: "10px",
           }}
@@ -525,11 +531,21 @@ const BannerComponentTest: React.FC = () => {
             sx={{
               display: "flex",
               alignItems: "center",
-              borderRadius: "50px",
-              width: "100%",
+              borderRadius: {
+                xs: "20px",
+                sm: "50px",
+                md: "50px",
+                lg: "50px",
+              },
+              width: "100%", // Ensures full width of parent
+              flexDirection: {
+                xs: "column", // Stack vertically on mobile
+                sm: "row", // Horizontal on tablet/desktop
+              },
               border: "1px solid #ccc",
               boxShadow: "none",
               overflow: "hidden",
+              marginBottom: isMobile ? "11rem" : isTablet ? "13rem" : "inherit",
             }}
           >
             {/* Location Field */}
@@ -541,6 +557,12 @@ const BannerComponentTest: React.FC = () => {
                 px: 2,
                 py: 1.5,
                 gap: 1,
+                position: "relative",
+                width: "100%", // Full width on mobile
+                borderBottom: {
+                  xs: "1px solid #ccc", // Add divider between fields on mobile
+                  sm: "none", // Remove on tablet/desktop
+                },
               }}
             >
               <LocationOnIcon fontSize="small" sx={{ color: "gray" }} />
@@ -555,7 +577,7 @@ const BannerComponentTest: React.FC = () => {
                   fontFamily: "Poppins",
                   color: "#333",
                   "&::placeholder": {
-                    fontSize: "0.75rem", // might not work directly
+                    fontSize: "0.75rem",
                   },
                 }}
                 inputProps={{
@@ -596,7 +618,6 @@ const BannerComponentTest: React.FC = () => {
                 )}
               </Button>
             </Box>
-
             {/* Divider */}
             <Divider orientation="vertical" flexItem />
 
@@ -609,6 +630,7 @@ const BannerComponentTest: React.FC = () => {
                 px: 2,
                 py: 1.5,
                 gap: 1,
+                width: "100%", // Full width on mobile
               }}
             >
               <SearchIcon fontSize="small" sx={{ color: "gray" }} />
@@ -623,7 +645,7 @@ const BannerComponentTest: React.FC = () => {
                   fontFamily: "Poppins",
                   color: "#333",
                   "&::placeholder": {
-                    fontSize: "0.75rem", // might not work directly
+                    fontSize: "0.75rem",
                   },
                 }}
                 inputProps={{
@@ -764,12 +786,14 @@ const BannerComponentTest: React.FC = () => {
           sx={{
             position: "absolute",
             bottom: 0,
-            width: "100%",
+            width: "90%",
             padding: "12px 0",
             textAlign: "center",
             justifyContent: "center",
             zIndex: 5,
-            mb: "20px",
+            marginTop: {
+              md: "5rem",
+            },
           }}
         >
           <Container>
