@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   Container,
   Table,
@@ -28,6 +28,7 @@ import {
 import { Utility } from "@/utils";
 import { creator, fetcher } from "@/apis/apiClient";
 import CreateTestimonialDialog from "./common/createTestimonialDialog";
+import DailyIframe from "@daily-co/daily-js";
 
 interface Doctor {
   _id: string;
@@ -67,7 +68,6 @@ interface RoomResponse {
   scheduledAt?: string;
 }
 
-
 const AppointmentHistory: React.FC = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [page, setPage] = useState(0);
@@ -77,6 +77,26 @@ const AppointmentHistory: React.FC = () => {
   const [creatingRoom, setCreatingRoom] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [message, setMessage] = useState("");
+  const [activeRoomUrl, setActiveRoomUrl] = useState<string | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const [dailyCall, setDailyCall] = useState<any>(null);
+
+  useEffect(() => {
+    if (activeRoomUrl && iframeRef.current) {
+      const callFrame = DailyIframe.wrap(iframeRef.current);
+      setDailyCall(callFrame);
+
+      callFrame.on("left-meeting", () => {
+        const appointmentId = sessionStorage.getItem("dailyRoom_appointmentId");
+        if (appointmentId) handleRoomClosed(appointmentId);
+        setActiveRoomUrl(null);
+      });
+
+      callFrame.on("error", (e) => {
+        console.error("Daily iframe error", e);
+      });
+    }
+  }, [activeRoomUrl]);
 
   const [activeCall, setActiveCall] = useState<{
     appointmentId: string;
@@ -129,8 +149,8 @@ const AppointmentHistory: React.FC = () => {
               hrs > 0
                 ? `Can join in ${hrs}h:${minsLeft}m`
                 : `Can join in ${String(minsLeft).padStart(2, "0")}m:${String(
-                  secsLeft
-                ).padStart(2, "0")}s`;
+                    secsLeft
+                  ).padStart(2, "0")}s`;
 
             newCountdowns[appointmentId] = countdownText;
           } else {
@@ -154,7 +174,8 @@ const AppointmentHistory: React.FC = () => {
       try {
         const response = await fetcher(
           "appointment",
-          `get-patients-appointment/${patientId}?page=${page + 1
+          `get-patients-appointment/${patientId}?page=${
+            page + 1
           }&limit=${rowsPerPage}`
         );
         if (!response || !response.results) {
@@ -171,7 +192,6 @@ const AppointmentHistory: React.FC = () => {
       }
     }
   }, [patientId, page, rowsPerPage]);
-
 
   const handlePayNow = async (
     appointment: Appointment,
@@ -210,8 +230,6 @@ const AppointmentHistory: React.FC = () => {
         container.innerHTML = res.html;
         document.body.appendChild(container);
         container.querySelector("form")?.submit();
-
-
       } else {
         setMessage("Payment initiation failed.");
       }
@@ -335,8 +353,9 @@ const AppointmentHistory: React.FC = () => {
           expiresAt: response.expiresAt,
           doctorName: appointment.doctorId.username,
           doctorId: appointment.doctorId._id, // Add this line
-          returnUrl: `${window.location.origin}/profile?rating&doctorId=${appointment.doctorId._id
-            }&doctorName=${encodeURIComponent(appointment.doctorId.username)}`,
+          returnUrl: `${window.location.origin}/profile?rating&doctorId=${
+            appointment.doctorId._id
+          }&doctorName=${encodeURIComponent(appointment.doctorId.username)}`,
           joinedAt: new Date().toISOString(),
         };
 
@@ -353,7 +372,7 @@ const AppointmentHistory: React.FC = () => {
         });
 
         // Open room in a new window/tab
-        const roomWindow = window.open(response.url, "_blank");
+        setActiveRoomUrl(response.url);
         // Flag to track if the call is opened in
         sessionStorage.setItem("dailyRoom_isActive", "true");
 
@@ -365,7 +384,8 @@ const AppointmentHistory: React.FC = () => {
           }
         }, 1000);
 
-        // Set up expiration timer
+        // Set up expiration time
+        // r
         const expirationTime = new Date(response.expiresAt).getTime();
         const currentTime = new Date().getTime();
         const timeUntilExpiration = expirationTime - currentTime;
@@ -376,6 +396,7 @@ const AppointmentHistory: React.FC = () => {
               roomWindow.close();
             }
             handleRoomExpired(appointment._id);
+            setActiveRoomUrl(null);
           }, timeUntilExpiration);
         }
       } else if (response.message) {
@@ -409,7 +430,7 @@ const AppointmentHistory: React.FC = () => {
       "doctorId",
       "returnUrl",
       "joinedAt",
-      "dailyRoom_isActive"
+      "dailyRoom_isActive",
     ];
     keysToRemove.forEach((key) => {
       sessionStorage.removeItem(`dailyRoom_${key}`);
@@ -451,7 +472,7 @@ const AppointmentHistory: React.FC = () => {
       "doctorId",
       "returnUrl",
       "joinedAt",
-      "dailyRoom_isActive"
+      "dailyRoom_isActive",
     ];
     keysToRemove.forEach((key) => {
       sessionStorage.removeItem(`dailyRoom_${key}`);
@@ -536,7 +557,7 @@ const AppointmentHistory: React.FC = () => {
   const rejoinCall = () => {
     const roomUrl = sessionStorage.getItem("dailyRoom_roomUrl");
     if (roomUrl) {
-      const roomWindow = window.open(roomUrl, "_blank");
+      setActiveRoomUrl(response.url);
 
       // Monitor the reopened window
       const checkClosed = setInterval(() => {
@@ -678,7 +699,10 @@ const AppointmentHistory: React.FC = () => {
         minutesLeft: Math.ceil(diffMinutes),
         isFuture: false,
         daysUntil: 0,
-        message: diffMinutes > 0 ? `Can join in ${Math.ceil(diffMinutes)} mins` : "Join now",
+        message:
+          diffMinutes > 0
+            ? `Can join in ${Math.ceil(diffMinutes)} mins`
+            : "Join now",
       };
     }
 
@@ -711,6 +735,29 @@ const AppointmentHistory: React.FC = () => {
     color: "#fff",
   };
 
+  useEffect(() => {
+    const appointmentId = sessionStorage.getItem("dailyRoom_appointmentId");
+
+    if (!appointmentId) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_CHAT_URL}/extension-status/${appointmentId}`
+        );
+        const data = await res.json();
+
+        if (data?.extensionStatus === "approved") {
+          sessionStorage.setItem("extensionApproved", appointmentId);
+        }
+      } catch (err) {
+        console.error("Extension status polling failed", err);
+      }
+    }, 5000); // every 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   // console.log("appointments>>>", appointments);
 
   return (
@@ -719,6 +766,36 @@ const AppointmentHistory: React.FC = () => {
         <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
           {error}
         </Alert>
+      )}
+
+      {activeRoomUrl && (
+        <Box sx={{ mt: 3 }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+            <strong style={{ color: "#fff" }}>Video Call in Progress</strong>
+            <Button
+              variant="outlined"
+              color="error"
+              onClick={() => {
+                const appointmentId = sessionStorage.getItem(
+                  "dailyRoom_appointmentId"
+                );
+                if (appointmentId) handleRoomClosed(appointmentId);
+                setActiveRoomUrl(null); // remove iframe
+              }}
+            >
+              End Call
+            </Button>
+          </Box>
+          <iframe
+            ref={iframeRef}
+            src={activeRoomUrl}
+            width="100%"
+            height="600"
+            allow="camera; microphone; fullscreen"
+            style={{ border: "2px solid #ccc", borderRadius: "8px" }}
+            title="Video Call"
+          />
+        </Box>
       )}
 
       {activeCall && (
@@ -747,21 +824,94 @@ const AppointmentHistory: React.FC = () => {
           >
             <VideoCall sx={{ fontSize: 20 }} />
             Active call with {activeCall.doctorName} - Expires at{" "}
-            {new Date(activeCall.expiresAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+            {new Date(activeCall.expiresAt).toLocaleTimeString("en-US", {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+            })}
           </Box>
-          {sessionStorage.getItem("dailyRoom_isActive") === "true" ? (
-            <Box sx={{ color: "green", fontWeight: "bold" }}>Already Joined</Box>
-          ) : (
-            <Button
-              size="small"
-              variant="outlined"
-              onClick={rejoinCall}
-              disabled={sessionStorage.getItem("dailyRoom_isActive") === "true"}
-              sx={{ ml: 2, flexShrink: 0 }}
-            >
-              Rejoin Call
-            </Button>
-          )}
+
+          <Box sx={{ display: "flex", gap: 1 }}>
+            {sessionStorage.getItem("dailyRoom_isActive") === "true" ? (
+              <Box sx={{ color: "green", fontWeight: "bold" }}>
+                Already Joined
+              </Box>
+            ) : (
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={rejoinCall}
+                sx={{ ml: 2 }}
+              >
+                Rejoin Call
+              </Button>
+            )}
+
+            {(() => {
+              const expiryTime = new Date(activeCall.expiresAt).getTime();
+              const now = Date.now();
+              const minutesLeft = Math.floor((expiryTime - now) / (1000 * 60));
+
+              if (minutesLeft <= 18) {
+                return (
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    color="secondary"
+                    onClick={async () => {
+                      const appointmentId = sessionStorage.getItem(
+                        "dailyRoom_appointmentId"
+                      );
+                      if (!appointmentId) return;
+
+                      try {
+                        const response = await fetch(
+                          `${process.env.NEXT_PUBLIC_CHAT_URL}/extend-call/${appointmentId}`,
+                          {
+                            method: "POST",
+                            headers: {
+                              "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({ duration: 10 }),
+                          }
+                        );
+
+                        const data = await response.json();
+                        if (response.ok && data.success) {
+                          alert("Extension request sent to doctor.");
+                        } else {
+                          alert("Failed to request extension.");
+                          console.error("API Error:", data?.message);
+                        }
+                      } catch (err: any) {
+                        console.error("Network error:", err);
+                        alert("Something went wrong while sending request.");
+                      }
+                    }}
+                  >
+                    Request +10 min
+                  </Button>
+                );
+              }
+
+              return null;
+            })()}
+
+            {/* ✅ Show Pay Now only if extension approved */}
+            {/* {sessionStorage.getItem("extensionApproved") ===
+              activeCall.appointmentId && (
+              <Button
+                size="small"
+                variant="contained"
+                color="primary"
+                onClick={() =>
+                  handlePayNow({ _id: activeCall.appointmentId }, true)
+                }
+              >
+                Pay Now for Extension
+              </Button>
+            )} */}
+          </Box>
         </Alert>
       )}
 
@@ -812,14 +962,14 @@ const AppointmentHistory: React.FC = () => {
                     {appointment?.doctorId?.username || "N/A"}
                   </TableCell>
                   {appointment.paymentStatus === "success" &&
-                    appointment.appointmentType === "online" &&
-                    (() => {
-                      const { canJoin } = getJoinCallInfo(
-                        appointment.appointmentDate,
-                        appointment.appointmentTime
-                      );
-                      return canJoin;
-                    })() ? (
+                  appointment.appointmentType === "online" &&
+                  (() => {
+                    const { canJoin } = getJoinCallInfo(
+                      appointment.appointmentDate,
+                      appointment.appointmentTime
+                    );
+                    return canJoin;
+                  })() ? (
                     <TableCell>
                       <Box
                         sx={{ display: "flex", alignItems: "center", gap: 1 }}
@@ -850,8 +1000,8 @@ const AppointmentHistory: React.FC = () => {
                   <TableCell sx={{ textAlign: "center" }}>
                     {appointment?.appointmentDate
                       ? new Date(appointment.appointmentDate)
-                        .toISOString()
-                        .split("T")[0]
+                          .toISOString()
+                          .split("T")[0]
                       : "N/A"}
                   </TableCell>
 
@@ -877,20 +1027,26 @@ const AppointmentHistory: React.FC = () => {
                         {appointment.paymentStatus === "pending" ? (
                           // Show Pay Now button when paymentStatus is "pending"
                           <Tooltip
-                            title={
-                              (() => {
-                                const now = new Date();
-                                const apptDate = new Date(appointment.appointmentDate);
-                                const [time, period] = appointment.appointmentTime.split(" ");
-                                const [hours, minutes] = time.split(":").map(Number);
-                                let apptHour = hours;
-                                if (period === "PM" && hours !== 12) apptHour += 12;
-                                if (period === "AM" && hours === 12) apptHour = 0;
-                                apptDate.setHours(apptHour, minutes, 0, 0);
-                                const isPast = now > apptDate;
-                                return isPast ? "Payment window has expired" : "Payment is required to join the session";
-                              })()
-                            }
+                            title={(() => {
+                              const now = new Date();
+                              const apptDate = new Date(
+                                appointment.appointmentDate
+                              );
+                              const [time, period] =
+                                appointment.appointmentTime.split(" ");
+                              const [hours, minutes] = time
+                                .split(":")
+                                .map(Number);
+                              let apptHour = hours;
+                              if (period === "PM" && hours !== 12)
+                                apptHour += 12;
+                              if (period === "AM" && hours === 12) apptHour = 0;
+                              apptDate.setHours(apptHour, minutes, 0, 0);
+                              const isPast = now > apptDate;
+                              return isPast
+                                ? "Payment window has expired"
+                                : "Payment is required to join the session";
+                            })()}
                             arrow
                             componentsProps={{
                               tooltip: {
@@ -913,17 +1069,25 @@ const AppointmentHistory: React.FC = () => {
                           >
                             {(() => {
                               const now = new Date();
-                              const apptDate = new Date(appointment.appointmentDate);
-                              const [time, period] = appointment.appointmentTime.split(" ");
-                              const [hours, minutes] = time.split(":").map(Number);
+                              const apptDate = new Date(
+                                appointment.appointmentDate
+                              );
+                              const [time, period] =
+                                appointment.appointmentTime.split(" ");
+                              const [hours, minutes] = time
+                                .split(":")
+                                .map(Number);
                               let apptHour = hours;
-                              if (period === "PM" && hours !== 12) apptHour += 12;
+                              if (period === "PM" && hours !== 12)
+                                apptHour += 12;
                               if (period === "AM" && hours === 12) apptHour = 0;
                               apptDate.setHours(apptHour, minutes, 0, 0);
                               const isPast = now > apptDate;
 
                               return isPast ? (
-                                <Box sx={{ color: "#fff", fontStyle: "italic" }}>
+                                <Box
+                                  sx={{ color: "#fff", fontStyle: "italic" }}
+                                >
                                   Payment window has expired
                                 </Box>
                               ) : (
@@ -933,19 +1097,23 @@ const AppointmentHistory: React.FC = () => {
                                   color="warning"
                                   onClick={() => handlePayNow(appointment)}
                                   sx={{
-                                    background: "linear-gradient(90deg, #7b56ce 0%, #9e6df7 100%)",
+                                    background:
+                                      "linear-gradient(90deg, #7b56ce 0%, #9e6df7 100%)",
                                     color: "#fff",
                                     fontWeight: "bold",
                                     textTransform: "none",
                                     borderRadius: "30px",
                                     px: 2,
                                     py: 0.5,
-                                    boxShadow: "0 4px 15px rgba(123, 86, 206, 0.4)",
+                                    boxShadow:
+                                      "0 4px 15px rgba(123, 86, 206, 0.4)",
                                     transition: "all 0.3s ease",
                                     whiteSpace: "nowrap",
                                     "&:hover": {
-                                      background: "linear-gradient(90deg, #9e6df7 0%, #7b56ce 100%)",
-                                      boxShadow: "0 6px 20px rgba(123, 86, 206, 0.5)",
+                                      background:
+                                        "linear-gradient(90deg, #9e6df7 0%, #7b56ce 100%)",
+                                      boxShadow:
+                                        "0 6px 20px rgba(123, 86, 206, 0.5)",
                                     },
                                   }}
                                 >
@@ -956,7 +1124,8 @@ const AppointmentHistory: React.FC = () => {
                           </Tooltip>
                         ) : appointment.paymentStatus === "success" ? (
                           // Handle cases when paymentStatus is "success"
-                          appointment.status === "scheduled" && canCreateRoom(appointment) ? (
+                          appointment.status === "scheduled" &&
+                          canCreateRoom(appointment) ? (
                             // Show Join Call button when status is "scheduled" and room can be created
                             <>
                               {(() => {
@@ -971,7 +1140,10 @@ const AppointmentHistory: React.FC = () => {
                                       size="small"
                                       startIcon={
                                         creatingRoom === appointment._id ? (
-                                          <CircularProgress size={16} color="inherit" />
+                                          <CircularProgress
+                                            size={16}
+                                            color="inherit"
+                                          />
                                         ) : (
                                           <VideoCall />
                                         )
@@ -984,16 +1156,28 @@ const AppointmentHistory: React.FC = () => {
                                       }
                                       sx={{
                                         backgroundColor: "#4caf50",
-                                        "&:hover": { backgroundColor: "#45a049" },
-                                        "&:disabled": { backgroundColor: "#cccccc" },
+                                        "&:hover": {
+                                          backgroundColor: "#45a049",
+                                        },
+                                        "&:disabled": {
+                                          backgroundColor: "#cccccc",
+                                        },
                                         textTransform: "none",
                                         whiteSpace: "nowrap",
                                       }}
                                     >
-                                      {creatingRoom === appointment._id ? "Creating..." : "Join Call"}
+                                      {creatingRoom === appointment._id
+                                        ? "Creating..."
+                                        : "Join Call"}
                                     </Button>
                                     {!canJoin && (
-                                      <Box sx={{ mt: 1, fontSize: "12px", color: "#fff" }}>
+                                      <Box
+                                        sx={{
+                                          mt: 1,
+                                          fontSize: "12px",
+                                          color: "#fff",
+                                        }}
+                                      >
                                         {countdowns[appointment._id] || message}
                                       </Box>
                                     )}
@@ -1004,13 +1188,18 @@ const AppointmentHistory: React.FC = () => {
                           ) : (
                             // Show message when status is "pending" (or not "scheduled")
                             <Box sx={{ color: "#fff", fontStyle: "italic" }}>
-                              {appointment.status === "completed" ? "Attended The Session" : appointment.status === "rejected" ? "Doctor is busy, choose another appointment slot" : "Doctor has not yet scheduled this appointment."}
+                              {appointment.status === "completed"
+                                ? "Attended The Session"
+                                : appointment.status === "rejected"
+                                ? "Doctor is busy, choose another appointment slot"
+                                : "Doctor has not yet scheduled this appointment."}
                             </Box>
                           )
                         ) : (
                           // Optional: Handle other payment statuses (e.g., "failed", null)
                           <Box sx={{ color: "#fff" }}>
-                            Payment status: {appointment.paymentStatus || "Unknown"}
+                            Payment status:{" "}
+                            {appointment.paymentStatus || "Unknown"}
                           </Box>
                         )}
                       </>
