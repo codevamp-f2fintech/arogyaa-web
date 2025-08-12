@@ -192,6 +192,8 @@ const SpecialitySlider = () => {
                         transform: "translateY(-8px)",
                         boxShadow: "0 16px 24px rgba(0, 0, 0, 0.2)",
                       },
+                      display: "flex",
+                      flexDirection: "column", // Added for better content control
                     }}
                   >
                     <SpecialistCard
@@ -203,6 +205,22 @@ const SpecialitySlider = () => {
                           : item.description
                       }
                       onConsult={() => handleConsult(item.name)}
+                      sx={{
+                        "& .description-text": {
+                          fontSize:
+                            item.description.length > 80 ? "0.8rem" : "0.9rem",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          lineHeight: 1.4,
+                        },
+                        "& .name-text": {
+                          fontSize: item.name.length > 20 ? "1rem" : "1.2rem",
+                          fontWeight: 600,
+                        },
+                      }}
                     />
                   </Paper>
                 </Box>

@@ -66,7 +66,7 @@ import {
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#2ecc71",
+      main: "#3ab795",
       light: "#4FBEB3",
       dark: "#178F84",
     },
@@ -468,7 +468,7 @@ export default function DoctorListing() {
                   width: { xs: "100%", sm: "auto" },
                   "&:hover": {
                     "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#2ecc71",
+                      borderColor: "#3ab795",
                     },
                   },
                   "& .MuiOutlinedInput-input": {
@@ -480,7 +480,7 @@ export default function DoctorListing() {
                     borderColor: "transparent",
                   },
                   "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#2ecc71 !important", // ✅ Hover border black
+                    borderColor: "#3ab795 !important", // ✅ Hover border black
                   },
                 }}
               >
@@ -725,7 +725,7 @@ export default function DoctorListing() {
             <IconButton
               color="primary"
               sx={{
-                backgroundColor: "#2ecc71",
+                backgroundColor: "#3ab795",
                 color: "#29175e",
                 width: "60px",
                 height: "60px",
@@ -827,7 +827,7 @@ export default function DoctorListing() {
                           <>
                             <VerifiedIcon
                               sx={{
-                                color: "#2ecc71",
+                                color: "#3ab795",
                                 marginLeft: "10px",
                                 fontSize: "24px",
                               }}
@@ -836,7 +836,7 @@ export default function DoctorListing() {
                               sx={{
                                 fontSize: "14px",
                                 fontWeight: "500",
-                                color: "#2ecc71",
+                                color: "#3ab795",
                               }}
                             >
                               Verified
@@ -866,7 +866,7 @@ export default function DoctorListing() {
                           }}
                         >
                           <SchoolIcon
-                            sx={{ color: "#2ecc71", fontSize: "30px" }}
+                            sx={{ color: "#3ab795", fontSize: "30px" }}
                           />
                           <Box
                             sx={{
@@ -883,7 +883,7 @@ export default function DoctorListing() {
                                   key={index}
                                   variant="body2"
                                   sx={{
-                                    backgroundColor: "#2ecc71",
+                                    backgroundColor: "#3ab795",
                                     color: "#fff",
                                     padding: "2px 10px",
                                     borderRadius: "12px",
@@ -905,13 +905,32 @@ export default function DoctorListing() {
                           </Box>
                         </Box>
 
-                        <Box sx={{ display: "flex", flexDirection: "column" }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            width: {
+                              xs: "50vw",
+                              sm: "25vw",
+                              md: "35vw",
+                            },
+                          }}
+                        >
                           <Box
                             sx={{
                               display: "flex",
-                              flexWrap: "wrap",
+                              flexWrap: "nowrap", // Changed from wrap to nowrap
                               gap: "4px",
                               mt: 1,
+                              overflowX: "auto", // Enable horizontal scrolling
+                              pb: 1, // Add some padding for scrollbar
+                              "&::-webkit-scrollbar": {
+                                height: "4px",
+                              },
+                              "&::-webkit-scrollbar-thumb": {
+                                backgroundColor: "#aaa",
+                                borderRadius: "4px",
+                              },
                             }}
                           >
                             {doctor.tags?.length > 0 ? (
@@ -926,6 +945,7 @@ export default function DoctorListing() {
                                     padding: "4px 7px",
                                     borderRadius: "16px",
                                     fontSize: "12px",
+                                    flexShrink: 0, // Prevent items from shrinking
                                   }}
                                 >
                                   <LocalOfferIcon
@@ -940,14 +960,16 @@ export default function DoctorListing() {
                             ) : (
                               <Typography
                                 variant="body2"
-                                sx={{ color: "#888" }}
+                                sx={{
+                                  color: "#888",
+                                  flexShrink: 0, // Keep consistent with other items
+                                }}
                               >
                                 Specialization Not Available
                               </Typography>
                             )}
                           </Box>
                         </Box>
-
                         <Typography
                           variant="body2"
                           sx={{
@@ -955,6 +977,7 @@ export default function DoctorListing() {
                             maxHeight: "30vh", // 30% of viewport height
                             minHeight: "80px",
                             overflowY: "auto", // Add scroll when content overflows
+
                             flex: 1, // Take up remaining space
                             paddingRight: "8px", // Prevent content from touching scrollbar
                             "&::-webkit-scrollbar": {
@@ -965,10 +988,15 @@ export default function DoctorListing() {
                               background: "transparent",
                             },
                             "&::-webkit-scrollbar-thumb": {
-                              background: "#2ecc71",
+                              background: "#aaa",
                               borderRadius: "3px",
                             },
-                            width: "25vw",
+                            width: {
+                              xs: "50vw",
+                              md: "auto",
+                              sm: "30vw",
+                            },
+
                             mt: 2,
                           }}
                         >
@@ -1127,7 +1155,7 @@ export default function DoctorListing() {
                         color: "#fff",
                       }}
                     >
-                      <WorkIcon fontSize="small" sx={{ color: "#2ecc71" }} />
+                      <WorkIcon fontSize="small" sx={{ color: "#3ab795" }} />
                       {doctor.experience
                         ? `${doctor.experience} Years of Experience`
                         : "Experience Not Available"}
@@ -1144,7 +1172,7 @@ export default function DoctorListing() {
                     >
                       <CurrencyRupeeIcon
                         fontSize="small"
-                        sx={{ color: "#2ecc71" }}
+                        sx={{ color: "#3ab795" }}
                       />
                       {doctor.consultationFee || "Not Available"}
                     </Typography>
