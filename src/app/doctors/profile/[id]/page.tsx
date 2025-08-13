@@ -308,7 +308,6 @@ const DrProfile: React.FC = () => {
                   backgroundColor: "#56428b",
                   borderRadius: "0 !important",
                   height: { sm: "55vh" },
-                  border: "1px solid ",
                 }}
               >
                 {/* Doctor Details */}
@@ -384,7 +383,7 @@ const DrProfile: React.FC = () => {
                         <>
                           <VerifiedIcon
                             sx={{
-                              color: "#2ECC71",
+                              color: "#3ab795",
                               marginLeft: { xs: "5px", sm: "10px" },
                               fontSize: { xs: "20px", sm: "24px" },
                             }}
@@ -393,7 +392,7 @@ const DrProfile: React.FC = () => {
                             sx={{
                               fontSize: { xs: "12px", sm: "14px" },
                               fontWeight: "500",
-                              color: "#2ECC71",
+                              color: "#3ab795",
                               marginLeft: "5px",
                             }}
                           >
@@ -421,7 +420,7 @@ const DrProfile: React.FC = () => {
                             sx={{
                               display: "flex",
                               alignItems: "center",
-                              backgroundColor: "#2ECC71",
+                              backgroundColor: "#3ab795",
                               color: "#f2f2f2",
                               padding: {
                                 xs: "1px 5px",
@@ -484,7 +483,7 @@ const DrProfile: React.FC = () => {
                       <LocalHospitalIcon
                         sx={{
                           fontSize: { xs: "16px", sm: "17px", md: "18px" },
-                          color: "#2ECC71",
+                          color: "#3ab795",
                           marginRight: { xs: "6px", sm: "7px", md: "8px" },
                           marginTop: "2px",
                         }}
@@ -543,7 +542,7 @@ const DrProfile: React.FC = () => {
                       <WorkIcon
                         sx={{
                           fontSize: { xs: "16px", sm: "17px", md: "18px" },
-                          color: "#2ECC71",
+                          color: "#3ab795",
                           marginRight: { xs: "6px", sm: "7px", md: "8px" },
                           marginTop: "2px",
                         }}
@@ -597,7 +596,8 @@ const DrProfile: React.FC = () => {
                             backgroundColor: "#b497d6",
                             padding: { xs: "10px", sm: "12px", md: "14px" },
                             borderRadius: "5px",
-                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                            boxShadow: "rgba(255, 255, 255, 0.18) 0px 2px 4px",
+
                             textAlign: "center",
                             width: {
                               xs: "100%",
@@ -773,7 +773,7 @@ const DrProfile: React.FC = () => {
                     </Typography>
                     <Rating
                       sx={{
-                        color: "#2ecc71",
+                        color: "#3ab795",
                         fontSize: { xs: "1.2rem", sm: "1.5rem" },
                       }}
                       value={Number(existingReview.rating)}
@@ -860,7 +860,7 @@ const DrProfile: React.FC = () => {
                         Meet{" "}
                         <span
                           style={{
-                            color: "	#2ECC71",
+                            color: "	#3ab795",
                             textDecoration: "none",
                             fontWeight: "600",
                           }}
@@ -871,7 +871,7 @@ const DrProfile: React.FC = () => {
                         <span
                           style={{
                             fontWeight: "500",
-                            color: "	#2ECC71",
+                            color: "	#3ab795",
                             textDecoration: "none",
                           }}
                         >
@@ -881,7 +881,7 @@ const DrProfile: React.FC = () => {
                         <span
                           style={{
                             fontWeight: "600",
-                            color: "#2ECC71",
+                            color: "#3ab795",
                             textDecoration: "none",
                           }}
                         >
@@ -898,7 +898,7 @@ const DrProfile: React.FC = () => {
                         . Dedicated to providing top-tier healthcare,{" "}
                         <span
                           style={{
-                            color: "#2ECC71",
+                            color: "#3ab795",
                             textDecoration: "none",
                             fontWeight: "600",
                           }}
@@ -909,7 +909,7 @@ const DrProfile: React.FC = () => {
                         <span
                           style={{
                             fontWeight: "600",
-                            color: "#2ECC71",
+                            color: "#3ab795",
                             textDecoration: "none",
                           }}
                         >
@@ -934,7 +934,7 @@ const DrProfile: React.FC = () => {
                         >
                           <SchoolIcon
                             sx={{
-                              color: "#2ECC71",
+                              color: "#3ab795",
                               fontSize: "20px",
                               marginRight: "5px",
                             }}
@@ -953,7 +953,7 @@ const DrProfile: React.FC = () => {
                                   key={index}
                                   variant="body2"
                                   sx={{
-                                    backgroundColor: "#2ECC71",
+                                    backgroundColor: "#3ab795",
                                     color: "#f2f2f2",
                                     padding: "1px 10px",
                                     borderRadius: "20px",
@@ -989,7 +989,7 @@ const DrProfile: React.FC = () => {
                         >
                           <LocalHospitalIcon
                             sx={{
-                              color: "#2ECC71",
+                              color: "#3ab795",
                               fontSize: "20px",
                               marginRight: "5px",
                             }}
@@ -1012,7 +1012,7 @@ const DrProfile: React.FC = () => {
                                   key={index}
                                   variant="body2"
                                   sx={{
-                                    backgroundColor: "#2ECC71",
+                                    backgroundColor: "#3ab795",
                                     color: "#f2f2f2",
                                     padding: "2px 12px",
                                     borderRadius: "20px",
@@ -1078,7 +1078,7 @@ const DrProfile: React.FC = () => {
                               sx={{
                                 fontSize: "1.1rem",
                                 fontWeight: "bold",
-                                color: "#2ecc71",
+                                color: "#3ab795",
                                 marginBottom: "12px",
                               }}
                             >
@@ -1088,7 +1088,7 @@ const DrProfile: React.FC = () => {
                               <LocationOnIcon
                                 fontSize="small"
                                 color="primary"
-                                sx={{ marginRight: "4px", color: "#2ecc71" }}
+                                sx={{ marginRight: "4px", color: "#3ab795" }}
                               />
                               <Typography
                                 variant="body2"
@@ -1124,7 +1124,7 @@ const DrProfile: React.FC = () => {
                               sx={{
                                 fontSize: "1.1rem",
                                 fontWeight: "bold",
-                                color: "#2ecc71",
+                                color: "#3ab795",
                                 marginBottom: "12px",
                               }}
                             >
@@ -1143,7 +1143,7 @@ const DrProfile: React.FC = () => {
                                   background: "transparent",
                                 },
                                 "&::-webkit-scrollbar-thumb": {
-                                  background: "#2ecc71",
+                                  background: "#3ab795",
                                   borderRadius: "3px",
                                 },
                               }}
@@ -1169,7 +1169,7 @@ const DrProfile: React.FC = () => {
                                       >
                                         <CalendarTodayIcon
                                           fontSize="small"
-                                          sx={{ color: "#2ecc71" }}
+                                          sx={{ color: "#3ab795" }}
                                         />
                                         <Typography
                                           variant="body2"
@@ -1191,7 +1191,7 @@ const DrProfile: React.FC = () => {
                                       >
                                         <AccessTimeIcon
                                           fontSize="small"
-                                          sx={{ color: "#2ecc71" }}
+                                          sx={{ color: "#3ab795" }}
                                         />
                                         <Typography
                                           variant="body2"
@@ -1242,7 +1242,7 @@ const DrProfile: React.FC = () => {
                               sx={{
                                 fontSize: "1.1rem",
                                 fontWeight: "bold",
-                                color: "#2ecc71",
+                                color: "#3ab795",
                                 marginBottom: "10px",
                               }}
                             >
@@ -1260,7 +1260,7 @@ const DrProfile: React.FC = () => {
                               }}
                             >
                               <CurrencyRupeeIcon
-                                sx={{ marginRight: "5px", color: "#2ecc71" }}
+                                sx={{ marginRight: "5px", color: "#3ab795" }}
                               />
                               Fee: ₹{" "}
                               {profileData.data?.consultationFee || "N/A"}
@@ -1276,7 +1276,7 @@ const DrProfile: React.FC = () => {
                               }}
                             >
                               <PaymentIcon
-                                sx={{ marginRight: "5px", color: "#2ecc71" }}
+                                sx={{ marginRight: "5px", color: "#3ab795" }}
                               />
                               Online Payment Available
                             </Typography>
@@ -1443,7 +1443,7 @@ const DrProfile: React.FC = () => {
                             "&:hover": {
                               backgroundColor: "#29175e",
                               color: "#fff",
-                              "& svg": { color: "#2ecc71" },
+                              "& svg": { color: "#3ab795" },
                             },
                           }}
                         >
@@ -1456,7 +1456,7 @@ const DrProfile: React.FC = () => {
                           >
                             <AccessTimeIcon
                               fontSize="small"
-                              sx={{ color: "#2ecc71" }}
+                              sx={{ color: "#3ab795" }}
                             />
                             <Typography
                               variant="body2"
@@ -1484,7 +1484,7 @@ const DrProfile: React.FC = () => {
                       <VideoCallIcon
                         sx={{
                           fontSize: "40px",
-                          color: "#2ecc71",
+                          color: "#3ab795",
                           marginBottom: "10px",
                         }}
                       />
@@ -1503,7 +1503,7 @@ const DrProfile: React.FC = () => {
                           variant="contained"
                           startIcon={
                             <VideoCallIcon
-                              sx={{ fontSize: "20px", color: "#2ecc71" }}
+                              sx={{ fontSize: "20px", color: "#3ab795" }}
                             />
                           }
                           sx={{
@@ -1549,7 +1549,7 @@ const DrProfile: React.FC = () => {
                       <LocalHospitalIcon
                         sx={{
                           fontSize: "30px",
-                          color: "#2ecc71",
+                          color: "#3ab795",
                           marginBottom: "10px",
                         }}
                       />
@@ -1567,7 +1567,7 @@ const DrProfile: React.FC = () => {
                           variant="contained"
                           startIcon={
                             <LocalHospitalIcon
-                              sx={{ fontSize: "0px", color: "#2ecc71" }}
+                              sx={{ fontSize: "0px", color: "#3ab795" }}
                             />
                           }
                           sx={{
@@ -1663,7 +1663,7 @@ const DrProfile: React.FC = () => {
                                   "&:hover": {
                                     backgroundColor: "#29175e",
                                     color: "#fff",
-                                    "& svg": { color: "#2ecc71" },
+                                    "& svg": { color: "#3ab795" },
                                   },
                                 }}
                               >
@@ -1676,7 +1676,7 @@ const DrProfile: React.FC = () => {
                                 >
                                   <AccessTimeIcon
                                     fontSize="small"
-                                    sx={{ color: "#2ecc71" }}
+                                    sx={{ color: "#3ab795" }}
                                   />
                                   <Typography
                                     variant="body2"

@@ -286,6 +286,7 @@ const ExpertSpecialistSlider: React.FC = () => {
                     position: "relative",
                     transition: "all 0.3s ease",
                     backgroundColor: "#b497d6",
+
                     "&:hover": {
                       transform: "translateY(-8px)",
                       boxShadow: "0 12px 24px rgba(32, 173, 160, 0.15)",
@@ -448,62 +449,58 @@ const ExpertSpecialistSlider: React.FC = () => {
                   </Box>
 
                   {/* Enhanced Content */}
-                  <Box sx={{ marginTop: "2vh", p: 2, textAlign: "center" }}>
+                  <Box sx={{ p: 2, textAlign: "center" }}>
                     {/* Enhanced Chips */}
                     <Box
                       sx={{
                         display: "flex",
-                        flexDirection: "column",
+                        flexDirection: "row",
                         alignItems: "center",
-                        gap: 1,
-                        mb: 2,
+                        gap: 5,
+                        mb: 0,
+                        maxHeight: "10vh",
+                        height: "12vh",
+                        overflowY: "hidden",
+                        overflowX: "hidden",
+                        paddingRight: "4px",
+                        position: "relative",
+                        "&:hover .slider-content": {
+                          animationPlayState: "paused",
+                        },
+                        "&::-webkit-scrollbar": {
+                          width: "6px",
+                          height: "4vh",
+                        },
+                        "&::-webkit-scrollbar-thumb": {
+                          backgroundColor: "#b497d6",
+                          borderRadius: "4px",
+                        },
+                        flexWrap: "nowrap",
                       }}
                     >
-                      {/* Top row: Qualification + Experience */}
                       <Box
+                        className="slider-content"
                         sx={{
                           display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center",
-                          gap: 1,
-                          flexWrap: "wrap",
+                          animation: "scroll 20s linear infinite",
+                          "@keyframes scroll": {
+                            "0%": { transform: "translateX(0)" },
+                            "100%": { transform: "translateX(-50%)" },
+                          },
+                          gap: 2,
                         }}
                       >
-                        {doctor.qualificationIds?.map(
-                          (qualification, index) => (
-                            <Chip
-                              key={index}
-                              icon={
-                                <SchoolIcon
-                                  sx={{
-                                    color: "#29175e !important",
-                                    fontSize: "0.7rem",
-                                  }}
-                                />
-                              }
-                              label={qualification.name}
-                              variant="outlined"
-                              size="small"
-                              sx={{
-                                borderColor: "#29175e",
-                                color: "#29175e",
-                                fontWeight: 500,
-                                fontSize: "0.8rem",
-                                fontFamily: "Poppins",
-                                "&:hover": {
-                                  backgroundColor: "rgba(32, 173, 160, 0.05)",
-                                  borderColor: "#29175e",
-                                },
-                              }}
-                            />
-                          )
-                        )}
-
+                        {/* Original Content */}
                         <Chip
                           icon={
-                            <SchoolIcon sx={{ color: "#29175e!important" }} />
+                            <SchoolIcon
+                              sx={{
+                                color: "#29175e !important",
+                                fontSize: "0.7rem",
+                              }}
+                            />
                           }
-                          label={`${doctor.experience} Years Exp.`}
+                          label="MD"
                           variant="outlined"
                           size="small"
                           sx={{
@@ -518,22 +515,58 @@ const ExpertSpecialistSlider: React.FC = () => {
                             },
                           }}
                         />
-                      </Box>
 
-                      {/* Bottom: Location only */}
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "center",
-                          mt: 1,
-                        }}
-                      >
+                        <Chip
+                          icon={
+                            <SchoolIcon
+                              sx={{
+                                color: "#29175e !important",
+                                fontSize: "0.7rem",
+                              }}
+                            />
+                          }
+                          label="MS"
+                          variant="outlined"
+                          size="small"
+                          sx={{
+                            borderColor: "#29175e",
+                            color: "#29175e",
+                            fontWeight: 500,
+                            fontSize: "0.8rem",
+                            fontFamily: "Poppins",
+                            "&:hover": {
+                              backgroundColor: "rgba(32, 173, 160, 0.05)",
+                              borderColor: "#29175e",
+                            },
+                          }}
+                        />
+
+                        <Chip
+                          icon={
+                            <SchoolIcon sx={{ color: "#29175e!important" }} />
+                          }
+                          label="6 Years Exp."
+                          variant="outlined"
+                          size="small"
+                          sx={{
+                            borderColor: "#29175e",
+                            color: "#29175e",
+                            fontWeight: 500,
+                            fontSize: "0.8rem",
+                            fontFamily: "Poppins",
+                            "&:hover": {
+                              backgroundColor: "rgba(32, 173, 160, 0.05)",
+                              borderColor: "#29175e",
+                            },
+                          }}
+                        />
+
                         <Tooltip
-                          title={doctor.clinicAddress}
+                          title="Clinic Address"
                           componentsProps={{
                             tooltip: {
                               sx: {
-                                backgroundColor: "#5b4791", // light transparent gray
+                                backgroundColor: "#5b4791",
                                 color: "#fff",
                                 fontFamily: "Poppins",
                                 fontWeight: 500,
@@ -543,7 +576,6 @@ const ExpertSpecialistSlider: React.FC = () => {
                                 boxShadow: "0px 4px 8px rgba(0,0,0,0.1)",
                                 maxWidth: "300px",
                                 border: "1px solid #e0e0e0",
-                                transition: "background-color 0.3s ease",
                               },
                             },
                           }}
@@ -554,7 +586,121 @@ const ExpertSpecialistSlider: React.FC = () => {
                                 sx={{ color: "#29175e !important" }}
                               />
                             }
-                            label={`${doctor.clinicAddress}`}
+                            label="Clinic Address"
+                            variant="outlined"
+                            size="small"
+                            sx={{
+                              borderColor: "#29175e",
+                              color: "#29175e",
+                              width: "10vw",
+                              fontSize: "0.8rem",
+                              fontWeight: 500,
+                              fontFamily: "Poppins",
+                              "&:hover": {
+                                backgroundColor: "#b497d6",
+                                borderColor: "#29175e",
+                              },
+                            }}
+                          />
+                        </Tooltip>
+
+                        {/* Duplicated Content for Infinite Effect */}
+                        <Chip
+                          icon={
+                            <SchoolIcon
+                              sx={{
+                                color: "#29175e !important",
+                                fontSize: "0.7rem",
+                              }}
+                            />
+                          }
+                          label="MD"
+                          variant="outlined"
+                          size="small"
+                          sx={{
+                            borderColor: "#29175e",
+                            color: "#29175e",
+                            fontWeight: 500,
+                            fontSize: "0.8rem",
+                            fontFamily: "Poppins",
+                            "&:hover": {
+                              backgroundColor: "rgba(32, 173, 160, 0.05)",
+                              borderColor: "#29175e",
+                            },
+                          }}
+                        />
+
+                        <Chip
+                          icon={
+                            <SchoolIcon
+                              sx={{
+                                color: "#29175e !important",
+                                fontSize: "0.7rem",
+                              }}
+                            />
+                          }
+                          label="MS"
+                          variant="outlined"
+                          size="small"
+                          sx={{
+                            borderColor: "#29175e",
+                            color: "#29175e",
+                            fontWeight: 500,
+                            fontSize: "0.8rem",
+                            fontFamily: "Poppins",
+                            "&:hover": {
+                              backgroundColor: "rgba(32, 173, 160, 0.05)",
+                              borderColor: "#29175e",
+                            },
+                          }}
+                        />
+
+                        <Chip
+                          icon={
+                            <SchoolIcon sx={{ color: "#29175e!important" }} />
+                          }
+                          label="6 Years Exp."
+                          variant="outlined"
+                          size="small"
+                          sx={{
+                            borderColor: "#29175e",
+                            color: "#29175e",
+                            fontWeight: 500,
+                            fontSize: "0.8rem",
+                            fontFamily: "Poppins",
+                            "&:hover": {
+                              backgroundColor: "rgba(32, 173, 160, 0.05)",
+                              borderColor: "#29175e",
+                            },
+                          }}
+                        />
+
+                        <Tooltip
+                          title="Clinic Address"
+                          componentsProps={{
+                            tooltip: {
+                              sx: {
+                                backgroundColor: "#5b4791",
+                                color: "#fff",
+                                fontFamily: "Poppins",
+                                fontWeight: 500,
+                                fontSize: "0.8rem",
+                                padding: "6px 16px",
+                                borderRadius: "8px",
+                                boxShadow: "0px 4px 8px rgba(0,0,0,0.1)",
+                                maxWidth: "300px",
+                                border: "1px solid #e0e0e0",
+                              },
+                            },
+                          }}
+                        >
+                          <Chip
+                            icon={
+                              <LocationOnIcon
+                                sx={{ color: "#29175e !important" }}
+                              />
+                            }
+                            label="Clinic Address"
                             variant="outlined"
                             size="small"
                             sx={{
@@ -612,31 +758,47 @@ const ExpertSpecialistSlider: React.FC = () => {
                       }}
                     />
 
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: "#fff",
-                        // height: "8vh",
-                        overflow: "hidden",
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                        lineHeight: 1.5,
-                        px: 1,
-                        fontFamily: "Poppins",
-                        width: "100%",
-                        textAlign: "center",
-                        margin: "0 auto",
-                        fontWeight: 500,
-                        "&:hover": {
-                          textShadow:
-                            "0px 6px 12px rgba(0, 0, 0, 0.4), 0px 12px 24px rgba(0, 0, 0, 0.3)",
-                          transform: "scale(1.05)",
+                    <Tooltip
+                      title={doctor.bio}
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: "#5b4791",
+                            color: "#fff",
+                            fontFamily: "Poppins",
+                            fontSize: "0.85rem",
+                            padding: "8px 12px",
+                            borderRadius: "8px",
+                            maxWidth: "300px",
+                            boxShadow: "0px 4px 8px rgba(0,0,0,0.2)",
+                          },
                         },
                       }}
                     >
-                      {doctor.bio}
-                    </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "#fff",
+                          px: 1,
+                          fontFamily: "Poppins",
+                          width: "100%",
+                          textAlign: "center",
+                          margin: "0 auto",
+                          fontWeight: 500,
+                          cursor: "pointer",
+
+                          // apply these only on md and up (md, lg, xl)
+                          minHeight: { xs: "75px", sm: "13.5vh", md: "" },
+                          maxHeight: { xs: "75px", sm: "13.5vh", md: "" },
+                          overflow: { xs: "hidden", sm: "hidden" },
+                          display: { md: "-webkit-box" },
+                          WebkitBoxOrient: { xs: "unset", sm: "vertical" },
+                          WebkitLineClamp: { xs: "unset", sm: 2 },
+                        }}
+                      >
+                        {doctor.bio}
+                      </Typography>
+                    </Tooltip>
 
                     {/* Enhanced Button */}
                     <Button
@@ -644,15 +806,14 @@ const ExpertSpecialistSlider: React.FC = () => {
                       onClick={() => openModal(doctor)}
                       startIcon={<EventIcon />}
                       sx={{
-                        marginTop: "16px",
                         background: "#29175e",
                         borderRadius: "25px",
                         padding: "8px 24px",
+                        mt: 2,
                         textTransform: "none",
                         fontWeight: "600",
                         transition: "all 0.3s ease",
                         boxShadow: "0 4px 12px rgba(32, 173, 160, 0.2)",
-                        mb: 2,
                         "&:hover": {
                           background: "#29175e",
                           boxShadow: "0 6px 16px rgba(32, 173, 160, 0.3)",
