@@ -482,6 +482,60 @@ export default function Login() {
                             Sign Up
                           </span>
                         </Button>
+                        <Button
+                          variant="outlined"
+                          fullWidth
+                          startIcon={
+                            <svg
+                              width="20"
+                              height="20"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M12 4L12 20"
+                                stroke="#4285F4"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                              />
+                              <path
+                                d="M4 12L20 12"
+                                stroke="#4285F4"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                              />
+                            </svg>
+                          }
+                          onClick={() => {
+                            window.location.href =
+                              "http://localhost:3001/signup-as-doctor";
+                            // OR window.open("http://localhost:3001/signup-as-doctor", "_blank"); // if you want new tab
+                          }}
+                          sx={{
+                            backgroundColor: "#fff",
+                            color: "#5f6368",
+                            fontFamily: "Poppins",
+                            fontWeight: 500,
+                            textTransform: "none",
+                            border: "1px solid #dadce0",
+                            borderRadius: "4px",
+                            padding: "8px 16px",
+                            fontSize: "14px",
+                            boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
+                            marginTop: ".7rem",
+                            "&:hover": {
+                              backgroundColor: "#f8f9fa",
+                              boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                              border: "1px solid transparent",
+                            },
+                            "& .MuiButton-startIcon": {
+                              marginRight: "12px",
+                            },
+                          }}
+                        >
+                          Only For Doctors
+                        </Button>
                       </Form>
                     )}
                   </Formik>

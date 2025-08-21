@@ -173,8 +173,6 @@ export default function DoctorListing() {
     location: searchParams.get("location") || "", // Initialize with location from URL
   });
 
-  console.log(location, "locationMonis");
-
   const queryParams = {
     ...filters,
     keyword: debouncedKeyword,
