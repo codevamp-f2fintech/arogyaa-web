@@ -131,6 +131,15 @@ export default function Login() {
   };
   const emailInputRef = React.useRef<HTMLInputElement>(null);
 
+  const doctorLoginUrl =
+    process.env.NODE_ENV === "development"
+      ? process.env.NEXT_PUBLIC_DOCTOR_LOGIN_LOCAL
+      : process.env.NEXT_PUBLIC_DOCTOR_LOGIN_PROD;
+
+  const handleDoctorLogin = () => {
+    window.location.href = doctorLoginUrl || "/";
+  };
+
   // Add this effect
   useEffect(() => {
     if (emailInputRef.current) {
@@ -356,6 +365,17 @@ export default function Login() {
                           type="submit"
                           fullWidth
                           variant="contained"
+                          startIcon={
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="20"
+                              height="20"
+                              fill="white"
+                              viewBox="0 0 24 24"
+                            >
+                              <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5zm9-2v-2h-2V8h-2v2h-2v2h2v2h2v-2h2z" />
+                            </svg>
+                          }
                           sx={{
                             mt: 2,
                             fontFamily: "Poppins",
@@ -381,6 +401,9 @@ export default function Login() {
                             },
                             "&.Mui-disabled": {
                               color: "#fff",
+                            },
+                            "& .MuiButton-startIcon": {
+                              marginRight: "10px",
                             },
                           }}
                           disabled={!dirty || isSubmitting}
@@ -483,58 +506,49 @@ export default function Login() {
                           </span>
                         </Button>
                         <Button
-                          variant="outlined"
                           fullWidth
                           startIcon={
                             <svg
+                              xmlns="http://www.w3.org/2000/svg"
                               width="20"
                               height="20"
+                              fill="white"
                               viewBox="0 0 24 24"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
                             >
-                              <path
-                                d="M12 4L12 20"
-                                stroke="#4285F4"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                              />
-                              <path
-                                d="M4 12L20 12"
-                                stroke="#4285F4"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                              />
+                              <path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-2 9h-4v4h-2v-4H7V10h4V6h2v4h4v2z" />
                             </svg>
                           }
-                          onClick={() => {
-                            window.location.href =
-                              "http://localhost:3001/signup-as-doctor";
-                            // OR window.open("http://localhost:3001/signup-as-doctor", "_blank"); // if you want new tab
-                          }}
+                          onClick={handleDoctorLogin} // use function instead of hardcoded link
                           sx={{
-                            backgroundColor: "#fff",
-                            color: "#5f6368",
+                            mt: 2,
+                            mb: 2,
                             fontFamily: "Poppins",
-                            fontWeight: 500,
-                            textTransform: "none",
-                            border: "1px solid #dadce0",
-                            borderRadius: "4px",
-                            padding: "8px 16px",
-                            fontSize: "14px",
-                            boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
-                            marginTop: ".7rem",
+                            borderRadius: "8px",
+                            background: "#00B894", // teal
+                            color: "#fff",
+                            fontWeight: "bold",
+                            padding: "10px 20px", //same as Log In button
+                            boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.2)", //same shadow
+                            transition: "all 0.3s ease",
                             "&:hover": {
-                              backgroundColor: "#f8f9fa",
-                              boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                              border: "1px solid transparent",
+                              background: "#009874", // darker teal on hover
+                              color: "#fff",
+                            },
+                            "&:active": {
+                              color: "#fff",
+                            },
+                            "&:focus": {
+                              color: "#fff",
+                            },
+                            "&.Mui-disabled": {
+                              color: "#fff",
                             },
                             "& .MuiButton-startIcon": {
-                              marginRight: "12px",
+                              marginRight: "10px",
                             },
                           }}
                         >
-                          Only For Doctors
+                          Are you a Doctor? Login Here
                         </Button>
                       </Form>
                     )}
