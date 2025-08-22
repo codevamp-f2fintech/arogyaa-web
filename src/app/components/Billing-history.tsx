@@ -1,6 +1,7 @@
 "use client";
 
 import type React from "react";
+import jsPDF from "jspdf";
 import { useState, useEffect } from "react";
 import {
   Container,
@@ -48,6 +49,13 @@ const BillingHistory: React.FC = () => {
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [message, setMessage] = useState("");
+
+  // 🎨 Logo Styles
+  const logoStyles = {
+    height: 50,
+    width: "auto",
+    objectFit: "contain",
+  };
 
   const getStatusChip = (status: string) => {
     switch (status) {
@@ -149,7 +157,8 @@ const BillingHistory: React.FC = () => {
     try {
       const response = await fetcher(
         "payment",
-        `get-payments-by-patientId/${patientId}?page=${page + 1
+        `get-payments-by-patientId/${patientId}?page=${
+          page + 1
         }&limit=${rowsPerPage}`
       );
 
@@ -225,6 +234,80 @@ const BillingHistory: React.FC = () => {
       setMessage(error.message || "Error initiating payment.");
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const handleDownloadReceipt = async (bill: any) => {
+    try {
+      const doc = new jsPDF();
+
+      // 🎨 Add Gradient Background Header
+      doc.setFillColor(123, 86, 206); // purple shade
+      doc.rect(0, 0, 210, 40, "F"); // top header bar
+
+      // ✅ Add Logo on header
+      const logo = new Image();
+      logo.src = "/logomain.png"; // must be in /public folder
+      doc.addImage(logo, "PNG", 15, 8, 25, 25);
+
+      // Title
+      doc.setFontSize(20);
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.text("Payment Receipt", 105, 25, { align: "center" });
+
+      // Reset text color
+      doc.setTextColor(0, 0, 0);
+
+      // Doctor & Patient Section
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text("Doctor:", 20, 55);
+      doc.setFont("helvetica", "normal");
+      doc.text(`${bill.doctorId?.username || "N/A"}`, 60, 55);
+
+      doc.setFont("helvetica", "bold");
+      doc.text("Patient:", 20, 65);
+      doc.setFont("helvetica", "normal");
+      doc.text(
+        `${bill.patientId?.username || bill.patientName || "N/A"}`,
+        60,
+        65
+      );
+
+      // Transaction Details Box
+      doc.setFillColor(245, 245, 255); // light background
+      doc.roundedRect(15, 80, 180, 60, 5, 5, "F"); // reduced height since status removed
+
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text("Transaction ID:", 25, 95);
+      doc.setFont("helvetica", "normal");
+      doc.text(`${bill.transactionId}`, 90, 95);
+
+      doc.setFont("helvetica", "bold");
+      doc.text("Payment Date:", 25, 110); // ✅ updated label
+      doc.setFont("helvetica", "normal");
+      doc.text(`${new Date(bill.createdAt).toLocaleString()}`, 90, 110);
+
+      doc.setFont("helvetica", "bold");
+      doc.text("Amount:", 25, 125);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(46, 125, 50);
+      doc.text(`${bill.amount} INR`, 90, 125);
+
+      // Footer bar
+      doc.setTextColor(0, 0, 0);
+      doc.setFillColor(123, 86, 206);
+      doc.rect(0, 160, 210, 20, "F"); // shifted up because status removed
+      doc.setFontSize(11);
+      doc.setTextColor(255, 255, 255);
+      doc.text("Thank you for using Arogyaa!", 105, 173, { align: "center" });
+
+      // Save PDF
+      doc.save(`receipt_${bill.transactionId}.pdf`);
+    } catch (error) {
+      console.error("Error downloading receipt:", error);
     }
   };
 
@@ -323,7 +406,37 @@ const BillingHistory: React.FC = () => {
                   </TableCell>
                   <TableCell align="center">
                     {bill.status === "success" ? (
-                      getStatusChip(bill.status)
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 1,
+                        }}
+                      >
+                        {getStatusChip(bill.status)}
+
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          onClick={() => handleDownloadReceipt(bill)}
+                          sx={{
+                            borderColor: "#fff",
+                            color: "#fff",
+                            textTransform: "none",
+                            fontWeight: "bold",
+                            borderRadius: "18px",
+                            px: 1.5,
+                            py: 0.3,
+                            "&:hover": {
+                              backgroundColor: "rgba(255,255,255,0.1)",
+                            },
+                          }}
+                          startIcon={<ReceiptLong sx={{ fontSize: 18 }} />} // 📄 Add receipt icon
+                        >
+                          Download Receipt
+                        </Button>
+                      </Box>
                     ) : (
                       <Box sx={{ mt: 1 }}>
                         {(() => {
@@ -356,7 +469,8 @@ const BillingHistory: React.FC = () => {
                                 "&:hover": {
                                   background:
                                     "linear-gradient(90deg, #7b56ce 0%, #9e6df7 100%)",
-                                  boxShadow: "0 4px 15px rgba(123, 86, 206, 0.4)",
+                                  boxShadow:
+                                    "0 4px 15px rgba(123, 86, 206, 0.4)",
                                 },
                                 "&:disabled": {
                                   background:
