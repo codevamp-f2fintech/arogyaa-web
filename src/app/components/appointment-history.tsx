@@ -72,21 +72,17 @@ const AppointmentHistory: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [message, setMessage] = useState("");
 
-
   // Inline Daily call
   const [activeRoomUrl, setActiveRoomUrl] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const query = useSearchParams();
-  const purpose = query.get("purpose") ?? "all";
-  console.log(purpose, "purpose::::");
-
+  const purposeParam = (query.get("purpose") || "all").toUpperCase();
   const paymentQ = (
     query.get("payment") ||
     query.get("status") ||
     ""
   ).toLowerCase();
-  const purposeQ = (query.get("purpose") || "").toUpperCase();
-  const isExtendedPaid = paymentQ === "success" && purposeQ === "EXTENSION";
+  const isExtendedPaid = paymentQ === "success" && purposeParam === "EXTENSION";
 
   // Active call banner
   const [activeCall, setActiveCall] = useState<{
@@ -119,8 +115,6 @@ const AppointmentHistory: React.FC = () => {
   const patientId = decodedToken()?.id;
 
   const strEq = (a?: any, b?: any) => String(a || "") === String(b || "");
-
-  const HARD_LIMIT_MS = 20 * 60 * 1000;
 
   /* ---------- Fetch appointments ---------- */
   const fetchAppointments = React.useCallback(async () => {
@@ -194,7 +188,6 @@ const AppointmentHistory: React.FC = () => {
     if (!patientId) return;
 
     const nsUrl = `${process.env.NEXT_PUBLIC_SOCKET_ENDPOINT}/doctor-notifications`;
-
     const s = io(nsUrl, {
       transports: ["websocket"],
       autoConnect: true,
@@ -212,7 +205,6 @@ const AppointmentHistory: React.FC = () => {
       if (!apptId) return;
       if (extensionApprovedFor === apptId) return;
 
-      // If not the currently active call, still store the flag
       if (activeCall && !strEq(activeCall.appointmentId, apptId)) {
         sessionStorage.setItem("extensionApproved", apptId);
         sessionStorage.setItem("extensionStatus", `approved:${apptId}`);
@@ -225,7 +217,7 @@ const AppointmentHistory: React.FC = () => {
       sessionStorage.setItem("extensionStatus", `approved:${apptId}`);
       sessionStorage.removeItem("extensionPending");
 
-      alert("Doctor approved your +10 min extension. Please pay to extend.");
+      alert("Doctor approved your +20 min extension. Please pay to extend.");
     };
 
     const onRejected = (payload: any) => {
@@ -258,6 +250,46 @@ const AppointmentHistory: React.FC = () => {
       sessionStorage.removeItem("extensionStatus");
     };
 
+    // ✅ NEW: when payment is actually done (server emits)
+    const onExtensionPaid = (payload: {
+      appointmentId: string;
+      minutes?: number;
+      txnid?: string;
+      mode?: string;
+    }) => {
+      const apptId = String(payload?.appointmentId || "");
+      if (!apptId) return;
+
+      if (activeCall && String(activeCall.appointmentId) === apptId) {
+        const addMs = (payload.minutes ?? 20) * 60 * 1000;
+        const base = Math.max(
+          Date.now(),
+          new Date(activeCall.expiresAt).getTime()
+        );
+        const newEnd = new Date(base + addMs).toISOString();
+        setActiveCall({ ...activeCall, expiresAt: newEnd });
+        sessionStorage.setItem("dailyRoom_expiresAt", newEnd);
+      }
+
+      setExtensionApprovedFor(null);
+      setExtensionPendingFor(null);
+      ["extensionApproved", "extensionPending", "extensionStatus"].forEach(
+        (k) => sessionStorage.removeItem(k)
+      );
+
+      alert(
+        `Extension paid: +${payload.minutes ?? 20} min${
+          payload.txnid ? ` (Txn ${payload.txnid})` : ""
+        }`
+      );
+    };
+
+    // ✅ generic fallback in case server emits only 'payment-success'
+    const onAnyPaymentSuccess = (pl: any) => {
+      if ((pl?.purpose || "").toUpperCase() === "EXTENSION")
+        onExtensionPaid(pl);
+    };
+
     // All ways the server may notify approvals/rejections
     s.on("extension-approved-awaiting-payment", onApproved);
     s.on("extension-approved", onApproved);
@@ -268,12 +300,27 @@ const AppointmentHistory: React.FC = () => {
 
     s.on("call-extended", onExtended);
 
+    // ✅ NEW listeners
+    s.on("extension-payment-success", onExtensionPaid);
+    s.on("payment-success", onAnyPaymentSuccess);
+
     setSocket(s);
     return () => {
+      s.off("extension-approved-awaiting-payment", onApproved);
+      s.off("extension-approved", onApproved);
+      s.off("doctor-approved-extension", onApproved);
+
+      s.off("extension-rejected", onRejected);
+      s.off("doctor-rejected-extension", onRejected);
+
+      s.off("call-extended", onExtended);
+
+      s.off("extension-payment-success", onExtensionPaid);
+      s.off("payment-success", onAnyPaymentSuccess);
+
       s.removeAllListeners();
       s.close();
     };
- 
   }, [patientId, activeCall, extensionApprovedFor]);
 
   /* ---------- Restore session + extension flags on mount ---------- */
@@ -347,7 +394,7 @@ const AppointmentHistory: React.FC = () => {
         amount: consultationFee,
         currency: "INR",
         transactionMethod: "card",
-        
+
         patientName: (appointment.patientId as Patient)?.username || "",
         doctorName: (appointment.doctorId as Doctor)?.username || "",
       };
@@ -370,9 +417,10 @@ const AppointmentHistory: React.FC = () => {
       setIsProcessing(false);
     }
   };
+
   const handlePayExtensionNow = async (
     appointment: Appointment,
-    minutes: number = 10
+    minutes: number = 20
   ) => {
     setIsProcessing(true);
     setMessage("");
@@ -382,10 +430,9 @@ const AppointmentHistory: React.FC = () => {
 
       // doctor fee → per-minute calc
       const baseFee = Number(doc?.consultationFee || 0);
-      const perMinute = baseFee ? baseFee / 20 : 0;
+      const perMinute = baseFee ? baseFee / 10 : 0;
       const extensionAmount = perMinute * minutes;
 
-    
       const payload = {
         patientId: pat?._id || appointment.patientId,
         doctorId: doc?._id || appointment.doctorId,
@@ -413,13 +460,12 @@ const AppointmentHistory: React.FC = () => {
       setIsProcessing(false);
     }
   };
- 
 
+  /* ---------- Handle PayU redirect (EXTENSION success) ---------- */
   useEffect(() => {
-    
     const qs = new URLSearchParams(window.location.search);
 
-    const purpose = (qs.get("purpose") || "").toUpperCase();
+    const redirectPurpose = (qs.get("purpose") || "").toUpperCase();
     const status = (qs.get("status") || "").toLowerCase();
     const apptId = qs.get("appointmentId") || qs.get("apptId") || "";
     const txnId =
@@ -428,19 +474,30 @@ const AppointmentHistory: React.FC = () => {
     const method = qs.get("method") || "card";
 
     // only handle successful extension payments
-    if (purpose === "EXTENSION" && status === "success" && apptId && txnId) {
+    if (
+      redirectPurpose === "EXTENSION" &&
+      status === "success" &&
+      apptId &&
+      txnId
+    ) {
       (async () => {
         try {
           setIsProcessing(true);
 
-          const res = await creator("payment", `extension/${apptId}/confirm`, {
-            minutes,
-            txnId,
-            method,
-          });
+          // ✅ use chat-service endpoint you already have
+          const res = await creator(
+            "chat",
+            `/confirm-extension-payment/${apptId}`,
+            {
+              minutes,
+              purpose: "EXTENSION",
+              txnId,
+              method,
+              status: "success",
+            }
+          );
 
-          if (res?.ok) {
-            // update active call end-time if this is the same appointment
+          if (res?.success) {
             if (
               res?.newEndTime &&
               activeCall &&
@@ -452,7 +509,6 @@ const AppointmentHistory: React.FC = () => {
                 `extensionApplied:${apptId}`,
                 String(txnId)
               );
-              // cleanup: initiated txn mapping not needed anymore
               sessionStorage.removeItem(`extensionTxn:${apptId}`);
             }
 
@@ -468,7 +524,10 @@ const AppointmentHistory: React.FC = () => {
             alert(`Extension successful: +${minutes} min added.`);
             fetchAppointments();
           } else {
-            alert("Payment captured, but extension confirmation failed.");
+            alert(
+              res?.message ||
+                "Payment captured, but extension confirmation failed."
+            );
           }
         } catch (e) {
           console.error(e);
@@ -564,7 +623,7 @@ const AppointmentHistory: React.FC = () => {
 
   /* ---------- Close / Expire handlers ---------- */
   const handleRoomClosed = (appointmentId: string) => {
-    // NEW: close the inline call iframe too
+    // close the inline call iframe too
     setActiveRoomUrl(null);
     const docId = sessionStorage.getItem("dailyRoom_doctorId") || "";
     const docName = sessionStorage.getItem("dailyRoom_doctorName") || "";
@@ -629,7 +688,7 @@ const AppointmentHistory: React.FC = () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ duration: 10 }),
+          body: JSON.stringify({ duration: 20 }),
         }
       );
 
@@ -651,22 +710,19 @@ const AppointmentHistory: React.FC = () => {
     }
   };
 
-  // --- Auto end based on expiresAt (fallback: 20 or 40 min depending on URL) ---
+  // --- Auto end based on expiresAt (fallback: +10 or +20 logic you had) ---
   useEffect(() => {
     if (!activeCall) return;
 
-    // if ?payment=success&purpose=EXTENDED ⇒ 40 mins, else 20 mins
-    const HARD_LIMIT_MS = isExtendedPaid ? 2 * 60 * 1000 : 10 * 60 * 1000;
+    // if ?payment=success&purpose=EXTENSION ⇒ longer
+    const HARD_LIMIT_MS = isExtendedPaid ? 40 * 60 * 1000 : 20 * 60 * 1000;
 
     const serverMsLeft = activeCall.expiresAt
       ? new Date(activeCall.expiresAt).getTime() - Date.now()
       : Number.POSITIVE_INFINITY;
 
-    console.log(activeCall.expiresAt, "expiresAt::::");
-
     const msLeft = Math.max(0, Math.min(serverMsLeft, HARD_LIMIT_MS));
 
-    // already expired
     if (msLeft === 0) {
       setActiveRoomUrl(null);
       handleRoomExpired(String(activeCall.appointmentId));
@@ -681,7 +737,7 @@ const AppointmentHistory: React.FC = () => {
     return () => clearTimeout(t);
   }, [activeCall?.appointmentId, activeCall?.expiresAt, isExtendedPaid]);
 
-  // inside AppointmentHistory component
+  // --- Optional Poll: align with /extension-status (paid/none) ---
   useEffect(() => {
     if (!activeCall) return;
     const apptId = String(activeCall.appointmentId);
@@ -692,44 +748,46 @@ const AppointmentHistory: React.FC = () => {
           `${process.env.NEXT_PUBLIC_CHAT_URL}/extension-status/${apptId}`
         );
         const data = await res.json();
-        const st = (data?.status || "").toLowerCase();
+        const st = String(data?.extensionStatus || "").toLowerCase();
 
-        if (st === "approved" || st === "approved_awaiting_payment") {
-          setExtensionApprovedFor(apptId);
-          setExtensionPendingFor(null);
-          sessionStorage.setItem("extensionStatus", `approved:${apptId}`);
-          sessionStorage.removeItem("extensionPending");
-          // stop polling once approved
-          clearInterval(timer);
-        } else if (st === "rejected") {
+        if (st === "paid") {
+          // assume +10 if minutes not known from API
+          const addMs = 10 * 60 * 1000;
+          const base = Math.max(
+            Date.now(),
+            new Date(activeCall.expiresAt).getTime()
+          );
+          const newEnd = new Date(base + addMs).toISOString();
+          setActiveCall({ ...activeCall, expiresAt: newEnd });
+          sessionStorage.setItem("dailyRoom_expiresAt", newEnd);
+
           setExtensionApprovedFor(null);
           setExtensionPendingFor(null);
-          sessionStorage.setItem("extensionStatus", `rejected:${apptId}`);
-          sessionStorage.removeItem("extensionPending");
+          ["extensionApproved", "extensionPending", "extensionStatus"].forEach(
+            (k) => sessionStorage.removeItem(k)
+          );
           clearInterval(timer);
         }
       } catch {}
     };
 
-    // poll fast for quick UX
-    const timer = setInterval(tick, 2000);
-    // also fire once immediately
+    const timer = window.setInterval(tick, 3000);
     tick();
 
     return () => clearInterval(timer);
-  }, [activeCall]);
-  // --- Auto end based on expiresAt (fallback: 20 min) ---
+  }, [activeCall?.appointmentId]);
+
+  // --- Another hard cap (your original fallback) ---
   useEffect(() => {
     if (!activeCall) return;
 
     const HARD_LIMIT_MS = 20 * 60 * 1000;
     const expMs = activeCall.expiresAt
       ? new Date(activeCall.expiresAt).getTime() - Date.now()
-      : HARD_LIMIT_MS; // safety fallback
+      : HARD_LIMIT_MS;
 
     const msLeft = Math.max(0, expMs);
 
-    // agar already expire ho chuka hai to turant close
     if (msLeft === 0) {
       setActiveRoomUrl(null);
       handleRoomExpired(String(activeCall.appointmentId));
@@ -851,7 +909,7 @@ const AppointmentHistory: React.FC = () => {
 
   const headerStyle = {
     fontWeight: 600,
-    textTransform: "uppercase",
+    textTransform: "uppercase" as const,
     color: "#fff",
   };
 
@@ -940,8 +998,8 @@ const AppointmentHistory: React.FC = () => {
             <VideoCall sx={{ fontSize: 20 }} />
             Active call with {activeCall.doctorName} — Expires at{" "}
             {new Date(
-              purpose === "EXTENSION"
-                ? new Date(activeCall.expiresAt).getTime() + 3 * 60 * 1000 // add 20 mins
+              purposeParam === "EXTENSION"
+                ? new Date(activeCall.expiresAt).getTime() + 10 * 60 * 1000
                 : new Date(activeCall.expiresAt).getTime()
             ).toLocaleTimeString("en-US", {
               hour: "numeric",
@@ -973,9 +1031,8 @@ const AppointmentHistory: React.FC = () => {
               );
               const apptId = String(activeCall.appointmentId);
 
-              
-              const statusQ = (query.get("status") || "").toLowerCase(); // e.g. 'success'
-              const paymentQ = (query.get("payment") || "").toLowerCase(); // e.g. 'success'
+              const statusQ = (query.get("status") || "").toLowerCase();
+              const paymentQ = (query.get("payment") || "").toLowerCase();
               const purposeQ = (query.get("purpose") || "").toUpperCase();
               const apptIdQ = (query.get("appointmentId") ||
                 query.get("apptId") ||
@@ -985,12 +1042,10 @@ const AppointmentHistory: React.FC = () => {
                 (statusQ === "success" || paymentQ === "success") &&
                 (purposeQ === "EXTENDED" || purposeQ === "EXTENSION");
 
-              // Agar URL me appointmentId diya hai to woh current active appointment se match hona chahiye
               const isPaidForThisAppt =
                 paidSuccess && (!apptIdQ || apptIdQ === apptId);
 
               if (isPaidForThisAppt) {
-              
                 return (
                   <Button size="small" variant="contained" disabled>
                     Payment Successful
@@ -1051,7 +1106,7 @@ const AppointmentHistory: React.FC = () => {
                     color="secondary"
                     onClick={() => requestExtension(apptId)}
                   >
-                    Request +10 min
+                    Request +20 min
                   </Button>
                 );
               }
@@ -1173,10 +1228,9 @@ const AppointmentHistory: React.FC = () => {
                     </TableCell>
 
                     <TableCell align="center">
-                  {appointment.appointmentType === "online" ? (
+                      {appointment.appointmentType === "online" ? (
                         <>
                           {appointment.paymentStatus === "pending" ? (
-                           
                             <Tooltip
                               title={(() => {
                                 const now = new Date();
@@ -1235,10 +1289,7 @@ const AppointmentHistory: React.FC = () => {
 
                                 return isPast ? (
                                   <Box
-                                    sx={{
-                                      color: "#fff",
-                                      fontStyle: "italic",
-                                    }}
+                                    sx={{ color: "#fff", fontStyle: "italic" }}
                                   >
                                     Payment window has expired
                                   </Box>
@@ -1440,4 +1491,3 @@ const AppointmentHistory: React.FC = () => {
 };
 
 export default AppointmentHistory;
-
