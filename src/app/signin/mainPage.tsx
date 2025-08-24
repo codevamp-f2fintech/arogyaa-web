@@ -131,13 +131,8 @@ export default function Login() {
   };
   const emailInputRef = React.useRef<HTMLInputElement>(null);
 
-  const doctorLoginUrl =
-    process.env.NODE_ENV === "development"
-      ? process.env.NEXT_PUBLIC_DOCTOR_LOGIN_LOCAL
-      : process.env.NEXT_PUBLIC_DOCTOR_LOGIN_PROD;
-
   const handleDoctorLogin = () => {
-    window.location.href = doctorLoginUrl || "/";
+    window.location.href = process.env.NEXT_PUBLIC_ADMIN_PORTAL_LOGIN as string;
   };
 
   // Add this effect
