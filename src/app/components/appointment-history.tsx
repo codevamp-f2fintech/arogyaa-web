@@ -188,7 +188,9 @@ const AppointmentHistory: React.FC = () => {
     if (!patientId) return;
 
     const nsUrl = `${process.env.NEXT_PUBLIC_SOCKET_ENDPOINT}/doctor-notifications`;
+    
     const s = io(nsUrl, {
+       path: "/chat-service/socket.io",  
       transports: ["websocket"],
       autoConnect: true,
     });
@@ -196,7 +198,7 @@ const AppointmentHistory: React.FC = () => {
     s.on("connect", () => {
       // Join patient_<id> room
       s.emit("joinPatientRoom", { patientId });
-      console.log("[patient] connected to", nsUrl, "as", patientId);
+     
     });
 
     const onApproved = (payload: any) => {
@@ -222,7 +224,6 @@ const AppointmentHistory: React.FC = () => {
 
     const onRejected = (payload: any) => {
       const apptId = String(payload?.appointmentId || "");
-      console.log("[patient] extension rejected payload:", payload);
 
       setExtensionRejectedFor(apptId || null);
       setExtensionPendingFor(null);
@@ -239,7 +240,6 @@ const AppointmentHistory: React.FC = () => {
       appointmentId: string;
       newEndTime: string;
     }) => {
-      console.log("[patient] call extended payload:", data);
       if (activeCall && strEq(activeCall.appointmentId, data.appointmentId)) {
         setActiveCall({ ...activeCall, expiresAt: data.newEndTime });
         sessionStorage.setItem("dailyRoom_expiresAt", data.newEndTime);
