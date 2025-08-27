@@ -187,10 +187,8 @@ const AppointmentHistory: React.FC = () => {
   useEffect(() => {
     if (!patientId) return;
 
-    const nsUrl = `${process.env.NEXT_PUBLIC_SOCKET_ENDPOINT}/doctor-notifications`;
-    
-    const s = io(nsUrl, {
-       path: "/chat-service/socket.io",  
+    const s = io("https://arogyaa.f2fintech.in/doctor-notifications", {
+      path: "/chat-service/socket.io",
       transports: ["websocket"],
       autoConnect: true,
     });
@@ -198,7 +196,6 @@ const AppointmentHistory: React.FC = () => {
     s.on("connect", () => {
       // Join patient_<id> room
       s.emit("joinPatientRoom", { patientId });
-     
     });
 
     const onApproved = (payload: any) => {
