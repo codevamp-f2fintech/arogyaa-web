@@ -589,9 +589,7 @@ export default function DoctorListing() {
                     },
                   }}
                 >
-                  <MenuItem value="">
-                    <em>All</em>
-                  </MenuItem>
+                  <MenuItem value="">All</MenuItem>
                   <MenuItem value="male">Male</MenuItem>
                   <MenuItem value="female">Female</MenuItem>
                   <MenuItem value="other">Other</MenuItem>
@@ -642,9 +640,7 @@ export default function DoctorListing() {
                     },
                   }}
                 >
-                  <MenuItem value="">
-                    <em>All</em>
-                  </MenuItem>
+                  <MenuItem value="">All</MenuItem>
                   <MenuItem value="above 5 years">5+ Years</MenuItem>
                   <MenuItem value="above 10 years">10+ Years</MenuItem>
                   <MenuItem value="above 15 years">15+ Years</MenuItem>
@@ -693,9 +689,7 @@ export default function DoctorListing() {
                     },
                   }}
                 >
-                  <MenuItem value="">
-                    <em>All</em>
-                  </MenuItem>
+                  <MenuItem value="">All</MenuItem>
                   <MenuItem value="fee_high_to_low">High To Low</MenuItem>
                   <MenuItem value="fee_low_to_high">Low To High</MenuItem>
                 </Select>
