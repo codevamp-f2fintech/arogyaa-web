@@ -115,6 +115,17 @@ const SocialButton = ({ Icon, label, link }) => {
 
 // Component for Contact Info Item
 const ContactItem = ({ Icon, text, link }) => {
+  // if link is not provided but text is a phone number → make it tel: link
+  const isPhone = text && text.startsWith("+");
+  const isEmail = text && text.includes("@");
+  const href =
+    link ||
+    (isPhone
+      ? `tel:${text}`
+      : isEmail
+      ? `https://mail.google.com/mail/?view=cm&fs=1&to=${text}`
+      : undefined);
+
   return (
     <Stack direction="row" alignItems="flex-start" spacing={2}>
       <Box
@@ -133,15 +144,16 @@ const ContactItem = ({ Icon, text, link }) => {
       </Box>
       <Typography
         variant="body1"
-        component={link ? "a" : "p"}
-        href={link}
-        target="_blank"
+        component={href ? "a" : "p"}
+        href={href}
+        target={href?.startsWith("http") ? "_blank" : undefined} //  tel/mailto won't open in new tab
         sx={{
           color: THEME.colors.text.light,
           fontWeight: 500,
           lineHeight: 1.5,
+          textDecoration: href ? "none" : "inherit",
           "&:hover": {
-            color: link ? THEME.colors.primary : "inherit",
+            color: href ? THEME.colors.primary : "inherit",
           },
         }}
       >
@@ -171,12 +183,12 @@ const Footer = () => {
           { label: "Doctors", route: "/doctors", icon: <MedicalServices /> },
           {
             label: "About Us",
-            route: "#aboutsection",
+            route: "/#aboutsection",
             icon: <MedicalServices />,
           },
           {
             label: "Our Services",
-            route: "#specialitiesSection",
+            route: "/#specialitiesSection",
             icon: <MedicalServices />,
           },
         ],

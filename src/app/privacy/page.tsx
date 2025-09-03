@@ -90,18 +90,18 @@ const PrivacyPolicy = () => {
             sx={{ lineHeight: 1.8, color: "#fff" }}
           >
             We collect two types of information from our users:
-            <ul>
-              <li>
-                <strong>Personal Data:</strong> This includes your name, email
-                address, phone number, date of birth, medical history.
-              </li>
-              <li>
-                <strong>Usage Data:</strong> Information automatically collected
-                when you interact with our platform, such as device information,
-                IP address, browser type, and pages visited.
-              </li>
-            </ul>
           </Typography>
+          <ul style={{ margin: 0, paddingLeft: "1.5rem", color: "#fff" }}>
+            <li>
+              <strong>Personal Data:</strong> This includes your name, email
+              address, phone number, date of birth, medical history.
+            </li>
+            <li>
+              <strong>Usage Data:</strong> Information automatically collected
+              when you interact with our platform, such as device information,
+              IP address, browser type, and pages visited.
+            </li>
+          </ul>
 
           <Divider sx={{ margin: "30px 0", borderColor: "#ddd" }} />
 
@@ -153,23 +153,24 @@ const PrivacyPolicy = () => {
             sx={{ lineHeight: 1.8, color: "#fff" }}
           >
             We may share your information with third parties, including:
-            <ul>
-              <li>
-                <strong>Healthcare providers:</strong> We share relevant medical
-                data with the doctors and healthcare professionals involved in
-                your care.
-              </li>
-              <li>
-                <strong>Service providers:</strong> Third-party vendors who
-                assist in the operation of our platform (e.g., email services).
-              </li>
-              <li>
-                <strong>Legal compliance:</strong> We may disclose your
-                information if required by law or to protect the rights and
-                safety of others.
-              </li>
-            </ul>
           </Typography>
+
+          <ul style={{ margin: 0, paddingLeft: "1.5rem", color: "#fff" }}>
+            <li>
+              <strong>Healthcare providers:</strong> We share relevant medical
+              data with the doctors and healthcare professionals involved in
+              your care.
+            </li>
+            <li>
+              <strong>Service providers:</strong> Third-party vendors who assist
+              in the operation of our platform (e.g., email services).
+            </li>
+            <li>
+              <strong>Legal compliance:</strong> We may disclose your
+              information if required by law or to protect the rights and safety
+              of others.
+            </li>
+          </ul>
 
           <Divider sx={{ margin: "30px 0", borderColor: "#ddd" }} />
 

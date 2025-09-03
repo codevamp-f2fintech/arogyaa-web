@@ -35,15 +35,28 @@ const SpecialitySlider = () => {
   }, [data, dispatch]);
 
   // Infinite scroll effect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (sliderRef.current) {
-        sliderRef.current.slickNext();
-      }
-    }, 3000); // 3 seconds interval
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-    return () => clearInterval(interval);
+  // inside SpecialitySlider, before return
+  const stopAutoplay = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
   }, []);
+
+  const startAutoplay = useCallback(() => {
+    if (!intervalRef.current && sliderRef.current) {
+      intervalRef.current = setInterval(() => {
+        sliderRef.current?.slickNext();
+      }, 3000);
+    }
+  }, []);
+
+  useEffect(() => {
+    startAutoplay();
+    return () => stopAutoplay();
+  }, [startAutoplay, stopAutoplay]);
 
   const handleConsult = useCallback(
     (specialtyName: string) => {
@@ -127,10 +140,10 @@ const SpecialitySlider = () => {
           variant="h5"
           component="h2"
           sx={{
-            display: "flex", // ✅ Flex to align inline items
-            justifyContent: "center", // ✅ Center horizontally
-            alignItems: "center", // ✅ Align vertically if multi-line
-            flexWrap: "wrap", // ✅ Wrap text if needed
+            display: "flex", // Flex to align inline items
+            justifyContent: "center", // Center horizontally
+            alignItems: "center", // Align vertically if multi-line
+            flexWrap: "wrap", // Wrap text if needed
             textAlign: "center",
             mb: { xs: 4, md: 6 },
             fontSize: { xs: "1.7rem", sm: "2.5rem", md: "2.5rem" },
@@ -165,21 +178,17 @@ const SpecialitySlider = () => {
           </motion.span>
         </Typography>
 
-        <Box sx={{ position: "relative" }}>
+        <Box
+          onMouseEnter={stopAutoplay}
+          onMouseLeave={startAutoplay}
+          sx={{ position: "relative" }}
+        >
           {swrLoading ? (
             <Loader />
           ) : speciality?.results?.length > 0 ? (
             <Slider ref={sliderRef} {...sliderSettings}>
               {speciality.results.map((item) => (
-                <Box
-                  key={item._id}
-                  sx={{
-                    px: 1,
-                    py: 2,
-                    outline: "none",
-                    "&:focus": { outline: "none" },
-                  }}
-                >
+                <Box key={item._id} sx={{ px: 1, py: 2, outline: "none" }}>
                   <Paper
                     elevation={4}
                     sx={{
@@ -193,7 +202,7 @@ const SpecialitySlider = () => {
                         boxShadow: "0 16px 24px rgba(0, 0, 0, 0.2)",
                       },
                       display: "flex",
-                      flexDirection: "column", // Added for better content control
+                      flexDirection: "column",
                     }}
                   >
                     <SpecialistCard

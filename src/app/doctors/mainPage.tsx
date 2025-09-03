@@ -466,7 +466,8 @@ export default function DoctorListing() {
                   width: { xs: "100%", sm: "auto" },
                   "&:hover": {
                     "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#3ab795",
+                      borderColor: "#b1a1dc !important", //Updated to purple
+                      borderWidth: "2px",
                     },
                   },
                   "& .MuiOutlinedInput-input": {
@@ -477,8 +478,9 @@ export default function DoctorListing() {
                   "& .MuiOutlinedInput-notchedOutline": {
                     borderColor: "transparent",
                   },
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#3ab795 !important", // ✅ Hover border black
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#b1a1dc !important", //Updated to purple
+                    borderWidth: "2px",
                   },
                 }}
               >
@@ -489,10 +491,15 @@ export default function DoctorListing() {
                     px: 1,
                     transition: "all 0.3s ease-in-out",
                     fontSize: { xs: "0.875rem", sm: "1rem" },
+                    color: "#b1a1dc", //Purple label color
                     "&.MuiInputLabel-shrink": {
                       transform: "translate(14px, -9px) scale(0.75)",
                       px: 1,
                       borderRadius: "100px",
+                      color: "#b1a1dc", // Purple when focused/shrunk
+                    },
+                    "&.Mui-focused": {
+                      color: "#b1a1dc", // Purple when focused
                     },
                   }}
                 >
@@ -509,7 +516,7 @@ export default function DoctorListing() {
                   startAdornment={
                     <InputAdornment
                       position="start"
-                      sx={{ color: "#665dfe", ml: 1 }}
+                      sx={{ color: "#b1a1dc", ml: 1 }} // Changed to purple
                     >
                       <LocationOnIcon />
                     </InputAdornment>
@@ -529,20 +536,22 @@ export default function DoctorListing() {
                   }
                   sx={{
                     borderRadius: "40px",
-                    "& .MuiOutlinedInput-input": {
-                      py: "10px",
-                      px: 1,
-                      fontSize: { xs: "0.875rem", sm: "1rem" },
+                    "& input": {
+                      caretColor: "#b1a1dc", // Purple cursor/caret color
                     },
+                    // Force transparent border in ALL states
                     "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "transparent",
+                      borderColor: "transparent !important",
                     },
+                    // Only show purple on hover
                     "&:hover .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#665dfe !important",
+                      borderColor: "#b1a1dc !important",
+                      borderWidth: "2px !important",
                     },
+                    // Only show purple when focused
                     "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#665dfe !important",
-                      borderWidth: "1px",
+                      borderColor: "#b1a1dc !important",
+                      borderWidth: "2px !important",
                     },
                   }}
                 />
@@ -554,9 +563,27 @@ export default function DoctorListing() {
                 size="small"
                 sx={{
                   background: "#f7f6f5",
-                  borderRadius: "30px",
+                  borderRadius: "40px",
                   minWidth: { xs: "100%", sm: 160, md: 180, lg: 190 },
                   width: { xs: "100%", sm: "auto" },
+                  "&:hover": {
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#b1a1dc !important", // Updated to purple
+                      borderWidth: "2px",
+                    },
+                  },
+                  "& .MuiOutlinedInput-input": {
+                    py: "10px",
+                    px: 1,
+                    fontSize: { xs: "0.875rem", sm: "1rem" },
+                  },
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "transparent",
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#b1a1dc !important", // Updated to purple
+                    borderWidth: "2px",
+                  },
                 }}
               >
                 <InputLabel
@@ -566,9 +593,14 @@ export default function DoctorListing() {
                     px: 1,
                     transition: "all 0.3s ease-in-out",
                     fontSize: { xs: "0.875rem", sm: "1rem" },
+                    color: "#b1a1dc", // Purple label color
                     "&.MuiInputLabel-shrink": {
                       px: 1,
                       borderRadius: "100px",
+                      color: "#b1a1dc", //  Purple when focused/shrunk
+                    },
+                    "&.Mui-focused": {
+                      color: "#b1a1dc", //  Purple when focused
                     },
                   }}
                 >
@@ -580,12 +612,42 @@ export default function DoctorListing() {
                   value={filters.gender}
                   onChange={(e) => handleFilterChange("gender", e.target.value)}
                   label="Gender"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        "& .MuiMenuItem-root.Mui-selected": {
+                          backgroundColor: "#b1a1dc !important",
+                          color: "white",
+                          "&:hover": {
+                            backgroundColor: "#b1a1dc !important",
+                          },
+                        },
+                        "& .MuiMenuItem-root:hover": {
+                          backgroundColor: "rgba(177, 161, 220, 0.1)",
+                        },
+                      },
+                    },
+                  }}
                   sx={{
                     "& .MuiOutlinedInput-notchedOutline": {
                       borderRadius: "40px",
+                      borderColor: "transparent !important", // Force transparent by default
                     },
                     "& .MuiSelect-select": {
                       fontSize: { xs: "0.875rem", sm: "1rem" },
+                    },
+                    "& input": {
+                      caretColor: "#b1a1dc", // Purple cursor color
+                    },
+                    // Only show purple on hover
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#b1a1dc !important",
+                      borderWidth: "2px !important",
+                    },
+                    // Only show purple when focused
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#b1a1dc !important",
+                      borderWidth: "2px !important",
                     },
                   }}
                 >
@@ -602,9 +664,27 @@ export default function DoctorListing() {
                 size="small"
                 sx={{
                   background: "#f7f6f5",
-                  borderRadius: "30px",
+                  borderRadius: "40px",
                   minWidth: { xs: "100%", sm: 160, md: 180, lg: 190 },
                   width: { xs: "100%", sm: "auto" },
+                  "&:hover": {
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#b1a1dc !important", //  Updated to purple
+                      borderWidth: "2px",
+                    },
+                  },
+                  "& .MuiOutlinedInput-input": {
+                    py: "10px",
+                    px: 1,
+                    fontSize: { xs: "0.875rem", sm: "1rem" },
+                  },
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "transparent",
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#b1a1dc !important", //  Updated to purple
+                    borderWidth: "2px",
+                  },
                 }}
               >
                 <InputLabel
@@ -615,9 +695,14 @@ export default function DoctorListing() {
                     px: 1,
                     transition: "all 0.3s ease-in-out",
                     fontSize: { xs: "0.875rem", sm: "1rem" },
+                    color: "#b1a1dc", //  Purple label color
                     "&.MuiInputLabel-shrink": {
                       px: 1,
                       borderRadius: "100px",
+                      color: "#b1a1dc", //  Purple when focused/shrunk
+                    },
+                    "&.Mui-focused": {
+                      color: "#b1a1dc", //  Purple when focused
                     },
                   }}
                 >
@@ -631,12 +716,42 @@ export default function DoctorListing() {
                     handleFilterChange("experienceFilter", e.target.value)
                   }
                   label="Experience"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        "& .MuiMenuItem-root.Mui-selected": {
+                          backgroundColor: "#b1a1dc !important",
+                          color: "white",
+                          "&:hover": {
+                            backgroundColor: "#b1a1dc !important",
+                          },
+                        },
+                        "& .MuiMenuItem-root:hover": {
+                          backgroundColor: "rgba(177, 161, 220, 0.1)",
+                        },
+                      },
+                    },
+                  }}
                   sx={{
                     "& .MuiOutlinedInput-notchedOutline": {
                       borderRadius: "40px",
+                      borderColor: "transparent !important", // Force transparent by default
                     },
                     "& .MuiSelect-select": {
                       fontSize: { xs: "0.875rem", sm: "1rem" },
+                    },
+                    "& input": {
+                      caretColor: "#b1a1dc", // Purple cursor color
+                    },
+                    // Only show purple on hover
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#b1a1dc !important",
+                      borderWidth: "2px !important",
+                    },
+                    // Only show purple when focused
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#b1a1dc !important",
+                      borderWidth: "2px !important",
                     },
                   }}
                 >
@@ -653,9 +768,27 @@ export default function DoctorListing() {
                 size="small"
                 sx={{
                   background: "#f7f6f5",
-                  borderRadius: "30px",
+                  borderRadius: "40px",
                   minWidth: { xs: "100%", sm: 160, md: 180, lg: 190 },
                   width: { xs: "100%", sm: "auto" },
+                  "&:hover": {
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#b1a1dc !important", //  Updated to purple
+                      borderWidth: "2px",
+                    },
+                  },
+                  "& .MuiOutlinedInput-input": {
+                    py: "10px",
+                    px: 1,
+                    fontSize: { xs: "0.875rem", sm: "1rem" },
+                  },
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "transparent",
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#b1a1dc !important", // Updated to purple
+                    borderWidth: "2px",
+                  },
                 }}
               >
                 <InputLabel
@@ -666,9 +799,14 @@ export default function DoctorListing() {
                     px: 1,
                     transition: "all 0.3s ease-in-out",
                     fontSize: { xs: "0.875rem", sm: "1rem" },
+                    color: "#b1a1dc", // Purple label color
                     "&.MuiInputLabel-shrink": {
                       px: 1,
                       borderRadius: "100px",
+                      color: "#b1a1dc", // Purple when focused/shrunk
+                    },
+                    "&.Mui-focused": {
+                      color: "#b1a1dc", // Purple when focused
                     },
                   }}
                 >
@@ -680,12 +818,42 @@ export default function DoctorListing() {
                   value={filters.sortBy}
                   onChange={(e) => handleFilterChange("sortBy", e.target.value)}
                   label="Fees"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        "& .MuiMenuItem-root.Mui-selected": {
+                          backgroundColor: "#b1a1dc !important",
+                          color: "white",
+                          "&:hover": {
+                            backgroundColor: "#b1a1dc !important",
+                          },
+                        },
+                        "& .MuiMenuItem-root:hover": {
+                          backgroundColor: "rgba(177, 161, 220, 0.1)",
+                        },
+                      },
+                    },
+                  }}
                   sx={{
                     "& .MuiOutlinedInput-notchedOutline": {
                       borderRadius: "40px",
+                      borderColor: "transparent !important", // Force transparent by default
                     },
                     "& .MuiSelect-select": {
                       fontSize: { xs: "0.875rem", sm: "1rem" },
+                    },
+                    "& input": {
+                      caretColor: "#b1a1dc", // Purple cursor color
+                    },
+                    // Only show purple on hover
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#b1a1dc !important",
+                      borderWidth: "2px !important",
+                    },
+                    // Only show purple when focused
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#b1a1dc !important",
+                      borderWidth: "2px !important",
                     },
                   }}
                 >
