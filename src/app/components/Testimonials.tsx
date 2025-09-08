@@ -18,14 +18,12 @@ import { useTheme } from "@mui/material/styles";
 
 const Testimonials = () => {
   const [testimonials, setTestimonials] = useState<any[]>([]);
-  const [visibleCount, setVisibleCount] = useState(8); // show first 3
-  const [expanded, setExpanded] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   const fetchTestimonial = useCallback(async () => {
     try {
       const response = await fetcher("testimonial", "get-testimonials");
-      console.log("Fetched Testimonials:", response);
-
       if (response && response?.results) {
         setTestimonials(response?.results);
       } else {
@@ -42,13 +40,16 @@ const Testimonials = () => {
 
   const theme = useTheme();
 
-  const handleToggle = () => {
-    if (expanded) {
-      setVisibleCount(8);
-    } else {
-      setVisibleCount(testimonials.length);
-    }
-    setExpanded(!expanded);
+  // Pagination logic
+  const totalPages = Math.ceil(testimonials.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentItems = testimonials.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -94,9 +95,9 @@ const Testimonials = () => {
 
       {/* Testimonials List */}
       <Box className={styles.testimonialsContainer}>
-        {testimonials.length > 0 ? (
+        {currentItems.length > 0 ? (
           <>
-            {testimonials.slice(0, visibleCount).map((testimonial, index) => (
+            {currentItems.map((testimonial, index) => (
               <Card
                 sx={{
                   backgroundColor: "#29175e !important",
@@ -186,32 +187,61 @@ const Testimonials = () => {
               </Card>
             ))}
 
-            {/* Show More / Show Less button */}
-            {testimonials.length > 8 && (
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
               <Box
                 sx={{
                   width: "100%",
                   display: "flex",
                   justifyContent: "center",
                   mt: 3,
+                  gap: 1,
+                  flexWrap: "wrap",
                 }}
               >
-                <Button
-                  onClick={handleToggle}
-                  sx={{
-                    backgroundColor: "#fff",
-                    color: "#29175e",
-                    fontWeight: "bold",
-                    borderRadius: "20px",
-                    px: 3,
-                    py: 1,
-                    "&:hover": {
-                      backgroundColor: "#f0f0f0",
-                    },
-                  }}
-                >
-                  {expanded ? "Show Less" : "Show More"}
-                </Button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <Button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      sx={{
+                        backgroundColor:
+                          page === currentPage ? "#29175e" : "#fff",
+                        color: page === currentPage ? "#fff" : "#29175e",
+                        fontWeight: "bold",
+                        borderRadius: "50%",
+                        minWidth: "40px",
+                        height: "40px",
+                        "&:hover": {
+                          backgroundColor:
+                            page === currentPage ? "#29175e" : "#f0f0f0",
+                        },
+                      }}
+                    >
+                      {page}
+                    </Button>
+                  )
+                )}
+
+                {/* Next Button */}
+                {currentPage < totalPages && (
+                  <Button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    sx={{
+                      backgroundColor: "#fff",
+                      color: "#29175e",
+                      fontWeight: "bold",
+                      borderRadius: "20px",
+                      px: 2,
+                      py: 1,
+                      "&:hover": {
+                        backgroundColor: "#f0f0f0",
+                      },
+                    }}
+                  >
+                    Next
+                  </Button>
+                )}
               </Box>
             )}
           </>

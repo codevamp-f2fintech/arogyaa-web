@@ -379,6 +379,14 @@ const BannerComponentTest: React.FC = () => {
         backgroundSize: "cover",
         backgroundPosition: "center",
         overflow: "hidden",
+        "@media (max-width: 375px)": {
+          // iPhone SE width
+          height: "110vh",
+        },
+        "@media (max-width: 414px)": {
+          // Samsung S8+ width
+          height: "110vh",
+        },
       }}
     >
       {/* Animated background elements */}
