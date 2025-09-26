@@ -155,7 +155,8 @@ const Signup = () => {
 
     // Password validation
     const passwordPattern =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/;
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_\-#])[A-Za-z\d@$!%*?&_\-#]{8,}$/;
+
     if (!formData.password) {
       newErrors.password = "Password is required.";
       isValid = false;
