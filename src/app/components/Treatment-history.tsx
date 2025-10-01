@@ -20,6 +20,7 @@ import {
   IconButton,
   Modal,
   Typography,
+  Tooltip,
 } from "@mui/material";
 import {
   CheckCircle,
@@ -27,15 +28,15 @@ import {
   AddCircle,
   HourglassEmpty,
   LocalHospital,
+  VisibilityOff,
 } from "@mui/icons-material";
-import { fetcher, modifier } from "@/apis/apiClient";
+import { creator, fetcher, modifier } from "@/apis/apiClient";
 import { Utility } from "@/utils";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/redux/store";
 import SnackbarComponent from "./common/Snackbar";
 import ImagePicker from "./common/ImagePicker";
 import CreateTreatmentDialog from "./common/CreateTreatmentDialog";
-import { log } from "console";
 
 interface Treatment {
   _id: string;
@@ -70,7 +71,8 @@ const TreatmentHistory: React.FC = () => {
   >(null);
   const treatmentFileInputRef = useRef<HTMLInputElement>(null);
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
-
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [message, setMessage] = useState("");
   const { snackbar } = useSelector((state: RootState) => state.snackbar);
 
   const dispatch: AppDispatch = useDispatch();
@@ -79,6 +81,8 @@ const TreatmentHistory: React.FC = () => {
     Utility();
   const patientId = decodedToken()?.id;
 
+  const getConsultationFee = (t: any) =>
+    Number(t?.doctorId?.consultationFee || 0);
   // Function to format date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -88,36 +92,125 @@ const TreatmentHistory: React.FC = () => {
       day: "numeric",
     });
   };
+  const buildAppointmentFromTreatment = (t: Treatment): Appointment => ({
+    _id:
+      typeof t.appointmentId === "string"
+        ? t.appointmentId
+        : t.appointmentId?._id || "",
+    doctorId: t.doctorId as IdLike,
+    patientId: t.patientId as IdLike,
+  });
 
   // Function to fetch treatment data from API
   const fetchTreatments = useCallback(async () => {
-    if (patientId) {
-      try {
-        const response = await fetcher(
-          "treatment",
-          `get-treatments-by-patientId/${patientId}?page=${
-            page + 1
-          }&limit=${rowsPerPage}`
-        );
+    if (!patientId) return;
 
-        if (!response) {
-          throw new Error("No response from the API");
-        }
-        setTreatments(response.results || []);
-        setTotalCount(response.count || 0);
-        setError(null);
-      } catch (error) {
-        console.error("Error fetching treatments:", error);
-        setError(error instanceof Error ? error.message : String(error));
-        setTreatments([]);
-        setTotalCount(0);
-      }
+    try {
+      const response = await fetcher(
+        "treatment",
+        `get-treatments-by-patientId/${patientId}?page=${
+          page + 1
+        }&limit=${rowsPerPage}`
+      );
+      console.log("Fetched treatments response:", response);
+      if (!response) throw new Error("No response from the API");
+
+      const treatments = response.results || [];
+
+      const treatmentsWithPayment = await Promise.all(
+        treatments.map(async (treatment) => {
+          const appointmentId = treatment.appointmentId?._id;
+
+          let paymentStatus = "pending";
+
+          if (!appointmentId) {
+            paymentStatus = treatment.appointmentId?.emergency
+              ? "payNow"
+              : "pending";
+          } else {
+            try {
+              const paymentResp = await fetcher(
+                "payment",
+                `get-payment-status/${appointmentId}`
+              );
+              paymentStatus = paymentResp?.status || "pending";
+
+              if (
+                treatment.appointmentId?.emergency &&
+                paymentStatus !== "success"
+              ) {
+                paymentStatus = "payNow";
+              }
+            } catch {
+              paymentStatus = treatment.appointmentId?.emergency
+                ? "payNow"
+                : "pending";
+            }
+          }
+
+          return { ...treatment, paymentStatus };
+        })
+      );
+      setTreatments(treatmentsWithPayment);
+      setTotalCount(response.count || 0);
+      setError(null);
+    } catch (error) {
+      console.error("Error fetching treatments with payments:", error);
+      setError(error instanceof Error ? error.message : String(error));
+      setTreatments([]);
+      setTotalCount(0);
     }
   }, [patientId, page, rowsPerPage]);
 
   useEffect(() => {
     fetchTreatments();
   }, [fetchTreatments]);
+
+
+  
+  const handlePayNow = async (appointment: Appointment) => {
+    setIsProcessing(true);
+    setMessage("");
+    try {
+      const doc = appointment.doctorId as Doctor;
+      const consultationFee = Number(doc?.consultationFee);
+      if (!consultationFee || consultationFee <= 0) {
+        setMessage(
+          "Doctor's consultation fee is not set. Please contact support."
+        );
+        setIsProcessing(false);
+        return;
+      }
+      const paymentData = {
+        patientId:
+          (appointment.patientId as Patient)?._id || appointment.patientId,
+        doctorId: (appointment.doctorId as Doctor)?._id || appointment.doctorId,
+        appointmentId: appointment._id,
+        amount: consultationFee,
+        currency: "INR",
+        transactionMethod: "card",
+        patientName: (appointment.patientId as Patient)?.username || "",
+        doctorName: (appointment.doctorId as Doctor)?.username || "",
+      };
+      const res = await creator("payment", "/initiate-payment", paymentData);
+      if (res?.txnid && res?.html) {
+        const container = document.createElement("div");
+        container.innerHTML = res.html;
+        sessionStorage.setItem(
+          `extensionTxn:${appointment._id}`,
+          String(res.txnid)
+        );
+        document.body.appendChild(container);
+        container.querySelector("form")?.submit();
+      } else {
+        setMessage("Payment initiation failed.");
+      }
+    } catch (e: any) {
+      setMessage(e?.message || "Error initiating payment.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   // Handle table pagination
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -197,33 +290,33 @@ const TreatmentHistory: React.FC = () => {
   };
 
   // Download image function
-  const handleDownloadImage = async (
-    imageUrl: string,
-    treatmentName: string
-  ) => {
-    try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `${treatmentName || "treatment"}_image.jpg`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+  // const handleDownloadImage = async (
+  //   imageUrl: string,
+  //   treatmentName: string
+  // ) => {
+  //   try {
+  //     const response = await fetch(imageUrl);
+  //     const blob = await response.blob();
+  //     const url = window.URL.createObjectURL(blob);
+  //     const link = document.createElement("a");
+  //     link.href = url;
+  //     link.download = `${treatmentName || "treatment"}_image.jpg`;
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //     window.URL.revokeObjectURL(url);
 
-      snackbarAndNavigate(
-        dispatch,
-        true,
-        "success",
-        "Image downloaded successfully"
-      );
-    } catch (error) {
-      console.error("Error downloading image:", error);
-      snackbarAndNavigate(dispatch, true, "error", "Failed to download image");
-    }
-  };
+  //     snackbarAndNavigate(
+  //       dispatch,
+  //       true,
+  //       "success",
+  //       "Image downloaded successfully"
+  //     );
+  //   } catch (error) {
+  //     console.error("Error downloading image:", error);
+  //     snackbarAndNavigate(dispatch, true, "error", "Failed to download image");
+  //   }
+  // };
 
   const handleCloseViewImageModal = (event: React.MouseEvent) => {
     event.stopPropagation();
@@ -318,6 +411,7 @@ const TreatmentHistory: React.FC = () => {
                 "Type",
                 "Status",
                 "Photo",
+                "Payment",
               ].map((header, index) => (
                 <TableCell
                   key={header}
@@ -343,6 +437,8 @@ const TreatmentHistory: React.FC = () => {
               </TableRow>
             ) : treatments.length > 0 ? (
               treatments.map((treatment) => {
+                const locked = treatment.paymentStatus !== "success";
+
                 const treatmentData =
                   treatment.treatments && treatment.treatments[0];
                 return (
@@ -396,7 +492,34 @@ const TreatmentHistory: React.FC = () => {
                               variant="body2"
                               sx={{ color: "white" }}
                             >
-                              {capitalizeFirstLetter(t.name)}
+                              {locked ? (
+                                <Tooltip
+                                  title={`💳 Pay Now to View${
+                                    getConsultationFee(treatment)
+                                      ? ` • ₹${getConsultationFee(treatment)}`
+                                      : ""
+                                  }`}
+                                  arrow
+                                  placement="top"
+                                >
+                                  <Box
+                                    sx={{
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      gap: 0.5,
+                                      opacity: 0.9,
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    <VisibilityOff
+                                      sx={{ fontSize: 18, opacity: 0.85 }}
+                                    />
+                                  </Box>
+                                </Tooltip>
+                              ) : (
+                                capitalizeFirstLetter(t.name)
+                              )}
                             </Typography>
                           ))}
                         </Box>
@@ -404,6 +527,8 @@ const TreatmentHistory: React.FC = () => {
                         "N/A"
                       )}
                     </TableCell>
+
+                    {/* Description column */}
                     <TableCell
                       sx={{
                         textAlign: "center",
@@ -425,7 +550,34 @@ const TreatmentHistory: React.FC = () => {
                               variant="body2"
                               sx={{ color: "white" }}
                             >
-                              {capitalizeFirstLetter(t.description || "N/A")}
+                              {locked ? (
+                                <Tooltip
+                                  title={`💳 Pay Now to View${
+                                    getConsultationFee(treatment)
+                                      ? ` • ₹${getConsultationFee(treatment)}`
+                                      : ""
+                                  }`}
+                                  arrow
+                                  placement="top"
+                                >
+                                  <Box
+                                    sx={{
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      gap: 0.5,
+                                      opacity: 0.9,
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    <VisibilityOff
+                                      sx={{ fontSize: 18, opacity: 0.85 }}
+                                    />
+                                  </Box>
+                                </Tooltip>
+                              ) : (
+                                capitalizeFirstLetter(t.description || "N/A")
+                              )}
                             </Typography>
                           ))}
                         </Box>
@@ -433,6 +585,7 @@ const TreatmentHistory: React.FC = () => {
                         "N/A"
                       )}
                     </TableCell>
+
                     <TableCell
                       sx={{
                         textAlign: "center",
@@ -454,7 +607,34 @@ const TreatmentHistory: React.FC = () => {
                               variant="body2"
                               sx={{ color: "white" }}
                             >
-                              {capitalizeFirstLetter(t.quantity || "N/A")}
+                              {locked ? (
+                                <Tooltip
+                                  title={`💳 Pay Now to View${
+                                    getConsultationFee(treatment)
+                                      ? ` • ₹${getConsultationFee(treatment)}`
+                                      : ""
+                                  }`}
+                                  arrow
+                                  placement="top"
+                                >
+                                  <Box
+                                    sx={{
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      gap: 0.5,
+                                      opacity: 0.9,
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    <VisibilityOff
+                                      sx={{ fontSize: 18, opacity: 0.85 }}
+                                    />
+                                  </Box>
+                                </Tooltip>
+                              ) : (
+                                capitalizeFirstLetter(t.quantity || "N/A")
+                              )}
                             </Typography>
                           ))}
                         </Box>
@@ -462,6 +642,7 @@ const TreatmentHistory: React.FC = () => {
                         "N/A"
                       )}
                     </TableCell>
+
                     <TableCell
                       sx={{
                         textAlign: "center",
@@ -483,7 +664,34 @@ const TreatmentHistory: React.FC = () => {
                               variant="body2"
                               sx={{ color: "white" }}
                             >
-                              {capitalizeFirstLetter(t.frequency || "N/A")}
+                              {locked ? (
+                                <Tooltip
+                                  title={`💳 Pay Now to View${
+                                    getConsultationFee(treatment)
+                                      ? ` • ₹${getConsultationFee(treatment)}`
+                                      : ""
+                                  }`}
+                                  arrow
+                                  placement="top"
+                                >
+                                  <Box
+                                    sx={{
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      gap: 0.5,
+                                      opacity: 0.9,
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    <VisibilityOff
+                                      sx={{ fontSize: 18, opacity: 0.85 }}
+                                    />
+                                  </Box>
+                                </Tooltip>
+                              ) : (
+                                capitalizeFirstLetter(t.frequency || "N/A")
+                              )}
                             </Typography>
                           ))}
                         </Box>
@@ -491,6 +699,7 @@ const TreatmentHistory: React.FC = () => {
                         "N/A"
                       )}
                     </TableCell>
+
                     <TableCell
                       sx={{
                         textAlign: "center",
@@ -512,7 +721,34 @@ const TreatmentHistory: React.FC = () => {
                               variant="body2"
                               sx={{ color: "white" }}
                             >
-                              {capitalizeFirstLetter(t.duration || "N/A")}
+                              {locked ? (
+                                <Tooltip
+                                  title={`💳 Pay Now to View${
+                                    getConsultationFee(treatment)
+                                      ? ` • ₹${getConsultationFee(treatment)}`
+                                      : ""
+                                  }`}
+                                  arrow
+                                  placement="top"
+                                >
+                                  <Box
+                                    sx={{
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      gap: 0.5,
+                                      opacity: 0.9,
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    <VisibilityOff
+                                      sx={{ fontSize: 18, opacity: 0.85 }}
+                                    />
+                                  </Box>
+                                </Tooltip>
+                              ) : (
+                                capitalizeFirstLetter(t.duration || "N/A")
+                              )}
                             </Typography>
                           ))}
                         </Box>
@@ -520,6 +756,7 @@ const TreatmentHistory: React.FC = () => {
                         "N/A"
                       )}
                     </TableCell>
+
                     <TableCell sx={{ textAlign: "center" }}>
                       {capitalizeFirstLetter(treatment.type)}
                     </TableCell>
@@ -637,9 +874,35 @@ const TreatmentHistory: React.FC = () => {
                         )}
                       </Box>
                     </TableCell>
-
                     <TableCell sx={{ textAlign: "center" }}>
-                      {treatment.photo ? (
+                      {locked ? (
+                        <Tooltip
+                          title={`💳 Pay Now to View Prescription${
+                            getConsultationFee(treatment)
+                              ? ` • ₹${getConsultationFee(treatment)}`
+                              : ""
+                          }`}
+                          arrow
+                          placement="top"
+                        >
+                          <Box
+                            sx={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              flexDirection: "column",
+                              gap: 0.5,
+                              cursor: "pointer",
+                              opacity: 0.9,
+                              minHeight: "50px",
+                            }}
+                          >
+                            <VisibilityOff
+                              sx={{ fontSize: 18, opacity: 0.85 }}
+                            />
+                          </Box>
+                        </Tooltip>
+                      ) : treatment.photo ? (
                         <Box
                           sx={{
                             display: "flex",
@@ -672,20 +935,12 @@ const TreatmentHistory: React.FC = () => {
                                 background: "#56428B",
                                 color: "white",
                                 borderRadius: "4px",
-                                "&:hover": {
-                                  background: "#483980",
-                                },
+                                "&:hover": { background: "#483980" },
                               }}
                             >
                               View
                             </Button>
                             <Button
-                              onClick={() =>
-                                handleDownloadImage(
-                                  treatment.photo,
-                                  treatment.name
-                                )
-                              }
                               sx={{
                                 minWidth: "auto",
                                 padding: "4px 8px",
@@ -693,12 +948,15 @@ const TreatmentHistory: React.FC = () => {
                                 background: "#28a745",
                                 color: "white",
                                 borderRadius: "4px",
-                                "&:hover": {
-                                  background: "#218838",
-                                },
+                                "&:hover": { background: "#218838" },
                               }}
                             >
-                              Download
+                              <a
+                                href={treatment.photo || "/placeholder.svg"}
+                                download
+                              >
+                                Download Image
+                              </a>
                             </Button>
                           </Box>
                         </Box>
@@ -706,7 +964,7 @@ const TreatmentHistory: React.FC = () => {
                         <Box
                           sx={{
                             fontSize: "0.75rem",
-                            color: "#fff", // same as status text
+                            color: "#fff",
                             fontWeight: 400,
                             display: "flex",
                             alignItems: "center",
@@ -715,6 +973,50 @@ const TreatmentHistory: React.FC = () => {
                         >
                           No Prescription
                         </Box>
+                      )}
+                    </TableCell>
+
+                    <TableCell sx={{ textAlign: "center", color: "#fff" }}>
+                      {treatment.paymentStatus === "success" && (
+                        <Typography sx={{ fontWeight: 600 }}>Paid</Typography>
+                      )}
+                      {treatment.paymentStatus === "pending" && (
+                        <Typography>Pending</Typography>
+                      )}
+                      {treatment.paymentStatus === "payNow" && (
+                        <Button
+                          color="secondary"
+                          variant="contained"
+                          disabled={isProcessing}
+                          onClick={() =>
+                            handlePayNow(
+                              buildAppointmentFromTreatment(treatment)
+                            )
+                          }
+                          sx={{
+                            minWidth: "auto",
+                            padding: "4px 8px",
+                            fontSize: "0.7rem",
+                            background: "#56428B",
+                            color: "white",
+                            borderRadius: "4px",
+                            "&:hover": {
+                              background: "#483980",
+                            },
+                          }}
+                        >
+                          {isProcessing
+                            ? "Processing..."
+                            : `Pay Now ₹${getConsultationFee(treatment)}`}
+                        </Button>
+                      )}
+                      {!!message && (
+                        <Typography
+                          variant="caption"
+                          sx={{ display: "block", mt: 0.5, color: "#fff" }}
+                        >
+                          {message}
+                        </Typography>
                       )}
                     </TableCell>
                   </TableRow>
@@ -816,7 +1118,7 @@ const TreatmentHistory: React.FC = () => {
         open={viewImageModal}
         onClose={(event, reason) => {
           if (reason === "backdropClick") return;
-          handleCloseViewImageModal(event);
+          handleCloseViewImageModal(event as any);
         }}
       >
         <Box
@@ -827,55 +1129,52 @@ const TreatmentHistory: React.FC = () => {
             height: "100vh",
             backgroundColor: "rgba(0, 0, 0, 0.5)",
           }}
+          onClick={(e) => handleCloseViewImageModal(e)}
         >
           <Box
             onClick={(e) => e.stopPropagation()}
             sx={{
               position: "relative",
               backgroundColor: "white",
-              padding: 2,
+              p: 2,
               borderRadius: 2,
               outline: "none",
               boxShadow: 24,
               display: "flex",
-              flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
+              maxWidth: "90vw",
+              maxHeight: "90vh",
             }}
           >
-            {/* Close Button */}
-            <Button
-              onClick={handleCloseViewImageModal}
+            <IconButton
+              aria-label="Close"
+              onClick={(e) => handleCloseViewImageModal(e)}
               sx={{
                 position: "absolute",
-                top: 10,
-                right: 10,
-                backgroundColor: "white",
-                color: "black",
-                borderRadius: "50%",
-                minWidth: "40px",
-                minHeight: "40px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                "&:hover": {
-                  backgroundColor: "#f0f0f0",
-                },
+                top: 8,
+                right: 8,
+                zIndex: 1,
+                padding: "1px 6px",
+                bgcolor: "rgba(255,255,255,0.95)",
+                border: "1px solid #e5e5e5",
+                "&:hover": { bgcolor: "rgba(245,245,245,0.98)" },
               }}
             >
               ✕
-            </Button>
+            </IconButton>
 
             {viewImageUrl && (
-              <img
+              <iframe
                 src={viewImageUrl || "/placeholder.svg"}
-                alt="Preview"
-                style={{
-                  maxWidth: "90%",
-                  maxHeight: "90%",
-                  borderRadius: "8px",
-                }}
-                onClick={(e) => e.stopPropagation()}
+                // alt="Preview"
+                // style={{
+                //   maxWidth: "85vw",
+                //   maxHeight: "85vh",
+                //   objectFit: "contain",
+                //   borderRadius: 8,
+                //   display: "block",
+                // }}
               />
             )}
           </Box>

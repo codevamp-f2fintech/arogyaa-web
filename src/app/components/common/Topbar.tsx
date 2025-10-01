@@ -12,6 +12,7 @@ import Button from "@mui/material/Button";
 import EventIcon from "@mui/icons-material/Event";
 import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import Badge from "@mui/material/Badge";
 import NotificationPopover from "./NotificationPopover";
 import { UserPopover } from "./user-popover";
@@ -24,7 +25,7 @@ import useSocket from "@/hooks/useSocket";
 
 import { creator } from "@/apis/apiClient";
 import { Utility } from "@/utils";
-import SnackbarComponent from "./Snackbar";
+import SnackbarComponent from "../../components/common/Snackbar";
 
 import {
   IconButton,
@@ -34,7 +35,8 @@ import {
   useTheme,
 } from "@mui/material";
 import { usePopover } from "@/hooks/use-popover";
-import { Notifications } from "@/types/notifications";
+import { EmergencySearchModal } from "./EmergencyModals";
+import type { AppointmentType, DurationOpt } from "./EmergencyModals";
 
 interface SignInResponse {
   token: string;
@@ -44,6 +46,8 @@ interface SignInResponse {
 
 const Topbar = () => {
   const [loading, setLoading] = useState(false);
+  const [emergencyLoading, setEmergencyLoading] = useState(false);
+  const [emergencyModalOpen, setEmergencyModalOpen] = useState(false);
   const [readNotification, setReadNotification] = useState<string[]>([]);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const dispatch: AppDispatch = useDispatch();
@@ -54,35 +58,35 @@ const Topbar = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+  const { snackbar } = useSelector((state: RootState) => state.snackbar);
 
-  const { capitalizeFirstLetter, decodedToken, getCookies } = Utility();
+  const { capitalizeFirstLetter, decodedToken, snackbarAndNavigate } =
+    Utility();
   const token = decodedToken();
   const router = useRouter();
   const pathname = usePathname();
 
   const patientId = decodedToken()?.id;
 
+  const { notifications } = useSelector(
+    (state: RootState) => state.notifications
+  );
   useSocket(patientId, (newNotification) => {
     dispatch(setNotifications([...(notifications || []), newNotification]));
   });
   const userPopover = usePopover<HTMLDivElement>();
-  const { notifications } = useSelector(
-    (state: RootState) => state.notifications
-  );
 
   const [visibleNotifications, setVisibleNotifications] = useState(5);
   const [appBarBg, setAppBarBg] = useState("#56428b");
   const { data: session } = useSession();
   const searchParams = useSearchParams();
 
-  const { snackbarAndNavigate } = Utility();
   const rawRedirect = searchParams.get("redirect");
   const decodedRedirect = rawRedirect ? decodeURIComponent(rawRedirect) : null;
 
   const markAsRead = (index: number) => {
     const notificationToMove = notifications[index];
     setReadNotification((prev) => [...prev, notificationToMove.message]);
-
     const newUnreadNotifications = notifications.filter((_, i) => i !== index);
     dispatch(setNotifications(newUnreadNotifications));
   };
@@ -92,27 +96,18 @@ const Topbar = () => {
       router.push("/signin");
       return;
     }
-
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleViewMore = () => {
-    setVisibleNotifications((prev) => prev + 5);
-  };
+  const handleClose = () => setAnchorEl(null);
+  const handleViewMore = () => setVisibleNotifications((prev) => prev + 5);
 
   const handleScroll = () => {
-    if (window.scrollY < 100) {
-      setAppBarBg("#56428b");
-    } else {
-      setAppBarBg("transparent");
-    }
+    if (window.scrollY < 100) setAppBarBg("#56428b");
+    else setAppBarBg("transparent");
   };
 
-  const handleLogin = async (email) => {
+  const handleLogin = async (email: string) => {
     try {
       const response: SignInResponse = await creator("patient", "/login", {
         email: email,
@@ -123,7 +118,6 @@ const Topbar = () => {
         document.cookie = `token=${response.token}; path=/; max-age=${
           1 * 24 * 60 * 60
         }; secure; samesite=strict`;
-
         snackbarAndNavigate(
           dispatch,
           true,
@@ -133,14 +127,10 @@ const Topbar = () => {
         );
       } else if (response?.statusCode === 409) {
         snackbarAndNavigate(dispatch, true, "error", "Patient Not Found");
-        setTimeout(() => {
-          setLoading(false);
-        }, 2000);
+        setTimeout(() => setLoading(false), 2000);
       } else if (response?.statusCode === 400) {
         snackbarAndNavigate(dispatch, true, "error", "Invalid Password");
-        setTimeout(() => {
-          setLoading(false);
-        }, 2000);
+        setTimeout(() => setLoading(false), 2000);
       }
     } catch (error) {
       console.error("Login failed", error);
@@ -150,39 +140,35 @@ const Topbar = () => {
         "error",
         "Error Logging in. Please Try Again"
       );
-      setTimeout(() => {
-        setLoading(false);
-      }, 2200);
+      setTimeout(() => setLoading(false), 2200);
     } finally {
-      setTimeout(() => {
-        setLoading(false);
-      }, 2200);
+      setTimeout(() => setLoading(false), 2200);
     }
   };
 
-  // Handler for the new button
-  // const handleNewButtonClick = () => {
-  //   console.log("New button clicked!");
-  //   // Example: router.push("/some-page");
-  // };
+  const handleEmergencyOpen = () => {
+    if (!token?.id && !token?._id) {
+      router.push("/signin?redirect=%2Fdoctors");
+      return;
+    }
+    setEmergencyModalOpen(true);
+  };
 
   useEffect(() => {
     if (session?.user?.email && !token) {
+     
       handleLogin(session.user.email);
     }
   }, [session, token]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
 
-  // Common button styles with responsive sizing
   const getButtonStyles = (isCompact = false) => ({
     backgroundColor: "#5d4993 !important",
     color: "#fff !important",
@@ -193,22 +179,14 @@ const Topbar = () => {
     display: "flex",
     alignItems: "center",
     textTransform: "capitalize" as const,
-    minWidth: 0, // Allow buttons to shrink
+    minWidth: 0,
     padding: {
       xs: isCompact ? "4px 8px" : "6px 12px",
       sm: isCompact ? "6px 12px" : "8px 16px",
       md: "8px 20px",
     },
-    height: {
-      xs: "36px",
-      sm: "40px",
-      md: "48px",
-    },
-    fontSize: {
-      xs: "11px",
-      sm: "13px",
-      md: "14px",
-    },
+    height: { xs: "36px", sm: "40px", md: "48px" },
+    fontSize: { xs: "11px", sm: "13px", md: "14px" },
     "&:hover": {
       backgroundColor: "#af9fdb !important",
       color: "#29175e",
@@ -216,15 +194,86 @@ const Topbar = () => {
     },
   });
 
-  // Logo responsive styles
+ 
+  const getEmergencyButtonStyles = (isCompact = false) => ({
+    ...getButtonStyles(isCompact),
+    background:
+      "linear-gradient(135deg, #ff4d4f 0%, #d9363e 50%, #b71c1c 100%) !important",
+    border: "0",
+    animation: "pulse 1.6s infinite",
+    "@keyframes pulse": {
+      "0%": { boxShadow: "0 0 0 0 rgba(255,77,79,0.6)" },
+      "70%": { boxShadow: "0 0 0 10px rgba(255,77,79,0)" },
+      "100%": { boxShadow: "0 0 0 0 rgba(255,77,79,0)" },
+    },
+  });
+
+
+  const sendEmergencyRequest = async (args: {
+    specialityId: string;
+    appointmentType: AppointmentType;
+    location: string;
+    duration: DurationOpt;
+  }) => {
+    const { specialityId, appointmentType, location, duration } = args;
+
+    if (!token?.id && !token?._id) {
+      router.push("/signin?redirect=%2Fdoctors");
+      return;
+    }
+
+    setEmergencyLoading(true);
+    try {
+      const body = {
+        patientId: token.id || token._id,
+        specialityId,
+        location,
+        appointmentType,
+        durationMinutes: Number(duration),
+      };
+
+      // const res: any = await creator(
+      //   "appointment",
+      //   "/emergency/create-auto",
+      //   body
+      // );
+
+      if (true) {
+        snackbarAndNavigate(
+          dispatch,
+          true,
+          "success",
+          "🚑 Emergency request sent! Available doctors are being notified."
+        );
+        setEmergencyModalOpen(false);
+      } else {
+        snackbarAndNavigate(
+          dispatch,
+          true,
+          "warning",
+          "Could not create emergency request. Please try again."
+        );
+      }
+    } catch (err) {
+      console.error("Emergency create failed", err);
+      snackbarAndNavigate(
+        dispatch,
+        true,
+        "error",
+        "Something went wrong while creating emergency appointment. Please try again."
+      );
+    } finally {
+      setEmergencyLoading(false);
+    }
+  };
+
+  const openPopover = Boolean(anchorEl);
+  const popoverId = openPopover ? "simple-popover" : undefined;
+
   const logoStyles = {
     display: "flex",
     width: "auto",
-    height: {
-      xs: 40,
-      sm: 50,
-      md: 60,
-    },
+    height: { xs: 40, sm: 50, md: 60 },
     maxWidth: "auto",
     mr: { xs: 0.5, sm: 1, md: 1.5 },
   };
@@ -246,15 +295,12 @@ const Topbar = () => {
           gap: { xs: 0.5, sm: 1, md: 1.5 },
         }}
       >
-        {/* Logo */}
         <Link href="/">
           <Box component="img" src="/logomain.png" alt="Logo" sx={logoStyles} />
         </Link>
 
-        {/* Spacer to push all buttons to the right */}
         <Box sx={{ flexGrow: 1 }} />
 
-        {/* All buttons container - positioned on the right */}
         <Box
           sx={{
             display: "flex",
@@ -264,7 +310,6 @@ const Topbar = () => {
             justifyContent: "flex-end",
           }}
         >
-          {/* Mobile layout: Stack buttons or use smaller sizes */}
           {isMobile ? (
             <Box
               sx={{
@@ -275,22 +320,20 @@ const Topbar = () => {
                 justifyContent: "flex-end",
               }}
             >
-              {/* Top Doctors Button - Mobile */}
-              {/* <Button
-                onClick={handleNewButtonClick}
+              <Button
+                onClick={handleEmergencyOpen}
                 variant="contained"
-                startIcon={<PersonOutlineIcon sx={{ fontSize: "16px" }} />}
+                startIcon={<LocalHospitalIcon sx={{ fontSize: 16 }} />}
+                disabled={emergencyLoading}
                 sx={{
-                  ...getButtonStyles(true),
-                  order: 1,
-                  flexShrink: 1,
-                  minWidth: "80px",
+                  ...getEmergencyButtonStyles(true),
+                  minWidth: "98px",
+                  order: 0,
                 }}
               >
-                Top Dr's
-              </Button> */}
+                {emergencyLoading ? "Sending…" : "Emergency"}
+              </Button>
 
-              {/* Appointment Button - Mobile */}
               {pathname !== "/doctors" &&
                 !pathname.startsWith("/doctors/profile/") && (
                   <Button
@@ -355,15 +398,10 @@ const Topbar = () => {
                 </Button>
               )}
 
-              {/* Notification Bell - Mobile */}
               <IconButton
-                aria-describedby={id}
+                aria-describedby={popoverId}
                 onClick={handleClick}
-                sx={{
-                  padding: "6px",
-                  borderRadius: "50%",
-                  order: 4,
-                }}
+                sx={{ padding: "6px", borderRadius: "50%", order: 4 }}
               >
                 <Badge
                   variant={unreadCount > 0 ? "dot" : undefined}
@@ -384,19 +422,18 @@ const Topbar = () => {
               </IconButton>
             </Box>
           ) : (
-            // Tablet and Desktop layout
             <>
-              {/* Top Doctors Button - Tablet/Desktop */}
-              {/* <Button
-                onClick={handleNewButtonClick}
+              <Button
+                onClick={handleEmergencyOpen}
                 variant="contained"
-                startIcon={<PersonOutlineIcon />}
-                sx={getButtonStyles()}
+                startIcon={<LocalHospitalIcon sx={{ fontSize: 20 }} />}
+                disabled={emergencyLoading}
+                sx={getEmergencyButtonStyles()}
               >
-                Top Doctor's
-              </Button> */}
+                {emergencyLoading ? "Sending…" : "Emergency Book"}
+              </Button>
 
-              {/* Appointment Button - Tablet/Desktop */}
+              {/* Book Appointment Button - Tablet/Desktop */}
               {pathname !== "/doctors" &&
                 !pathname.startsWith("/doctors/profile/") && (
                   <Button
@@ -445,7 +482,7 @@ const Topbar = () => {
               {/* Notification Bell - Tablet/Desktop */}
               <Tooltip title="Notifications">
                 <IconButton
-                  aria-describedby={id}
+                  aria-describedby={popoverId}
                   onClick={handleClick}
                   sx={{
                     padding: { sm: "8px", md: "10px" },
@@ -479,7 +516,7 @@ const Topbar = () => {
 
         {/* Notification Popover */}
         <NotificationPopover
-          open={open}
+          open={openPopover}
           anchorEl={anchorEl}
           onClose={handleClose}
           notifications={notifications}
@@ -498,6 +535,30 @@ const Topbar = () => {
           />
         )}
       </Toolbar>
+
+      {/* ===== Emergency Search Modal ===== */}
+      <EmergencySearchModal
+        isOpen={emergencyModalOpen}
+        onClose={() => setEmergencyModalOpen(false)}
+        onSearch={async ({
+          specialityId,
+          appointmentType,
+          location,
+          duration,
+        }) => {
+          await sendEmergencyRequest({
+            specialityId,
+            appointmentType,
+            location,
+            duration,
+          });
+        }}
+      />
+      <SnackbarComponent
+        alerting={snackbar.snackbarAlert}
+        severity={snackbar.snackbarSeverity}
+        message={snackbar.snackbarMessage}
+      />
     </AppBar>
   );
 };
