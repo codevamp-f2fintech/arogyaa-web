@@ -123,6 +123,12 @@ export default function Login() {
     },
     []
   );
+  const handleForgotPassword = () => {
+    const redirectParam = decodedRedirect
+      ? `?redirect=${encodeURIComponent(decodedRedirect)}`
+      : "";
+    router.push(`/forgot-password${redirectParam}`);
+  };
 
   const handleGoogleSignIn = () => {
     signIn("google", {
@@ -355,6 +361,25 @@ export default function Login() {
                           helperText={touched.password && errors.password}
                         />
 
+                        {/* Forgot password link (right aligned) */}
+                        <Box textAlign="right" mt={0.2} mb={-1.9}>
+                          <Button
+                            type="button"
+                            size="small"
+                            onClick={handleForgotPassword}
+                            sx={{
+                              textTransform: "none",
+                              fontFamily: "Poppins",
+                              color: "#7A4D9C",
+                              px: 0,
+                              minWidth: 0,
+                              fontSize: "13px", // thoda chhota for subtle look
+                            }}
+                          >
+                            Forgot password?
+                          </Button>
+                        </Box>
+
                         {/* Submit Button */}
                         <Button
                           type="submit"
@@ -411,7 +436,7 @@ export default function Login() {
                         </Button>
 
                         {/* Divider */}
-                        <Divider sx={{ my: 2, fontFamily: "Poppins" }}>
+                        <Divider sx={{ my: 1, fontFamily: "Poppins" }}>
                           or
                         </Divider>
 
