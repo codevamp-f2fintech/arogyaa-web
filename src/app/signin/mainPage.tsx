@@ -137,6 +137,11 @@ export default function Login() {
   };
   const emailInputRef = React.useRef<HTMLInputElement>(null);
 
+  const handleDoctorSignup = () => {
+    window.location.href = process.env
+      .NEXT_PUBLIC_ADMIN_PORTAL_SIGNUP as string;
+  };
+
   const handleDoctorLogin = () => {
     window.location.href = process.env.NEXT_PUBLIC_ADMIN_PORTAL_LOGIN as string;
   };
@@ -535,10 +540,55 @@ export default function Login() {
                               fill="white"
                               viewBox="0 0 24 24"
                             >
+                              <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5zm9-2v-2h-2V8h-2v2h-2v2h2v2h2v-2h2z" />
+                            </svg>
+                          }
+                          onClick={handleDoctorLogin}
+                          sx={{
+                            mt: 2,
+                            mb: 1,
+                            fontFamily: "Poppins",
+                            borderRadius: "8px",
+                            background: "#007BFF", // blue for login (can change)
+                            color: "#fff",
+                            fontWeight: "bold",
+                            padding: "10px 20px",
+                            boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.2)",
+                            transition: "all 0.3s ease",
+                            "&:hover": {
+                              background: "#0056b3",
+                              color: "#fff",
+                            },
+                            "&:active": {
+                              color: "#fff",
+                            },
+                            "&:focus": {
+                              color: "#fff",
+                            },
+                            "&.Mui-disabled": {
+                              color: "#fff",
+                            },
+                            "& .MuiButton-startIcon": {
+                              marginRight: "10px",
+                            },
+                          }}
+                        >
+                          Are you a Doctor? Login Here
+                        </Button>
+                        <Button
+                          fullWidth
+                          startIcon={
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="20"
+                              height="20"
+                              fill="white"
+                              viewBox="0 0 24 24"
+                            >
                               <path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-2 9h-4v4h-2v-4H7V10h4V6h2v4h4v2z" />
                             </svg>
                           }
-                          onClick={handleDoctorLogin} // use function instead of hardcoded link
+                          onClick={handleDoctorSignup} // use function instead of hardcoded link
                           sx={{
                             mt: 2,
                             mb: 2,
@@ -568,7 +618,7 @@ export default function Login() {
                             },
                           }}
                         >
-                          Are you a Doctor? Login Here
+                          Are you a Doctor? Signup Here
                         </Button>
                       </Form>
                     )}
