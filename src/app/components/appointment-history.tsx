@@ -25,7 +25,7 @@ import {
   VideoCall,
 } from "@mui/icons-material";
 import { Utility } from "@/utils";
-import { creator,modifier, fetcher } from "@/apis/apiClient";
+import { creator, modifier, fetcher } from "@/apis/apiClient";
 import CreateTestimonialDialog from "./common/createTestimonialDialog";
 import io from "socket.io-client";
 import { useSearchParams } from "next/navigation";
@@ -126,8 +126,7 @@ const AppointmentHistory: React.FC = () => {
     try {
       const response = await fetcher(
         "appointment",
-        `get-patients-appointment/${patientId}?page=${
-          page + 1
+        `get-patients-appointment/${patientId}?page=${page + 1
         }&limit=${rowsPerPage}`
       );
       if (!response || !response.results) throw new Error("No data found");
@@ -176,8 +175,8 @@ const AppointmentHistory: React.FC = () => {
             hrs > 0
               ? `Can join in ${hrs}h:${minsLeft}m`
               : `Can join in ${String(minsLeft).padStart(2, "0")}m:${String(
-                  secsLeft
-                ).padStart(2, "0")}s`;
+                secsLeft
+              ).padStart(2, "0")}s`;
         } else {
           newCountdowns[appointmentId] = info.message;
         }
@@ -278,8 +277,7 @@ const AppointmentHistory: React.FC = () => {
       );
 
       alert(
-        `Extension paid: +${payload.minutes ?? 20} min${
-          payload.txnid ? ` (Txn ${payload.txnid})` : ""
+        `Extension paid: +${payload.minutes ?? 20} min${payload.txnid ? ` (Txn ${payload.txnid})` : ""
         }`
       );
     };
@@ -352,6 +350,7 @@ const AppointmentHistory: React.FC = () => {
       window.location.origin;
 
     const s = io(`${base}/emergency-appointments`, {
+      path: "/appointment-service/socket.io",
       transports: ["websocket"],
       auth: { userId: patientId }, // personal room join will happen server-side
     });
@@ -369,15 +368,15 @@ const AppointmentHistory: React.FC = () => {
         prev.map((a) =>
           String(a._id) === String(payload.id)
             ? {
-                ...a,
-                status: payload.status || "picked_up",
-                pickedUpAt: payload.pickedUpAt || a.pickedUpAt,
-                doctorId:
-                  a.doctorId ||
-                  (payload.doctorId
-                    ? { ...(a.doctorId as any), _id: payload.doctorId }
-                    : a.doctorId),
-              }
+              ...a,
+              status: payload.status || "picked_up",
+              pickedUpAt: payload.pickedUpAt || a.pickedUpAt,
+              doctorId:
+                a.doctorId ||
+                (payload.doctorId
+                  ? { ...(a.doctorId as any), _id: payload.doctorId }
+                  : a.doctorId),
+            }
             : a
         )
       );
@@ -409,7 +408,7 @@ const AppointmentHistory: React.FC = () => {
             n.onclick = () => {
               try {
                 window.focus?.();
-              } catch {}
+              } catch { }
               try {
                 if (document.visibilityState === "hidden")
                   window.open(url, "_blank");
@@ -419,10 +418,10 @@ const AppointmentHistory: React.FC = () => {
               }
               try {
                 n.close?.();
-              } catch {}
+              } catch { }
             };
           }
-        } catch {}
+        } catch { }
       };
       if (Notification.permission === "granted") fire();
       else if (Notification.permission !== "denied") {
@@ -434,7 +433,7 @@ const AppointmentHistory: React.FC = () => {
       try {
         s.off("emergency:accepted", onAccepted);
         s.removeAllListeners();
-      } catch {}
+      } catch { }
       s.close();
     };
   }, [patientId]);
@@ -473,7 +472,7 @@ const AppointmentHistory: React.FC = () => {
             as: "patient",
           });
           apptSock?.emit("appointment:get_state", { appointmentId: apptId });
-        } catch {}
+        } catch { }
 
         const t = setTimeout(() => handleRoomExpired(apptId), exp - now);
         return () => clearTimeout(t);
@@ -499,50 +498,50 @@ const AppointmentHistory: React.FC = () => {
   }, []);
 
   /* ---------- Payment (base consultation) ---------- */
-    const handlePayNow = async (appointment: Appointment) => {
-      setIsProcessing(true);
-      setMessage("");
-      try {
-        const doc = appointment.doctorId as Doctor;
-        const consultationFee = Number(doc?.consultationFee);
-        if (!consultationFee || consultationFee <= 0) {
-          setMessage(
-            "Doctor's consultation fee is not set. Please contact support."
-          );
-          setIsProcessing(false);
-          return;
-        }
-        const paymentData = {
-          patientId:
-            (appointment.patientId as Patient)?._id || appointment.patientId,
-          doctorId: (appointment.doctorId as Doctor)?._id || appointment.doctorId,
-          appointmentId: appointment._id,
-          amount: consultationFee,
-          currency: "INR",
-          transactionMethod: "card",
-
-          patientName: (appointment.patientId as Patient)?.username || "",
-          doctorName: (appointment.doctorId as Doctor)?.username || "",
-        };
-        const res = await creator("payment", "/initiate-payment", paymentData);
-        if (res?.txnid && res?.html) {
-          const container = document.createElement("div");
-          container.innerHTML = res.html;
-          sessionStorage.setItem(
-            `extensionTxn:${appointment._id}`,
-            String(res.txnid)
-          );
-          document.body.appendChild(container);
-          container.querySelector("form")?.submit();
-        } else {
-          setMessage("Payment initiation failed.");
-        }
-      } catch (e: any) {
-        setMessage(e?.message || "Error initiating payment.");
-      } finally {
+  const handlePayNow = async (appointment: Appointment) => {
+    setIsProcessing(true);
+    setMessage("");
+    try {
+      const doc = appointment.doctorId as Doctor;
+      const consultationFee = Number(doc?.consultationFee);
+      if (!consultationFee || consultationFee <= 0) {
+        setMessage(
+          "Doctor's consultation fee is not set. Please contact support."
+        );
         setIsProcessing(false);
+        return;
       }
-    };
+      const paymentData = {
+        patientId:
+          (appointment.patientId as Patient)?._id || appointment.patientId,
+        doctorId: (appointment.doctorId as Doctor)?._id || appointment.doctorId,
+        appointmentId: appointment._id,
+        amount: consultationFee,
+        currency: "INR",
+        transactionMethod: "card",
+
+        patientName: (appointment.patientId as Patient)?.username || "",
+        doctorName: (appointment.doctorId as Doctor)?.username || "",
+      };
+      const res = await creator("payment", "/initiate-payment", paymentData);
+      if (res?.txnid && res?.html) {
+        const container = document.createElement("div");
+        container.innerHTML = res.html;
+        sessionStorage.setItem(
+          `extensionTxn:${appointment._id}`,
+          String(res.txnid)
+        );
+        document.body.appendChild(container);
+        container.querySelector("form")?.submit();
+      } else {
+        setMessage("Payment initiation failed.");
+      }
+    } catch (e: any) {
+      setMessage(e?.message || "Error initiating payment.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const handlePayExtensionNow = async (
     appointment: Appointment,
@@ -649,7 +648,7 @@ const AppointmentHistory: React.FC = () => {
           } else {
             alert(
               res?.message ||
-                "Payment captured, but extension confirmation failed."
+              "Payment captured, but extension confirmation failed."
             );
           }
         } catch (e) {
@@ -724,7 +723,7 @@ const AppointmentHistory: React.FC = () => {
           apptSock?.emit("appointment:get_state", {
             appointmentId: appointment._id,
           });
-        } catch {}
+        } catch { }
 
         const exp = new Date(response.expiresAt).getTime();
         const now = Date.now();
@@ -760,7 +759,7 @@ const AppointmentHistory: React.FC = () => {
             as: "patient",
           });
           apptSock?.emit("appointment:get_state", { appointmentId: apptId });
-        } catch {}
+        } catch { }
       }
     }
   };
@@ -773,7 +772,7 @@ const AppointmentHistory: React.FC = () => {
         appointmentId,
         as: "patient",
       });
-    } catch {}
+    } catch { }
 
     setActiveRoomUrl(null);
     const docId = sessionStorage.getItem("dailyRoom_doctorId") || "";
@@ -808,7 +807,7 @@ const AppointmentHistory: React.FC = () => {
         appointmentId,
         as: "patient",
       });
-    } catch {}
+    } catch { }
 
     const docId = sessionStorage.getItem("dailyRoom_doctorId") || "";
     const docName = sessionStorage.getItem("dailyRoom_doctorName") || "";
@@ -926,7 +925,7 @@ const AppointmentHistory: React.FC = () => {
           );
           clearInterval(timer);
         }
-      } catch {}
+      } catch { }
     };
 
     const timer = window.setInterval(tick, 3000);
@@ -969,7 +968,7 @@ const AppointmentHistory: React.FC = () => {
             appointmentId: apptId,
             as: "patient",
           });
-        } catch {}
+        } catch { }
       }
     };
   }, [apptSock]);
@@ -1390,8 +1389,8 @@ const AppointmentHistory: React.FC = () => {
                     <TableCell sx={{ textAlign: "center" }}>
                       {appointment?.appointmentDate
                         ? new Date(appointment.appointmentDate)
-                            .toISOString()
-                            .split("T")[0]
+                          .toISOString()
+                          .split("T")[0]
                         : "N/A"}
                     </TableCell>
 
@@ -1418,7 +1417,7 @@ const AppointmentHistory: React.FC = () => {
                         <>
                           {/* ✅ PICKED_UP => always allow Join Call immediately */}
                           {String(appointment.status).toLowerCase() ===
-                          "picked_up" ? (
+                            "picked_up" ? (
                             canJoinPickedUp(appointment) ? (
                               <Button
                                 variant="contained"
@@ -1562,7 +1561,7 @@ const AppointmentHistory: React.FC = () => {
                                 </Tooltip>
                               ) : appointment.paymentStatus === "success" ? (
                                 appointment.status === "scheduled" &&
-                                canCreateRoom(appointment) ? (
+                                  canCreateRoom(appointment) ? (
                                   <>
                                     {(() => {
                                       const { canJoin, message } =
@@ -1577,7 +1576,7 @@ const AppointmentHistory: React.FC = () => {
                                             size="small"
                                             startIcon={
                                               creatingRoom ===
-                                              appointment._id ? (
+                                                appointment._id ? (
                                                 <CircularProgress
                                                   size={16}
                                                   color="inherit"
@@ -1591,7 +1590,7 @@ const AppointmentHistory: React.FC = () => {
                                             }
                                             disabled={
                                               creatingRoom ===
-                                                appointment._id ||
+                                              appointment._id ||
                                               activeCall !== null ||
                                               !canJoin
                                             }
@@ -1634,8 +1633,8 @@ const AppointmentHistory: React.FC = () => {
                                     {appointment.status === "completed"
                                       ? "Attended The Session"
                                       : appointment.status === "rejected"
-                                      ? "Doctor is busy, choose another appointment slot"
-                                      : "Doctor has not yet scheduled this appointment."}
+                                        ? "Doctor is busy, choose another appointment slot"
+                                        : "Doctor has not yet scheduled this appointment."}
                                   </Box>
                                 )
                               ) : (
@@ -1727,7 +1726,7 @@ const AppointmentHistory: React.FC = () => {
           }}
           doctorId={doctorId}
           doctorName={profileData?.data?.username || "Unknown"}
-          fetchTestimonials={() => {}}
+          fetchTestimonials={() => { }}
         />
       </TableContainer>
     </Container>
