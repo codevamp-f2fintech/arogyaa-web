@@ -923,6 +923,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         <Box
                           sx={{
                             marginBottom: 2,
+                            width: "100%", // ✅ full responsive width
                             "& .MuiFormLabel-root": {
                               color: "#29175E",
                               fontFamily: "Poppins",
@@ -931,11 +932,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                               backgroundColor: "transparent",
                               borderRadius: "4px",
                               fontFamily: "Poppins",
-                              width: {
-                                xs: "73.5vw",
-                                md: "25.6vw !important",
-                                sm: "100%",
-                              },
+                              width: "100%",
                             },
                             "& .MuiOutlinedInput-root": {
                               "& fieldset": {
@@ -952,38 +949,6 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         >
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DatePicker
-                              slotProps={{
-                                calendarHeader: {
-                                  sx: {
-                                    "& .MuiDayCalendar-weekDayLabel": {
-                                      fontFamily: "Poppins",
-                                    },
-                                  },
-                                },
-                                day: {
-                                  sx: {
-                                    fontFamily: "Poppins",
-                                    "&.Mui-selected": {
-                                      backgroundColor: "#000",
-                                      color: "#fff", // Selected date text
-                                    },
-
-                                    "&:hover": {
-                                      backgroundColor: "#E0D7FF",
-                                    },
-                                  },
-                                },
-                                desktopPaper: {
-                                  sx: {
-                                    backgroundColor: "#fff", // Calendar overall background
-                                    borderRadius: 2,
-                                    color: "black !important",
-                                  },
-                                },
-                              }}
-                              renderInput={(params) => (
-                                <TextField {...params} fullWidth /*...*/ />
-                              )}
                               label="Date Of Appointment *"
                               disablePast
                               inputFormat="YYYY-MM-DD"
@@ -1018,40 +983,61 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                                   setFieldValue("appointmentTime", "");
                                 }
                               }}
-                              renderInput={(params) => (
-                                <TextField
-                                  {...params}
-                                  fullWidth
-                                  name="appointmentDate"
-                                  sx={{
-                                    "& input": {
-                                      padding: "12px",
-                                      fontFamily: "Poppins",
-                                    },
-                                  }}
-                                  inputProps={{ min: today }}
-                                  error={
+                              slotProps={{
+                                textField: {
+                                  fullWidth: true,
+                                  name: "appointmentDate",
+                                  error:
                                     touched.appointmentDate &&
-                                    Boolean(errors.appointmentDate)
-                                  }
-                                  helperText={
+                                    Boolean(errors.appointmentDate),
+                                  helperText:
                                     touched.appointmentDate &&
-                                    errors.appointmentDate
-                                  }
-                                  InputLabelProps={{
+                                    errors.appointmentDate,
+                                  InputLabelProps: {
                                     shrink: true,
                                     sx: {
                                       fontFamily: "Poppins",
-                                      color: "#000",
-                                      width: "10vw",
-
+                                      color: "#29175E",
                                       "&.Mui-focused": {
                                         color: "#29175E",
                                       },
                                     },
-                                  }}
-                                />
-                              )}
+                                  },
+                                  sx: {
+                                    width: "100%",
+                                    "& input": {
+                                      padding: "12px",
+                                      fontFamily: "Poppins",
+                                    },
+                                  },
+                                },
+                                calendarHeader: {
+                                  sx: {
+                                    "& .MuiDayCalendar-weekDayLabel": {
+                                      fontFamily: "Poppins",
+                                    },
+                                  },
+                                },
+                                day: {
+                                  sx: {
+                                    fontFamily: "Poppins",
+                                    "&.Mui-selected": {
+                                      backgroundColor: "#000",
+                                      color: "#fff",
+                                    },
+                                    "&:hover": {
+                                      backgroundColor: "#E0D7FF",
+                                    },
+                                  },
+                                },
+                                desktopPaper: {
+                                  sx: {
+                                    backgroundColor: "#fff",
+                                    borderRadius: 2,
+                                    color: "black !important",
+                                  },
+                                },
+                              }}
                             />
                           </LocalizationProvider>
                         </Box>
