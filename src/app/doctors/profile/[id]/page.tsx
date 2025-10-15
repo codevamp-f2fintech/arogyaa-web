@@ -1365,6 +1365,7 @@ const DrProfile: React.FC = () => {
                   width: "100%",
                   background: "white",
                   borderRadius: "8px",
+                  overflow: "hidden", // Prevent content overflow
                 }}
               >
                 <Tabs
@@ -1374,11 +1375,19 @@ const DrProfile: React.FC = () => {
                   aria-label="Appointment Tabs"
                   sx={{
                     background: "#e8e8e8",
+                    minHeight: { xs: "40px", sm: "48px" },
                     "& .MuiTabs-indicator": { display: "none" },
                     "& .MuiTab-root": {
                       textTransform: "none",
                       backgroundColor: "#b497d6",
                       color: "#fff",
+                      fontSize: {
+                        xs: "0.75rem",
+                        sm: "0.875rem",
+                        md: "0.9375rem",
+                      },
+                      padding: { xs: "6px 8px", sm: "8px 12px" },
+                      minHeight: { xs: "40px", sm: "48px" },
                       "&.Mui-selected": {
                         backgroundColor: "#56428b",
                         color: "#fff",
@@ -1392,154 +1401,187 @@ const DrProfile: React.FC = () => {
 
                 <Box
                   sx={{
-                    p: 3,
+                    p: { xs: 1.5, sm: 2, md: 3 },
                     backgroundColor: "#56428b",
                   }}
                 >
-                  <Box
-                    sx={{
-                      padding: "15px",
-                      backgroundColor: "#29175e",
-                      color: "#fff",
-                      borderRadius: "0px",
-                    }}
-                  >
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontSize: "1.2rem",
-                        fontWeight: "bold",
-                        marginBottom: "4px",
-                      }}
-                    >
-                      Availability Slots
-                    </Typography>
-
+                  {/* Availability Slots - Show only for Video Consultation */}
+                  {appointmentTabValue === 0 && (
                     <Box
-                      component="ul"
                       sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        padding: 0,
-                        listStyleType: "none",
-                        gap: "5px",
+                        padding: { xs: "10px", sm: "12px", md: "15px" },
+                        backgroundColor: "#29175e",
+                        color: "#fff",
+                        borderRadius: "0px",
+                        marginBottom: { xs: 1.5, sm: 2 },
                       }}
                     >
-                      {profileData.data?.availability?.map((slot, index) => (
-                        <Box
-                          key={index}
-                          component="li"
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            padding: "4px 16px",
-                            backgroundColor: "#29175e",
-                            color: "",
-                            fontSize: "1rem",
-                            fontWeight: "500",
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontSize: { xs: "1rem", sm: "1.1rem", md: "1.2rem" },
+                          fontWeight: "bold",
+                          marginBottom: { xs: "6px", sm: "8px" },
+                        }}
+                      >
+                        Availability Slots
+                      </Typography>
 
-                            transition: "all 0.3s ease",
-                            "&:hover": {
-                              backgroundColor: "#29175e",
-                              color: "#fff",
-                              "& svg": { color: "#3ab795" },
-                            },
-                          }}
-                        >
+                      <Box
+                        component="ul"
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          padding: 0,
+                          listStyleType: "none",
+                          gap: { xs: "4px", sm: "5px" },
+                        }}
+                      >
+                        {profileData.data?.availability?.map((slot, index) => (
                           <Box
+                            key={index}
+                            component="li"
                             sx={{
                               display: "flex",
                               alignItems: "center",
-                              gap: "10px",
+                              justifyContent: "space-between",
+                              padding: {
+                                xs: "4px 8px",
+                                sm: "4px 12px",
+                                md: "4px 16px",
+                              },
+                              backgroundColor: "#29175e",
+                              color: "#fff",
+                              fontSize: {
+                                xs: "0.85rem",
+                                sm: "0.9rem",
+                                md: "1rem",
+                              },
+                              fontWeight: "500",
+                              gap: { xs: "8px", sm: "10px" },
+                              transition: "all 0.3s ease",
+                              "&:hover": {
+                                backgroundColor: "#29175e",
+                                color: "#fff",
+                                "& svg": { color: "#3ab795" },
+                              },
                             }}
                           >
-                            <AccessTimeIcon
-                              fontSize="small"
-                              sx={{ color: "#3ab795" }}
-                            />
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: { xs: "6px", sm: "8px", md: "10px" },
+                                minWidth: 0, // Allow text truncation
+                              }}
+                            >
+                              <AccessTimeIcon
+                                fontSize="small"
+                                sx={{
+                                  color: "#3ab795",
+                                  fontSize: {
+                                    xs: "16px",
+                                    sm: "18px",
+                                    md: "20px",
+                                  },
+                                  flexShrink: 0,
+                                }}
+                              />
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  fontSize: {
+                                    xs: "0.85rem",
+                                    sm: "0.9rem",
+                                    md: "1rem",
+                                  },
+                                  whiteSpace: "nowrap",
+                                }}
+                              >
+                                {slot.day} :
+                              </Typography>
+                            </Box>
                             <Typography
                               variant="body2"
-                              sx={{ fontSize: "1rem" }}
+                              sx={{
+                                fontSize: {
+                                  xs: "0.85rem",
+                                  sm: "0.9rem",
+                                  md: "1rem",
+                                },
+                                fontWeight: "bold",
+                                textAlign: "right",
+                                whiteSpace: "nowrap",
+                                flexShrink: 0,
+                              }}
                             >
-                              {slot.day} :
+                              {slot.startTime} - {slot.endTime}
                             </Typography>
                           </Box>
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              fontSize: "1rem",
-                              fontWeight: "bold",
-                              textAlign: "right", // Align time to the right for better visual separation
-                            }}
-                          >
-                            {slot.startTime} - {slot.endTime}
-                          </Typography>
-                        </Box>
-                      ))}
+                        ))}
+                      </Box>
                     </Box>
-                  </Box>
+                  )}
+
+                  {/* VIDEO CONSULTATION SECTION */}
                   {appointmentTabValue === 0 && (
                     <Box sx={{ textAlign: "center" }}>
                       <VideoCallIcon
                         sx={{
-                          fontSize: "40px",
+                          fontSize: { xs: "30px", sm: "35px", md: "40px" },
                           color: "#3ab795",
-                          marginBottom: "10px",
+                          marginBottom: { xs: "8px", sm: "10px" },
                         }}
                       />
 
-                      <Typography
-                        variant="h6"
+                      <Button
+                        onClick={openModal}
+                        variant="contained"
+                        startIcon={
+                          <VideoCallIcon
+                            sx={{
+                              fontSize: { xs: "16px", sm: "18px", md: "20px" },
+                              color: "#3ab795",
+                            }}
+                          />
+                        }
                         sx={{
-                          fontSize: "1rem",
-                          fontWeight: "600",
-                          color: "red",
-                          marginBottom: "8px",
+                          width: { xs: "100%", sm: "auto" },
+                          paddingX: { xs: "16px", sm: "20px", md: "24px" },
+                          paddingY: { xs: "8px", sm: "10px", md: "12px" },
+                          color: "#fff",
+                          background: "#29175e",
+                          borderRadius: "0px",
+                          fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
+                          textTransform: "none",
+                          marginBottom: { xs: "12px", sm: "15px" },
+                          transition:
+                            "transform 0.2s, box-shadow 0.2s, background-color 0.3s, color 0.3s",
+                          "&:hover": {
+                            backgroundColor: "#29175e",
+                            transform: "scale(1.05)",
+                          },
                         }}
                       >
-                        <Button
-                          onClick={openModal}
-                          variant="contained"
-                          startIcon={
-                            <VideoCallIcon
-                              sx={{ fontSize: "20px", color: "#3ab795" }}
-                            />
-                          }
-                          sx={{
-                            marginRight: "10px",
-                            paddingX: "12px",
-                            paddingY: "1px",
-                            color: "#fff",
-                            background: "#29175e",
-                            borderRadius: "0px",
-                            fontSize: "1rem",
-                            textTransform: "none",
-                            transition:
-                              "transform 0.2s, box-shadow 0.2s, background-color 0.3s, color 0.3s",
-                            "&:hover": {
-                              backgroundColor: "#29175e",
-                              transform: "scale(1.05)",
-                            },
-                          }}
-                        >
-                          Book Online Appointment
-                        </Button>
-                      </Typography>
+                        Book Online Appointment
+                      </Button>
 
                       <Typography
                         variant="body2"
                         sx={{
-                          fontSize: "0.9rem",
+                          fontSize: {
+                            xs: "0.8rem",
+                            sm: "0.85rem",
+                            md: "0.9rem",
+                          },
                           fontWeight: "450",
                           color: "#fff",
-                          marginBottom: "15px",
+                          marginBottom: { xs: "10px", sm: "12px", md: "15px" },
+                          padding: { xs: "0 8px", sm: "0" },
                         }}
                       >
                         Get expert medical advice from the comfort of your home.
                       </Typography>
-
-                      {/* Available Slots with Day & Time INLINE */}
                     </Box>
                   )}
 
@@ -1548,76 +1590,64 @@ const DrProfile: React.FC = () => {
                     <Box sx={{ textAlign: "center" }}>
                       <LocalHospitalIcon
                         sx={{
-                          fontSize: "30px",
+                          fontSize: { xs: "26px", sm: "28px", md: "30px" },
                           color: "#3ab795",
-                          marginBottom: "10px",
+                          marginBottom: { xs: "8px", sm: "10px" },
                         }}
                       />
-                      <Typography
-                        variant="h6"
+
+                      <Button
+                        onClick={openModal}
+                        variant="contained"
+                        startIcon={
+                          <LocalHospitalIcon
+                            sx={{ fontSize: "0px", color: "#3ab795" }}
+                          />
+                        }
                         sx={{
-                          fontSize: "1rem",
-                          fontWeight: "600",
-                          color: "#20ADA0",
-                          marginBottom: "2px",
+                          width: { xs: "100%", sm: "auto" },
+                          paddingX: { xs: "16px", sm: "20px", md: "24px" },
+                          paddingY: { xs: "8px", sm: "10px", md: "12px" },
+                          color: "#fff",
+                          background: "#29175e",
+                          borderRadius: "0px",
+                          fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
+                          textTransform: "none",
+                          marginBottom: { xs: "12px", sm: "15px" },
+                          transition:
+                            "transform 0.2s, box-shadow 0.2s, background-color 0.3s, color 0.3s",
+                          "&:hover": {
+                            backgroundColor: "#29175e",
+                            transform: "scale(1.05)",
+                            boxShadow: "0 4px 30px rgba(46,204,113,0.5)",
+                          },
                         }}
                       >
-                        <Button
-                          onClick={openModal}
-                          variant="contained"
-                          startIcon={
-                            <LocalHospitalIcon
-                              sx={{ fontSize: "0px", color: "#3ab795" }}
-                            />
-                          }
-                          sx={{
-                            marginRight: "10px",
-                            paddingX: "12px",
-                            paddingY: "1px",
-                            color: "#fff",
-                            background: "#29175e",
-                            borderRadius: "0px",
-                            fontSize: "1rem",
-                            textTransform: "none",
-                            transition:
-                              "transform 0.2s, box-shadow 0.2s, background-color 0.3s, color 0.3s",
-                            "&:hover": {
-                              backgroundColor: "#29175e",
-                              transform: "scale(1.05)",
-                              boxShadow: "0 4px 30px rgba(46,204,113,0.5)",
-                            },
-                          }}
-                        >
-                          Book In-Person Appointment
-                        </Button>
-                      </Typography>
+                        Book In-Person Appointment
+                      </Button>
 
                       <Typography
                         variant="body2"
                         sx={{
-                          fontSize: "0.9rem",
+                          fontSize: {
+                            xs: "0.8rem",
+                            sm: "0.85rem",
+                            md: "0.9rem",
+                          },
                           fontWeight: "450",
                           color: "#fff",
-                          marginBottom: "15px",
-                          marginTop: "7px",
+                          marginBottom: { xs: "12px", sm: "15px", md: "18px" },
+                          padding: { xs: "0 8px", sm: "0" },
                         }}
                       >
                         Meet the doctor in person at the clinic for a physical
                         examination.
                       </Typography>
 
-                      {/* Clinic Address */}
-                      {/* <Typography
-            variant="body2"
-            sx={{ fontSize: "0.9rem", fontWeight: "600", color: "#000", marginBottom: "10px" }}
-          >
-            {profileData.data?.clinicAddress || "Clinic address not available"}
-          </Typography> */}
-
-                      {/* Available Slots with Day & Time INLINE */}
+                      {/* Availability Slots for Clinic */}
                       <Box
                         sx={{
-                          padding: "15px",
+                          padding: { xs: "10px", sm: "12px", md: "15px" },
                           backgroundColor: "#29175e",
                           color: "#fff",
                           borderRadius: "0px",
@@ -1626,9 +1656,13 @@ const DrProfile: React.FC = () => {
                         <Typography
                           variant="h6"
                           sx={{
-                            fontSize: "1.2rem",
+                            fontSize: {
+                              xs: "1rem",
+                              sm: "1.1rem",
+                              md: "1.2rem",
+                            },
                             fontWeight: "bold",
-                            marginBottom: "4px",
+                            marginBottom: { xs: "6px", sm: "8px" },
                           }}
                         >
                           Availability Slots
@@ -1641,7 +1675,7 @@ const DrProfile: React.FC = () => {
                             flexDirection: "column",
                             padding: 0,
                             listStyleType: "none",
-                            gap: "5px",
+                            gap: { xs: "4px", sm: "5px" },
                           }}
                         >
                           {profileData.data?.availability?.map(
@@ -1653,12 +1687,20 @@ const DrProfile: React.FC = () => {
                                   display: "flex",
                                   alignItems: "center",
                                   justifyContent: "space-between",
-                                  padding: "4px 16px",
+                                  padding: {
+                                    xs: "4px 8px",
+                                    sm: "4px 12px",
+                                    md: "4px 16px",
+                                  },
                                   backgroundColor: "#29175e",
                                   color: "#fff",
-                                  fontSize: "1rem",
+                                  fontSize: {
+                                    xs: "0.85rem",
+                                    sm: "0.9rem",
+                                    md: "1rem",
+                                  },
                                   fontWeight: "500",
-
+                                  gap: { xs: "8px", sm: "10px" },
                                   transition: "all 0.3s ease",
                                   "&:hover": {
                                     backgroundColor: "#29175e",
@@ -1671,16 +1713,32 @@ const DrProfile: React.FC = () => {
                                   sx={{
                                     display: "flex",
                                     alignItems: "center",
-                                    gap: "10px",
+                                    gap: { xs: "6px", sm: "8px", md: "10px" },
+                                    minWidth: 0,
                                   }}
                                 >
                                   <AccessTimeIcon
                                     fontSize="small"
-                                    sx={{ color: "#3ab795" }}
+                                    sx={{
+                                      color: "#3ab795",
+                                      fontSize: {
+                                        xs: "16px",
+                                        sm: "18px",
+                                        md: "20px",
+                                      },
+                                      flexShrink: 0,
+                                    }}
                                   />
                                   <Typography
                                     variant="body2"
-                                    sx={{ fontSize: "1rem" }}
+                                    sx={{
+                                      fontSize: {
+                                        xs: "0.85rem",
+                                        sm: "0.9rem",
+                                        md: "1rem",
+                                      },
+                                      whiteSpace: "nowrap",
+                                    }}
                                   >
                                     {slot.day} :
                                   </Typography>
@@ -1688,9 +1746,15 @@ const DrProfile: React.FC = () => {
                                 <Typography
                                   variant="body2"
                                   sx={{
-                                    fontSize: "1rem",
+                                    fontSize: {
+                                      xs: "0.85rem",
+                                      sm: "0.9rem",
+                                      md: "1rem",
+                                    },
                                     fontWeight: "bold",
-                                    textAlign: "right", // Align time to the right for better visual separation
+                                    textAlign: "right",
+                                    whiteSpace: "nowrap",
+                                    flexShrink: 0,
                                   }}
                                 >
                                   {slot.startTime} - {slot.endTime}

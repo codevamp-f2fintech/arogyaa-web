@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -15,6 +15,7 @@ import {
   Select,
   FormControl,
   InputLabel,
+  CircularProgress,
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import LooksOneIcon from "@mui/icons-material/LooksOne";
@@ -29,7 +30,15 @@ import { AppDispatch, RootState } from "@/redux/store";
 import { creator } from "@/apis/apiClient";
 import { useCreatePatient } from "@/hooks/patient";
 import { Utility } from "@/utils";
-import { backIn, color } from "framer-motion";
+import { auth, RecaptchaVerifier } from "@/utils/firebase";
+import { signInWithPhoneNumber, ConfirmationResult } from "firebase/auth";
+
+declare global {
+  interface Window {
+    recaptchaVerifier: import("firebase/auth").RecaptchaVerifier;
+    confirmationResult: import("firebase/auth").ConfirmationResult;
+  }
+}
 
 interface SignupResponse {
   token: string;
@@ -63,13 +72,13 @@ const inputStyles = {
   },
   input: {
     fontFamily: "Poppins",
-    color: "#000", // Ensure text is black while typing
+    color: "#000",
   },
 };
 
 const menuItemStyles = {
   fontFamily: "Poppins",
-  color: "#000", // Ensure text is black while typing
+  color: "#000",
 };
 
 const Signup = () => {
@@ -92,7 +101,16 @@ const Signup = () => {
     password: "",
     confirmPassword: "",
   });
+
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpVerifying, setOtpVerifying] = useState(false);
+  const [timer, setTimer] = useState<number>(120);
+
+  const otpRefs = useRef<HTMLInputElement[]>([]);
   const { snackbar } = useSelector((state: RootState) => state.snackbar);
   const dispatch: AppDispatch = useDispatch();
   const router = useRouter();
@@ -103,6 +121,17 @@ const Signup = () => {
   const rawRedirect = searchParams.get("redirect");
   const decodedRedirect = rawRedirect ? decodeURIComponent(rawRedirect) : null;
 
+  // Timer effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (otpSent && !otpVerified && timer > 0) {
+      interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
+    } else if (timer === 0) {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [otpSent, otpVerified, timer]);
+
   const handleChange = (e: any) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -111,13 +140,11 @@ const Signup = () => {
     const newErrors: any = {};
     let isValid = true;
 
-    // Username validation
     if (!formData.username) {
       newErrors.username = "Full name is required.";
       isValid = false;
     }
 
-    // Age validation
     if (!formData.age) {
       newErrors.age = "Age is required.";
       isValid = false;
@@ -129,7 +156,6 @@ const Signup = () => {
       isValid = false;
     }
 
-    // Email validation
     if (!formData.email) {
       newErrors.email = "Email address is required.";
       isValid = false;
@@ -138,7 +164,6 @@ const Signup = () => {
       isValid = false;
     }
 
-    // contact validation
     if (!formData.contact) {
       newErrors.contact = "Contact is required.";
       isValid = false;
@@ -147,13 +172,11 @@ const Signup = () => {
       isValid = false;
     }
 
-    // Gender validation
     if (!formData.gender) {
       newErrors.gender = "Gender is required.";
       isValid = false;
     }
 
-    // Password validation
     const passwordPattern =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_\-#])[A-Za-z\d@$!%*?&_\-#]{8,}$/;
 
@@ -166,7 +189,6 @@ const Signup = () => {
       isValid = false;
     }
 
-    // Confirm password validation
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match.";
       isValid = false;
@@ -176,10 +198,149 @@ const Signup = () => {
     return isValid;
   };
 
+  const setUpRecaptcha = async (phone: string): Promise<ConfirmationResult> => {
+    const oldContainer = document.getElementById("recaptcha-container");
+    if (oldContainer) {
+      oldContainer.remove();
+      const newContainer = document.createElement("div");
+      newContainer.id = "recaptcha-container";
+      newContainer.style.display = "none";
+      document.body.appendChild(newContainer);
+    }
+
+    window.recaptchaVerifier = new RecaptchaVerifier(
+      auth,
+      "recaptcha-container",
+      {
+        size: "invisible",
+        callback: () => {},
+        "expired-callback": () => {
+          snackbarAndNavigate(
+            dispatch,
+            true,
+            "error",
+            "reCAPTCHA expired. Please try again."
+          );
+        },
+      }
+    );
+
+    await window.recaptchaVerifier.render();
+
+    return await signInWithPhoneNumber(
+      auth,
+      `+91${phone}`,
+      window.recaptchaVerifier
+    );
+  };
+
+  const handleSendOtp = async () => {
+    // Validate only contact field before sending OTP
+    if (!formData.contact) {
+      setErrors({ ...errors, contact: "Contact is required." });
+      snackbarAndNavigate(dispatch, true, "error", "Please enter phone number");
+      return;
+    }
+    if (!/^\d{10}$/.test(formData.contact)) {
+      setErrors({ ...errors, contact: "Contact must be 10 digits long." });
+      snackbarAndNavigate(dispatch, true, "error", "Invalid phone number");
+      return;
+    }
+
+    setOtpSending(true);
+    try {
+      const confirmationResult = await setUpRecaptcha(formData.contact);
+      window.confirmationResult = confirmationResult;
+      setOtpSent(true);
+      setTimer(120);
+      snackbarAndNavigate(
+        dispatch,
+        true,
+        "success",
+        "OTP sent to " + formData.contact
+      );
+    } catch (err: any) {
+      snackbarAndNavigate(
+        dispatch,
+        true,
+        "error",
+        err?.message || "Failed to send OTP"
+      );
+    } finally {
+      setOtpSending(false);
+    }
+  };
+
+  const handleOtpChange = (index: number, value: string) => {
+    // Only allow single digit input
+    if (value.length > 1) return;
+
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+
+    // Auto-focus next input
+    if (value && index < 5) {
+      otpRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      otpRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    setOtpVerifying(true);
+    try {
+      const otpString = otp.join("");
+      if (otpString.length !== 6) {
+        snackbarAndNavigate(
+          dispatch,
+          true,
+          "error",
+          "Please enter complete OTP"
+        );
+        setOtpVerifying(false);
+        return;
+      }
+
+      const result = await window.confirmationResult.confirm(otpString);
+      setOtpVerified(true);
+      snackbarAndNavigate(
+        dispatch,
+        true,
+        "success",
+        "OTP verified successfully"
+      );
+    } catch (error: any) {
+      snackbarAndNavigate(
+        dispatch,
+        true,
+        "error",
+        "Wrong OTP. Please try again."
+      );
+      setOtp(["", "", "", "", "", ""]);
+      if (otpRefs.current[0]) {
+        otpRefs.current[0].focus();
+      }
+    } finally {
+      setOtpVerifying(false);
+    }
+  };
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+
+    if (!otpVerified) {
+      snackbarAndNavigate(dispatch, true, "error", "Please verify OTP first");
+      return;
+    }
+
     const isValid = validateForm();
     if (!isValid) return;
+
     const { confirmPassword, ...data } = formData;
 
     try {
@@ -214,7 +375,7 @@ const Signup = () => {
         );
       }
     } catch (error: any) {
-      console.log(error, "this is errp");
+      console.log(error, "this is error");
       const status = error.response?.status;
       const message = error.response?.message || error.message;
       if (status === 409) {
@@ -249,7 +410,13 @@ const Signup = () => {
   };
 
   const toggleShowConfirmPassword = () => {
-    setShowConfirmPassword((prev) => !prev); // Function to toggle visibility
+    setShowConfirmPassword((prev) => !prev);
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -378,7 +545,7 @@ const Signup = () => {
                 ...inputStyles,
                 gridColumn: { xs: "span 1", sm: "span 2" },
               }}
-              autoComplete="off" // Turn off autofill
+              autoComplete="off"
               onChange={handleChange}
               value={formData.email}
               error={!!errors.email}
@@ -468,6 +635,7 @@ const Signup = () => {
               value={formData.contact}
               error={!!errors.contact}
               helperText={errors.contact}
+              disabled={otpSent}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -512,15 +680,160 @@ const Signup = () => {
               )}
             </FormControl>
 
+            {/* OTP Section */}
+            {otpSent && !otpVerified && (
+              <>
+                <Box
+                  sx={{
+                    gridColumn: { xs: "span 1", sm: "span 2" },
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 2,
+                    mt: 2,
+                  }}
+                >
+                  <Typography variant="body2" color="text.secondary">
+                    Enter the 6-digit OTP sent to +91 {formData.contact}
+                  </Typography>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      gap: 1.5,
+                    }}
+                  >
+                    {otp.map((digit, index) => (
+                      <TextField
+                        key={index}
+                        inputRef={(el) => (otpRefs.current[index] = el)}
+                        value={digit}
+                        onChange={(e) => handleOtpChange(index, e.target.value)}
+                        onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                        inputProps={{
+                          maxLength: 1,
+                          style: {
+                            textAlign: "center",
+                            fontSize: "1.5rem",
+                            fontWeight: 700,
+                            padding: "12px 8px",
+                            color: "#000",
+                          },
+                        }}
+                        sx={{
+                          width: 48,
+                          "& .MuiOutlinedInput-root": {
+                            borderRadius: 2,
+                            "& fieldset": {
+                              borderWidth: 2,
+                              borderColor: "#7A4D9C",
+                            },
+                            "&:hover fieldset": {
+                              borderColor: "#7A4D9C",
+                            },
+                            "&.Mui-focused fieldset": {
+                              borderColor: "#7A4D9C",
+                            },
+                            "& .MuiInputBase-input": {
+                              color: "#000", // 👈 OR ADD HERE FOR SAFETY
+                            },
+                          },
+                        }}
+                      />
+                    ))}
+                  </Box>
+
+                  <Typography variant="body2" color="text.secondary">
+                    Time remaining: {formatTime(timer)}
+                  </Typography>
+
+                  <Button
+                    onClick={handleVerifyOtp}
+                    disabled={
+                      otpVerifying || otp.join("").length !== 6 || timer === 0
+                    }
+                    variant="contained"
+                    fullWidth
+                    sx={{
+                      fontFamily: "Poppins",
+                      background:
+                        "linear-gradient(180deg, rgba(104,82,164,1) 0%, rgba(126,107,177,1) 100%)",
+                      "&:hover": {
+                        backgroundColor: "#357A9E",
+                      },
+                      py: 1.5,
+                    }}
+                  >
+                    {otpVerifying ? (
+                      <CircularProgress size={20} color="inherit" />
+                    ) : (
+                      "Verify OTP"
+                    )}
+                  </Button>
+
+                  <Button
+                    onClick={() => {
+                      setOtpSent(false);
+                      setOtp(["", "", "", "", "", ""]);
+                      setTimer(120);
+                    }}
+                    sx={{
+                      color: "#7A4D9C",
+                      fontWeight: 500,
+                      textTransform: "none",
+                    }}
+                  >
+                    Change Phone Number
+                  </Button>
+                </Box>
+              </>
+            )}
+
+            {/* Send OTP Button */}
+            {!otpSent && (
+              <Button
+                onClick={handleSendOtp}
+                disabled={otpSending || !formData.contact}
+                variant="outlined"
+                sx={{
+                  m: "10px auto",
+                  fontFamily: "Poppins",
+                  borderColor: "#7A4D9C",
+                  color: "#7A4D9C",
+                  "&:hover": {
+                    borderColor: "#6B3D8C",
+                    backgroundColor: "rgba(122, 77, 156, 0.04)",
+                  },
+                  width: {
+                    xs: "100%",
+                    sm: "100%",
+                  },
+                  gridColumn: { xs: "span 1", sm: "span 2" },
+                  fontSize: { xs: "0.875rem", sm: "1rem" },
+                  padding: { xs: "10px 16px", sm: "12px 24px" },
+                }}
+              >
+                {otpSending ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  "Send OTP"
+                )}
+              </Button>
+            )}
+
+            {/* Sign Up Button */}
             <Button
               type="submit"
+              disabled={!otpVerified}
               sx={{
                 m: "10px auto",
                 fontFamily: "Poppins",
-                background:
-                  "linear-gradient(180deg, rgba(104,82,164,1) 0%, rgba(126,107,177,1) 100%)",
+                background: otpVerified
+                  ? "linear-gradient(180deg, rgba(104,82,164,1) 0%, rgba(126,107,177,1) 100%)"
+                  : "grey",
                 "&:hover": {
-                  backgroundColor: "#357A9E",
+                  backgroundColor: otpVerified ? "#357A9E" : "grey",
                 },
                 width: {
                   xs: "100%",
@@ -529,6 +842,7 @@ const Signup = () => {
                 gridColumn: { xs: "span 1", sm: "span 2" },
                 fontSize: { xs: "0.875rem", sm: "1rem" },
                 padding: { xs: "10px 16px", sm: "12px 24px" },
+                opacity: otpVerified ? 1 : 0.6,
               }}
               variant="contained"
             >
@@ -558,6 +872,10 @@ const Signup = () => {
           </Box>
         </form>
       </Box>
+
+      {/* Hidden reCAPTCHA container */}
+      <div id="recaptcha-container" style={{ display: "none" }} />
+
       <SnackbarComponent
         alerting={snackbar.snackbarAlert}
         severity={snackbar.snackbarSeverity}

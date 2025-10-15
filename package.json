@@ -28,6 +28,7 @@
     "axios": "^1.7.8",
     "dayjs": "^1.11.13",
     "file-saver": "^2.0.5",
+    "firebase": "^12.4.0",
     "formik": "^2.4.6",
     "framer-motion": "^12.4.10",
     "js-cookie": "^3.0.5",
