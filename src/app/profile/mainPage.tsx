@@ -234,6 +234,16 @@ const UserProfile = () => {
         "Content-Type": "multipart/form-data",
       };
 
+      const payload = {
+        _id: patientId,
+        ...editValues,
+        profilePicture,
+      };
+
+      if (!payload.password || payload.password.trim() === "") {
+        delete payload.password;
+      }
+
       const response = await modifier(
         "patient",
         "update-patient",
