@@ -279,6 +279,9 @@ export default function Login() {
                             "& .MuiInputLabel-root": {
                               color: "#7A4D9C",
                               fontFamily: "Poppins",
+                              "&.Mui-focused": {
+                                color: "#7A4D9C",
+                              },
                             },
                             input: {
                               fontFamily: "Poppins",
