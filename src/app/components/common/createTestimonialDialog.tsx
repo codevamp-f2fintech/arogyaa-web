@@ -11,6 +11,7 @@ import {
   Rating,
   Grid,
   Box,
+  Alert,
 } from "@mui/material";
 import { Close, Star, CheckCircle, Cancel } from "@mui/icons-material";
 import { styled } from "@mui/system";
@@ -56,6 +57,7 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
   const [formData, setFormData] = useState(initialFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState<boolean>(false);
+  const [submitError, setSubmitError] = useState<string>("");
 
   useEffect(() => {
     if (!open) {
@@ -69,12 +71,24 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
     if (formData.rating === 0) {
       newErrors.rating = "Please select a rating.";
     }
+
+    // Validate review text - NEW VALIDATION
+    if (!formData.review.trim()) {
+      newErrors.review = "Please write a review before submitting.";
+    } else if (formData.review.trim().length < 10) {
+      newErrors.review =
+        "Please write a more detailed review (at least 10 characters).";
+    }
     setErrors(newErrors);
+    setSubmitError("");
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
+
+    setLoading(true);
+    setSubmitError("");
 
     try {
       const response = await creator("testimonial", "create-testimonial", {
@@ -102,6 +116,10 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
       );
     }
   };
+
+  // Check if form is valid to enable submit button
+  const isFormValid =
+    formData.rating > 0 && formData.review.trim().length >= 10;
 
   const getEmojiForRating = (rating: number) => {
     switch (rating) {
@@ -192,6 +210,15 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
             </Typography>
           </Grid>
 
+          {/* Error Alert */}
+          {submitError && (
+            <Grid item xs={12}>
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {submitError}
+              </Alert>
+            </Grid>
+          )}
+
           {/* Rating Section */}
           <Grid item xs={12} sx={{ textAlign: "center" }}>
             <Rating
@@ -227,13 +254,26 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
               rows={4}
               margin="dense"
               value={formData.review}
-              onChange={(e) =>
-                setFormData({ ...formData, review: e.target.value })
-              }
+              onChange={(e) => {
+                setFormData({ ...formData, review: e.target.value });
+                // Clear review error when user starts typing
+                if (e.target.value.trim() && errors.review) {
+                  setErrors({ ...errors, review: "" });
+                }
+              }}
               error={!!errors.review}
               helperText={errors.review}
               placeholder={`Share your experience with Dr. ${doctorName}...`}
             />
+          </Grid>
+          {/* Validation Hint */}
+          <Grid item xs={12}>
+            <Typography
+              variant="body2"
+              sx={{ color: "#666", fontSize: "0.8rem" }}
+            >
+              ✓ Both rating and written review are required
+            </Typography>
           </Grid>
         </Grid>
       </DialogContent>
