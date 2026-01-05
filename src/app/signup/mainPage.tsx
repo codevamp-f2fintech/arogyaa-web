@@ -466,7 +466,7 @@ const Signup = () => {
             lg: "38%",
           },
           maxWidth: "600px",
-          p: { xs: 2, sm: 3 },
+          p: { xs: 6, sm: 3 },
           backgroundColor: "white",
           borderRadius: 2,
           boxShadow: 3,
