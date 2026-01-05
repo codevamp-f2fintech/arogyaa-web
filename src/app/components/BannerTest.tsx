@@ -8,6 +8,7 @@ import LocalPharmacyIcon from "@mui/icons-material/LocalPharmacy";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import ScienceIcon from "@mui/icons-material/Science";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import { useMediaQuery } from "@mui/material";
 
 import {
   Box,
@@ -30,7 +31,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { fetcher } from "@/apis/apiClient";
 import { Utility } from "@/utils";
 import AIAssistant from "./AIAssistant";
-import useMediaQuery from "@mui/material/useMediaQuery";
 const BannerComponentTest: React.FC = () => {
   const isMobile = useMediaQuery("(max-width:599px)", { noSsr: true });
   const isTablet = useMediaQuery("(min-width:600px) and (max-width:899px)", {
@@ -57,6 +57,7 @@ const BannerComponentTest: React.FC = () => {
 
   const { capitalizeFirstLetter } = Utility();
   const router = useRouter();
+  const isIphoneSE = useMediaQuery("(max-width:375px)");
 
   // Browser-based geolocation with reverse geocode
   const getLocationUsingBrowser = async (): Promise<{
@@ -365,27 +366,142 @@ const BannerComponentTest: React.FC = () => {
         display: "flex",
         flexDirection: {
           xs: "column",
-          sm: "row",
+          sm: "column",
           md: "row",
+          lg: "row",
         },
         justifyContent: "center",
         alignItems: "center",
         textAlign: "center",
-        minHeight: "100vh",
+        minHeight: {
+          xs: "100vh",
+          sm: "100vh",
+          md: "100vh",
+          lg: "100vh",
+        },
+        height: {
+          xs: "auto",
+          sm: "auto",
+          md: "100vh",
+        },
         position: "relative",
-        padding: "40px 20px",
+        padding: {
+          xs: "30px 15px",
+          sm: "40px 20px",
+          md: "40px 30px",
+          lg: "40px 20px",
+        },
         background:
           "linear-gradient(180deg, rgba(85,65,138,1) 0%, rgba(93,73,147,1) 100%)",
         backgroundSize: "cover",
         backgroundPosition: "center",
-        overflow: "hidden",
-        "@media (max-width: 375px)": {
-          // iPhone SE width
-          height: "110vh",
+        backgroundAttachment: "fixed",
+        overflow: {
+          xs: "auto",
+          sm: "auto",
+          md: "hidden",
         },
+
+        // Specific fixes for iPad and tablet landscape
+        "@media (orientation: landscape)": {
+          minHeight: {
+            xs: "100vh",
+            sm: "100vh",
+            md: "100vh",
+          },
+          height: {
+            xs: "auto",
+            sm: "auto",
+            md: "100%",
+          },
+          overflowY: {
+            xs: "auto",
+            sm: "auto",
+            md: "auto",
+          },
+        },
+
+        // iPad specific fixes
+        "@media only screen and (min-device-width: 768px) and (max-device-width: 1024px)":
+          {
+            // iPad portrait and landscape
+            minHeight: "100vh",
+            height: "auto",
+            overflowY: "auto",
+            padding: "30px 20px",
+
+            "&.landscape": {
+              height: "100vh",
+              minHeight: "100vh",
+            },
+          },
+
+        // iPad Pro specific
+        "@media only screen and (min-device-width: 1024px) and (max-device-width: 1366px)":
+          {
+            minHeight: "100vh",
+            height: "auto",
+            overflowY: "auto",
+            padding: "40px 30px",
+
+            "@media (orientation: landscape)": {
+              height: "100vh",
+              minHeight: "100vh",
+              overflowY: "hidden",
+            },
+          },
+
+        // Small mobile devices (iPhone SE, Samsung S8+)
+        "@media (max-width: 375px)": {
+          minHeight: "100vh",
+          height: "auto",
+          overflowY: "auto",
+          padding: "20px 15px",
+        },
+
         "@media (max-width: 414px)": {
-          // Samsung S8+ width
-          height: "110vh",
+          minHeight: "100vh",
+          height: "auto",
+          overflowY: "auto",
+          padding: "25px 15px",
+        },
+
+        // Fix for very tall screens (common issue with mobile browsers)
+        "@media (max-height: 700px) and (orientation: landscape)": {
+          minHeight: "100vh",
+          height: "auto",
+          overflowY: "auto",
+          padding: "20px 15px",
+
+          // Adjust flex direction for very short landscape screens
+          flexDirection: {
+            xs: "column",
+            sm: "column",
+            md: "row",
+          },
+        },
+
+        // Ensure content fits on small landscape screens
+        "@media (max-height: 500px) and (orientation: landscape)": {
+          padding: "10px",
+          justifyContent: "flex-start",
+          alignItems: "flex-start",
+          overflowY: "auto",
+        },
+
+        // Desktop and larger screens
+        "@media (min-width: 1200px)": {
+          minHeight: "100vh",
+          height: "100vh",
+          overflow: "hidden",
+        },
+
+        // Additional responsive utility
+        "@media (max-width: 600px)": {
+          // Extra safety for all small screens
+          flexDirection: "column",
+          justifyContent: "flex-start",
+          paddingTop: "40px",
         },
       }}
     >
@@ -448,11 +564,19 @@ const BannerComponentTest: React.FC = () => {
               justifyContent: "center",
               alignItems: "center",
               flexDirection: { xs: "column", md: "row" },
+
+              // 👇 iPhone SE 2nd Gen specific
+              "@media (max-width: 375px)": {
+                fontSize: "28px",
+              },
             }}
           >
             <span style={{ marginRight: "8px" }}>Welcome to</span>
             <motion.span
-              style={{ color: "#b497d6", fontSize: "50px" }}
+              style={{
+                color: "#b497d6",
+                fontSize: isIphoneSE ? "28px" : "inherit",
+              }}
               animate={{
                 color: ["#b497d6", "#d4c1e9", "#b497d6"],
                 textShadow: [
@@ -488,10 +612,15 @@ const BannerComponentTest: React.FC = () => {
                   xs: "300px",
                   md: "inherit",
                 },
+                fontSize: isIphoneSE ? "20px" : "inherit",
               }}
             >
               <motion.span
-                style={{ color: "#fff", fontWeight: "bold" }}
+                style={{
+                  color: "#fff",
+                  fontWeight: "bold",
+                  fontSize: isIphoneSE ? "20px" : "20px",
+                }}
                 whileHover={{ scale: 1.05 }}
               >
                 Find & Book &nbsp;
@@ -566,10 +695,10 @@ const BannerComponentTest: React.FC = () => {
                 py: 1.5,
                 gap: 1,
                 position: "relative",
-                width: "100%", // Full width on mobile
+                width: "100%",
                 borderBottom: {
-                  xs: "1px solid #ccc", // Add divider between fields on mobile
-                  sm: "none", // Remove on tablet/desktop
+                  xs: "1px solid #ccc",
+                  sm: "none",
                 },
               }}
             >
@@ -591,7 +720,7 @@ const BannerComponentTest: React.FC = () => {
                 inputProps={{
                   sx: {
                     "::placeholder": {
-                      fontSize: "0.75rem", // ✅ placeholder font size
+                      fontSize: "0.75rem",
                     },
                   },
                 }}
@@ -711,6 +840,7 @@ const BannerComponentTest: React.FC = () => {
                   mt: 1,
                   display: "flex",
                   flexDirection: "column",
+
                   width: {
                     xs: "90vw",
                     sm: "70vw",
@@ -718,7 +848,11 @@ const BannerComponentTest: React.FC = () => {
                     lg: "40vw",
                     xl: "30vw",
                   },
-                  maxHeight: "50vh",
+
+                  // 👇 HEIGHT CONTROL
+                  maxHeight: "100vh",
+                  minHeight: "200px", // optional (looks better)
+
                   zIndex: 10,
                 }}
               >
@@ -792,7 +926,10 @@ const BannerComponentTest: React.FC = () => {
         {/* Action Buttons */}
         <Box
           sx={{
-            position: "absolute",
+            position: {
+              xs: "absolute",
+              md: "inherit",
+            },
             bottom: 0,
             width: "90%",
             padding: "12px 0",
@@ -802,6 +939,8 @@ const BannerComponentTest: React.FC = () => {
             marginTop: {
               md: "5rem",
             },
+            "@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape)":
+              {},
           }}
         >
           <Container>

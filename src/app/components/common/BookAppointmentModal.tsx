@@ -630,6 +630,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
             boxShadow: 24,
             borderRadius: "8px",
             overflowY: "hidden",
+            padding: "10px",
           }}
         >
           {/* ===== ModalHeader ===== */}

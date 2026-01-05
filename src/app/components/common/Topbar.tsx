@@ -156,7 +156,6 @@ const Topbar = () => {
 
   useEffect(() => {
     if (session?.user?.email && !token) {
-     
       handleLogin(session.user.email);
     }
   }, [session, token]);
@@ -173,28 +172,70 @@ const Topbar = () => {
     backgroundColor: "#5d4993 !important",
     color: "#fff !important",
     fontWeight: "bold",
-    borderRadius: "20px",
-    boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
+    borderRadius: "12px", // Smaller border radius for tiny buttons
+    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
     transition: "all 0.3s ease",
     display: "flex",
     alignItems: "center",
+    justifyContent: "center",
     textTransform: "capitalize" as const,
     minWidth: 0,
+
+    // Minimal mobile icon buttons
+    width: {
+      xs: "24px", // Minimal width
+      sm: "auto",
+      md: "13vw",
+    },
+
+    height: {
+      xs: "24px", // Minimal height
+      sm: isCompact ? "36px" : "40px",
+      md: "48px",
+    },
+
     padding: {
-      xs: isCompact ? "4px 8px" : "6px 12px",
+      xs: "0px !important", // No padding for minimal buttons
       sm: isCompact ? "6px 12px" : "8px 16px",
       md: "8px 20px",
     },
-    height: { xs: "36px", sm: "40px", md: "48px" },
-    fontSize: { xs: "11px", sm: "13px", md: "14px" },
+
+    "& svg": {
+      fontSize: {
+        xs: "10px !important", // Minimal icon size
+        sm: "16px",
+        md: "18px",
+      },
+    },
+
+    fontSize: {
+      xs: "0px",
+      sm: "13px",
+      md: "14px",
+    },
+
+    "& .MuiButton-startIcon": {
+      margin: 0,
+      marginRight: {
+        xs: 0,
+        sm: "8px",
+      },
+    },
+
+    "& span:not(.MuiButton-startIcon)": {
+      display: {
+        xs: "none",
+        sm: "inline",
+      },
+    },
+
     "&:hover": {
       backgroundColor: "#af9fdb !important",
       color: "#29175e",
-      boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.3)",
+      boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.3)",
     },
   });
 
- 
   const getEmergencyButtonStyles = (isCompact = false) => ({
     ...getButtonStyles(isCompact),
     background:
@@ -207,7 +248,6 @@ const Topbar = () => {
       "100%": { boxShadow: "0 0 0 0 rgba(255,77,79,0)" },
     },
   });
-
 
   const sendEmergencyRequest = async (args: {
     specialityId: string;
@@ -308,6 +348,7 @@ const Topbar = () => {
             alignItems: "center",
             flexWrap: { xs: "wrap", sm: "nowrap" },
             justifyContent: "flex-end",
+            width: "80vw",
           }}
         >
           {isMobile ? (
@@ -316,8 +357,8 @@ const Topbar = () => {
                 display: "flex",
                 gap: 0.5,
                 alignItems: "center",
-                flexWrap: "wrap",
                 justifyContent: "flex-end",
+                flexWrap: "nowrap",
               }}
             >
               <Button
@@ -327,7 +368,7 @@ const Topbar = () => {
                 disabled={emergencyLoading}
                 sx={{
                   ...getEmergencyButtonStyles(true),
-                  minWidth: "98px",
+                  minWidth: "50px",
                   order: 0,
                 }}
               >
@@ -344,7 +385,7 @@ const Topbar = () => {
                       ...getButtonStyles(true),
                       order: 2,
                       flexShrink: 1,
-                      minWidth: "90px",
+                      minWidth: "50px",
                     }}
                   >
                     Book
@@ -401,7 +442,11 @@ const Topbar = () => {
               <IconButton
                 aria-describedby={popoverId}
                 onClick={handleClick}
-                sx={{ padding: "6px", borderRadius: "50%", order: 4 }}
+                sx={{
+                  padding: "6px",
+                  borderRadius: "50%",
+                  order: 4,
+                }}
               >
                 <Badge
                   variant={unreadCount > 0 ? "dot" : undefined}
@@ -474,7 +519,11 @@ const Topbar = () => {
                     }}
                   >
                     Login
-                    <PersonAddAltOutlinedIcon sx={{ fontSize: "18px" }} />
+                    <PersonAddAltOutlinedIcon
+                      sx={{
+                        fontSize: { xs: "18px", sm: "60px", md: "60px" },
+                      }}
+                    />
                   </Link>
                 </Button>
               )}

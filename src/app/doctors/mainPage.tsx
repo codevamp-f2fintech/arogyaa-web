@@ -934,41 +934,62 @@ export default function DoctorListing() {
                     overflow: "hidden",
                     boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
                     backgroundColor: "",
+                    margin: { xs: "8px", sm: "0" },
                   }}
                 >
                   <Box
                     sx={{
                       display: "flex",
-                      alignItems: "center",
-                      padding: "20px",
+                      alignItems: { xs: "center", sm: "center" },
+                      padding: { xs: "15px", sm: "20px" },
                       backgroundColor: "#5d4993",
+                      flexDirection: { xs: "column", sm: "row" },
                     }}
                   >
                     <Box
-                      component="img"
-                      alt="Doctor"
-                      src={
-                        doctor.profilePicture ||
-                        "/assets/images/online-doctor-with-white-coat.png"
-                      }
                       sx={{
-                        width: { xs: "60px", sm: "80px", md: "100px" },
-                        height: { xs: "60px", sm: "80px", md: "100px" },
-                        borderRadius: "50%",
-                        objectFit: "cover",
-                        border: "3px solid #29175e",
-                        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-                        transition: "transform 0.3s ease",
-                        "&:hover": {
-                          transform: "scale(1.05)",
-                        },
+                        // 👇 Layout control
+                        width: { xs: "auto", md: "20%" },
+                        display: "flex",
+                        justifyContent: "flex-start",
+                        alignItems: "flex-start",
+                        flexShrink: 0,
                       }}
-                    />
+                    >
+                      <Box
+                        component="img"
+                        alt="Doctor"
+                        src={
+                          doctor.profilePicture ||
+                          "/assets/images/online-doctor-with-white-coat.png"
+                        }
+                        sx={{
+                          // ✅ FIXED SIZE ALWAYS
+                          width: "120px",
+                          height: "120px",
+
+                          // 🔥 Image styling
+                          objectFit: "cover",
+                          border: "3px solid #29175e",
+                          boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                          borderRadius: "50%",
+                          // Interaction
+                          transition: "transform 0.3s ease",
+                          "&:hover": {
+                            transform: "scale(1.05)",
+                          },
+                        }}
+                      />
+                    </Box>
 
                     <Box
                       sx={{
-                        marginLeft: "15px",
-                        flex: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: { xs: "center", sm: "flex-start" }, // 👈 key line
+                        flexWrap: "wrap",
+                        mb: 1,
+                        textAlign: { xs: "center", sm: "left" }, // optional but recommended
                       }}
                     >
                       <Typography
@@ -976,9 +997,12 @@ export default function DoctorListing() {
                         sx={{
                           fontWeight: "bold",
                           color: "#fff",
+                          fontSize: { xs: "1.1rem", sm: "1.25rem" },
+                          mr: { xs: 0, sm: 1 },
                           display: "flex",
                           alignItems: "center",
-                          gap: 1,
+                          justifyContent: { xs: "center", sm: "flex-start" }, // 👈 mobile center
+                          textAlign: "center",
                         }}
                       >
                         {doctor.username || "Doctor Name"}
@@ -1010,33 +1034,44 @@ export default function DoctorListing() {
                           mt: 1,
                           display: "flex",
                           flexDirection: "column",
-                          gap: "1px",
-                          borderRadius: "1px",
-                          padding: "8px",
+                          gap: { xs: "12px", sm: "8px" },
+                          padding: { xs: "0", sm: "8px" },
                           backgroundColor: "transparent",
-                          height: "25vh",
-                          width: "auto",
+                          width: "100%",
                         }}
                       >
+                        {" "}
                         <Box
                           sx={{
                             display: "flex",
-                            alignItems: "center",
-                            gap: "8px",
+                            alignItems: "flex-start",
+                            gap: { xs: "8px", sm: "8px" },
                           }}
                         >
+                          {" "}
                           <SchoolIcon
-                            sx={{ color: "#3ab795", fontSize: "30px" }}
+                            sx={{
+                              color: "#3ab795",
+                              fontSize: { xs: "24px", sm: "30px" },
+                              mt: { xs: "2px", sm: 0 },
+                            }}
                           />
+                          <SchoolIcon
+                            sx={{
+                              color: "#3ab795",
+                              fontSize: { xs: "24px", sm: "30px" },
+                              mt: { xs: "2px", sm: 0 },
+                            }}
+                          />{" "}
                           <Box
                             sx={{
                               display: "flex",
                               flexWrap: "wrap",
-                              gap: "8px",
-                              overflow: "hidden",
-                              flex: "1",
+                              gap: { xs: "6px", sm: "8px" },
+                              flex: 1,
                             }}
                           >
+                            {" "}
                             {doctor.qualificationIds?.length > 0 ? (
                               doctor.qualificationIds.map((qual, index) => (
                                 <Typography
@@ -1045,13 +1080,14 @@ export default function DoctorListing() {
                                   sx={{
                                     backgroundColor: "#3ab795",
                                     color: "#fff",
-                                    padding: "2px 10px",
+                                    padding: { xs: "2px 8px", sm: "2px 10px" },
                                     borderRadius: "12px",
-                                    fontSize: "0.9rem",
+                                    fontSize: { xs: "0.8rem", sm: "0.9rem" },
                                     fontWeight: "500",
                                   }}
                                 >
-                                  {qual?.name || "Unnamed Qualification"}
+                                  {" "}
+                                  {qual?.name || "Unnamed Qualification"}{" "}
                                 </Typography>
                               ))
                             ) : (
@@ -1059,18 +1095,18 @@ export default function DoctorListing() {
                                 variant="body2"
                                 sx={{ color: "#888" }}
                               >
-                                Qualifications not available
+                                {" "}
+                                Qualifications not available{" "}
                               </Typography>
-                            )}
-                          </Box>
+                            )}{" "}
+                          </Box>{" "}
                         </Box>
-
                         <Box
                           sx={{
                             display: "flex",
                             flexDirection: "column",
                             width: {
-                              xs: "50vw",
+                              xs: "80vw",
                               sm: "25vw",
                               md: "35vw",
                             },
@@ -1105,7 +1141,7 @@ export default function DoctorListing() {
                                     padding: "4px 7px",
                                     borderRadius: "16px",
                                     fontSize: "12px",
-                                    flexShrink: 0, // Prevent items from shrinking
+                                    flexShrink: 0,
                                   }}
                                 >
                                   <LocalOfferIcon
@@ -1133,17 +1169,23 @@ export default function DoctorListing() {
                         <Typography
                           variant="body2"
                           sx={{
-                            color: "white", // Set text color to white
-                            maxHeight: "30vh", // 30% of viewport height
-                            minHeight: "80px",
-                            overflowY: "auto", // Add scroll when content overflows
+                            color: "white",
 
-                            flex: 1, // Take up remaining space
-                            paddingRight: "8px", // Prevent content from touching scrollbar
-                            "&::-webkit-scrollbar": {
-                              width: "6px",
-                              height: "20px",
-                            },
+                            // 🔥 Scroll behavior
+                            maxHeight: { xs: "35vh", sm: "30vh" },
+                            minHeight: "80px",
+                            overflowY: "auto",
+
+                            // 🔥 FULL WIDTH ON MOBILE
+                            width: { xs: "100%", sm: "30vw", md: "auto" },
+                            alignSelf: { xs: "stretch", sm: "flex-start" },
+
+                            // 🔥 Clean spacing
+                            paddingRight: "8px",
+                            mt: 2,
+
+                            // 🔥 Scrollbar styling
+                            "&::-webkit-scrollbar": { width: "6px" },
                             "&::-webkit-scrollbar-track": {
                               background: "transparent",
                             },
@@ -1151,13 +1193,6 @@ export default function DoctorListing() {
                               background: "#aaa",
                               borderRadius: "3px",
                             },
-                            width: {
-                              xs: "50vw",
-                              md: "auto",
-                              sm: "30vw",
-                            },
-
-                            mt: 2,
                           }}
                         >
                           {doctor.availability?.length > 0
