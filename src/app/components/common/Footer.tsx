@@ -34,7 +34,7 @@ const THEME = {
   colors: {
     primary: "#29175e",
     secondary: "#50c878",
-    // accent: "#FF7E5D",
+    // accent: "#FF7E5D", // Commented out as in original
     text: {
       dark: "#29175e",
       light: "#29175e",
@@ -45,22 +45,12 @@ const THEME = {
 // Component for Footer Menu Items
 const FooterMenuItem = ({ label, route, icon }) => {
   return (
-    <Typography
-      component={Link}
-      href={route}
+    <Box
       sx={{
-        fontSize: "1rem",
-        mb: 1.5,
-        color: THEME.colors.text.light,
-        transition: "all 0.3s ease",
-        cursor: "pointer",
-        fontWeight: 500,
         display: "flex",
         alignItems: "center",
-        "&:hover": {
-          color: THEME.colors.primary,
-          transform: "translateX(5px)",
-        },
+        mb: 1.5,
+        width: "100%",
       }}
     >
       {icon &&
@@ -68,11 +58,28 @@ const FooterMenuItem = ({ label, route, icon }) => {
           sx: {
             fontSize: 18,
             mr: 1.5,
-            color: THEME.colors.accent,
+            color: THEME.colors.primary, // Changed from accent to primary
           },
         })}
-      {label}
-    </Typography>
+      <Typography
+        component={Link}
+        href={route}
+        sx={{
+          fontSize: "1rem",
+          color: THEME.colors.text.light,
+          transition: "all 0.3s ease",
+          cursor: "pointer",
+          fontWeight: 500,
+          display: "inline-block",
+          "&:hover": {
+            color: THEME.colors.primary,
+            transform: "translateX(5px)",
+          },
+        }}
+      >
+        {label}
+      </Typography>
+    </Box>
   );
 };
 
@@ -196,8 +203,8 @@ const Footer = () => {
       support: {
         title: "Support",
         items: [
-          { label: "Appointments", route: "/doctors" },
-          { label: "Emergency Care", route: "#" },
+          { label: "Appointments", route: "/doctors", icon: null },
+          { label: "Emergency Care", route: "#", icon: null },
         ],
       },
     },
@@ -273,7 +280,7 @@ const Footer = () => {
           width: "40px",
           height: "3px",
           borderRadius: "3px",
-          backgroundColor: THEME.colors.accent,
+          backgroundColor: THEME.colors.primary, // Changed from accent to primary
         },
       }}
     >
@@ -416,11 +423,32 @@ const Footer = () => {
             <SectionTitle>{content.sections.support.title}</SectionTitle>
             <Stack spacing={1.5}>
               {content.sections.support.items.map((item, index) => (
-                <FooterMenuItem
+                <Box
                   key={index}
-                  label={item.label}
-                  route={item.route}
-                />
+                  sx={{
+                    mb: 1.5,
+                    width: "100%",
+                  }}
+                >
+                  <Typography
+                    component={Link}
+                    href={item.route}
+                    sx={{
+                      fontSize: "1rem",
+                      color: THEME.colors.text.light,
+                      transition: "all 0.3s ease",
+                      cursor: "pointer",
+                      fontWeight: 500,
+                      display: "inline-block",
+                      "&:hover": {
+                        color: THEME.colors.primary,
+                        transform: "translateX(5px)",
+                      },
+                    }}
+                  >
+                    {item.label}
+                  </Typography>
+                </Box>
               ))}
             </Stack>
           </Grid>

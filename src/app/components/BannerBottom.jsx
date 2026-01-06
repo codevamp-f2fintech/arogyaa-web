@@ -44,7 +44,9 @@ export default function FAQpage() {
         background:
           "linear-gradient(180deg, rgba(175,159,219,1) 0%, rgba(190,176,225,1) 100%)",
         color: "#29175e",
-        minHeight: "100vh",
+        // minHeight: "100vh",
+        minHeight: { xs: "fit-content", md: "fit-content", lg: "100vh" }, // Changed here
+        height: "auto",
         width: "100%",
         padding: { xs: "20px", md: "40px 60px" },
         overflow: "hidden",

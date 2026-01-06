@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -8,19 +8,18 @@ import {
   Button,
   Chip,
   Divider,
-  IconButton,
   Paper,
   Rating,
   Typography,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import Tooltip from "@mui/material/Tooltip";
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import EventIcon from "@mui/icons-material/Event";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
 import SchoolIcon from "@mui/icons-material/School";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import EventIcon from "@mui/icons-material/Event";
 import VerifiedIcon from "@mui/icons-material/Verified";
-import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import { motion } from "framer-motion";
 
 import Slider from "react-slick";
@@ -37,7 +36,6 @@ import Loader from "./common/Loader";
 import BookAppointmentModal from "./common/BookAppointmentModal";
 import { DoctorData } from "@/types/doctor";
 import Cookies from "js-cookie";
-import { fetcher } from "@/apis/apiClient";
 
 const ExpertSpecialistSlider: React.FC = () => {
   const [selectedDoctor, setSelectedDoctor] = useState<DoctorData | null>(null);
@@ -48,54 +46,11 @@ const ExpertSpecialistSlider: React.FC = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const { value: data, swrLoading } = useGetDoctors(null, "get-doctors", 1, 6);
-  // const [ratingsMap, setRatingsMap] = useState<
-  //   Record<string, { avg: number; count: number }>
-  // >({});
-  // const [isLoadingRatings, setIsLoadingRatings] = useState(true);
 
-  // Fetch rating stats for a doctor
-  // const fetchDoctorRatingStats = useCallback(async (doctorId: string) => {
-  //   try {
-  //     const response = await fetcher(`/api/doctors/${doctorId}/rating-stats`);
-  //     if (response.statusCode === 200) {
-  //       return response.data;
-  //     }
-  //     return { averageRating: 0, totalCount: 0 };
-  //   } catch (error) {
-  //     console.error("Error fetching rating stats:", error);
-  //     return { averageRating: 0, totalCount: 0 };
-  //   }
-  // }, []);
-
-  // Fetch ratings for all doctors
-  // useEffect(() => {
-  //   const fetchAllRatings = async () => {
-  //     if (!doctor?.results) return;
-
-  //     setIsLoadingRatings(true);
-  //     const ratings: Record<string, { avg: number; count: number }> = {};
-
-  //     try {
-  //       await Promise.all(
-  //         doctor.results.map(async (doc) => {
-  //           const stats = await fetchDoctorRatingStats(doc._id);
-  //           ratings[doc._id] = {
-  //             avg: stats.averageRating,
-  //             count: stats.totalCount,
-  //           };
-  //         })
-  //       );
-
-  //       setRatingsMap(ratings);
-  //     } catch (error) {
-  //       console.error("Error fetching ratings:", error);
-  //     } finally {
-  //       setIsLoadingRatings(false);
-  //     }
-  //   };
-
-  //   fetchAllRatings();
-  // }, [doctor, fetchDoctorRatingStats]);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
 
   const openModal = (doctor: DoctorData): void => {
     const userToken = Cookies.get("token");
@@ -121,60 +76,14 @@ const ExpertSpecialistSlider: React.FC = () => {
     }
   }, [data, dispatch]);
 
-  // const fetchTestimonials = useCallback(async () => {
-  //   try {
-  //     if (response && response.results) {
-  //       const allTestimonials: Testimonial[] = response.results || [];
-  //       const groupedRatings: Record<string, number[]> = {};
-  //       if (response && response.results) {
-  //         const allTestimonials: Testimonial[] = response.results || [];
-  //         const groupedRatings: Record<string, number[]> = {};
-  //         allTestimonials.forEach((review) => {
-  //           const doctor = review.doctorId;
-  //           if (doctor && doctor._id) {
-  //             const doctorId = doctor._id;
-  //             if (!groupedRatings[doctorId]) {
-  //               groupedRatings[doctorId] = [];
-  //             }
-  //             groupedRatings[doctorId].push(review.rating);
-  //           }
-  //         });
-
-  //         const finalRatings: Record<string, { avg: number; count: number }> =
-  //           {};
-  //         Object.entries(groupedRatings).forEach(([doctorId, ratings]) => {
-  //           const avg = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
-  //           finalRatings[doctorId] = {
-  //             avg: parseFloat(avg.toFixed(1)),
-  //             count: ratings.length,
-  //           };
-  //         });
-
-  //         setRatingsMap(finalRatings);
-  //       }
-
-  //       setRatingsMap(finalRatings);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching testimonials:", error);
-  //     console.error("Error fetching testimonials:", error);
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   fetchTestimonials();
-  // }, [fetchTestimonials]);
-
-  console.log("selectddoc", doctor);
-
   const sliderSettings = useMemo(
     () => ({
       dots: false,
       arrows: true,
       infinite: true,
       speed: 500,
-      slidesToShow: 4,
-      slidesToScroll: 1,
+      slidesToShow: isMobile ? 1 : isTablet ? 2 : 4, // 2 cards on tablet
+      slidesToScroll: isMobile ? 1 : isTablet ? 2 : 1,
       lazyLoad: "ondemand",
       pauseOnHover: true,
       autoplay: true,
@@ -182,30 +91,62 @@ const ExpertSpecialistSlider: React.FC = () => {
       cssEase: "ease-in-out",
       responsive: [
         {
-          breakpoint: 1024,
+          breakpoint: 1200, // Desktop large
           settings: {
             slidesToShow: 3,
             slidesToScroll: 1,
           },
         },
         {
-          breakpoint: 768,
+          breakpoint: 900, // Tablet landscape
           settings: {
-            slidesToShow: 2,
-            slidesToScroll: 1,
+            slidesToShow: 2, // 2 cards for tablet
+            slidesToScroll: 2,
+            arrows: true,
           },
         },
         {
-          breakpoint: 480,
+          breakpoint: 600, // Tablet portrait / mobile
           settings: {
             slidesToShow: 1,
             slidesToScroll: 1,
+            arrows: false,
           },
         },
       ],
     }),
-    []
+    [isMobile, isTablet]
   );
+
+  // Calculate consistent card dimensions
+  const getCardDimensions = () => {
+    if (isMobile) {
+      return {
+        height: "520px",
+        imageHeight: "200px",
+        chipsHeight: "48px",
+        bioHeight: "60px",
+      };
+    }
+    if (isTablet) {
+      // iPad Mini dimensions - consistent 2-column layout
+      return {
+        height: "540px",
+        imageHeight: "220px",
+        chipsHeight: "52px",
+        bioHeight: "65px",
+      };
+    }
+    // Desktop
+    return {
+      height: "560px",
+      imageHeight: "240px",
+      chipsHeight: "52px",
+      bioHeight: "65px",
+    };
+  };
+
+  const cardDims = getCardDimensions();
 
   return (
     <Box
@@ -213,13 +154,12 @@ const ExpertSpecialistSlider: React.FC = () => {
         background:
           "linear-gradient(180deg, rgba(93,73,147,1) 0%, rgba(93,73,147,1) 100%)!important",
         width: "100vw",
-        px: 4,
+        px: { xs: 2, sm: 3, md: 4 },
         py: 1,
       }}
-      // background: 'linear-gradient(180deg, rgba(93,73,147,1) 0%, rgba(104,82,164,1) 100%)',
-
       className={styles.expertSpecialistSlider}
     >
+      {/* Updated heading styling to match old code */}
       <Box className={styles.sliderHeading}>
         <Typography
           style={{
@@ -273,475 +213,503 @@ const ExpertSpecialistSlider: React.FC = () => {
         <Loader />
       ) : (
         <>
-          <Slider {...sliderSettings} className={styles.slider}>
-            {doctor?.results?.map((doctor, index) => (
-              <div key={doctor._id}>
-                <Paper
-                  elevation={3}
-                  sx={{
-                    m: 1,
-                    height: { md: "85vh", xs: "85vh" },
-                    borderRadius: "16px",
-                    overflow: "hidden",
-                    position: "relative",
-                    transition: "all 0.3s ease",
-                    backgroundColor: "#b497d6",
-
-                    "&:hover": {
-                      transform: "translateY(-8px)",
-                      boxShadow: "0 12px 24px rgba(32, 173, 160, 0.15)",
-                      "& .doctor-image": {
-                        transform: "scale(1.05)",
-                      },
-                      "& .verified-badge-text": {
-                        opacity: 1,
-                        visibility: "visible",
-                      },
-                      "& .default-icon": {
-                        opacity: 0,
-                      },
-                    },
-                  }}
-                >
-                  {/* Conditionally render verified badge only if doctor is verified */}
-                  {doctor.isVerified && (
-                    <Box
-                      sx={{
-                        top: "1%",
-                        right: "10%",
-                        backgroundColor: "#b497d6",
-                        position: "absolute",
-                        zIndex: 2,
-                        "&::after": {
-                          content: '""',
-                          position: "absolute",
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          height: "40px",
-                        },
-                      }}
-                    >
-                      {/* Verified Badge Box (Text + Icon) */}
-                      <Box
-                        className="verified-badge-text"
-                        sx={{
-                          position: "absolute",
-                          top: "6px",
-                          right: "1px",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                          opacity: 0,
-                          visibility: "hidden", // Initially hidden
-                          transition:
-                            "opacity 0.3s ease, visibility 0s linear 0.3s",
-                          backgroundColor: "#29175e",
-                          padding: "3px 10px",
-                          borderRadius: "30px",
-                          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.2)",
-                          fontSize: "1rem",
-                          color: "#fff",
-                          fontWeight: "600",
-                          letterSpacing: "0.5px",
-                        }}
-                      >
-                        {/* Verified Icon inside the text badge */}
-                        <VerifiedIcon
-                          sx={{
-                            color: "#fff",
-                            fontSize: "15px",
-                          }}
-                        />
-                        {/* Text */}
-                        <Typography
-                          sx={{
-                            fontFamily: "Poppins",
-                            fontWeight: "500",
-                            color: "#fff",
-                            fontSize: "0.7rem",
-                          }}
-                        >
-                          Verified
-                        </Typography>
-                      </Box>
-
-                      <VerifiedIcon
-                        className="default-icon"
-                        sx={{
-                          color: "#fff",
-                          fontSize: "15px",
-                          position: "absolute",
-                          top: "4px",
-                          right: "5px",
-                          opacity: 1,
-                          transition: "opacity 0.3s ease",
-                        }}
-                      />
-                    </Box>
-                  )}
-
-                  <Box
+          {/* Container for consistent tablet layout */}
+          <Box
+            sx={{
+              maxWidth: {
+                xs: "100%",
+                sm: "768px", // Fixed width for tablet (iPad Mini width)
+                md: "100%",
+              },
+              mx: "auto",
+              px: { sm: 2, md: 0 }, // Add padding on tablet for better spacing
+            }}
+          >
+            <Slider {...sliderSettings} className={styles.slider}>
+              {doctor?.results?.map((doctor) => (
+                <div key={doctor._id}>
+                  {/* Card Container with consistent dimensions */}
+                  <Paper
+                    elevation={3}
                     sx={{
+                      m: { xs: 0.5, sm: 1.5 }, // More margin on tablet
+                      height: cardDims.height,
+                      minHeight: cardDims.height,
+                      maxHeight: cardDims.height,
+                      borderRadius: "16px",
+                      overflow: "hidden",
                       position: "relative",
-                      width: "100%",
-                      height: "40vh",
-                      boxShadow: "0 4px 12px rgba(32, 173, 160, 0.2)",
+                      transition: "all 0.3s ease",
+                      backgroundColor: "#b497d6",
+                      display: "flex",
+                      flexDirection: "column",
+                      width: {
+                        xs: "95%",
+                        sm: "calc(100% - 16px)", // Account for margins
+                        md: "auto",
+                      },
+
+                      "&:hover": {
+                        transform: "translateY(-8px)",
+                        boxShadow: "0 12px 24px rgba(32, 173, 160, 0.15)",
+                        "& .doctor-image": {
+                          transform: "scale(1.05)",
+                        },
+                        "& .verified-badge-text": {
+                          opacity: 1,
+                          visibility: "visible",
+                        },
+                        "& .default-icon": {
+                          opacity: 0,
+                        },
+                      },
                     }}
                   >
+                    {/* Verified Badge */}
+                    {doctor.isVerified && (
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          top: { xs: "12px", sm: "14px" },
+                          right: { xs: "12px", sm: "14px" },
+                          zIndex: 2,
+                        }}
+                      >
+                        <Box
+                          className="verified-badge-text"
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: { xs: "4px", sm: "6px" },
+                            opacity: 0,
+                            visibility: "hidden",
+                            transition:
+                              "opacity 0.3s ease, visibility 0s linear 0.3s",
+                            backgroundColor: "#29175e",
+                            padding: { xs: "3px 6px", sm: "4px 10px" },
+                            borderRadius: "30px",
+                            boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.2)",
+                          }}
+                        >
+                          <VerifiedIcon
+                            sx={{
+                              color: "#fff",
+                              fontSize: { xs: "12px", sm: "14px", md: "15px" },
+                            }}
+                          />
+                          <Typography
+                            sx={{
+                              fontFamily: "Poppins",
+                              fontWeight: "500",
+                              color: "#fff",
+                              fontSize: {
+                                xs: "0.6rem",
+                                sm: "0.65rem",
+                                md: "0.7rem",
+                              },
+                            }}
+                          >
+                            Verified
+                          </Typography>
+                        </Box>
+
+                        <VerifiedIcon
+                          className="default-icon"
+                          sx={{
+                            color: "#fff",
+                            fontSize: { xs: "12px", sm: "14px", md: "15px" },
+                            position: "absolute",
+                            top: "4px",
+                            right: "5px",
+                            opacity: 1,
+                            transition: "opacity 0.3s ease",
+                          }}
+                        />
+                      </Box>
+                    )}
+
+                    {/* Image Section */}
                     <Box
-                      component="img"
-                      className="doctor-image"
-                      src={
-                        doctor.profilePicture ||
-                        "../assets/images/online-doctor-with-white-coat.png"
-                      }
-                      alt={doctor.username}
                       sx={{
+                        position: "relative",
                         width: "100%",
-                        height: "90%",
-                        objectFit: "cover",
-                        cursor: "pointer",
-                        transition: "transform 0.3s ease",
-                      }}
-                      onClick={() =>
-                        router.push(
-                          `/doctors/profile/${encodeURIComponent(doctor._id)}`
-                        )
-                      }
-                    />
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        top: "76%",
-                        width: "100%",
-                        display: "flex",
-                        padding: "5px",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        height: "10vh",
-                        backgroundColor: "#29175e",
-                        borderRadius: "5%",
+                        height: cardDims.imageHeight,
+                        minHeight: cardDims.imageHeight,
+                        flexShrink: 0,
                       }}
                     >
-                      <Typography
-                        variant="h6"
+                      <Box
+                        component="img"
+                        className="doctor-image"
+                        src={
+                          doctor.profilePicture ||
+                          "../assets/images/online-doctor-with-white-coat.png"
+                        }
+                        alt={doctor.username}
                         sx={{
-                          textAlign: "center",
-                          margin: "0 auto",
-                          zIndex: 2,
-                          color: "#ffffff",
-                          fontSize: "1rem",
-                          fontWeight: "600",
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
                           cursor: "pointer",
-                          transition: "color 0.2s ease",
-                          "&:hover": { color: "#b497d6" },
+                          transition: "transform 0.3s ease",
                         }}
                         onClick={() =>
                           router.push(
                             `/doctors/profile/${encodeURIComponent(doctor._id)}`
                           )
                         }
-                      >
-                        {doctor.username}
-                      </Typography>
-                    </Box>
-                  </Box>
-
-                  {/* Enhanced Content */}
-                  <Box sx={{ p: 2, textAlign: "center" }}>
-                    {/* Enhanced Chips */}
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: 5,
-                        mb: 0,
-                        maxHeight: "10vh",
-                        height: "12vh",
-                        overflowY: "hidden",
-                        overflowX: "hidden",
-                        paddingRight: "4px",
-                        position: "relative",
-                        "&:hover .slider-content": {
-                          animationPlayState: "paused",
-                        },
-                        "&::-webkit-scrollbar": {
-                          width: "6px",
-                          height: "4vh",
-                        },
-                        "&::-webkit-scrollbar-thumb": {
-                          backgroundColor: "#b497d6",
-                          borderRadius: "4px",
-                        },
-                        flexWrap: "nowrap",
-                      }}
-                    >
+                      />
                       <Box
-                        className="slider-content"
                         sx={{
+                          position: "absolute",
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          backgroundColor: "#29175e",
+                          padding: { xs: "8px", sm: "10px" },
                           display: "flex",
-                          animation: "scroll 20s linear infinite",
-                          "@keyframes scroll": {
-                            "0%": { transform: "translateX(0)" },
-                            "100%": { transform: "translateX(-100%)" },
-                          },
-                          gap: 2,
+                          justifyContent: "center",
+                          alignItems: "center",
                         }}
                       >
-                        {doctor.experience && (
-                          <Chip
-                            icon={
-                              <SchoolIcon sx={{ color: "#29175e!important" }} />
-                            }
-                            label={`${doctor.experience} Years Exp.`}
-                            variant="outlined"
-                            size="small"
-                            sx={{
-                              borderColor: "#29175e",
-                              color: "#29175e",
-                              fontWeight: 500,
-                              fontSize: "0.8rem",
-                              fontFamily: "Poppins",
-                              "&:hover": {
-                                backgroundColor: "rgba(32, 173, 160, 0.05)",
-                                borderColor: "#29175e",
-                              },
-                            }}
-                          />
-                        )}
-                        <Tooltip
-                          title={doctor.clinicAddress}
-                          componentsProps={{
-                            tooltip: {
-                              sx: {
-                                backgroundColor: "#5b4791",
-                                color: "#fff",
-                                fontFamily: "Poppins",
-                                fontWeight: 500,
-                                fontSize: "0.8rem",
-                                padding: "6px 16px",
-                                borderRadius: "8px",
-                                boxShadow: "0px 4px 8px rgba(0,0,0,0.1)",
-                                maxWidth: "300px",
-                                border: "1px solid #e0e0e0",
-                              },
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            textAlign: "center",
+                            color: "#ffffff",
+                            fontSize: {
+                              xs: "0.85rem",
+                              sm: "0.9rem",
+                              md: "1rem",
                             },
+                            fontWeight: "600",
+                            cursor: "pointer",
+                            transition: "color 0.2s ease",
+                            "&:hover": { color: "#b497d6" },
+                          }}
+                          onClick={() =>
+                            router.push(
+                              `/doctors/profile/${encodeURIComponent(
+                                doctor._id
+                              )}`
+                            )
+                          }
+                        >
+                          {doctor.username}
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                    {/* Content Section */}
+                    <Box
+                      sx={{
+                        p: { xs: 1.5, sm: 2 },
+                        flex: 1,
+                        display: "flex",
+                        flexDirection: "column",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {/* Chips Container */}
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "row",
+                          flexWrap: "nowrap",
+                          gap: { xs: 1, sm: 1.5 },
+                          mb: 1,
+                          height: cardDims.chipsHeight,
+                          minHeight: cardDims.chipsHeight,
+                          overflow: "hidden",
+                          position: "relative",
+                          "&:hover .slider-content": {
+                            animationPlayState: "paused",
+                          },
+                        }}
+                      >
+                        <Box
+                          className="slider-content"
+                          sx={{
+                            display: "flex",
+                            animation: "scroll 20s linear infinite",
+                            "@keyframes scroll": {
+                              "0%": { transform: "translateX(0)" },
+                              "100%": { transform: "translateX(-100%)" },
+                            },
+                            gap: { xs: 1, sm: 1.5 },
                           }}
                         >
-                          {doctor.clinicAddress && (
+                          {doctor.experience && (
                             <Chip
-                              icon={
-                                <LocationOnIcon
-                                  sx={{ color: "#29175e !important" }}
-                                />
-                              }
-                              label={`${doctor.clinicAddress}`}
-                              variant="outlined"
-                              size="small"
-                              sx={{
-                                borderColor: "#29175e",
-                                color: "#29175e",
-                                width: "10vw",
-                                fontSize: "0.8rem",
-                                fontWeight: 500,
-                                fontFamily: "Poppins",
-                                "&:hover": {
-                                  backgroundColor: "#b497d6",
-                                  borderColor: "#29175e",
-                                },
-                              }}
-                            />
-                          )}
-                        </Tooltip>
-
-                        {doctor.qualificationIds?.map(
-                          (qualification, index) => (
-                            <Chip
-                              key={index}
                               icon={
                                 <SchoolIcon
-                                  sx={{
-                                    color: "#29175e !important",
-                                    fontSize: "0.7rem",
-                                  }}
+                                  sx={{ color: "#29175e!important" }}
                                 />
                               }
-                              label={qualification.name}
+                              label={`${doctor.experience} Years Exp.`}
                               variant="outlined"
                               size="small"
                               sx={{
                                 borderColor: "#29175e",
                                 color: "#29175e",
                                 fontWeight: 500,
-                                fontSize: "0.8rem",
+                                fontSize: {
+                                  xs: "0.65rem",
+                                  sm: "0.7rem",
+                                  md: "0.8rem",
+                                },
                                 fontFamily: "Poppins",
+                                height: { xs: "26px", sm: "28px", md: "32px" },
                                 "&:hover": {
                                   backgroundColor: "rgba(32, 173, 160, 0.05)",
                                   borderColor: "#29175e",
                                 },
                               }}
                             />
-                          )
-                        )}
+                          )}
 
-                        <Tooltip
-                          title="Clinic Address"
-                          componentsProps={{
-                            tooltip: {
-                              sx: {
-                                backgroundColor: "#5b4791",
-                                color: "#fff",
-                                fontFamily: "Poppins",
-                                fontWeight: 500,
-                                fontSize: "0.8rem",
-                                padding: "6px 16px",
-                                borderRadius: "8px",
-                                boxShadow: "0px 4px 8px rgba(0,0,0,0.1)",
-                                maxWidth: "300px",
-                                border: "1px solid #e0e0e0",
+                          <Tooltip
+                            title={doctor.clinicAddress}
+                            componentsProps={{
+                              tooltip: {
+                                sx: {
+                                  backgroundColor: "#5b4791",
+                                  color: "#fff",
+                                  fontFamily: "Poppins",
+                                  fontWeight: 500,
+                                  fontSize: "0.8rem",
+                                  padding: "6px 16px",
+                                  borderRadius: "8px",
+                                  boxShadow: "0px 4px 8px rgba(0,0,0,0.1)",
+                                  maxWidth: "300px",
+                                  border: "1px solid #e0e0e0",
+                                },
                               },
+                            }}
+                          >
+                            {doctor.clinicAddress && (
+                              <Chip
+                                icon={
+                                  <LocationOnIcon
+                                    sx={{ color: "#29175e !important" }}
+                                  />
+                                }
+                                label={
+                                  isMobile
+                                    ? `${doctor.clinicAddress.substring(
+                                        0,
+                                        12
+                                      )}...`
+                                    : `${doctor.clinicAddress.substring(
+                                        0,
+                                        18
+                                      )}...`
+                                }
+                                variant="outlined"
+                                size="small"
+                                sx={{
+                                  borderColor: "#29175e",
+                                  color: "#29175e",
+                                  maxWidth: isMobile ? "100px" : "140px",
+                                  fontSize: {
+                                    xs: "0.65rem",
+                                    sm: "0.7rem",
+                                    md: "0.8rem",
+                                  },
+                                  fontWeight: 500,
+                                  fontFamily: "Poppins",
+                                  height: {
+                                    xs: "26px",
+                                    sm: "28px",
+                                    md: "32px",
+                                  },
+                                  "&:hover": {
+                                    backgroundColor: "#b497d6",
+                                    borderColor: "#29175e",
+                                  },
+                                }}
+                              />
+                            )}
+                          </Tooltip>
+
+                          {doctor.qualificationIds
+                            ?.slice(0, 1)
+                            .map((qualification, index) => (
+                              <Chip
+                                key={index}
+                                icon={
+                                  <SchoolIcon
+                                    sx={{
+                                      color: "#29175e !important",
+                                      fontSize: {
+                                        xs: "0.6rem",
+                                        sm: "0.65rem",
+                                        md: "0.7rem",
+                                      },
+                                    }}
+                                  />
+                                }
+                                label={
+                                  isMobile
+                                    ? `${qualification.name.substring(
+                                        0,
+                                        12
+                                      )}...`
+                                    : `${qualification.name.substring(
+                                        0,
+                                        18
+                                      )}...`
+                                }
+                                variant="outlined"
+                                size="small"
+                                sx={{
+                                  borderColor: "#29175e",
+                                  color: "#29175e",
+                                  fontWeight: 500,
+                                  fontSize: {
+                                    xs: "0.65rem",
+                                    sm: "0.7rem",
+                                    md: "0.8rem",
+                                  },
+                                  fontFamily: "Poppins",
+                                  height: {
+                                    xs: "26px",
+                                    sm: "28px",
+                                    md: "32px",
+                                  },
+                                  "&:hover": {
+                                    backgroundColor: "rgba(32, 173, 160, 0.05)",
+                                    borderColor: "#29175e",
+                                  },
+                                }}
+                              />
+                            ))}
+                        </Box>
+                      </Box>
+
+                      {/* Rating Section */}
+                      <Box sx={{ textAlign: "center", mb: 1 }}>
+                        <Rating
+                          value={doctor.averageRating || 0}
+                          precision={0.5}
+                          readOnly
+                          size={isMobile ? "small" : "medium"}
+                          sx={{
+                            mb: 0.1,
+                            "& .MuiRating-iconFilled": {
+                              color: "yellow",
+                            },
+                          }}
+                        />
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            display: "block",
+                            color: "#fff",
+                            fontSize: {
+                              xs: "0.65rem",
+                              sm: "0.7rem",
+                              md: "0.75rem",
                             },
                           }}
                         >
-                          <Chip
-                            icon={
-                              <LocationOnIcon
-                                sx={{ color: "#29175e !important" }}
-                              />
-                            }
-                            label="Clinic Address"
-                            variant="outlined"
-                            size="small"
-                            sx={{
-                              borderColor: "#29175e",
-                              color: "#29175e",
-                              width: "10vw",
-                              fontSize: "0.8rem",
-                              fontWeight: 500,
-                              fontFamily: "Poppins",
-                              "&:hover": {
-                                backgroundColor: "#b497d6",
-                                borderColor: "#29175e",
-                              },
-                            }}
-                          />
-                        </Tooltip>
+                          {doctor.totalRatingCount > 0
+                            ? `(${doctor.totalRatingCount} review${
+                                doctor.totalRatingCount > 1 ? "s" : ""
+                              })`
+                            : "No reviews yet"}
+                        </Typography>
                       </Box>
-                    </Box>
 
-                    {/* Rating */}
-                    <Rating
-                      value={doctor.averageRating || 0}
-                      precision={0.5}
-                      readOnly
-                      size="small"
-                      sx={{
-                        mb: 0.1,
-                        "& .MuiRating-iconFilled": {
-                          color: "yellow",
-                        },
-                      }}
-                    />
-                    <br />
-                    <Typography
-                      variant="caption"
-                      sx={
-                        {
-                          /* styles */
-                        }
-                      }
-                    >
-                      {doctor.totalRatingCount > 0
-                        ? `(based on ${doctor.totalRatingCount} patient${
-                            doctor.totalRatingCount > 1 ? "s" : ""
-                          })`
-                        : "No reviews yet"}
-                    </Typography>
-
-                    <Divider
-                      sx={{
-                        mb: 2,
-                        "&::before, &::after": {
-                          borderColor: "rgba(32, 173, 160, 0.2)",
-                        },
-                      }}
-                    />
-
-                    <Tooltip
-                      title={doctor.bio}
-                      componentsProps={{
-                        tooltip: {
-                          sx: {
-                            backgroundColor: "#5b4791",
-                            color: "#fff",
-                            fontFamily: "Poppins",
-                            fontSize: "0.85rem",
-                            padding: "8px 12px",
-                            borderRadius: "8px",
-                            maxWidth: "300px",
-                            boxShadow: "0px 4px 8px rgba(0,0,0,0.2)",
-                          },
-                        },
-                      }}
-                    >
-                      <Typography
-                        variant="body2"
+                      <Divider
                         sx={{
-                          color: "#fff",
-                          px: 1,
-                          fontFamily: "Poppins",
-                          width: "100%",
-                          textAlign: "center",
-                          margin: "0 auto",
-                          fontWeight: 500,
-                          cursor: "pointer",
+                          mb: 1,
+                          "&::before, &::after": {
+                            borderColor: "rgba(32, 173, 160, 0.2)",
+                          },
+                        }}
+                      />
 
-                          // apply these only on md and up (md, lg, xl)
-                          minHeight: { xs: "75px", sm: "13.5vh", md: "" },
-                          maxHeight: { xs: "75px", sm: "13.5vh", md: "" },
-                          overflow: { xs: "hidden", sm: "hidden" },
-                          display: { md: "-webkit-box" },
-                          WebkitBoxOrient: { xs: "unset", sm: "vertical" },
-                          WebkitLineClamp: { xs: "unset", sm: 2 },
+                      {/* Bio Section */}
+                      <Tooltip
+                        title={doctor.bio}
+                        componentsProps={{
+                          tooltip: {
+                            sx: {
+                              backgroundColor: "#5b4791",
+                              color: "#fff",
+                              fontFamily: "Poppins",
+                              fontSize: "0.85rem",
+                              padding: "8px 12px",
+                              borderRadius: "8px",
+                              maxWidth: "300px",
+                              boxShadow: "0px 4px 8px rgba(0,0,0,0.2)",
+                            },
+                          },
                         }}
                       >
-                        {doctor.bio}
-                      </Typography>
-                    </Tooltip>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: "#fff",
+                            fontFamily: "Poppins",
+                            textAlign: "center",
+                            fontWeight: 500,
+                            cursor: "pointer",
+                            flex: 1,
+                            minHeight: cardDims.bioHeight,
+                            maxHeight: cardDims.bioHeight,
+                            overflow: "hidden",
+                            display: "-webkit-box",
+                            WebkitBoxOrient: "vertical",
+                            WebkitLineClamp: 3,
+                            fontSize: {
+                              xs: "0.75rem",
+                              sm: "0.8rem",
+                              md: "0.85rem",
+                            },
+                            lineHeight: 1.4,
+                            mb: 1,
+                          }}
+                        >
+                          {doctor.bio}
+                        </Typography>
+                      </Tooltip>
 
-                    {/* Enhanced Button */}
-                    <Button
-                      variant="contained"
-                      onClick={() => openModal(doctor)}
-                      startIcon={<EventIcon />}
-                      sx={{
-                        background: "#29175e",
-                        borderRadius: "25px",
-                        padding: "8px 24px",
-                        mt: 2,
-                        textTransform: "none",
-                        fontWeight: "600",
-                        transition: "all 0.3s ease",
-                        boxShadow: "0 4px 12px rgba(32, 173, 160, 0.2)",
-                        "&:hover": {
-                          background: "#29175e",
-                          boxShadow: "0 6px 16px rgba(32, 173, 160, 0.3)",
-                          transform: "translateY(-2px)",
-                        },
-                        "&:active": {
-                          transform: "translateY(0)",
-                        },
-                      }}
-                    >
-                      Book Appointment
-                    </Button>
-                  </Box>
-                </Paper>
-              </div>
-            ))}
-          </Slider>
+                      {/* Button Section - Updated to match old code */}
+                      <Box sx={{ mt: "auto", textAlign: "center" }}>
+                        <Button
+                          variant="contained"
+                          onClick={() => openModal(doctor)}
+                          startIcon={<EventIcon />}
+                          sx={{
+                            background: "#29175e",
+                            borderRadius: "25px",
+                            padding: "8px 24px",
+                            mt: 2,
+                            textTransform: "none",
+                            fontWeight: "600",
+                            transition: "all 0.3s ease",
+                            boxShadow: "0 4px 12px rgba(32, 173, 160, 0.2)",
+                            "&:hover": {
+                              background: "#29175e",
+                              boxShadow: "0 6px 16px rgba(32, 173, 160, 0.3)",
+                              transform: "translateY(-2px)",
+                            },
+                            "&:active": {
+                              transform: "translateY(0)",
+                            },
+                          }}
+                        >
+                          Book Appointment
+                        </Button>
+                      </Box>
+                    </Box>
+                  </Paper>
+                </div>
+              ))}
+            </Slider>
+          </Box>
 
           <Box
             className={styles.buttonWrapper}
@@ -762,7 +730,6 @@ const ExpertSpecialistSlider: React.FC = () => {
                   mb: 2,
                   "&:hover": {
                     background: "#29175e",
-
                     transform: "translateY(-2px)",
                   },
                   "&:active": {

@@ -522,273 +522,290 @@ const BannerComponentTest: React.FC = () => {
             </Alert>
           </motion.div>
         )}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          layout
-          style={{
-            display: "flex",
-            justifyContent: "center",
+        <Box
+          sx={{
+            position: "relative",
             width: isMobile ? "90%" : isTablet ? "70%" : "70%",
             maxWidth: "700px",
-            marginTop: "10px",
           }}
         >
-          <Paper
-            sx={{
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            layout
+            style={{
               display: "flex",
-              alignItems: "center",
-              borderRadius: {
-                xs: "20px",
-                sm: "50px",
-                md: "50px",
-                lg: "50px",
-              },
-              width: "100%", // Ensures full width of parent
-              flexDirection: {
-                xs: "column", // Stack vertically on mobile
-                sm: "row", // Horizontal on tablet/desktop
-              },
-              border: "1px solid #ccc",
-              boxShadow: "none",
-              overflow: "hidden",
-              marginBottom: isMobile ? "11rem" : isTablet ? "13rem" : "inherit",
+              justifyContent: "center",
+              // width: isMobile ? "90%" : isTablet ? "70%" : "70%",
+              maxWidth: "700px",
+              marginTop: "10px",
             }}
           >
-            {/* Location Field */}
-            <Box
+            <Paper
               sx={{
                 display: "flex",
                 alignItems: "center",
-                flex: 1,
-                px: 2,
-                py: 1.5,
-                gap: 1,
-                position: "relative",
-                width: "100%", // Full width on mobile
-                borderBottom: {
-                  xs: "1px solid #ccc", // Add divider between fields on mobile
-                  sm: "none", // Remove on tablet/desktop
+                borderRadius: {
+                  xs: "20px",
+                  sm: "50px",
+                  md: "50px",
+                  lg: "50px",
                 },
-              }}
-            >
-              <LocationOnIcon fontSize="small" sx={{ color: "gray" }} />
-              <InputBase
-                placeholder="Enter location..."
-                value={locationKeyword}
-                onChange={handleLocationChange}
-                onKeyDown={handleLocationKeyDown}
-                sx={{
-                  flex: 1,
-                  fontSize: "0.95rem",
-                  fontFamily: "Poppins",
-                  color: "#333",
-                  "&::placeholder": {
-                    fontSize: "0.75rem",
-                  },
-                }}
-                inputProps={{
-                  sx: {
-                    "::placeholder": {
-                      fontSize: "0.75rem", // ✅ placeholder font size
-                    },
-                  },
-                }}
-              />
-              <Button
-                onClick={handleNearMeClick}
-                disabled={isLoadingLocation || isSearchingNearby}
-                sx={{
-                  textTransform: "none",
-                  fontSize: "0.75rem",
-                  fontFamily: "Poppins",
-                  borderRadius: "20px",
-                  backgroundColor: "#b497d6",
-                  color: "#29175e",
-                  px: 1.5,
-                  py: 0.5,
-                  minWidth: "auto",
-                  "&:hover": {
-                    backgroundColor: "#29175e",
-                    color: "#fff",
-                  },
-                  "&:disabled": {
-                    backgroundColor: "#ddd",
-                    color: "#999",
-                  },
-                }}
-              >
-                {isLoadingLocation || isSearchingNearby ? (
-                  <CircularProgress size={14} />
-                ) : (
-                  "Near Me"
-                )}
-              </Button>
-            </Box>
-            {/* Divider */}
-            <Divider orientation="vertical" flexItem />
-
-            {/* Doctor Name / Specialty Field */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                flex: 1,
-                px: 2,
-                py: 1.5,
-                gap: 1,
-                width: "100%", // Full width on mobile
-              }}
-            >
-              <SearchIcon fontSize="small" sx={{ color: "gray" }} />
-              <InputBase
-                placeholder="Search by doctor or specialty..."
-                value={nameKeyword}
-                onChange={handleNameChange}
-                onKeyDown={handleNameKeyDown}
-                sx={{
-                  flex: 1,
-                  fontSize: "0.95rem",
-                  fontFamily: "Poppins",
-                  color: "#333",
-                  "&::placeholder": {
-                    fontSize: "0.75rem",
-                  },
-                }}
-                inputProps={{
-                  sx: {
-                    "::placeholder": {
-                      fontSize: "0.75rem", // ✅ placeholder font size
-                    },
-                  },
-                }}
-              />
-            </Box>
-          </Paper>
-        </motion.div>
-
-        {/* Search Results */}
-        <AnimatePresence>
-          {results.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: -20, height: 0 }}
-              animate={{
-                opacity: 1,
-                y: 0,
-                height: "auto",
-                transition: {
-                  duration: 0.6,
-                  ease: "easeOut",
-                  height: {
-                    duration: 0.8,
-                    ease: "easeInOut",
-                  },
+                width: "100%", // Ensures full width of parent
+                flexDirection: {
+                  xs: "column", // Stack vertically on mobile
+                  sm: "row", // Horizontal on tablet/desktop
                 },
-              }}
-              exit={{
-                opacity: 0,
-                y: -20,
-                height: 0,
-                transition: {
-                  duration: 0.4,
-                  ease: "easeIn",
-                },
-              }}
-              style={{
+                border: "1px solid #ccc",
+                boxShadow: "none",
                 overflow: "hidden",
-                width: "100%",
-                display: "flex",
-                justifyContent: "center",
+                // marginBottom: isMobile
+                //   ? "11rem"
+                //   : isTablet
+                //   ? "13rem"
+                //   : "inherit",
               }}
             >
+              {/* Location Field */}
               <Box
                 sx={{
-                  backgroundColor: "white",
-                  borderRadius: "10px",
-                  overflow: "auto",
-                  boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-                  mt: 1,
                   display: "flex",
-                  flexDirection: "column",
-                  width: {
-                    xs: "90vw",
-                    sm: "70vw",
-                    md: "50vw",
-                    lg: "40vw",
-                    xl: "30vw",
+                  alignItems: "center",
+                  flex: 1,
+                  px: 2,
+                  py: 1.5,
+                  gap: 1,
+                  position: "relative",
+                  width: "100%", // Full width on mobile
+                  borderBottom: {
+                    xs: "1px solid #ccc", // Add divider between fields on mobile
+                    sm: "none", // Remove on tablet/desktop
                   },
-                  maxHeight: "50vh",
-                  zIndex: 10,
                 }}
               >
-                <List
+                <LocationOnIcon fontSize="small" sx={{ color: "gray" }} />
+                <InputBase
+                  placeholder="Enter location..."
+                  value={locationKeyword}
+                  onChange={handleLocationChange}
+                  onKeyDown={handleLocationKeyDown}
                   sx={{
-                    padding: 0,
-                    width: "100%",
-                    "&::-webkit-scrollbar": {
-                      width: "6px",
+                    flex: 1,
+                    fontSize: "0.95rem",
+                    fontFamily: "Poppins",
+                    color: "#333",
+                    "&::placeholder": {
+                      fontSize: "0.75rem",
                     },
-                    "&::-webkit-scrollbar-thumb": {
-                      backgroundColor: "#b497d6",
-                      borderRadius: "6px",
+                  }}
+                  inputProps={{
+                    sx: {
+                      "::placeholder": {
+                        fontSize: "0.75rem", // ✅ placeholder font size
+                      },
+                    },
+                  }}
+                />
+                <Button
+                  onClick={handleNearMeClick}
+                  disabled={isLoadingLocation || isSearchingNearby}
+                  sx={{
+                    textTransform: "none",
+                    fontSize: "0.75rem",
+                    fontFamily: "Poppins",
+                    borderRadius: "20px",
+                    backgroundColor: "#b497d6",
+                    color: "#29175e",
+                    px: 1.5,
+                    py: 0.5,
+                    minWidth: "auto",
+                    "&:hover": {
+                      backgroundColor: "#29175e",
+                      color: "#fff",
+                    },
+                    "&:disabled": {
+                      backgroundColor: "#ddd",
+                      color: "#999",
                     },
                   }}
                 >
-                  {results.map((doctor: any, index: number) => (
-                    <motion.div
-                      key={doctor._id || index}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{
-                        opacity: 1,
-                        x: 0,
-                        transition: {
-                          delay: index * 0.1,
-                          duration: 0.4,
-                          ease: "easeOut",
-                        },
-                      }}
-                    >
-                      <ListItem
-                        sx={{
-                          padding: "10px 15px",
-                          cursor: "pointer",
-                          transition: "background-color 0.3s",
-                          "&:hover": {
-                            backgroundColor: "#f4f4f4",
+                  {isLoadingLocation || isSearchingNearby ? (
+                    <CircularProgress size={14} />
+                  ) : (
+                    "Near Me"
+                  )}
+                </Button>
+              </Box>
+              {/* Divider */}
+              <Divider orientation="vertical" flexItem />
+
+              {/* Doctor Name / Specialty Field */}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  flex: 1,
+                  px: 2,
+                  py: 1.5,
+                  gap: 1,
+                  width: "100%", // Full width on mobile
+                }}
+              >
+                <SearchIcon fontSize="small" sx={{ color: "gray" }} />
+                <InputBase
+                  placeholder="Search by doctor or specialty..."
+                  value={nameKeyword}
+                  onChange={handleNameChange}
+                  onKeyDown={handleNameKeyDown}
+                  sx={{
+                    flex: 1,
+                    fontSize: "0.95rem",
+                    fontFamily: "Poppins",
+                    color: "#333",
+                    "&::placeholder": {
+                      fontSize: "0.75rem",
+                    },
+                  }}
+                  inputProps={{
+                    sx: {
+                      "::placeholder": {
+                        fontSize: "0.75rem", // ✅ placeholder font size
+                      },
+                    },
+                  }}
+                />
+              </Box>
+            </Paper>
+          </motion.div>
+
+          {/* Search Results */}
+          <AnimatePresence>
+            {results.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: -20, height: 0 }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  height: "auto",
+                  transition: {
+                    duration: 0.6,
+                    ease: "easeOut",
+                    height: {
+                      duration: 0.8,
+                      ease: "easeInOut",
+                    },
+                  },
+                }}
+                exit={{
+                  opacity: 0,
+                  y: -20,
+                  height: 0,
+                  transition: {
+                    duration: 0.4,
+                    ease: "easeIn",
+                  },
+                }}
+                style={{
+                  overflow: "hidden",
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <Box
+                  sx={{
+                    backgroundColor: "white",
+                    borderRadius: "10px",
+                    overflow: "auto",
+                    boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                    mt: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    width: {
+                      xs: "90vw",
+                      sm: "70vw",
+                      md: "50vw",
+                      lg: "40vw",
+                      xl: "30vw",
+                    },
+                    maxHeight: "50vh",
+                    zIndex: 10,
+                  }}
+                >
+                  <List
+                    sx={{
+                      padding: 0,
+                      width: "100%",
+                      "&::-webkit-scrollbar": {
+                        width: "6px",
+                      },
+                      "&::-webkit-scrollbar-thumb": {
+                        backgroundColor: "#b497d6",
+                        borderRadius: "6px",
+                      },
+                    }}
+                  >
+                    {results.map((doctor: any, index: number) => (
+                      <motion.div
+                        key={doctor._id || index}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{
+                          opacity: 1,
+                          x: 0,
+                          transition: {
+                            delay: index * 0.1,
+                            duration: 0.4,
+                            ease: "easeOut",
                           },
                         }}
                       >
-                        <Link
-                          href={`/doctors/profile/${doctor._id}`}
-                          passHref
-                          sx={{ textDecoration: "none", width: "100%" }}
+                        <ListItem
+                          sx={{
+                            padding: "10px 15px",
+                            cursor: "pointer",
+                            transition: "background-color 0.3s",
+                            "&:hover": {
+                              backgroundColor: "#f4f4f4",
+                            },
+                          }}
                         >
-                          <ListItemText
-                            primary={`${doctor.username || "Unknown"} - ${
-                              doctor.specializationIds
-                                ?.map((spec: any) =>
-                                  capitalizeFirstLetter(spec.name)
-                                )
-                                .join(", ") || "Specialty not available"
-                            }`}
-                            sx={{
-                              "& .MuiListItemText-primary": {
-                                fontSize: "0.9rem",
-                                fontFamily: "Poppins",
-                                color: "#29175e",
-                              },
-                            }}
-                          />
-                        </Link>
-                      </ListItem>
-                    </motion.div>
-                  ))}
-                </List>
-              </Box>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                          <Link
+                            href={`/doctors/profile/${doctor._id}`}
+                            passHref
+                            sx={{ textDecoration: "none", width: "100%" }}
+                          >
+                            <ListItemText
+                              primary={`${doctor.username || "Unknown"} - ${
+                                doctor.specializationIds
+                                  ?.map((spec: any) =>
+                                    capitalizeFirstLetter(spec.name)
+                                  )
+                                  .join(", ") || "Specialty not available"
+                              }`}
+                              sx={{
+                                "& .MuiListItemText-primary": {
+                                  fontSize: "0.9rem",
+                                  fontFamily: "Poppins",
+                                  color: "#29175e",
+                                },
+                              }}
+                            />
+                          </Link>
+                        </ListItem>
+                      </motion.div>
+                    ))}
+                  </List>
+                </Box>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </Box>
+        <Box
+          sx={{
+            height: isMobile ? "11rem" : isTablet ? "13rem" : "0",
+          }}
+        />
         {/* Action Buttons */}
         <Box
           sx={{
