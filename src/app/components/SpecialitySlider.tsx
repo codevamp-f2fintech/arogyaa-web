@@ -1,48 +1,62 @@
 "use client";
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import Slider from "react-slick";
 import { useDispatch, useSelector } from "react-redux";
-import { Box, Button, Grid, Paper, Typography, Container } from "@mui/material";
-import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
+import { Box, Paper, Typography, Container, useTheme } from "@mui/material";
 import { useRouter } from "next/navigation";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import en from "@/locales/en.json";
-import { AppDispatch, RootState } from "@/redux/store";
-import { icons } from "@/static-data";
+import type { AppDispatch, RootState } from "@/redux/store";
 import { useGetSpeciality } from "@/hooks/speciality";
 import { setSpeciality } from "@/redux/features/specialitySlice";
 import Loader from "./common/Loader";
 import SpecialistCard from "./SpecialistCard";
+import { motion } from "framer-motion";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import en from "@/locales/en.json";
 
-const SpecialitySlider: React.FC = () => {
+const SpecialitySlider = () => {
   const dispatch: AppDispatch = useDispatch();
   const router = useRouter();
+  const theme = useTheme();
   const { speciality } = useSelector((state: RootState) => state.specialities);
-  const [pageSize, setPageSize] = useState({
-    page: 1,
-    size: 6,
-  });
-
+  const [pageSize] = useState({ page: 1, size: 200 });
   const { value: data, swrLoading } = useGetSpeciality(
     null,
     "get-specialities",
     pageSize.page,
     pageSize.size
   );
+  const sliderRef = useRef<Slider>(null);
 
   useEffect(() => {
-    if (data && data.results && data.results.length > 0) {
+    if (data?.results?.length > 0) {
       dispatch(setSpeciality(data));
     }
   }, [data, dispatch]);
 
-  const handleFetchNext = useCallback(() => {
-    setPageSize((prevSize) => ({
-      ...prevSize,
-      page: prevSize.page + 1,
-    }));
+  // Infinite scroll effect
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // inside SpecialitySlider, before return
+  const stopAutoplay = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
   }, []);
+
+  const startAutoplay = useCallback(() => {
+    if (!intervalRef.current && sliderRef.current) {
+      intervalRef.current = setInterval(() => {
+        sliderRef.current?.slickNext();
+      }, 3000);
+    }
+  }, []);
+
+  useEffect(() => {
+    startAutoplay();
+    return () => stopAutoplay();
+  }, [startAutoplay, stopAutoplay]);
 
   const handleConsult = useCallback(
     (specialtyName: string) => {
@@ -53,7 +67,7 @@ const SpecialitySlider: React.FC = () => {
 
   const sliderSettings = useMemo(
     () => ({
-      dots: true,
+      dots: false,
       arrows: true,
       infinite: true,
       speed: 500,
@@ -62,7 +76,7 @@ const SpecialitySlider: React.FC = () => {
       autoplaySpeed: 3000,
       lazyLoad: "progressive",
       pauseOnHover: true,
-      autoplay: true,
+      autoplay: false, // Disable built-in autoplay since we're implementing our own
       cssEase: "cubic-bezier(0.4, 0, 0.2, 1)",
       responsive: [
         {
@@ -70,6 +84,7 @@ const SpecialitySlider: React.FC = () => {
           settings: {
             slidesToShow: 3,
             slidesToScroll: 1,
+            arrows: true,
           },
         },
         {
@@ -77,6 +92,7 @@ const SpecialitySlider: React.FC = () => {
           settings: {
             slidesToShow: 2,
             slidesToScroll: 1,
+            arrows: false,
           },
         },
         {
@@ -84,7 +100,7 @@ const SpecialitySlider: React.FC = () => {
           settings: {
             slidesToShow: 1,
             slidesToScroll: 1,
-            dots: false,
+            arrows: false,
           },
         },
       ],
@@ -93,126 +109,148 @@ const SpecialitySlider: React.FC = () => {
   );
 
   return (
-    <Container
-      maxWidth={false}
+    <Box
+      id="specialitiesSection"
       sx={{
-        maxWidth: "1400px",
+        background:
+          "linear-gradient(180deg, rgba(104,82,164,1) 0%, rgba(126,107,177,1) 100%)",
+        width: "100vw",
+        minHeight: "80vh",
+        position: "relative",
+        left: "50%",
+        right: "50%",
+        marginLeft: "-50vw",
+        marginRight: "-50vw",
         px: { xs: 2, sm: 4, md: 6 },
-        py: { xs: 4, sm: 6, md: 8 },
-        background: "#f9f6f6",
+        py: { xs: 0, sm: 6, md: 8 },
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
       }}
     >
-      <Typography
-        variant="h5"
+      <Container
+        maxWidth="xl"
         sx={{
-          textAlign: "center",
-          mb: { xs: 4, md: 6 },
-          fontSize: { xs: "2rem", sm: "2.5rem", md: "2.5rem" },
-          fontWeight: 600,
-          // fontFamily: "Roboto",
-          color: "black",
-          letterSpacing: "-0.5px",
-          lineHeight: 1.2,
+          maxWidth: "1400px !important",
+          mx: "auto",
+          position: "relative",
         }}
       >
-        {en.homepage.specialitySlider.title}
-      </Typography>
+        <Typography
+          variant="h5"
+          component="h2"
+          sx={{
+            display: "flex", // Flex to align inline items
+            justifyContent: "center", // Center horizontally
+            alignItems: "center", // Align vertically if multi-line
+            flexWrap: "wrap", // Wrap text if needed
+            textAlign: "center",
+            mb: { xs: 4, md: 6 },
+            fontSize: { xs: "1.7rem", sm: "2.5rem", md: "2.5rem" },
+            fontWeight: 600,
+            fontFamily: "Poppins",
+            color: "white",
+            letterSpacing: "-0.10px",
+            lineHeight: 1.2,
+            width: { xs: "90vw", md: "100%" },
+            mx: "auto",
+          }}
+        >
+          <span>{en.homepage.specialitySlider.title}</span>
+          <motion.span
+            style={{ display: "inline-block", marginLeft: "8px" }}
+            animate={{
+              color: ["#fff", "#b497d6", "#fff"],
+              textShadow: [
+                "0 0 8px rgba(180,151,214,0.5)",
+                "0 0 16px rgba(180,151,214,0.8)",
+                "0 0 8px rgba(180,151,214,0.5)",
+              ],
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              repeatType: "reverse",
+              ease: "easeInOut",
+            }}
+          >
+            {en.homepage.specialitySlider.title2}
+          </motion.span>
+        </Typography>
 
-      <Box
-        // sx={{
-        //   ".slick-slide": {
-        //     px: 1.5,
-        //   },
-        //   ".slick-dots": {
-        //     bottom: -40,
-        //     "& li button:before": {
-        //       fontSize: 12,
-        //       color: "#20ada0",
-        //       opacity: 0.4,
-        //     },
-        //     "& li.slick-active button:before": {
-        //       opacity: 1,
-        //     },
-        //   },
-        //   ".slick-prev, .slick-next": {
-        //     zIndex: 1,
-        //     width: 40,
-        //     height: 40,
-        //     "&:before": {
-        //       fontSize: 40,
-        //       color: "#20ada0",
-        //     },
-        //   },
-        //   ".slick-prev": {
-        //     left: { xs: -20, md: -40 },
-        //   },
-        //   ".slick-next": {
-        //     right: { xs: -20, md: -40 },
-        //   },
-        // }}
-      >
-        <Slider {...sliderSettings}>
-          {speciality && speciality?.results?.length > 0 ? (
-            speciality.results.map((item) => {
-              const icon = icons.find(
-                (icon) => icon.title === item.name.toLowerCase()
-              )?.path;
-              return (
-                <Box
-                  key={item._id}
-                  sx={{
-                    height: "100%",
-                    p: 1,
-                  }}
-                >
+        <Box
+          onMouseEnter={stopAutoplay}
+          onMouseLeave={startAutoplay}
+          sx={{ position: "relative" }}
+        >
+          {swrLoading ? (
+            <Loader />
+          ) : speciality?.results?.length > 0 ? (
+            <Slider ref={sliderRef} {...sliderSettings}>
+              {speciality.results.map((item) => (
+                <Box key={item._id} sx={{ px: 1, py: 2, outline: "none" }}>
                   <Paper
-                    elevation={2}
+                    elevation={4}
                     sx={{
                       height: "100%",
-                      borderRadius: 2,
+                      width: "100%",
+                      borderRadius: 3,
                       overflow: "hidden",
-                      transition: "all 0.3s ease",
+                      transition: "transform 0.3s ease, box-shadow 0.3s ease",
                       "&:hover": {
                         transform: "translateY(-8px)",
-                        boxShadow: (theme) => theme.shadows[8],
+                        boxShadow: "0 16px 24px rgba(0, 0, 0, 0.2)",
                       },
+                      display: "flex",
+                      flexDirection: "column",
                     }}
                   >
                     <SpecialistCard
-                      icon={icon}
+                      icon={item?.icon || "/default-icon.svg"}
                       name={item.name}
-                      description={item.description.slice(0, 90) + "..."}
+                      description={
+                        item.description.length > 90
+                          ? `${item.description.slice(0, 90)}...`
+                          : item.description
+                      }
                       onConsult={() => handleConsult(item.name)}
+                      sx={{
+                        "& .description-text": {
+                          fontSize:
+                            item.description.length > 80 ? "0.8rem" : "0.9rem",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          lineHeight: 1.4,
+                        },
+                        "& .name-text": {
+                          fontSize: item.name.length > 20 ? "1rem" : "1.2rem",
+                          fontWeight: 600,
+                        },
+                      }}
                     />
                   </Paper>
                 </Box>
-              );
-            })
+              ))}
+            </Slider>
           ) : (
             <Typography
               variant="h6"
               sx={{
                 textAlign: "center",
-                color: "text.secondary",
+                color: "white",
                 py: 8,
+                fontFamily: "Poppins",
               }}
             >
               No Specialities Found
             </Typography>
           )}
-        </Slider>
-      </Box>
-
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          mt: 8,
-        }}
-      >
-        {swrLoading && <Loader />}
-      </Box>
-    </Container>
+        </Box>
+      </Container>
+    </Box>
   );
 };
 

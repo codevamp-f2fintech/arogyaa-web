@@ -16,6 +16,8 @@ import PersonIcon from "@mui/icons-material/Person";
 import { Utility } from "@/utils";
 import { fetcher } from "@/apis/apiClient";
 import { PatientData } from "@/types/patient";
+import { signOut, useSession } from "next-auth/react";
+import { CircularProgress } from "@mui/material";
 
 export interface UserPopoverProps {
   anchorEl: Element | null;
@@ -29,9 +31,11 @@ export function UserPopover({
 }: UserPopoverProps): React.JSX.Element {
   const popoverRef = React.useRef<HTMLDivElement | null>(null);
   const [user, setUser] = React.useState<PatientData | undefined>();
+  const [isSigningOut, setIsSigningOut] = React.useState(false); // Add this line
   const { capitalizeFirstLetter, decodedToken } = Utility();
   const userId = decodedToken()?.id;
   const router = useRouter();
+  const { data: session } = useSession();
 
   const fetchUserProfile = React.useCallback(async () => {
     if (userId) {
@@ -59,20 +63,27 @@ export function UserPopover({
       }
     }
   }, [userId]);
-  console.log(user, "response");
 
   React.useEffect(() => {
     fetchUserProfile();
   }, [fetchUserProfile]);
 
   const handleSignOut = React.useCallback(async (): Promise<void> => {
-    router.push("/");
+    setIsSigningOut(true); // Start loading
     try {
+      if (session) {
+        await signOut({ redirect: false }); // Prevent auto redirect
+      }
       document.cookie = "token=; path=/; max-age=0; secure; samesite=strict";
+      router.push("/signin");
     } catch (err) {
       console.log("Sign out error", err);
+    } finally {
+      setIsSigningOut(false); // End loading
     }
-  }, []);
+  }, [router, session]);
+
+  console.log("session?.user?.name", session?.user);
 
   return (
     <Popover
@@ -91,6 +102,7 @@ export function UserPopover({
             border: "1px solid",
             borderColor: "divider",
             overflow: "visible",
+            background: "#b497d6",
           },
         },
       }}
@@ -99,7 +111,7 @@ export function UserPopover({
       <Box
         sx={{
           p: "16px 20px",
-          background: "#20ADA0", // Set background to the desired color
+          background: "#5c4891", // Set background to the desired color
           borderTopLeftRadius: (theme) => theme.shape.borderRadius * 2,
           borderTopRightRadius: (theme) => theme.shape.borderRadius * 2,
           color: "white",
@@ -110,8 +122,10 @@ export function UserPopover({
       >
         {/* User Avatar */}
         <Avatar
-          alt={capitalizeFirstLetter(user?.username)}
-          src={capitalizeFirstLetter(user?.username)}
+          alt={capitalizeFirstLetter(user?.username || session?.user?.name)}
+          src={capitalizeFirstLetter(
+            user?.profilePicture || session?.user?.image
+          )}
           sx={{
             width: 40,
             height: 40,
@@ -130,9 +144,10 @@ export function UserPopover({
               wordWrap: "break-word",
               whiteSpace: "normal",
               width: "100%",
+              fontFamily: "Poppins",
             }}
           >
-            {capitalizeFirstLetter(user?.username)}
+            {capitalizeFirstLetter(user?.username || session?.user?.name)}
           </Typography>
           {/* User Email */}
           <Typography
@@ -146,7 +161,7 @@ export function UserPopover({
               width: "100%",
             }}
           >
-            {user?.email}
+            {user?.email || session?.user?.email}
           </Typography>
         </Box>
       </Box>
@@ -173,29 +188,52 @@ export function UserPopover({
           sx={{
             gap: 2,
             alignItems: "center",
+            fontFamily: "Poppins",
+            fontSize: "1rem",
+            fontWeight: "500",
           }}
         >
-          <ListItemIcon sx={{ minWidth: "auto" }}>
-            <PersonIcon style={{ color: "#20ADA0", opacity: 0.7 }} />
+          <ListItemIcon sx={{ minWidth: "auto", color: "#29175e" }}>
+            <PersonIcon style={{ color: "#29175e", opacity: 0.7 }} />
           </ListItemIcon>
           Profile
         </MenuItem>
 
         <MenuItem
           onClick={handleSignOut}
+          disabled={isSigningOut} // Disable button during sign out
           sx={{
             gap: 2,
             alignItems: "center",
             color: "error.main",
+            fontFamily: "Poppins",
+            fontSize: "1rem",
+            fontWeight: "500",
+            position: "relative",
           }}
         >
           <ListItemIcon sx={{ minWidth: "auto" }}>
-            <LogoutIcon
-              // fontSize="var(--icon-fontSize-md)"
-              style={{ color: "currentColor", opacity: 0.7 }}
-            />
+            {isSigningOut ? (
+              <Box
+                sx={{
+                  width: 24,
+                  height: 24,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <CircularProgress size={20} color="inherit" />
+              </Box>
+            ) : (
+              <LogoutIcon
+                // fontSize="var(--icon-fontSize-md)"
+                style={{ color: "currentColor", opacity: 0.7 }}
+              />
+            )}
           </ListItemIcon>
-          Sign out
+
+          {isSigningOut ? "Signing out..." : "Sign out"}
         </MenuItem>
       </MenuList>
     </Popover>

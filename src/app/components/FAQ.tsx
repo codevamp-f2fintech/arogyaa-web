@@ -1,14 +1,14 @@
-import * as React from 'react';
+import * as React from "react";
 
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import CssBaseline from '@mui/material/CssBaseline';
-import Container from '@mui/material/Container';
-import { Box } from '@mui/material';
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import CssBaseline from "@mui/material/CssBaseline";
+import Container from "@mui/material/Container";
+import { Box } from "@mui/material";
 
-import faqData from './faq.json';
+import faqData from "./FAQ.json";
 
 const FAQ: React.FC = () => {
   return (
@@ -32,6 +32,6 @@ const FAQ: React.FC = () => {
       </Container>
     </React.Fragment>
   );
-}
+};
 
 export default FAQ;

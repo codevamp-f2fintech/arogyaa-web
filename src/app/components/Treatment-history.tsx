@@ -1,5 +1,6 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import type React from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Alert,
   Box,
@@ -18,6 +19,8 @@ import {
   Select,
   IconButton,
   Modal,
+  Typography,
+  Tooltip,
 } from "@mui/material";
 import {
   CheckCircle,
@@ -25,11 +28,12 @@ import {
   AddCircle,
   HourglassEmpty,
   LocalHospital,
+  VisibilityOff,
 } from "@mui/icons-material";
-import { fetcher, modifier } from "@/apis/apiClient";
+import { creator, fetcher, modifier } from "@/apis/apiClient";
 import { Utility } from "@/utils";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/redux/store";
+import type { AppDispatch, RootState } from "@/redux/store";
 import SnackbarComponent from "./common/Snackbar";
 import ImagePicker from "./common/ImagePicker";
 import CreateTreatmentDialog from "./common/CreateTreatmentDialog";
@@ -42,6 +46,8 @@ interface Treatment {
   status: string;
   type: string;
   photo: string;
+  createdAt: string;
+  updatedAt: string;
 }
 const statuses = ["in progress", "completed"];
 
@@ -65,7 +71,8 @@ const TreatmentHistory: React.FC = () => {
   >(null);
   const treatmentFileInputRef = useRef<HTMLInputElement>(null);
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
-
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [message, setMessage] = useState("");
   const { snackbar } = useSelector((state: RootState) => state.snackbar);
 
   const dispatch: AppDispatch = useDispatch();
@@ -74,34 +81,136 @@ const TreatmentHistory: React.FC = () => {
     Utility();
   const patientId = decodedToken()?.id;
 
+  const getConsultationFee = (t: any) =>
+    Number(t?.doctorId?.consultationFee || 0);
+  // Function to format date
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+  const buildAppointmentFromTreatment = (t: Treatment): Appointment => ({
+    _id:
+      typeof t.appointmentId === "string"
+        ? t.appointmentId
+        : t.appointmentId?._id || "",
+    doctorId: t.doctorId as IdLike,
+    patientId: t.patientId as IdLike,
+  });
+
   // Function to fetch treatment data from API
   const fetchTreatments = useCallback(async () => {
-    if (patientId) {
-      try {
-        const response = await fetcher(
-          "treatment",
-          `get-treatments-by-patientId/${patientId}?page=${
-            page + 1
-          }&limit=${rowsPerPage}`
-        );
-        if (!response) {
-          throw new Error("No response from the API");
-        }
-        setTreatments(response.results || []);
-        setTotalCount(response.count || 0);
-        setError(null);
-      } catch (error) {
-        console.error("Error fetching treatments:", error);
-        setError(error instanceof Error ? error.message : String(error));
-        setTreatments([]);
-        setTotalCount(0);
-      }
+    if (!patientId) return;
+
+    try {
+      const response = await fetcher(
+        "treatment",
+        `get-treatments-by-patientId/${patientId}?page=${
+          page + 1
+        }&limit=${rowsPerPage}`
+      );
+      console.log("Fetched treatments response:", response);
+      if (!response) throw new Error("No response from the API");
+
+      const treatments = response.results || [];
+
+      const treatmentsWithPayment = await Promise.all(
+        treatments.map(async (treatment) => {
+          const appointmentId = treatment.appointmentId?._id;
+
+          let paymentStatus = "pending";
+
+          if (!appointmentId) {
+            paymentStatus = treatment.appointmentId?.emergency
+              ? "payNow"
+              : "pending";
+          } else {
+            try {
+              const paymentResp = await fetcher(
+                "payment",
+                `get-payment-status/${appointmentId}`
+              );
+              paymentStatus = paymentResp?.status || "pending";
+
+              if (
+                treatment.appointmentId?.emergency &&
+                paymentStatus !== "success"
+              ) {
+                paymentStatus = "payNow";
+              }
+            } catch {
+              paymentStatus = treatment.appointmentId?.emergency
+                ? "payNow"
+                : "pending";
+            }
+          }
+
+          return { ...treatment, paymentStatus };
+        })
+      );
+      setTreatments(treatmentsWithPayment);
+      setTotalCount(response.count || 0);
+      setError(null);
+    } catch (error) {
+      console.error("Error fetching treatments with payments:", error);
+      setError(error instanceof Error ? error.message : String(error));
+      setTreatments([]);
+      setTotalCount(0);
     }
   }, [patientId, page, rowsPerPage]);
 
   useEffect(() => {
     fetchTreatments();
   }, [fetchTreatments]);
+
+
+  
+  const handlePayNow = async (appointment: Appointment) => {
+    setIsProcessing(true);
+    setMessage("");
+    try {
+      const doc = appointment.doctorId as Doctor;
+      const consultationFee = Number(doc?.consultationFee);
+      if (!consultationFee || consultationFee <= 0) {
+        setMessage(
+          "Doctor's consultation fee is not set. Please contact support."
+        );
+        setIsProcessing(false);
+        return;
+      }
+      const paymentData = {
+        patientId:
+          (appointment.patientId as Patient)?._id || appointment.patientId,
+        doctorId: (appointment.doctorId as Doctor)?._id || appointment.doctorId,
+        appointmentId: appointment._id,
+        amount: consultationFee,
+        currency: "INR",
+        transactionMethod: "card",
+        patientName: (appointment.patientId as Patient)?.username || "",
+        doctorName: (appointment.doctorId as Doctor)?.username || "",
+      };
+      const res = await creator("payment", "/initiate-payment", paymentData);
+      if (res?.txnid && res?.html) {
+        const container = document.createElement("div");
+        container.innerHTML = res.html;
+        sessionStorage.setItem(
+          `extensionTxn:${appointment._id}`,
+          String(res.txnid)
+        );
+        document.body.appendChild(container);
+        container.querySelector("form")?.submit();
+      } else {
+        setMessage("Payment initiation failed.");
+      }
+    } catch (e: any) {
+      setMessage(e?.message || "Error initiating payment.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   // Handle table pagination
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -111,7 +220,7 @@ const TreatmentHistory: React.FC = () => {
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+    setRowsPerPage(Number.parseInt(event.target.value, 10));
     setPage(0);
   };
 
@@ -124,6 +233,7 @@ const TreatmentHistory: React.FC = () => {
       return;
     }
   };
+  // console.log()
   // Open modal for uploading image
   const handleOpenModal = (treatmentId: string) => {
     setSelectedTreatmentId(treatmentId);
@@ -178,13 +288,43 @@ const TreatmentHistory: React.FC = () => {
     setViewImageUrl(imageUrl);
     setViewImageModal(true);
   };
+
+  // Download image function
+  // const handleDownloadImage = async (
+  //   imageUrl: string,
+  //   treatmentName: string
+  // ) => {
+  //   try {
+  //     const response = await fetch(imageUrl);
+  //     const blob = await response.blob();
+  //     const url = window.URL.createObjectURL(blob);
+  //     const link = document.createElement("a");
+  //     link.href = url;
+  //     link.download = `${treatmentName || "treatment"}_image.jpg`;
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //     window.URL.revokeObjectURL(url);
+
+  //     snackbarAndNavigate(
+  //       dispatch,
+  //       true,
+  //       "success",
+  //       "Image downloaded successfully"
+  //     );
+  //   } catch (error) {
+  //     console.error("Error downloading image:", error);
+  //     snackbarAndNavigate(dispatch, true, "error", "Failed to download image");
+  //   }
+  // };
+
   const handleCloseViewImageModal = (event: React.MouseEvent) => {
     event.stopPropagation();
     setViewImageModal(false);
     setViewImageUrl(null);
   };
 
-  //status change handler
+  // Status change handler
   const handleStatusChange = useCallback(
     async (treatmentId: string, newStatus: string) => {
       if (!treatmentId) return;
@@ -214,11 +354,11 @@ const TreatmentHistory: React.FC = () => {
 
   return (
     <Container maxWidth="lg">
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+      {/* <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
         <Button
           onClick={() => setOpenCreateDialog(true)}
           sx={{
-            background: "#20ADA0 !important",
+            background: "#56428B !important",
             color: "white",
             fontWeight: "bold",
             padding: "6px 15px",
@@ -236,7 +376,7 @@ const TreatmentHistory: React.FC = () => {
           <AddCircle sx={{ fontSize: 20 }} />
           Create
         </Button>
-      </Box>
+      </Box> */}
       <CreateTreatmentDialog
         open={openCreateDialog}
         onClose={() => setOpenCreateDialog(false)}
@@ -248,7 +388,10 @@ const TreatmentHistory: React.FC = () => {
         </Alert>
       )}
 
-      <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 2 }}>
+      <TableContainer
+        component={Paper}
+        sx={{ boxShadow: 3, borderRadius: 2, backgroundColor: "#7b56ce" }}
+      >
         <Table>
           <TableHead
             sx={{
@@ -258,19 +401,24 @@ const TreatmentHistory: React.FC = () => {
           >
             <TableRow sx={{ textAlign: "center" }}>
               {[
+                "Date",
                 "doctor's Name",
                 "Name",
                 "Description",
+                "Quantity",
+                "Frequency",
+                "Duration",
                 "Type",
                 "Status",
                 "Photo",
+                "Payment",
               ].map((header, index) => (
                 <TableCell
                   key={header}
                   sx={{
                     fontWeight: 600,
                     textTransform: "uppercase",
-                    color: "text.secondary",
+                    color: "#fff",
                     textAlign: "center",
                     ...(header === "doctor's Name" && { whiteSpace: "nowrap" }),
                   }}
@@ -283,208 +431,611 @@ const TreatmentHistory: React.FC = () => {
           <TableBody>
             {error ? (
               <TableRow>
-                <TableCell colSpan={5} align="center" style={{ color: "red" }}>
+                <TableCell colSpan={10} align="center" style={{ color: "red" }}>
                   {error}
                 </TableCell>
               </TableRow>
             ) : treatments.length > 0 ? (
-              treatments.map((treatment) => (
-                <TableRow
-                  key={treatment._id}
-                  hover
-                  sx={{
-                    "&:nth-of-type(even)": {
-                      backgroundColor: alpha("#f5f5f5", 0.4),
-                    },
-                    "&:hover": {
-                      backgroundColor: alpha("#f0f0f0", 0.7),
-                    },
-                    transition: "background-color 0.2s ease-in-out",
-                    textAlign: "center",
-                  }}
-                >
-                  <TableCell sx={{ textAlign: "center" }}>
-                    {capitalizeFirstLetter(
-                      treatment?.doctorId?.username || "N/A"
-                    )}
-                  </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
-                    {capitalizeFirstLetter(treatment.name)}
-                  </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
-                    {capitalizeFirstLetter(treatment.description)}
-                  </TableCell>
-                  <TableCell
+              treatments.map((treatment) => {
+                const locked = treatment.paymentStatus !== "success";
+
+                const treatmentData =
+                  treatment.treatments && treatment.treatments[0];
+                return (
+                  <TableRow
+                    key={treatment._id}
+                    hover
                     sx={{
-                      width: 150,
+                      "&:nth-of-type(even)": {
+                        backgroundColor: alpha("#f5f5f5", 0.4),
+                      },
+                      "&:hover": {
+                        backgroundColor: alpha("#f0f0f0", 0.7),
+                      },
+                      transition: "background-color 0.2s ease-in-out",
                       textAlign: "center",
-                      verticalAlign: "middle",
                     }}
                   >
-                    <Select
-                      value={treatment.status}
-                      onChange={(e) =>
-                        handleStatusChange(treatment._id, e.target.value)
-                      }
-                      variant="outlined"
-                      size="small"
-                      displayEmpty
+                    <TableCell
                       sx={{
-                        borderRadius: "20px",
-                        width: "100%",
-                        height: "36px",
                         textAlign: "center",
-                        backgroundColor:
-                          treatment.status.toLowerCase() === "in progress"
-                            ? "#cce5ff"
-                            : treatment.status.toLowerCase() === "completed"
-                            ? "#d4edda"
-                            : "#f8f9fa",
-                        color:
-                          treatment.status.toLowerCase() === "in progress"
-                            ? "#0056b3"
-                            : treatment.status.toLowerCase() === "completed"
-                            ? "#2D9735"
-                            : "#000",
-                        "& .MuiOutlinedInput-notchedOutline": {
-                          border: "none",
-                        },
-                        "& .MuiSelect-select": {
-                          borderRadius: "20px",
-                          padding: "6px 14px !important",
+                        color: "white",
+                        fontWeight: 300,
+                        fontFamily: "Poppins",
+                      }}
+                    >
+                      {formatDate(treatment.createdAt)}
+                    </TableCell>
+                    <TableCell sx={{ textAlign: "center" }}>
+                      {capitalizeFirstLetter(
+                        treatment?.doctorId?.username || "N/A"
+                      )}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        textAlign: "center",
+                        color: "white",
+                        fontWeight: 300,
+                        fontFamily: "Poppins",
+                      }}
+                    >
+                      {treatment.treatments &&
+                      treatment.treatments.length > 0 ? (
+                        <Box
+                          display="flex"
+                          flexDirection="column"
+                          alignItems="center"
+                        >
+                          {treatment.treatments.map((t, index) => (
+                            <Typography
+                              key={index}
+                              variant="body2"
+                              sx={{ color: "white" }}
+                            >
+                              {locked ? (
+                                <Tooltip
+                                  title={`💳 Pay Now to View${
+                                    getConsultationFee(treatment)
+                                      ? ` • ₹${getConsultationFee(treatment)}`
+                                      : ""
+                                  }`}
+                                  arrow
+                                  placement="top"
+                                >
+                                  <Box
+                                    sx={{
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      gap: 0.5,
+                                      opacity: 0.9,
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    <VisibilityOff
+                                      sx={{ fontSize: 18, opacity: 0.85 }}
+                                    />
+                                  </Box>
+                                </Tooltip>
+                              ) : (
+                                capitalizeFirstLetter(t.name)
+                              )}
+                            </Typography>
+                          ))}
+                        </Box>
+                      ) : (
+                        "N/A"
+                      )}
+                    </TableCell>
+
+                    {/* Description column */}
+                    <TableCell
+                      sx={{
+                        textAlign: "center",
+                        color: "white",
+                        fontWeight: 300,
+                        fontFamily: "Poppins",
+                      }}
+                    >
+                      {treatment.treatments &&
+                      treatment.treatments.length > 0 ? (
+                        <Box
+                          display="flex"
+                          flexDirection="column"
+                          alignItems="center"
+                        >
+                          {treatment.treatments.map((t, index) => (
+                            <Typography
+                              key={index}
+                              variant="body2"
+                              sx={{ color: "white" }}
+                            >
+                              {locked ? (
+                                <Tooltip
+                                  title={`💳 Pay Now to View${
+                                    getConsultationFee(treatment)
+                                      ? ` • ₹${getConsultationFee(treatment)}`
+                                      : ""
+                                  }`}
+                                  arrow
+                                  placement="top"
+                                >
+                                  <Box
+                                    sx={{
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      gap: 0.5,
+                                      opacity: 0.9,
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    <VisibilityOff
+                                      sx={{ fontSize: 18, opacity: 0.85 }}
+                                    />
+                                  </Box>
+                                </Tooltip>
+                              ) : (
+                                capitalizeFirstLetter(t.description || "N/A")
+                              )}
+                            </Typography>
+                          ))}
+                        </Box>
+                      ) : (
+                        "N/A"
+                      )}
+                    </TableCell>
+
+                    <TableCell
+                      sx={{
+                        textAlign: "center",
+                        color: "white",
+                        fontWeight: 300,
+                        fontFamily: "Poppins",
+                      }}
+                    >
+                      {treatment.treatments &&
+                      treatment.treatments.length > 0 ? (
+                        <Box
+                          display="flex"
+                          flexDirection="column"
+                          alignItems="center"
+                        >
+                          {treatment.treatments.map((t, index) => (
+                            <Typography
+                              key={index}
+                              variant="body2"
+                              sx={{ color: "white" }}
+                            >
+                              {locked ? (
+                                <Tooltip
+                                  title={`💳 Pay Now to View${
+                                    getConsultationFee(treatment)
+                                      ? ` • ₹${getConsultationFee(treatment)}`
+                                      : ""
+                                  }`}
+                                  arrow
+                                  placement="top"
+                                >
+                                  <Box
+                                    sx={{
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      gap: 0.5,
+                                      opacity: 0.9,
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    <VisibilityOff
+                                      sx={{ fontSize: 18, opacity: 0.85 }}
+                                    />
+                                  </Box>
+                                </Tooltip>
+                              ) : (
+                                capitalizeFirstLetter(t.quantity || "N/A")
+                              )}
+                            </Typography>
+                          ))}
+                        </Box>
+                      ) : (
+                        "N/A"
+                      )}
+                    </TableCell>
+
+                    <TableCell
+                      sx={{
+                        textAlign: "center",
+                        color: "white",
+                        fontWeight: 300,
+                        fontFamily: "Poppins",
+                      }}
+                    >
+                      {treatment.treatments &&
+                      treatment.treatments.length > 0 ? (
+                        <Box
+                          display="flex"
+                          flexDirection="column"
+                          alignItems="center"
+                        >
+                          {treatment.treatments.map((t, index) => (
+                            <Typography
+                              key={index}
+                              variant="body2"
+                              sx={{ color: "white" }}
+                            >
+                              {locked ? (
+                                <Tooltip
+                                  title={`💳 Pay Now to View${
+                                    getConsultationFee(treatment)
+                                      ? ` • ₹${getConsultationFee(treatment)}`
+                                      : ""
+                                  }`}
+                                  arrow
+                                  placement="top"
+                                >
+                                  <Box
+                                    sx={{
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      gap: 0.5,
+                                      opacity: 0.9,
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    <VisibilityOff
+                                      sx={{ fontSize: 18, opacity: 0.85 }}
+                                    />
+                                  </Box>
+                                </Tooltip>
+                              ) : (
+                                capitalizeFirstLetter(t.frequency || "N/A")
+                              )}
+                            </Typography>
+                          ))}
+                        </Box>
+                      ) : (
+                        "N/A"
+                      )}
+                    </TableCell>
+
+                    <TableCell
+                      sx={{
+                        textAlign: "center",
+                        color: "white",
+                        fontWeight: 300,
+                        fontFamily: "Poppins",
+                      }}
+                    >
+                      {treatment.treatments &&
+                      treatment.treatments.length > 0 ? (
+                        <Box
+                          display="flex"
+                          flexDirection="column"
+                          alignItems="center"
+                        >
+                          {treatment.treatments.map((t, index) => (
+                            <Typography
+                              key={index}
+                              variant="body2"
+                              sx={{ color: "white" }}
+                            >
+                              {locked ? (
+                                <Tooltip
+                                  title={`💳 Pay Now to View${
+                                    getConsultationFee(treatment)
+                                      ? ` • ₹${getConsultationFee(treatment)}`
+                                      : ""
+                                  }`}
+                                  arrow
+                                  placement="top"
+                                >
+                                  <Box
+                                    sx={{
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      gap: 0.5,
+                                      opacity: 0.9,
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    <VisibilityOff
+                                      sx={{ fontSize: 18, opacity: 0.85 }}
+                                    />
+                                  </Box>
+                                </Tooltip>
+                              ) : (
+                                capitalizeFirstLetter(t.duration || "N/A")
+                              )}
+                            </Typography>
+                          ))}
+                        </Box>
+                      ) : (
+                        "N/A"
+                      )}
+                    </TableCell>
+
+                    <TableCell sx={{ textAlign: "center" }}>
+                      {capitalizeFirstLetter(treatment.type)}
+                    </TableCell>
+                    {/* <TableCell
+                      sx={{
+                        width: 100,
+                        textAlign: "center",
+                        verticalAlign: "middle",
+                        padding: "8px 4px",
+                      }}
+                    >
+                      <Select
+                        value={treatment.status}
+                        onChange={(e) =>
+                          handleStatusChange(treatment._id, e.target.value)
+                        }
+                        variant="outlined"
+                        size="small"
+                        displayEmpty
+                        sx={{
+                          borderRadius: "12px",
+                          width: "90px",
+                          height: "28px",
+                          fontSize: "0.75rem",
+                          textAlign: "center",
+                          backgroundColor: "#fff",
+                          color: "#333",
+                          "& .MuiOutlinedInput-notchedOutline": {
+                            border: "1px solid #e0e0e0",
+                          },
+                          "&:hover .MuiOutlinedInput-notchedOutline": {
+                            border: "1px solid #ccc",
+                          },
+                          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                            border: "1px solid #999",
+                          },
+                          "& .MuiSelect-select": {
+                            borderRadius: "12px",
+                            padding: "4px 8px !important",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "0.75rem",
+                            fontWeight: 400,
+                            boxSizing: "border-box",
+                            overflow: "hidden",
+                            whiteSpace: "nowrap",
+                            paddingRight: "20px !important",
+                          },
+                          "& .MuiSelect-icon": {
+                            fontSize: "1rem",
+                            right: 2,
+                            color: "#666",
+                          },
+                        }}
+                      >
+                        <MenuItem value="in progress">
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 0.5,
+                              color: "#333",
+                              fontSize: "0.75rem",
+                            }}
+                          >
+                            <HourglassEmpty fontSize="inherit" />
+                            Progress
+                          </Box>
+                        </MenuItem>
+                        <MenuItem value="completed">
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 0.5,
+                              color: "#333",
+                              fontSize: "0.75rem",
+                            }}
+                          >
+                            <CheckCircle fontSize="inherit" />
+                            Done
+                          </Box>
+                        </MenuItem>
+                      </Select>
+                    </TableCell> */}
+                    <TableCell
+                      sx={{
+                        width: 100,
+                        textAlign: "center",
+                        verticalAlign: "middle",
+                        padding: "8px 4px",
+                      }}
+                    >
+                      <Box
+                        sx={{
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          fontSize: "0.875rem",
-                          fontWeight: 500,
-                          boxSizing: "border-box",
-                          overflow: "hidden",
-                          whiteSpace: "nowrap",
-                          paddingRight: "28px !important",
-                        },
-                        "& .MuiSelect-icon": {
-                          fontSize: "1.2rem",
-                          right: 4,
-                        },
-                      }}
-                      MenuProps={{
-                        PaperProps: {
-                          sx: {
-                            width: 150,
-                            borderRadius: 2,
-                            boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.08)",
-                            mt: 1,
-                            "& .MuiMenuItem-root": {
-                              padding: "8px 14px",
-                              borderRadius: "8px",
-                              margin: "2px 4px",
-                              fontSize: "0.875rem",
-                              "&:hover": {
-                                backgroundColor: "#F5F5F5",
-                              },
-                            },
-                          },
-                        },
-                      }}
-                    >
-                      <MenuItem value="in progress">
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1.5,
-                            color: "#0056b3",
-                          }}
-                        >
-                          <HourglassEmpty fontSize="small" />
-                          In Progress
-                        </Box>
-                      </MenuItem>
-                      <MenuItem value="completed">
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1.5,
-                            color: "#2D9735",
-                          }}
-                        >
-                          <CheckCircle fontSize="small" />
-                          Completed
-                        </Box>
-                      </MenuItem>
-                    </Select>
-                  </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
-                    {capitalizeFirstLetter(treatment.type)}
-                  </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
-                    {treatment.photo ? (
-                      <Box
-                        sx={{ position: "relative", display: "inline-block" }}
-                      >
-                        <img
-                          src={treatment.photo}
-                          alt={treatment.name}
-                          style={{
-                            width: "50px",
-                            height: "50px",
-                            objectFit: "cover",
-                            borderRadius: "4px",
-                            display: "block",
-                            margin: "0 auto",
-                          }}
-                        />
-                        <IconButton
-                          sx={{ position: "absolute", top: 0, right: 0 }}
-                          onClick={() =>
-                            handleOpenViewImageModal(treatment.photo)
-                          }
-                        >
-                          <Visibility sx={{ color: "#20ADA0" }} />
-                        </IconButton>
-                      </Box>
-                    ) : (
-                      <Button
-                        onClick={() => handleOpenModal(treatment._id)}
-                        sx={{
-                          display: "block",
-                          margin: "0 auto",
-                          background: "#20ADA0",
-                          color: "white",
-                          fontWeight: "bold",
-                          textDecoration: "none",
-                          borderRadius: "4px",
-                          padding: "5px 10px",
-                          "&:hover": {
-                            background: "#178F84",
-                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
-                          },
-                          transition: "all 0.3s ease",
+                          gap: 0.5,
+                          fontSize: "0.75rem",
+                          color: "#fff", // White text
                         }}
                       >
-                        Upload
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))
+                        {treatment.status === "in progress" ? (
+                          <>
+                            <HourglassEmpty fontSize="inherit" />
+                            Progress
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle fontSize="inherit" />
+                            Done
+                          </>
+                        )}
+                      </Box>
+                    </TableCell>
+                    <TableCell sx={{ textAlign: "center" }}>
+                      {locked ? (
+                        <Tooltip
+                          title={`💳 Pay Now to View Prescription${
+                            getConsultationFee(treatment)
+                              ? ` • ₹${getConsultationFee(treatment)}`
+                              : ""
+                          }`}
+                          arrow
+                          placement="top"
+                        >
+                          <Box
+                            sx={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              flexDirection: "column",
+                              gap: 0.5,
+                              cursor: "pointer",
+                              opacity: 0.9,
+                              minHeight: "50px",
+                            }}
+                          >
+                            <VisibilityOff
+                              sx={{ fontSize: 18, opacity: 0.85 }}
+                            />
+                          </Box>
+                        </Tooltip>
+                      ) : treatment.photo ? (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: 1,
+                          }}
+                        >
+                          <img
+                            src={treatment.photo || "/placeholder.svg"}
+                            alt={treatment.name}
+                            style={{
+                              width: "50px",
+                              height: "50px",
+                              objectFit: "cover",
+                              borderRadius: "4px",
+                              display: "block",
+                              margin: "0 auto",
+                            }}
+                          />
+                          <Box sx={{ display: "flex", gap: 0.5 }}>
+                            <Button
+                              onClick={() =>
+                                handleOpenViewImageModal(treatment.photo)
+                              }
+                              sx={{
+                                minWidth: "auto",
+                                padding: "4px 8px",
+                                fontSize: "0.7rem",
+                                background: "#56428B",
+                                color: "white",
+                                borderRadius: "4px",
+                                "&:hover": { background: "#483980" },
+                              }}
+                            >
+                              View
+                            </Button>
+                            <Button
+                              sx={{
+                                minWidth: "auto",
+                                padding: "4px 8px",
+                                fontSize: "0.7rem",
+                                background: "#28a745",
+                                color: "white",
+                                borderRadius: "4px",
+                                "&:hover": { background: "#218838" },
+                              }}
+                            >
+                              <a
+                                href={treatment.photo || "/placeholder.svg"}
+                                download
+                              >
+                                Download Image
+                              </a>
+                            </Button>
+                          </Box>
+                        </Box>
+                      ) : (
+                        <Box
+                          sx={{
+                            fontSize: "0.75rem",
+                            color: "#fff",
+                            fontWeight: 400,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          No Prescription
+                        </Box>
+                      )}
+                    </TableCell>
+
+                    <TableCell sx={{ textAlign: "center", color: "#fff" }}>
+                      {treatment.paymentStatus === "success" && (
+                        <Typography sx={{ fontWeight: 600 }}>Paid</Typography>
+                      )}
+                      {treatment.paymentStatus === "pending" && (
+                        <Typography>Pending</Typography>
+                      )}
+                      {treatment.paymentStatus === "payNow" && (
+                        <Button
+                          color="secondary"
+                          variant="contained"
+                          disabled={isProcessing}
+                          onClick={() =>
+                            handlePayNow(
+                              buildAppointmentFromTreatment(treatment)
+                            )
+                          }
+                          sx={{
+                            minWidth: "auto",
+                            padding: "4px 8px",
+                            fontSize: "0.7rem",
+                            background: "#56428B",
+                            color: "white",
+                            borderRadius: "4px",
+                            "&:hover": {
+                              background: "#483980",
+                            },
+                          }}
+                        >
+                          {isProcessing
+                            ? "Processing..."
+                            : `Pay Now ₹${getConsultationFee(treatment)}`}
+                        </Button>
+                      )}
+                      {!!message && (
+                        <Typography
+                          variant="caption"
+                          sx={{ display: "block", mt: 0.5, color: "#fff" }}
+                        >
+                          {message}
+                        </Typography>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             ) : (
               <TableRow>
-                <TableCell colSpan={9} align="center">
+                <TableCell colSpan={10} align="center">
                   <Box
                     sx={{
                       display: "flex",
                       justifyContent: "center",
                       alignItems: "center",
                       gap: 0.5,
-
                       borderRadius: "8px",
-
-                      color: "#20ADA0",
+                      color: "#fff",
                     }}
                   >
-                    <LocalHospital sx={{ fontSize: 18, color: "#20ADA0" }} />
+                    <LocalHospital sx={{ fontSize: 18, color: "#fff" }} />
                     No Treatment History
                   </Box>
                 </TableCell>
@@ -501,8 +1052,47 @@ const TreatmentHistory: React.FC = () => {
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
           sx={{
-            "& .MuiTablePagination-selectLabel, & .MuiTablePagination-select": {
+            "& .MuiTablePagination-selectLabel": {
               fontWeight: 500,
+              color: "#fff",
+            },
+            "& .MuiTablePagination-select": {
+              fontWeight: 500,
+              color: "#fff",
+              backgroundColor: "#7b56ce",
+              border: "2px solid #7b56ce",
+              borderRadius: "8px",
+            },
+            "& .MuiSelect-icon": {
+              color: "#fff",
+            },
+            "& .MuiTablePagination-displayedRows": {
+              color: "#fff",
+            },
+            "& .MuiTablePagination-actions": {
+              color: "#fff",
+            },
+            "& .MuiIconButton-root": {
+              color: "#fff",
+            },
+          }}
+          SelectProps={{
+            MenuProps: {
+              sx: {
+                "& .MuiPaper-root": {
+                  backgroundColor: "#7b56ce",
+                  color: "#fff",
+                },
+                "& .MuiMenuItem-root": {
+                  color: "#fff",
+                  "&.Mui-selected": {
+                    backgroundColor: "#6a4bb8",
+                  },
+                  "&:hover": {
+                    backgroundColor: "#7050c1",
+                  },
+                },
+              },
             },
           }}
         />
@@ -528,7 +1118,7 @@ const TreatmentHistory: React.FC = () => {
         open={viewImageModal}
         onClose={(event, reason) => {
           if (reason === "backdropClick") return;
-          handleCloseViewImageModal(event);
+          handleCloseViewImageModal(event as any);
         }}
       >
         <Box
@@ -539,55 +1129,52 @@ const TreatmentHistory: React.FC = () => {
             height: "100vh",
             backgroundColor: "rgba(0, 0, 0, 0.5)",
           }}
+          onClick={(e) => handleCloseViewImageModal(e)}
         >
           <Box
             onClick={(e) => e.stopPropagation()}
             sx={{
               position: "relative",
               backgroundColor: "white",
-              padding: 2,
+              p: 2,
               borderRadius: 2,
               outline: "none",
               boxShadow: 24,
               display: "flex",
-              flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
+              maxWidth: "90vw",
+              maxHeight: "90vh",
             }}
           >
-            {/* Close Button */}
-            <Button
-              onClick={handleCloseViewImageModal}
+            <IconButton
+              aria-label="Close"
+              onClick={(e) => handleCloseViewImageModal(e)}
               sx={{
                 position: "absolute",
-                top: 10,
-                right: 10,
-                backgroundColor: "white",
-                color: "black",
-                borderRadius: "50%",
-                minWidth: "40px",
-                minHeight: "40px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                "&:hover": {
-                  backgroundColor: "#f0f0f0",
-                },
+                top: 8,
+                right: 8,
+                zIndex: 1,
+                padding: "1px 6px",
+                bgcolor: "rgba(255,255,255,0.95)",
+                border: "1px solid #e5e5e5",
+                "&:hover": { bgcolor: "rgba(245,245,245,0.98)" },
               }}
             >
               ✕
-            </Button>
+            </IconButton>
 
             {viewImageUrl && (
-              <img
-                src={viewImageUrl}
-                alt="Preview"
-                style={{
-                  maxWidth: "90%",
-                  maxHeight: "90%",
-                  borderRadius: "8px",
-                }}
-                onClick={(e) => e.stopPropagation()}
+              <iframe
+                src={viewImageUrl || "/placeholder.svg"}
+                // alt="Preview"
+                // style={{
+                //   maxWidth: "85vw",
+                //   maxHeight: "85vh",
+                //   objectFit: "contain",
+                //   borderRadius: 8,
+                //   display: "block",
+                // }}
               />
             )}
           </Box>

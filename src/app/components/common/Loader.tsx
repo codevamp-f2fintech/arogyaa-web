@@ -1,20 +1,12 @@
-import React from 'react';
+import React from "react";
+import "./loader.css";
 
-import './loader.css';
-
-const Loader: React.FC = () => {
+const SpinnerLoader: React.FC = () => {
   return (
-    <div className="loader-container">
-      <div className="loader">
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-
+    <div className="spinner-container">
+      <div className="spinner"></div>
     </div>
   );
 };
 
-export default Loader;
+export default SpinnerLoader;

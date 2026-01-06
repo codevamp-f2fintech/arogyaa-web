@@ -25,18 +25,21 @@ import {
   MenuItem,
   Modal,
   IconButton,
+  Typography,
 } from "@mui/material";
 
 import { fetcher, modifier } from "@/apis/apiClient";
 import { Utility } from "@/utils";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/redux/store";
+import type { AppDispatch, RootState } from "@/redux/store";
 import SnackbarComponent from "./common/Snackbar";
 import ImagePicker from "./common/ImagePicker";
 import { AddCircle, AssignmentLate, Visibility } from "@mui/icons-material";
 import CreateTestDialog from "./common/CreateTestDialog";
 
 interface Test {
+  tests: any;
+  testId: any;
   _id: string;
   patientId: string;
   doctorId: string;
@@ -84,7 +87,6 @@ const TestHistory: React.FC = () => {
             page + 1
           }&limit=${rowsPerPage}`
         );
-        console.log(response, "test response");
         const results = response?.results || [];
         const count = response?.count || 0;
         const updatedResults = results.map((test: Test) => ({
@@ -114,14 +116,14 @@ const TestHistory: React.FC = () => {
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+    setRowsPerPage(Number.parseInt(event.target.value, 10));
     setPage(0);
   };
 
-  const paginatedTests = useMemo(() => {
-    const startIndex = page * rowsPerPage;
-    return tests.slice(startIndex, startIndex + rowsPerPage);
-  }, [tests, page, rowsPerPage]);
+  // const paginatedTests = useMemo(() => {
+  //   const startIndex = page * rowsPerPage;
+  //   return tests.slice(startIndex, startIndex + rowsPerPage);
+  // }, [tests, page, rowsPerPage]);
 
   const handleStatusChange = useCallback(
     async (testId: string, newStatus: string) => {
@@ -149,7 +151,7 @@ const TestHistory: React.FC = () => {
     },
     [dispatch, fetchTests]
   );
-
+  // console.log()
   const handleOpenModal = (testId: string) => {
     setSelectedTestId(testId);
     setTestImagePreview(null);
@@ -214,13 +216,22 @@ const TestHistory: React.FC = () => {
     setViewImageModal(false);
   };
 
+  const formatCategory = (str) =>
+    str.replaceAll("_", " ").replace(/\b\w/g, (char) => char.toUpperCase());
+
   return (
     <Container maxWidth="lg">
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          mb: 2,
+        }}
+      >
         <Button
           onClick={() => setOpenCreateDialog(true)}
           sx={{
-            background: "#20ADA0 !important",
+            background: "#56428B !important",
             color: "white",
             fontWeight: "bold",
             padding: "6px 15px",
@@ -250,12 +261,17 @@ const TestHistory: React.FC = () => {
         </Alert>
       )}
 
-      <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 2 }}>
+      <TableContainer
+        component={Paper}
+        sx={{
+          boxShadow: 3,
+          borderRadius: 2,
+          backgroundColor: "#7b56ce",
+        }}
+      >
         <Table>
           <TableHead
             sx={{
-              backgroundColor: (theme) =>
-                alpha(theme.palette.primary.main, 0.05),
               width: "auto",
             }}
           >
@@ -264,6 +280,7 @@ const TestHistory: React.FC = () => {
                 "doctor's Name",
                 "Name",
                 "Description",
+                "category",
                 "Type",
                 "Status",
                 "Photo",
@@ -273,7 +290,7 @@ const TestHistory: React.FC = () => {
                   sx={{
                     fontWeight: 600,
                     textTransform: "uppercase",
-                    color: "text.secondary",
+                    color: "#fff",
                     textAlign: "center",
                     ...(header === "doctor's Name" && { whiteSpace: "nowrap" }),
                   }}
@@ -284,8 +301,8 @@ const TestHistory: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedTests.length > 0 ? (
-              paginatedTests.map((test) => (
+            {tests.length > 0 ? (
+              tests.map((test) => (
                 <TableRow
                   key={test._id}
                   hover
@@ -297,19 +314,99 @@ const TestHistory: React.FC = () => {
                     textAlign: "center",
                   }}
                 >
-                  <TableCell sx={{ textAlign: "center" }}>
+                  <TableCell
+                    sx={{
+                      textAlign: "center",
+                      color: "white",
+                      fontWeight: "300",
+                      fontFamily: "Poppins",
+                    }}
+                  >
                     {capitalizeFirstLetter(test.doctorId?.username || "N/A")}
                   </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
-                    {capitalizeFirstLetter(test.name)}
+
+                  <TableCell
+                    sx={{
+                      textAlign: "center",
+                      color: "white",
+                      fontWeight: 300,
+                      fontFamily: "Poppins",
+                    }}
+                  >
+                    {test.tests && test.tests.length > 0 ? (
+                      <Box
+                        display="flex"
+                        flexDirection="column"
+                        alignItems="center"
+                      >
+                        {test.tests.map((t, index) => (
+                          <Typography
+                            key={index}
+                            variant="body2"
+                            sx={{ color: "white" }}
+                          >
+                            {capitalizeFirstLetter(t.name)}
+                          </Typography>
+                        ))}
+                      </Box>
+                    ) : (
+                      "N/A"
+                    )}
                   </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
-                    {capitalizeFirstLetter(test.description)}
+                  <TableCell
+                    sx={{
+                      textAlign: "center",
+                      color: "white",
+                      fontWeight: 300,
+                      fontFamily: "Poppins",
+                    }}
+                  >
+                    {test.tests && test.tests.length > 0 ? (
+                      <Box
+                        display="flex"
+                        flexDirection="column"
+                        alignItems="center"
+                      >
+                        {test.tests.map((t, index) => (
+                          <Typography
+                            key={index}
+                            variant="body2"
+                            sx={{ color: "white" }}
+                          >
+                            {capitalizeFirstLetter(t.description)}
+                          </Typography>
+                        ))}
+                      </Box>
+                    ) : (
+                      "N/A"
+                    )}
                   </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
+                  <TableCell
+                    sx={{
+                      textAlign: "center",
+                      color: "white",
+                      fontWeight: "300",
+                      fontFamily: "Poppins",
+                    }}
+                  >
+                    {test.tests && test.tests.length > 0
+                      ? test.tests.map((t) => (
+                          <TableRow>
+                            {formatCategory(t.category || "N/A")}
+                          </TableRow>
+                        ))
+                      : "N/A"}
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      textAlign: "center",
+                      color: "white",
+                      fontWeight: "300",
+                      fontFamily: "Poppins",
+                    }}
+                  >
                     {capitalizeFirstLetter(test.type || "N/A")}
                   </TableCell>
-
                   <TableCell
                     sx={{
                       width: 150,
@@ -411,7 +508,7 @@ const TestHistory: React.FC = () => {
                         sx={{ position: "relative", display: "inline-block" }}
                       >
                         <img
-                          src={test.photo}
+                          src={test.photo || "/placeholder.svg"}
                           alt={test.name}
                           style={{
                             width: "50px",
@@ -430,7 +527,7 @@ const TestHistory: React.FC = () => {
                           }}
                           onClick={() => handleOpenViewImageModal(test.photo)}
                         >
-                          <Visibility sx={{ color: "#20ADA0" }} />
+                          <Visibility sx={{ color: "#B497D6" }} />
                         </IconButton>
                       </Box>
                     ) : (
@@ -439,14 +536,14 @@ const TestHistory: React.FC = () => {
                         sx={{
                           display: "block",
                           margin: "0 auto",
-                          background: "#20ADA0",
+                          background: "#29175e",
                           color: "white",
                           fontWeight: "bold",
                           textDecoration: "none",
                           borderRadius: "4px",
                           padding: "5px 10px",
                           "&:hover": {
-                            background: "#178F84",
+                            background: "#29175e",
                             boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
                           },
                           transition: "all 0.3s ease",
@@ -467,13 +564,11 @@ const TestHistory: React.FC = () => {
                       justifyContent: "center",
                       alignItems: "center",
                       gap: 0.5,
-
                       borderRadius: "8px",
-
-                      color: "#20ADA0",
+                      color: "#fff",
                     }}
                   >
-                    <AssignmentLate sx={{ fontSize: 18, color: "#20ADA0" }} />
+                    <AssignmentLate sx={{ fontSize: 18, color: "#fff" }} />
                     No Test History
                   </Box>
                 </TableCell>
@@ -490,8 +585,47 @@ const TestHistory: React.FC = () => {
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
           sx={{
-            "& .MuiTablePagination-selectLabel, & .MuiTablePagination-select": {
+            "& .MuiTablePagination-selectLabel": {
               fontWeight: 500,
+              color: "#fff",
+            },
+            "& .MuiTablePagination-select": {
+              fontWeight: 500,
+              color: "#fff",
+              backgroundColor: "#7b56ce",
+              border: "2px solid #7b56ce",
+              borderRadius: "8px",
+            },
+            "& .MuiSelect-icon": {
+              color: "#fff",
+            },
+            "& .MuiTablePagination-displayedRows": {
+              color: "#fff",
+            },
+            "& .MuiTablePagination-actions": {
+              color: "#fff",
+            },
+            "& .MuiIconButton-root": {
+              color: "#fff",
+            },
+          }}
+          SelectProps={{
+            MenuProps: {
+              sx: {
+                "& .MuiPaper-root": {
+                  backgroundColor: "#7b56ce",
+                  color: "#fff",
+                },
+                "& .MuiMenuItem-root": {
+                  color: "#fff",
+                  "&.Mui-selected": {
+                    backgroundColor: "#6a4bb8",
+                  },
+                  "&:hover": {
+                    backgroundColor: "#7050c1",
+                  },
+                },
+              },
             },
           }}
         />
@@ -547,7 +681,7 @@ const TestHistory: React.FC = () => {
 
           {viewImageUrl && (
             <img
-              src={viewImageUrl}
+              src={viewImageUrl || "/placeholder.svg"}
               alt="Preview"
               style={{ maxWidth: "90%", maxHeight: "90%" }}
               onClick={(e) => e.stopPropagation()}

@@ -21,7 +21,8 @@ import {
   InputAdornment,
   IconButton,
 } from "@mui/material";
-import { Elements } from "@stripe/react-stripe-js";
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { loadStripe } from "@stripe/stripe-js";
 import InfoIcon from "@mui/icons-material/Info";
 import {
@@ -39,6 +40,8 @@ import { DoctorData } from "@/types/doctor";
 import { useCreateAppointment } from "@/hooks/appointment";
 import { useGetSymptom } from "@/hooks/symptoms";
 import { Utility } from "@/utils";
+import { fontFamily } from "@mui/system";
+import { creator, fetcher } from "@/apis/apiClient";
 
 dayjs.extend(customParseFormat);
 
@@ -78,61 +81,178 @@ interface ModalProps {
 }
 const today = dayjs().format("YYYY-MM-DD");
 
-const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
-);
+const inputStyles = {
+  fontFamily: "Poppins",
+  backgroundColor: "transparent",
+  "& .MuiInputBase-root": {
+    fontFamily: "Poppins",
+    backgroundColor: "transparent",
+  },
+  "& .MuiSelect-select": {
+    color: "#29175E", // 👈 Selected text color
+  },
+  "& .MuiInputLabel-root": {
+    color: "#29175E",
+    fontFamily: "Poppins",
+    "&.Mui-focused": {
+      color: "#29175E",
+    },
+  },
+  "& .MuiOutlinedInput-root": {
+    fontFamily: "Poppins",
+    "& fieldset": {
+      borderColor: "#29175E",
+    },
+    "&:hover fieldset": {
+      borderColor: "#29175E",
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: "#29175E",
+    },
+  },
+  input: {
+    fontFamily: "Poppins",
+  },
+  InputAdornment: {
+    color: "#7A4D9C",
+  },
+  // "& .css-6hp17o-MuiList-root-MuiMenu-list": {
+  //   background: "#000 !important",
+  // },
+};
 
 const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [showPaymentForm, setShowPaymentForm] = useState<boolean>(false);
-  const [paymentInfo, setPaymentInfo] = useState<object>();
+
   const { snackbar } = useSelector((state: RootState) => state.snackbar);
   const dispatch: AppDispatch = useDispatch();
+  const [selectedSymptoms, setSelectedSymptoms] = useState<any[]>([]);
 
   const {
     capitalizeFirstLetter,
     decodedToken,
     getIdsFromObject,
-    generateTimeSlots,
-    getTimeOfDaySlot,
+
+    // getTimeOfDaySlot,
     snackbarAndNavigate,
   } = Utility();
-  // TRACK SELECTED DAY & TIME SLOT IN LOCAL STATE
+
+  const [showOtherInput, setShowOtherInput] = useState(false);
+  const [customSymptom, setCustomSymptom] = useState("");
+  const [symptomOptionsDropdown, setSymtopOptionsDropdown] = useState([]);
+
+  const [selectedHospital, setSelectedHospital] = useState<string | null>(null);
+  // TRACK SELECTED DAY & TIME SLOT IN LOCAL STATE[]
   const [selectedDayName, setSelectedDayName] = useState<string | null>(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+
   // BUCKETS THAT WILL HOLD MORNING / AFTERNOON / EVENING / NIGHT SLOTS
-  const [timeBuckets, setTimeBuckets] = useState<{
-    morning: string[];
-    afternoon: string[];
-    evening: string[];
-    night: string[];
-  }>({ morning: [], afternoon: [], evening: [], night: [] });
+  const [timeBuckets, setTimeBuckets] = useState({
+    morning: [] as string[],
+    afternoon: [] as string[],
+    evening: [] as string[],
+    night: [] as string[],
+  });
+
+  const [bookedSlots, setBookedSlots] = useState<string[]>([]);
 
   const { createAppointment } = useCreateAppointment("create-appointment");
 
-  const { value: symptoms } = useGetSymptom(null, "get-symptoms", 1, 200);
+  useEffect(() => {
+    const fetchBookedSlots = async () => {
+      const doctorId = data?._id;
+      if (!doctorId || !selectedDayName || !selectedDate) {
+        setBookedSlots([]);
+        return;
+      }
+      setLoading(true);
+
+      try {
+        const params = new URLSearchParams({
+          page: "1",
+          limit: "100",
+          dateFilter: selectedDate,
+        });
+        const response = await fetcher(
+          "appointment",
+          `get-doctors-appointment/${doctorId}?${params.toString()}`
+        );
+
+        const bookedTimes = response.results
+          .filter(
+            (appt) =>
+              dayjs(appt.appointmentDate).format("YYYY-MM-DD") === selectedDate
+          )
+          .map((appt) => appt.appointmentTime);
+
+        setBookedSlots(bookedTimes);
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
+      } finally {
+        setLoading(true);
+      }
+    };
+
+    fetchBookedSlots();
+  }, [data?._id, selectedDayName, selectedDate]);
+
+  const allowedDays = data?.availability
+    ?.filter((slot) => slot.hospital.name === selectedHospital)
+    .map((slot) => slot.day);
+
+  const { value: symptoms, refetch } = useGetSymptom(
+    null,
+    "get-symptoms",
+    1,
+    200
+  );
+
+  useEffect(() => {
+    const otherOption = { _id: "other", name: "Other" };
+    setSymtopOptionsDropdown([...(symptoms?.results || []), otherOption]);
+  }, [symptoms?.results]);
+
+  useEffect(() => {
+    setSelectedHospital(null);
+    setSelectedDayName(null);
+    setTimeBuckets({ morning: [], afternoon: [], evening: [], night: [] });
+    setBookedSlots([]);
+  }, [data]);
+
+  // Handle hospital change
+  const handleHospitalChange = (
+    event: React.ChangeEvent<{ value: unknown }>
+  ) => {
+    setSelectedHospital(event.target.value as string);
+    setSelectedDayName(null);
+    setTimeBuckets({ morning: [], afternoon: [], evening: [], night: [] });
+    setBookedSlots([]);
+  };
 
   // Whenever selectedDayName changes, generate new time slots from data.availability
   useEffect(() => {
-    if (!selectedDayName || !data?.availability) {
+    if (!selectedDayName || !selectedHospital || !data?.availability) {
       setTimeBuckets({ morning: [], afternoon: [], evening: [], night: [] });
       return;
     }
-
     // Find the entry in availability that matches the chosen weekday
-    const dayAvailability = data.availability.find(
-      (slot) => slot.day?.toLowerCase() === selectedDayName.toLowerCase()
+    const hospitalAvailability = data.availability.filter(
+      (slot) => slot.hospital.name === selectedHospital
+    );
+    const dayAvailability = hospitalAvailability.find(
+      (slot) => slot.day?.toLowerCase() === selectedDayName?.toLowerCase()
     );
     if (!dayAvailability) {
       setTimeBuckets({ morning: [], afternoon: [], evening: [], night: [] });
       return;
     }
-
     // Generate discrete time slots from (startTime, endTime) in steps of 60 min
     const slots = generateTimeSlots(
       dayAvailability.startTime,
       dayAvailability.endTime,
-      60
+      20
     );
     const buckets = {
       morning: [] as string[],
@@ -145,7 +265,67 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
       buckets[part].push(slotTime);
     });
     setTimeBuckets(buckets);
-  }, [selectedDayName, data?.availability]);
+  }, [selectedDayName, selectedHospital, data?.availability]);
+
+  // Time slot generation function
+  const generateTimeSlots = (
+    startTime: string,
+    endTime: string,
+    interval: number
+  ) => {
+    const parseTime = (timeStr: string) => {
+      const [time, period] = timeStr.split(" ");
+      let [hours, minutes] = time.split(":");
+      hours = parseInt(hours);
+      minutes = parseInt(minutes);
+
+      // Adjust for 12-hour format
+      if (period === "PM" && hours !== 12) hours += 12;
+      if (period === "AM" && hours === 12) hours = 0;
+
+      const date = new Date();
+      date.setHours(hours, minutes, 0, 0);
+      return date;
+    };
+
+    const formatTime = (date: Date) => {
+      let hours = date.getHours();
+      const minutes = date.getMinutes();
+      const period = hours >= 12 ? "PM" : "AM";
+
+      // Convert from 24-hour format to 12-hour format
+      if (hours > 12) hours -= 12;
+      if (hours === 0) hours = 12;
+
+      return `${hours}:${minutes < 10 ? "0" + minutes : minutes} ${period}`;
+    };
+
+    const start = parseTime(startTime);
+    const end = parseTime(endTime);
+    const slots = [];
+
+    while (start < end) {
+      slots.push(formatTime(new Date(start)));
+
+      start.setMinutes(start.getMinutes() + interval);
+    }
+
+    return slots;
+  };
+
+  const getTimeOfDaySlot = (time: string) => {
+    const [timePart, period] = time.split(" ");
+    const [hourStr] = timePart.split(":");
+    let hour = parseInt(hourStr, 10);
+
+    if (period === "PM" && hour !== 12) hour += 12;
+    if (period === "AM" && hour === 12) hour = 0;
+
+    if (hour >= 5 && hour < 12) return "morning";
+    if (hour >= 12 && hour < 17) return "afternoon";
+    if (hour >= 17 && hour < 21) return "evening";
+    return "night";
+  };
 
   // Define the snackbar close handler
   const handleSnackbarClose = (
@@ -156,10 +336,95 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
       return;
     }
   };
+  const handleCreateCustomSymptom = async () => {
+    if (!customSymptom.trim()) return;
+
+    try {
+      const response = await creator("symptom", "/create-symptom", {
+        name: customSymptom.trim(),
+      });
+
+      if (response.statusCode === 201 || response.statusCode === 200) {
+        const newSymptom = { ...response.data, createdByUser: true };
+
+        const updatedSelected = selectedSymptoms
+          .filter((item) => item._id !== "other")
+          .concat(newSymptom);
+
+        setSelectedSymptoms(updatedSelected);
+        setShowOtherInput(false);
+        setCustomSymptom("");
+      } else {
+        console.error(response.message || "Failed to create symptom");
+      }
+    } catch (error) {
+      console.error("Error creating symptom:", error);
+    }
+  };
 
   const handleTimeSlotClick = (time: string, setFieldValue: Function) => {
-    setSelectedTimeSlot(time);
-    setFieldValue("appointmentTime", time);
+    if (!bookedSlots.includes(time)) {
+      setSelectedTimeSlot(time);
+      setFieldValue("appointmentTime", time);
+    }
+  };
+
+  const renderTimeSlots = (
+    slots: string[],
+    timeOfDay: string,
+    setFieldValue: Function
+  ) => {
+    if (slots.length === 0) return null;
+
+    return (
+      <Box component="fieldset" className="fieldset_wrap">
+        <legend className="fldset_lgend">
+          {capitalizeFirstLetter(timeOfDay)} Slots
+        </legend>
+        <ul className="time_box">
+          {slots.map((time) => {
+            const isBooked = bookedSlots.includes(time);
+            const isSelected = selectedTimeSlot === time;
+
+            return (
+              <li
+                key={time}
+                onClick={() =>
+                  !isBooked && handleTimeSlotClick(time, setFieldValue)
+                }
+                style={{
+                  background: isSelected ? "#29175E" : "transparent",
+                  color: isSelected ? "white" : isBooked ? "#ccc" : "black",
+                  cursor: isBooked ? "not-allowed" : "pointer",
+                  textDecoration: isBooked ? "line-through" : "none",
+                  position: "relative",
+                  border: isBooked ? "1px solid #ccc" : "1px solid #29175E",
+                  ...(isSelected && { border: "1px solid #29175E" }),
+                }}
+                title={
+                  isBooked ? "This slot is already booked" : `Select ${time}`
+                }
+              >
+                {time}
+                {isBooked && (
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "10%",
+                      width: "80%",
+                      height: "1px",
+                      backgroundColor: "#ccc",
+                      transform: "translateY(-50%)",
+                    }}
+                  ></span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </Box>
+    );
   };
   const handleBookAppointment = useCallback(
     async (values: AppointmentFormValues) => {
@@ -171,7 +436,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
           dispatch,
           true,
           "error",
-          "Missing doctorId or patientId—cannot create appointment",
+          "Missing doctorId or patientId — cannot create appointment",
           null,
           true
         );
@@ -185,67 +450,118 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
           ...values,
           patientId,
           doctorId,
-          status: "pending",
+
           symptomIds: getIdsFromObject(values.symptomIds),
+          hospitalName: selectedHospital,
         };
+
         const response = await createAppointment(appointmentData);
 
-        console.log("Response received:", response);
-
         if (response?.statusCode === 201) {
+          const appointmentId = response.data._id;
+          const consultationFee = Number(data?.consultationFee);
+
+          if (isNaN(consultationFee) || consultationFee <= 0) {
+            snackbarAndNavigate(
+              dispatch,
+              true,
+              "error",
+              "Invalid consultation fee — please contact support",
+              null,
+              true
+            );
+            return;
+          }
+
           const paymentData = {
             patientId,
             doctorId,
-            appointmentId: response.data._id,
-            status: "successful",
-            amount: parseInt(data?.consultationFee) * 100,
+            appointmentId,
+            amount: consultationFee,
             currency: "inr",
             transactionMethod: "card",
+
+            patientName: "",
+            doctorName: "",
           };
 
-          setShowPaymentForm(true);
-          setPaymentInfo(paymentData);
+          const res = await creator(
+            "payment",
+            "/initiate-payment",
+            paymentData
+          );
+
+          if (res?.txnid && res?.html) {
+            const container = document.createElement("div");
+            container.innerHTML = res.html;
+            document.body.appendChild(container);
+            container.querySelector("form")?.submit();
+          } else {
+            snackbarAndNavigate(
+              dispatch,
+              true,
+              "error",
+              "Payment initiation failed.",
+              null,
+              true
+            );
+          }
         } else {
           snackbarAndNavigate(
             dispatch,
             true,
             "error",
-            "Failed to create appointment",
+            "Failed to book appointment",
             null,
             true
           );
         }
       } catch (error: any) {
+        console.error("Error:", error);
         const errorMessage =
           error?.response?.data?.message ||
-          "Error creating appointment, please try again.";
+          error?.message ||
+          "Something went wrong. Please try again.";
         snackbarAndNavigate(dispatch, true, "error", errorMessage, null, true);
       } finally {
         setLoading(false);
       }
     },
-    [data?._id, createAppointment] 
+    [data?._id, createAppointment, selectedHospital]
   );
 
   const priceWrapSx = {
+    width: {
+      xs: "97%",
+      md: "inherit",
+      sm: "inherit",
+      xl: "inherit",
+    },
+    overflowX: {
+      xs: "auto",
+      sm: "inherit",
+      md: "inherit",
+    },
+    maxWidth: "100%",
+
     "& .price_header_txt": {
       fontSize: "1.1rem",
       fontWeight: 600,
-      color: "#000",
-      lineHeight: "1.2rem",
-      padding: "15px 10px",
-      background: "#efefef",
+      color: "#fff",
+      lineHeight: "1.9rem",
+      padding: "2px 10px",
+      background: "#7A4D9C",
     },
     "& .tx1": {
       fontSize: "1.1rem",
       fontWeight: 500,
-      color: "#000",
+      color: "#29175E",
       marginTop: "10px",
     },
     "& .tx2": {
       fontSize: "1rem",
       fontWeight: "normal",
-      color: "#1f1f1f",
+      color: "#29175E",
       marginTop: "5px",
       paddingBottom: "10px",
     },
@@ -254,16 +570,16 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
       justifyContent: "space-between",
       alignItems: "center",
       padding: "10px 0px",
-      borderTop: "1px solid #bababa",
+      borderTop: "1px solid #29175E",
       "& .spntx1": {
         fontSize: "0.9rem",
         fontWeight: "normal",
-        color: "#000",
+        color: "#29175E",
       },
       "& .spntx2": {
         fontSize: "0.9rem",
         fontWeight: "normal",
-        color: "#000",
+        color: "#29175E",
       },
     },
     "& .tx4": {
@@ -275,12 +591,12 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
       "& .spntx1": {
         fontSize: "1rem",
         fontWeight: 500,
-        color: "#20ada0",
+        color: "#29175E",
       },
       "& .spntx2": {
         fontSize: "1rem",
         fontWeight: 500,
-        color: "#20ada0",
+        color: "#29175E",
       },
     },
     "& .prc_contnt": {
@@ -308,13 +624,12 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: "80%",
+            width: "90%",
             maxWidth: "1200px",
-            bgcolor: "background.paper",
-            border: "2px solid #fff",
+            background: "#beb0e1",
             boxShadow: 24,
             borderRadius: "8px",
-            overflow: "hidden",
+            overflowY: "hidden",
           }}
         >
           {/* ===== ModalHeader ===== */}
@@ -329,54 +644,93 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
           >
             <Box
               sx={{
+                width: "100%",
                 display: "flex",
+                flexDirection: {
+                  xs: "column",
+                  sm: "column",
+                },
                 justifyContent: "space-between",
-                alignItems: "center",
+                alignItems: {
+                  xs: "flex-start",
+                  sm: "center",
+                },
                 marginBottom: "2px",
                 padding: "1px",
                 borderRadius: "8px",
+                gap: "8px",
               }}
             >
-              {/* Left: Book with Doctor */}
               <Typography
                 sx={{
-                  fontSize: "1.5rem",
-                  fontWeight: 400,
-                  color: "#20ada0",
-                  textAlign: "left",
-                  whiteSpace: "nowrap",
+                  fontSize: {
+                    xs: "1rem",
+                    sm: "1.15rem",
+                    md: "1.35rem",
+                  },
+                  fontWeight: 600,
+                  color: "#29175e",
+                  textAlign: {
+                    xs: "center",
+                    sm: "left",
+                  },
+                  whiteSpace: {
+                    xs: "normal",
+                    sm: "nowrap",
+                  },
+                  fontFamily: "Poppins",
                 }}
               >
-                Book With {capitalizeFirstLetter(data?.username) || "Doctor"}
+                Book Appointment With{" "}
+                {capitalizeFirstLetter(data?.username) || "Doctor"}
               </Typography>
 
               {/* Right: Available Days */}
               <Box
                 sx={{
-                  display: "flex",
+                  display: "inline-flex",
                   alignItems: "center",
-                  backgroundColor: "#f8f8ff",
+                  backgroundColor: "#7A4D9C",
                   border: "1px solid #ccc",
                   padding: "5px 10px",
                   borderRadius: "8px",
+                  // width: "100%",
+                  // maxWidth: {
+                  //   xs: "100%",
+                  //   sm: "26vw",
+                  // },
+                  // justifyContent: {
+                  //   xs: "center",
+                  //   sm: "flex-end",
+                  // },
                 }}
               >
                 <EventAvailableIcon
-                  sx={{ color: "#20ADA0", marginRight: "8px" }}
+                  sx={{ color: "#b497d6", marginRight: "8px" }}
                 />
                 <Typography
                   sx={{
                     fontSize: "1.1rem",
                     fontWeight: 400,
-                    color: "#20ADA0",
-                    whiteSpace: "nowrap",
+                    color: "#fff",
+                    // whiteSpace: "nowrap",
                   }}
                 >
-                  {data?.availability?.length > 0
-                    ? `Available on: ${data.availability
-                        .map((slot) => slot.day)
-                        .join(", ")}`
-                    : "No Days Available"}
+                  {selectedHospital
+                    ? (() => {
+                        const daysForSelectedHospital = data?.availability
+                          ?.filter(
+                            (slot) => slot.hospital.name === selectedHospital
+                          )
+                          .map((slot) => slot.day);
+                        return daysForSelectedHospital &&
+                          daysForSelectedHospital.length > 0
+                          ? `Available on: ${daysForSelectedHospital.join(
+                              ", "
+                            )}`
+                          : "No Days Available";
+                      })()
+                    : "Select a hospital to view available days"}
                 </Typography>
               </Box>
             </Box>
@@ -428,27 +782,34 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         alignItems: "center",
                       },
                       "& .time_box": {
-                        display: "flex",
-                        flexWrap: "wrap",
+                        display: "grid",
+                        gridTemplateColumns: "repeat(6, 0fr)",
+                        gap: "8px",
+
                         width: "100%",
+                        listStyle: "none",
+                        padding: 0,
+                        margin: 0,
+                        justifyItems: "center",
                         "& li": {
-                          marginTop: "10px",
                           fontSize: "0.8rem",
                           fontWeight: 300,
                           lineHeight: "1.2rem",
-                          padding: "8px 10px",
-                          border: "1px solid #20ada0",
-                          borderRadius: "4px",
-                          listStyle: "none",
-                          marginRight: "10px",
+                          padding: "8px 7px",
+                          border: "1px solid #29175E",
+                          borderRadius: "2px",
                           cursor: "pointer",
                           color: "black",
+                          textAlign: "center",
+                          transition: "all 0.2s ease",
                           "&:hover": {
-                            background: "#20ada0",
+                            background: "#7A4D9C",
                             color: "white",
+                            transform: "scale(1.05)",
                           },
                         },
                       },
+
                       "& .tx2date": {
                         fontSize: "1rem",
                         fontWeight: 300,
@@ -468,11 +829,10 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         color: "rgba(0, 0, 0, 0.6)",
                       },
                       "& .fldset_lgend": {
-                        background: "white",
                         marginLeft: "15px",
                         fontSize: "0.7rem",
                         fontWeight: 500,
-                        color: "#20ada0",
+                        color: "#29175E",
                         padding: "0px 5px",
                       },
                       "& .fieldset_wrap": {
@@ -481,7 +841,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         paddingTop: "10px",
                         borderColor: "#efefef",
                         marginBottom: "10px",
-                        border: "1px solid #efefef",
+                        border: "1px solid #000",
                       },
                       "& .MuiPickersTextField": {
                         width: "100%",
@@ -501,80 +861,200 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         sx={{
                           p: 1,
                           borderRadius: "8px",
-
                           display: "flex",
                           flexDirection: "column",
                           gap: 1,
                         }}
                       >
-                        {/* === Date of Appointment === */}
-                        <Field
-                          fullWidth
-                          as={TextField}
-                          label="Date Of Appointment *"
-                          name="appointmentDate"
-                          type="date"
-                          value={
-                            values.appointmentDate
-                              ? dayjs(values.appointmentDate).format(
-                                  "YYYY-MM-DD"
-                                )
-                              : ""
-                          }
-                          onChange={(
-                            e: React.ChangeEvent<HTMLInputElement>
-                          ) => {
-                            const formattedDate = dayjs(e.target.value).format(
-                              "YYYY-MM-DD"
-                            );
-                            setFieldValue("appointmentDate", formattedDate);
-                            const dayName = dayjs(e.target.value).format(
-                              "dddd"
-                            );
-                            setSelectedDayName(dayName);
-                            setSelectedTimeSlot("");
-                            setFieldValue("appointmentTime", "");
-                          }}
-                          InputLabelProps={{ shrink: true }}
-                          sx={{
-                            marginBottom: "7px",
-                            "& input[type=date]": {
-                              background: "#fff",
-                              borderRadius: "6px",
-                              padding: "12px 12px",
-                            },
-                            "& input[type=date]::-webkit-calendar-picker-indicator":
-                              {
-                                zIndex: 3,
-                                cursor: "pointer",
-                              },
-                            "& .MuiInputBase-root": {
-                              fontSize: "0.9rem",
-                            },
-                          }}
-                          inputProps={{ min: today }}
-                          error={
-                            touched.appointmentDate &&
-                            Boolean(errors.appointmentDate)
-                          }
-                          helperText={
-                            touched.appointmentDate && errors.appointmentDate
-                          }
-                        />
+                        <Box sx={{ marginBottom: 3 }}>
+                          <FormControl fullWidth sx={inputStyles}>
+                            <InputLabel
+                              sx={{
+                                color: "#29175E",
+                                "&.Mui-focused": {
+                                  color: "#29175E",
+                                },
+                              }}
+                            >
+                              Hospital
+                            </InputLabel>
 
+                            <Select
+                              value={selectedHospital || ""}
+                              onChange={handleHospitalChange}
+                              label="Hospital"
+                              sx={inputStyles}
+                              MenuProps={{
+                                disablePortal: false,
+                                PaperProps: {
+                                  sx: {
+                                    backgroundColor: "#fff",
+                                    color: "#000",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    "& li": {
+                                      color: "#000",
+                                      backgroundColor: "transparent",
+                                    },
+                                  },
+                                },
+                                ...inputStyles,
+                              }}
+                            >
+                              {[
+                                ...new Map(
+                                  data?.availability.map((slot) => [
+                                    `${slot.hospital.name}-${slot.hospital.location}`,
+                                    slot.hospital,
+                                  ])
+                                ).values(),
+                              ].map((hospital) => (
+                                <MenuItem
+                                  key={`${hospital.name}-${hospital.location}`}
+                                  value={hospital.name}
+                                >
+                                  {hospital.name}, {hospital.location}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        </Box>
+                        <Box
+                          sx={{
+                            marginBottom: 2,
+                            width: "100%", // ✅ full responsive width
+                            "& .MuiFormLabel-root": {
+                              color: "#29175E",
+                              fontFamily: "Poppins",
+                            },
+                            "& .MuiInputBase-root": {
+                              backgroundColor: "transparent",
+                              borderRadius: "4px",
+                              fontFamily: "Poppins",
+                              width: "100%",
+                            },
+                            "& .MuiOutlinedInput-root": {
+                              "& fieldset": {
+                                borderColor: "#29175E",
+                              },
+                              "&:hover fieldset": {
+                                borderColor: "#29175E",
+                              },
+                              "&.Mui-focused fieldset": {
+                                borderColor: "#29175E",
+                              },
+                            },
+                          }}
+                        >
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              label="Date Of Appointment *"
+                              disablePast
+                              inputFormat="YYYY-MM-DD"
+                              value={
+                                values.appointmentDate
+                                  ? dayjs(values.appointmentDate)
+                                  : null
+                              }
+                              shouldDisableDate={(date) => {
+                                const selectedDays = data?.availability
+                                  ?.filter(
+                                    (slot) =>
+                                      slot.hospital.name === selectedHospital
+                                  )
+                                  .map((slot) => slot.day);
+                                const dayName = dayjs(date).format("dddd");
+                                return !selectedDays?.includes(dayName);
+                              }}
+                              onChange={(newValue) => {
+                                if (newValue) {
+                                  const formattedDate =
+                                    dayjs(newValue).format("YYYY-MM-DD");
+                                  const dayName =
+                                    dayjs(newValue).format("dddd");
+                                  setFieldValue(
+                                    "appointmentDate",
+                                    formattedDate
+                                  );
+                                  setSelectedDate(formattedDate);
+                                  setSelectedDayName(dayName);
+                                  setSelectedTimeSlot("");
+                                  setFieldValue("appointmentTime", "");
+                                }
+                              }}
+                              slotProps={{
+                                textField: {
+                                  fullWidth: true,
+                                  name: "appointmentDate",
+                                  error:
+                                    touched.appointmentDate &&
+                                    Boolean(errors.appointmentDate),
+                                  helperText:
+                                    touched.appointmentDate &&
+                                    errors.appointmentDate,
+                                  InputLabelProps: {
+                                    shrink: true,
+                                    sx: {
+                                      fontFamily: "Poppins",
+                                      color: "#29175E",
+                                      "&.Mui-focused": {
+                                        color: "#29175E",
+                                      },
+                                    },
+                                  },
+                                  sx: {
+                                    width: "100%",
+                                    "& input": {
+                                      padding: "12px",
+                                      fontFamily: "Poppins",
+                                    },
+                                  },
+                                },
+                                calendarHeader: {
+                                  sx: {
+                                    "& .MuiDayCalendar-weekDayLabel": {
+                                      fontFamily: "Poppins",
+                                    },
+                                  },
+                                },
+                                day: {
+                                  sx: {
+                                    fontFamily: "Poppins",
+                                    "&.Mui-selected": {
+                                      backgroundColor: "#000",
+                                      color: "#fff",
+                                    },
+                                    "&:hover": {
+                                      backgroundColor: "#E0D7FF",
+                                    },
+                                  },
+                                },
+                                desktopPaper: {
+                                  sx: {
+                                    backgroundColor: "#fff",
+                                    borderRadius: 2,
+                                    color: "black !important",
+                                  },
+                                },
+                              }}
+                            />
+                          </LocalizationProvider>
+                        </Box>
                         {/*Display Message*/}
                         {!values.appointmentDate ? (
                           <Typography
                             sx={{
                               textAlign: "center",
-                              backgroundColor: "#f8f8ff",
+                              backgroundColor: "#fff",
                               border: "1px solid #ccc",
                               borderRadius: "6px",
                               padding: "3px",
-                              color: "#20ADA0",
-                              marginBottom: "10px",
+                              color: "#29175E",
+                              marginBottom: "15px",
                               fontSize: "1rem",
-                              fontWeight: 400,
+                              fontWeight: 450,
+                              fontFamily: "Poppins",
                             }}
                           >
                             Choose an appointment date.
@@ -590,7 +1070,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                               border: "1px solid #ccc",
                               borderRadius: "6px",
                               padding: "2px",
-                              color: "#20ADA0",
+                              color: "#29175E",
                               marginBottom: "10px",
                               fontSize: "1rem",
                               fontWeight: 500,
@@ -599,17 +1079,33 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                             No slots available.
                           </Typography>
                         ) : null}
-
                         {/* === Appointment Type === */}
                         <TextField
                           fullWidth
                           select
-                          label="Appointment Type*"
+                          label="Appointment Type *"
                           name="appointmentType"
                           value={values.appointmentType}
-                          onChange={(e) =>
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             setFieldValue("appointmentType", e.target.value)
                           }
+                          sx={{
+                            marginBottom: "7px",
+                            "& input": {
+                              background: "transparent !important",
+                              borderRadius: "6px",
+                              padding: "12px 12px",
+                              fontFamily: "Poppins",
+                            },
+                            "& .MuiInputBase-root": {
+                              fontSize: "0.9rem",
+                              color: "black !important", // Change color to black for input text
+                              fontFamily: "Poppins",
+                            },
+                            "& .MuiFormLabel-root": {
+                              color: "black !important",
+                            },
+                          }}
                           error={
                             touched.appointmentType &&
                             Boolean(errors.appointmentType)
@@ -620,41 +1116,76 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">
-                                <InfoIcon sx={{ color: "#20ADA0" }} />
+                                <InfoIcon sx={{ color: "#7A4D9C" }} />
                               </InputAdornment>
                             ),
                           }}
+                          InputLabelProps={{
+                            shrink: true,
+                            sx: {
+                              ...inputStyles["& .MuiInputLabel-root"],
+                            },
+                          }}
                           sx={{
-                            background: "#fff",
-                            borderRadius: "6px",
+                            ...inputStyles,
                             marginBottom: "2px",
                           }}
                         >
                           <MenuItem value="online">Online</MenuItem>
                           <MenuItem value="in-person">In-Person</MenuItem>
                         </TextField>
-
                         {/* === Symptoms Selection === */}
                         <Autocomplete
                           multiple
-                          disableCloseOnSelect
-                          options={symptoms?.results || []}
+                          disableCloseOnSelect={!showOtherInput}
+                          options={[...symptomOptionsDropdown]}
                           getOptionLabel={(option) => option.name}
                           isOptionEqualToValue={(option, value) =>
                             option._id === value._id
                           }
-                          value={values.symptomIds || undefined}
-                          onChange={(event, value) =>
-                            setFieldValue("symptomIds", value)
-                          }
+                          value={selectedSymptoms}
+                          onChange={(event, selected) => {
+                            const justSelectedOther =
+                              selected.some((item) => item._id === "other") &&
+                              !selectedSymptoms.some(
+                                (item) => item._id === "other"
+                              );
+
+                            if (justSelectedOther) {
+                              setShowOtherInput(true);
+                              setCustomSymptom("");
+                              const input =
+                                document.activeElement as HTMLElement;
+                              if (input) input.blur();
+                            }
+
+                            const stillHasOther = selected.some(
+                              (item) => item._id === "other"
+                            );
+                            if (!stillHasOther) {
+                              setShowOtherInput(false);
+                            }
+
+                            setSelectedSymptoms(selected); // ✅ Keep "other"
+                            setFieldValue("symptomIds", selected); // ✅ Keep "other"
+                          }}
+                          onClose={() => {
+                            if (showOtherInput) {
+                              const input = document.getElementById(
+                                "symptoms-autocomplete"
+                              );
+                              if (input) input.blur();
+                            }
+                          }}
                           sx={{
-                            background: "#fff",
-                            borderRadius: "6px",
+                            ...inputStyles,
+                            background: "transparent",
                             padding: "4px 2px",
                           }}
                           renderInput={(params) => (
                             <TextField
                               {...params}
+                              id="symptoms-autocomplete"
                               label="Symptom *"
                               name="symptomIds"
                               type="text"
@@ -673,7 +1204,7 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                                   <>
                                     <InputAdornment position="start">
                                       <AssignmentIcon
-                                        sx={{ color: "#20ADA0" }}
+                                        sx={{ color: "#7A4D9C" }}
                                       />
                                     </InputAdornment>
                                     {params.InputProps.startAdornment}
@@ -682,8 +1213,70 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                               }}
                             />
                           )}
+                          renderOption={(props, option, { selected }) => {
+                            const isOther = option._id === "other";
+                            return (
+                              <li
+                                {...props}
+                                style={{
+                                  ...props.style,
+                                  fontWeight: isOther ? "bold" : "normal",
+                                  color: isOther ? "#7A4D9C" : "inherit",
+                                  backgroundColor:
+                                    isOther && selected ? "#f0e6ff" : "inherit",
+                                }}
+                              >
+                                {option.name}
+                              </li>
+                            );
+                          }}
                         />
+                        {/* Custom input for "Other" symptom */}
+                        {showOtherInput &&
+                          !selectedSymptoms.some((s) => s.createdByUser) && (
+                            <Box mt={0.5}>
+                              <TextField
+                                label="Enter Your Symptom"
+                                value={customSymptom}
+                                onChange={(e) =>
+                                  setCustomSymptom(e.target.value)
+                                }
+                                fullWidth
+                                variant="outlined"
+                                sx={{
+                                  backgroundColor: "",
+                                  "& .MuiOutlinedInput-root": {
+                                    "& fieldset": { borderColor: "#29175E" },
+                                    "&:hover fieldset": {
+                                      borderColor: "#29175E",
+                                    },
+                                    "&.Mui-focused fieldset": {
+                                      borderColor: "#29175E",
+                                    },
+                                  },
+                                  "& .MuiInputLabel-root": { color: "#29175E" },
+                                }}
+                              />
 
+                              <Button
+                                onClick={handleCreateCustomSymptom}
+                                variant="contained"
+                                disabled={!customSymptom.trim()}
+                                sx={{
+                                  mt: 1,
+                                  backgroundColor: "#2E1065",
+                                  color: "#fff",
+                                  marginTop: "5px",
+                                  padding: "4px 8px",
+                                  fontWeight: "bold",
+                                  textTransform: "none",
+                                  "&:hover": { backgroundColor: "#23094f" },
+                                }}
+                              >
+                                Add Symptom
+                              </Button>
+                            </Box>
+                          )}
                         {/* === Short Description === */}
                         <Field
                           as={TextField}
@@ -693,16 +1286,27 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           autoComplete="off"
                           autoFocus
                           sx={{
-                            background: "#fff",
-                            borderRadius: "6px",
+                            ...inputStyles,
+                            background: "transparent",
+                            marginTop: "10px",
+                            marginBottom: "2px",
                             "&:hover": {
                               boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.1)",
+                            },
+                            "& .MuiFormLabel-root": {
+                              fontSize: "1rem",
+                              color: "#000 !important",
+                              // fontWeight: "bold",
+                            },
+                            "& .MuiInputLabel-root": {
+                              fontSize: "1rem",
+                              color: "#29175e",
                             },
                           }}
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">
-                                <AssignmentIcon sx={{ color: "#20ADA0" }} />
+                                <AssignmentIcon sx={{ color: "#7A4D9C" }} />
                               </InputAdornment>
                             ),
                           }}
@@ -711,165 +1315,235 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                           }
                           helperText={touched.description && errors.description}
                         />
-                        <Field name="video">
-                          {({ field }) => (
-                            <Box>
-                              <Typography
-                                sx={{
-                                  fontSize: "1rem",
-                                  fontWeight: 500,
-                                  color: "#20ADA0",
-                                  marginBottom: "8px",
-                                }}
-                              >
-                                Upload a Video
-                              </Typography>
-                              <TextField
-                                type="file"
-                                inputProps={{ accept: "video/*" }}
-                                onChange={(event) => {
-                                  const file = event.target.files?.[0];
-                                  setFieldValue("videoUrl", file);
-                                }}
-                                fullWidth
-                                sx={{
-                                  "& input": {
-                                    background: "#fff",
-                                    borderRadius: "6px",
-                                    padding: "10px",
-                                  },
-                                }}
-                                error={
-                                  touched.videoUrl && Boolean(errors.videoUrl)
-                                }
-                                helperText={touched.videoUrl && errors.videoUrl}
-                              />
-                            </Box>
-                          )}
-                        </Field>
                       </Grid>
                       {/* ===== Middle Section (Dynamic Time Slots) ===== */}
                       <Field type="hidden" name="appointmentTime" />{" "}
-                      {/* Hidden Formik Field so Formik tracks appointmenttime errors*/}
-                      <Grid item xs={12} sm={5} md={5}>
+                      <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                        md={4}
+                        sx={{
+                          height: {
+                            xs: "",
+                            md: "",
+                            sm: "45vh",
+                          },
+                          display: "flex",
+                          flexDirection: "column",
+                        }}
+                      >
                         <Box sx={priceWrapSx}>
-                          <Box
-                            component="fieldset"
-                            className="fieldset_wrap"
-                            sx={{ marginTop: "-7px" }}
-                          >
-                            <legend className="fldset_lgend">
-                              Morning Slots
-                            </legend>
-                            <ul className="time_box">
-                              {timeBuckets.morning.map((time) => (
-                                <li
-                                  key={time}
-                                  onClick={() =>
-                                    handleTimeSlotClick(time, setFieldValue)
-                                  }
-                                  style={{
-                                    background:
-                                      selectedTimeSlot === time
-                                        ? "#20ada0"
-                                        : "",
-                                    color:
-                                      selectedTimeSlot === time
-                                        ? "white"
-                                        : "black",
-                                  }}
-                                >
-                                  {time}
-                                </li>
-                              ))}
-                            </ul>
-                          </Box>
+                          {/* Morning Slots */}
+                          {(!values.appointmentDate ||
+                            timeBuckets.morning.length > 0) && (
+                            <Box
+                              component="fieldset"
+                              className="fieldset_wrap"
+                              sx={
+                                {
+                                  // marginTop: "-7px",
+                                }
+                              }
+                            >
+                              <legend className="fldset_lgend">
+                                Morning Slots
+                              </legend>
+                              <ul className="time_box">
+                                {timeBuckets.morning.map((time) => {
+                                  const isBooked = bookedSlots.includes(time);
+                                  return (
+                                    <li
+                                      key={time}
+                                      onClick={() => {
+                                        if (!isBooked) {
+                                          handleTimeSlotClick(
+                                            time,
+                                            setFieldValue
+                                          );
+                                        }
+                                      }}
+                                      style={{
+                                        background:
+                                          selectedTimeSlot === time
+                                            ? "#29175E"
+                                            : isBooked
+                                            ? "#ccc"
+                                            : "",
+                                        color:
+                                          selectedTimeSlot === time
+                                            ? "white"
+                                            : isBooked
+                                            ? "#666"
+                                            : "black",
+                                        cursor: isBooked
+                                          ? "not-allowed"
+                                          : "pointer",
+                                        pointerEvents: isBooked
+                                          ? "none"
+                                          : "auto",
+                                      }}
+                                    >
+                                      {time}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </Box>
+                          )}
 
-                          <Box component="fieldset" className="fieldset_wrap">
-                            <legend className="fldset_lgend">
-                              Afternoon Slots
-                            </legend>
-                            <ul className="time_box">
-                              {timeBuckets.afternoon.map((time) => (
-                                <li
-                                  key={time}
-                                  onClick={() =>
-                                    handleTimeSlotClick(time, setFieldValue)
-                                  }
-                                  style={{
-                                    background:
-                                      selectedTimeSlot === time
-                                        ? "#20ada0"
-                                        : "",
-                                    color:
-                                      selectedTimeSlot === time
-                                        ? "white"
-                                        : "black",
-                                  }}
-                                >
-                                  {time}
-                                </li>
-                              ))}
-                            </ul>
-                          </Box>
+                          {/* Afternoon Slots */}
+                          {(!values.appointmentDate ||
+                            timeBuckets.afternoon.length > 0) && (
+                            <Box component="fieldset" className="fieldset_wrap">
+                              <legend className="fldset_lgend">
+                                Afternoon Slots
+                              </legend>
+                              <ul className="time_box">
+                                {timeBuckets.afternoon.map((time) => {
+                                  const isBooked = bookedSlots.includes(time);
+                                  return (
+                                    <li
+                                      key={time}
+                                      onClick={() => {
+                                        if (!isBooked) {
+                                          handleTimeSlotClick(
+                                            time,
+                                            setFieldValue
+                                          );
+                                        }
+                                      }}
+                                      style={{
+                                        background:
+                                          selectedTimeSlot === time
+                                            ? "#29175E"
+                                            : isBooked
+                                            ? "#ccc"
+                                            : "",
+                                        color:
+                                          selectedTimeSlot === time
+                                            ? "white"
+                                            : isBooked
+                                            ? "#666"
+                                            : "black",
+                                        cursor: isBooked
+                                          ? "not-allowed"
+                                          : "pointer",
+                                        pointerEvents: isBooked
+                                          ? "none"
+                                          : "auto",
+                                      }}
+                                    >
+                                      {time}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </Box>
+                          )}
 
-                          <Box component="fieldset" className="fieldset_wrap">
-                            <legend className="fldset_lgend">
-                              Evening Slots
-                            </legend>
-                            <ul className="time_box">
-                              {timeBuckets.evening.map((time) => (
-                                <li
-                                  key={time}
-                                  onClick={() =>
-                                    handleTimeSlotClick(time, setFieldValue)
-                                  }
-                                  style={{
-                                    background:
-                                      selectedTimeSlot === time
-                                        ? "#20ada0"
-                                        : "",
-                                    color:
-                                      selectedTimeSlot === time
-                                        ? "white"
-                                        : "black",
-                                  }}
-                                >
-                                  {time}
-                                </li>
-                              ))}
-                            </ul>
-                          </Box>
+                          {/* Evening Slots */}
+                          {(!values.appointmentDate ||
+                            timeBuckets.evening.length > 0) && (
+                            <Box component="fieldset" className="fieldset_wrap">
+                              <legend className="fldset_lgend">
+                                Evening Slots
+                              </legend>
+                              <ul className="time_box">
+                                {timeBuckets.evening.map((time) => {
+                                  const isBooked = bookedSlots.includes(time);
+                                  return (
+                                    <li
+                                      key={time}
+                                      onClick={() => {
+                                        if (!isBooked) {
+                                          handleTimeSlotClick(
+                                            time,
+                                            setFieldValue
+                                          );
+                                        }
+                                      }}
+                                      style={{
+                                        background:
+                                          selectedTimeSlot === time
+                                            ? "#29175E"
+                                            : isBooked
+                                            ? "#ccc"
+                                            : "",
+                                        color:
+                                          selectedTimeSlot === time
+                                            ? "white"
+                                            : isBooked
+                                            ? "#666"
+                                            : "black",
+                                        cursor: isBooked
+                                          ? "not-allowed"
+                                          : "pointer",
+                                        pointerEvents: isBooked
+                                          ? "none"
+                                          : "auto",
+                                      }}
+                                    >
+                                      {time}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </Box>
+                          )}
 
-                          <Box component="fieldset" className="fieldset_wrap">
-                            <legend className="fldset_lgend">
-                              Night Slots
-                            </legend>
-                            <ul className="time_box">
-                              {timeBuckets.night.map((time) => (
-                                <li
-                                  key={time}
-                                  onClick={() =>
-                                    handleTimeSlotClick(time, setFieldValue)
-                                  }
-                                  style={{
-                                    background:
-                                      selectedTimeSlot === time
-                                        ? "#20ada0"
-                                        : "",
-                                    color:
-                                      selectedTimeSlot === time
-                                        ? "white"
-                                        : "black",
-                                  }}
-                                >
-                                  {time}
-                                </li>
-                              ))}
-                            </ul>
-                          </Box>
+                          {/* Night Slots */}
+                          {(!values.appointmentDate ||
+                            timeBuckets.night.length > 0) && (
+                            <Box component="fieldset" className="fieldset_wrap">
+                              <legend className="fldset_lgend">
+                                Night Slots
+                              </legend>
+                              <ul className="time_box">
+                                {timeBuckets.night.map((time) => {
+                                  const isBooked = bookedSlots.includes(time);
+                                  return (
+                                    <li
+                                      key={time}
+                                      onClick={() => {
+                                        if (!isBooked) {
+                                          handleTimeSlotClick(
+                                            time,
+                                            setFieldValue
+                                          );
+                                        }
+                                      }}
+                                      style={{
+                                        background:
+                                          selectedTimeSlot === time
+                                            ? "#29175E"
+                                            : isBooked
+                                            ? "#ccc"
+                                            : "",
+                                        color:
+                                          selectedTimeSlot === time
+                                            ? "white"
+                                            : isBooked
+                                            ? "#666"
+                                            : "black",
+                                        cursor: isBooked
+                                          ? "not-allowed"
+                                          : "pointer",
+                                        pointerEvents: isBooked
+                                          ? "none"
+                                          : "auto",
+                                      }}
+                                    >
+                                      {time}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </Box>
+                          )}
                         </Box>
 
+                        {/* Error Message for appointmentTime */}
                         {touched.appointmentTime && errors.appointmentTime && (
                           <Typography
                             color="error"
@@ -879,33 +1553,320 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                             {errors.appointmentTime}
                           </Typography>
                         )}
+                        {/* // Upload a video section in Tab // */}
+                        {/* <Field name="video">
+                          {({ field }) => (
+                            <Box
+                              sx={{
+                                mt: 2,
+                                p: 1,
+                                border: "1px solid #e0e0e0",
+                                borderRadius: "8px",
+                                backgroundColor: "#d9d1ed",
+                                boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+                                transition: "all 0.3s ease",
+                                display: {
+                                  xs: "none",
+                                  md: "none",
+                                  sm: "flow",
+                                  xl: "none",
+                                },
+                                "&:hover": {
+                                  boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                                  borderColor: "#29175E",
+                                },
+                              }}
+                            >
+                              <Typography
+                                variant="h6"
+                                sx={{
+                                  fontSize: "1rem",
+                                  fontWeight: 600,
+                                  color: "#29175E",
+                                  mb: 1,
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <BookOnlineIcon sx={{ mr: 1 }} />
+                                Upload a Video
+                              </Typography>
+
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  marginBottom: "10px",
+                                  mb: 0.6,
+                                  color: "#555",
+                                  backgroundColor: "29175E",
+                                  p: 0.8,
+                                  borderRadius: "4px",
+                                  borderLeft: "4px solid #29175E",
+                                  fontWeight: 400,
+                                }}
+                              >
+                                <strong>
+                                  Explain your symptoms in video (optional):
+                                </strong>{" "}
+                                "Record a short video explaining your symptoms,
+                                This will help your doctor prepare for your
+                                appointment."
+                              </Typography>
+
+                              <TextField
+                                type="file"
+                                inputProps={{ accept: "video/*" }}
+                                onChange={(event) => {
+                                  const file = event.target.files?.[0];
+                                  if (file && file.size > 50 * 1024 * 1024) {
+                                    // 50MB in bytes
+                                    alert(
+                                      "File size exceeds 50MB. Please upload a smaller file."
+                                    );
+                                  } else {
+                                    setFieldValue("videoUrl", file);
+                                  }
+                                }}
+                                fullWidth
+                                variant="outlined"
+                                placeholder="No file chosen"
+                                InputProps={{
+                                  startAdornment: (
+                                    <InputAdornment position="start">
+                                      <CalendarMonthIcon
+                                        sx={{
+                                          color: "#29175E",
+                                          fontSize: "20px",
+                                        }}
+                                      />
+                                    </InputAdornment>
+                                  ),
+                                }}
+                                sx={{
+                                  "& .MuiOutlinedInput-root": {
+                                    backgroundColor: "#fff",
+                                    borderRadius: "6px",
+                                    fontSize: "15px",
+                                    "&:hover .MuiOutlinedInput-notchedOutline":
+                                      {
+                                        borderColor: "#29175E",
+                                      },
+                                    "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                      {
+                                        borderColor: "#29175E",
+                                      },
+                                  },
+                                  "& input": {
+                                    padding: "12px 10px 12px 5px",
+                                    color: "#000",
+                                  },
+                                }}
+                                error={
+                                  touched.videoUrl && Boolean(errors.videoUrl)
+                                }
+                                helperText={touched.videoUrl && errors.videoUrl}
+                              />
+
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  display: "block",
+                                  mt: 0.4,
+                                  color: "#666",
+                                }}
+                              >
+                                Supported formats: MP4, MOV, AVI (max size 50MB)
+                              </Typography>
+                            </Box>
+                          )}
+                        </Field> */}
                       </Grid>
                       {/* ===== Right Section (Price/Consultation/Payment Details) ===== */}
-                      <Grid item xs={12} sm={3} md={3}>
+                      <Grid
+                        item
+                        xs={12}
+                        sm={14}
+                        md={4}
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: {
+                            xs: "center",
+                            md: "inherit",
+                            sm: "inherit",
+                            xl: "inherit",
+                          },
+                        }}
+                      >
+                        <Field name="video">
+                          {({ field }) => (
+                            // Upload a video section //
+                            <Box
+                              sx={{
+                                mt: 0,
+                                p: 1,
+                                border: "1px solid #e0e0e0",
+                                borderRadius: "8px",
+                                backgroundColor: "#d9d1ed",
+                                boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+                                transition: "all 0.3s ease",
+                                display: {
+                                  sm: "flow",
+                                  md: "flow",
+                                  xs: "flow",
+                                  xl: "flow",
+                                },
+                                "&:hover": {
+                                  boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                                  borderColor: "#29175E",
+                                },
+                              }}
+                            >
+                              <Typography
+                                variant="h6"
+                                sx={{
+                                  fontSize: "1rem",
+                                  fontWeight: 600,
+                                  color: "#29175E",
+                                  mb: 1,
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <BookOnlineIcon sx={{ mr: 1 }} />
+                                Upload a Video
+                              </Typography>
+
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  marginBottom: "10px",
+                                  mb: 0.6,
+                                  color: "#555",
+                                  backgroundColor: "29175E",
+                                  p: 0.8,
+                                  borderRadius: "4px",
+                                  borderLeft: "4px solid #29175E",
+                                  fontWeight: 400,
+                                }}
+                              >
+                                <strong>
+                                  Explain your symptoms in video (optional):
+                                </strong>{" "}
+                                "Record a short video explaining your symptoms,
+                                This will help your doctor prepare for your
+                                appointment."
+                              </Typography>
+
+                              <TextField
+                                type="file"
+                                inputProps={{ accept: "video/*" }}
+                                onChange={(event) => {
+                                  const file = event.target.files?.[0];
+                                  if (file && file.size > 50 * 1024 * 1024) {
+                                    // 50MB in bytes
+                                    alert(
+                                      "File size exceeds 50MB. Please upload a smaller file."
+                                    );
+                                  } else {
+                                    setFieldValue("videoUrl", file);
+                                  }
+                                }}
+                                fullWidth
+                                variant="outlined"
+                                placeholder="No file chosen"
+                                InputProps={{
+                                  startAdornment: (
+                                    <InputAdornment position="start">
+                                      <CalendarMonthIcon
+                                        sx={{ color: "#29175E" }}
+                                      />
+                                    </InputAdornment>
+                                  ),
+                                }}
+                                sx={{
+                                  "& .MuiOutlinedInput-root": {
+                                    backgroundColor: "#d9d1ed",
+                                    borderRadius: "6px",
+                                    "&:hover .MuiOutlinedInput-notchedOutline":
+                                      {
+                                        borderColor: "#29175E",
+                                      },
+                                    "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                      {
+                                        borderColor: "#29175E",
+                                      },
+                                  },
+                                  "& input": {
+                                    padding: "12px 10px 12px 5px",
+                                    color: "#000",
+                                  },
+                                }}
+                                error={
+                                  touched.videoUrl && Boolean(errors.videoUrl)
+                                }
+                                helperText={touched.videoUrl && errors.videoUrl}
+                              />
+
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  display: "block",
+                                  mt: 0.4,
+                                  color: "#666",
+                                }}
+                              >
+                                Supported formats: MP4, MOV, AVI (max size 50MB)
+                              </Typography>
+                            </Box>
+                          )}
+                        </Field>
+                        <br />
                         <Box
-                          sx={{ ...priceWrapSx, border: "1px solid #b1b1b1" }}
+                          sx={{
+                            ...priceWrapSx,
+                            border: "1px solid #7A4D9C",
+                            borderRadius: "15px",
+                          }}
                         >
-                          <Typography className="price_header_txt">
+                          <Typography
+                            sx={{
+                              color: "#29175e !important",
+                              backgroundColor: "transparent !important",
+                            }}
+                            className="price_header_txt"
+                          >
                             Consultation Details
                           </Typography>
                           <Box className="prc_contnt">
-                            <Typography className="tx1">
+                            <Typography
+                              sx={{
+                                color: "#29175e !important",
+                              }}
+                              className="tx1"
+                            >
                               {capitalizeFirstLetter(data?.username) ||
                                 "Doctor"}
                             </Typography>
                             <Typography className="tx3">
                               <span className="spntx1">Price</span>
                               <span className="spntx2">
-                                {values.appointmentDate &&
-                                values.appointmentTime &&
-                                values.symptomIds.length > 0 &&
-                                values.appointmentType
-                                  ? `₹${data?.consultationFee}`
-                                  : "--"}
+                                {`₹${data?.consultationFee}`}
                               </span>
                             </Typography>
-                            <Typography className="tx4">
-                              <span className="spntx1">Total</span>
+                            <Typography
+                              sx={{
+                                color: "#29175e !important",
+                              }}
+                              className="tx4"
+                            >
+                              <span
+                                style={{ color: "#29175e" }}
+                                className="spntx1"
+                              >
+                                Total
+                              </span>
                               <span className="spntx2">
                                 {values.appointmentDate &&
                                 values.appointmentTime &&
@@ -943,12 +1904,16 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         sx={{
                           minWidth: "150px",
                           color: "#fff",
-                          background: "#20ADA0",
+                          background: "#29175E",
                           borderRadius: "4px",
                           marginLeft: "20px",
+                          textTransform: "none",
+                          transition:
+                            "transform 0.2s, box-shadow 0.2s, background-color 0.3s, color 0.3s",
                           ":hover": {
-                            bgcolor: "#20ADA0",
+                            bgcolor: "#7A4D9C",
                             color: "white",
+                            transform: "scale(1.05)",
                           },
                         }}
                       >
@@ -961,11 +1926,14 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
                         sx={{
                           minWidth: "150px",
                           color: "#fff",
-                          background: "#20ADA0",
+                          background: "#29175E",
                           borderRadius: "4px",
                           marginLeft: "20px",
+                          textTransform: "none",
+                          transition:
+                            "transform 0.2s, box-shadow 0.2s, background-color 0.3s, color 0.3s",
                           ":hover": {
-                            bgcolor: "#20ADA0",
+                            bgcolor: "#7A4D9C",
                             color: "white",
                           },
                         }}
@@ -981,96 +1949,6 @@ const ModalOne: React.FC<ModalProps> = ({ isOpen, onClose, data }) => {
           </Box>
 
           {/* Payment Form (Visible after Booking) */}
-          <Box
-            sx={{
-              display: showPaymentForm ? "flex" : "none",
-              opacity: showPaymentForm ? 1 : 0,
-              transition: "opacity 2s ease-in-out",
-              padding: "20px",
-              width: "100%",
-              maxWidth: "900px",
-              margin: "0 auto",
-              height: "auto",
-              background: "white",
-              borderRadius: "8px",
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-            }}
-          >
-            {/* Left Column - Payment Form */}
-            <Box
-              sx={{
-                flex: "1",
-                paddingRight: "20px",
-              }}
-            >
-              <Typography
-                variant="h4"
-                sx={{
-                  marginBottom: "1rem",
-                  color: "#20ADA0",
-                  textAlign: "center",
-                }}
-              >
-                Complete Payment
-              </Typography>
-              <Elements stripe={stripePromise}>
-                <PaymentForm
-                  setShowPaymentForm={setShowPaymentForm}
-                  paymentInfo={paymentInfo}
-                />
-              </Elements>
-            </Box>
-
-            {/* Right Column - Design/Content */}
-            <Box
-              sx={{
-                flex: "1",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "#f8f8ff",
-                borderRadius: "8px",
-                padding: "20px",
-              }}
-            >
-              <Typography
-                variant="h5"
-                sx={{
-                  marginBottom: "1rem",
-                  color: "#20ADA0",
-                  textAlign: "center",
-                }}
-              >
-                Payment Information
-              </Typography>
-              <Typography
-                variant="body1"
-                sx={{
-                  marginBottom: "1rem",
-                  textAlign: "center",
-                  color: "#555",
-                }}
-              >
-                100% Secure payment.
-              </Typography>
-              <img
-                src="/iconimg.jpg"
-                alt="Secure Payment"
-                style={{
-                  width: "80%",
-                  maxWidth: "200px",
-                  marginBottom: "1rem",
-                }}
-              />
-              <Typography
-                variant="body2"
-                sx={{ textAlign: "center", color: "#888" }}
-              >
-                Your payment details are encrypted and secure.
-              </Typography>
-            </Box>
-          </Box>
 
           <SnackbarComponent
             alerting={snackbar.snackbarAlert}

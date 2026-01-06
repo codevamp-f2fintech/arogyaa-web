@@ -313,6 +313,32 @@ const icons: Icon[] = [
     path: "/assets/images/speciality-icons/psychiatry.png",
   },
 ];
+const articles = [
+  {
+    title: "Understanding Heart Health",
+    tags:["Cardiology", "Heart Health", "Prevention"],
+   Content: "Heart disease remains one of the leading causes of death worldwide, but the good news is that heart health is largely within our control. In this article, we explore the vital aspects of heart health, including the importance of regular exercise, a heart-healthy diet, and routine check-ups. You’ll also learn how lifestyle changes like quitting smoking, reducing stress, and maintaining a healthy weight can significantly lower your risk. Prevention is key, and understanding how to take care of your heart today will benefit you for years to come. Read on to discover practical tips and expert recommendations on managing your cardiovascular health, improving circulation, and preventing common heart diseases.",
+  },
+  {
+    title: "Pregnancy Nutrition Tips",
+    tags: ["gynologist", "Pregnancy", "Women Health"],
+    Content: "Pregnancy is a beautiful and transformative journey, but it requires special care to ensure the well-being of both mother and baby. One of the most important aspects of a healthy pregnancy is proper nutrition. In this article, we discuss essential nutrients that every pregnant woman needs, including folic acid, iron, calcium, and vitamin D. You'll learn about the best food sources for these nutrients and how to maintain a balanced diet that supports both your health and the development of your baby. Additionally, we address common pregnancy challenges like morning sickness, cravings, and food aversions, offering expert advice on how to manage these issues. By following these nutrition tips, you’ll give your body and your baby the best possible foundation for a healthy future."
+
+
+  },
+  {
+    title: "Gastroenterology: Healthy Gut, Healthy Life",
+    tags: ["Gastroenterology", "Digestive Health", "Gut Health"],
+    content: "Learn how to keep your gut healthy and avoid common gastrointestinal issues in this detailed article...",
+  },
+  {
+    title: "Gastroenterology: Healthy Gut, Healthy Life",
+    tags:["Neurology", "Brain Health", "Mental Health"],
+   Content: "The brain is the control center of the body, responsible for everything from movement and speech to memory and emotions. Keeping your brain healthy is essential to maintaining quality of life as you age. In this article, we explore the factors that contribute to brain health and how to protect your nervous system. You’ll learn about the importance of mental exercises, healthy sleep, and stress management in preserving cognitive function. We also discuss the role of diet and physical activity in supporting brain health, along with how to reduce the risk of neurological disorders such as Alzheimer’s disease and Parkinson’s disease. With these practical tips, you can take proactive steps to support your brain health for years to come.",
+  },
+
+];
+
 
 export {
   specialistData,
@@ -322,4 +348,5 @@ export {
   whyChoose,
   images,
   icons,
+  articles,
 };

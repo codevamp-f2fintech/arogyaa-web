@@ -19,7 +19,9 @@ export interface DoctorData {
   specializationIds: string[];
   symptomIds: string[];
   qualificationIds: string[];
-  availability: { day: string; startTime: string; endTime: string }[];
+  availability: {
+    hospital: any; day: string; startTime: string; endTime: string 
+}[];
   createdAt: string;
   updatedAt: string;
   __v: number;

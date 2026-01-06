@@ -11,6 +11,7 @@ import {
   Rating,
   Grid,
   Box,
+  Alert,
 } from "@mui/material";
 import { Close, Star, CheckCircle, Cancel } from "@mui/icons-material";
 import { styled } from "@mui/system";
@@ -20,12 +21,12 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
 
 const StyledTextField = styled(TextField)({
-  "& label": { color: "#20ADA0" },
-  "& label.Mui-focused": { color: "#20ADA0" },
+  "& label": { color: "#29175e" },
+  "& label.Mui-focused": { color: "#2ecc71" },
   "& .MuiOutlinedInput-root": {
-    "& fieldset": { borderColor: "#20ADA0", borderRadius: "10px" },
-    "&:hover fieldset": { borderColor: "#178F84" },
-    "&.Mui-focused fieldset": { borderColor: "#178F84" },
+    "& fieldset": { borderColor: "#29175e", borderRadius: "10px" },
+    "&:hover fieldset": { borderColor: "#29175e" },
+    "&.Mui-focused fieldset": { borderColor: "#29175e" },
   },
 });
 
@@ -56,6 +57,7 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
   const [formData, setFormData] = useState(initialFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState<boolean>(false);
+  const [submitError, setSubmitError] = useState<string>("");
 
   useEffect(() => {
     if (!open) {
@@ -69,12 +71,24 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
     if (formData.rating === 0) {
       newErrors.rating = "Please select a rating.";
     }
+
+    // Validate review text - NEW VALIDATION
+    if (!formData.review.trim()) {
+      newErrors.review = "Please write a review before submitting.";
+    } else if (formData.review.trim().length < 10) {
+      newErrors.review =
+        "Please write a more detailed review (at least 10 characters).";
+    }
     setErrors(newErrors);
+    setSubmitError("");
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
+
+    setLoading(true);
+    setSubmitError("");
 
     try {
       const response = await creator("testimonial", "create-testimonial", {
@@ -103,6 +117,27 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
     }
   };
 
+  // Check if form is valid to enable submit button
+  const isFormValid =
+    formData.rating > 0 && formData.review.trim().length >= 10;
+
+  const getEmojiForRating = (rating: number) => {
+    switch (rating) {
+      case 1:
+        return "😠";
+      case 2:
+        return "😞";
+      case 3:
+        return "😐";
+      case 4:
+        return "🙂";
+      case 5:
+        return "😃";
+      default:
+        return "";
+    }
+  };
+
   return (
     <Dialog
       open={open}
@@ -113,17 +148,20 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
         "& .MuiPaper-root": {
           borderRadius: "12px",
           padding: "10px",
-          backgroundColor: "#ffffff",
+          background: "rgb(188,174,224)",
+          background:
+            "linear-gradient(180deg, rgba(188,174,224,1) 0%, rgba(255,255,255,1) 100%)",
         },
       }}
     >
       {/* Header */}
       <DialogTitle
         sx={{
-          color: "#20ADA0",
           textAlign: "center",
           fontWeight: "bold",
           fontSize: "1.5rem",
+          color: "#29175e",
+          fontFamily: "Poppins",
         }}
       >
         Rate Your Experience
@@ -133,7 +171,7 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
       <IconButton
         onClick={onClose}
         sx={{
-          color: "#20ADA0",
+          color: "#29175e",
           position: "absolute",
           top: 8,
           right: 8,
@@ -150,7 +188,8 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
             <Typography
               variant="h6"
               sx={{
-                color: "#20ADA0",
+                color: "#29175e",
+                fontFamily: "Poppins",
                 fontWeight: "bold",
                 marginBottom: "2px",
                 fontSize: "20px",
@@ -160,11 +199,25 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
             </Typography>
             <Typography
               variant="body2"
-              sx={{ color: "black", fontSize: "0.9rem" }}
+              sx={{
+                color: "black",
+                fontSize: ".9rem",
+                fontFamily: "Poppins",
+                fontWeight: "500",
+              }}
             >
               How was your experience? Your feedback helps others.
             </Typography>
           </Grid>
+
+          {/* Error Alert */}
+          {submitError && (
+            <Grid item xs={12}>
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {submitError}
+              </Alert>
+            </Grid>
+          )}
 
           {/* Rating Section */}
           <Grid item xs={12} sx={{ textAlign: "center" }}>
@@ -179,6 +232,13 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
                 "& .MuiRating-iconHover": { color: "#FFA500" },
               }}
             />
+            <Typography
+              variant="h5"
+              sx={{ marginTop: "10px", fontSize: "2rem" }}
+            >
+              {getEmojiForRating(formData.rating)}
+            </Typography>
+
             {errors.rating && (
               <Typography color="error">{errors.rating}</Typography>
             )}
@@ -194,13 +254,26 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
               rows={4}
               margin="dense"
               value={formData.review}
-              onChange={(e) =>
-                setFormData({ ...formData, review: e.target.value })
-              }
+              onChange={(e) => {
+                setFormData({ ...formData, review: e.target.value });
+                // Clear review error when user starts typing
+                if (e.target.value.trim() && errors.review) {
+                  setErrors({ ...errors, review: "" });
+                }
+              }}
               error={!!errors.review}
               helperText={errors.review}
               placeholder={`Share your experience with Dr. ${doctorName}...`}
             />
+          </Grid>
+          {/* Validation Hint */}
+          <Grid item xs={12}>
+            <Typography
+              variant="body2"
+              sx={{ color: "#666", fontSize: "0.8rem" }}
+            >
+              ✓ Both rating and written review are required
+            </Typography>
           </Grid>
         </Grid>
       </DialogContent>
@@ -214,11 +287,11 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
           sx={{
             minWidth: "100px",
             color: "#fff",
-            background: "#20ADA0",
+            background: "#29175e",
             borderRadius: "4px",
             marginLeft: "20px",
             ":hover": {
-              bgcolor: "#20ADA0",
+              bgcolor: "#b497d6",
               color: "white",
             },
           }}
@@ -236,11 +309,11 @@ const CreateTestimonialDialog: React.FC<CreateTestimonialDialogProps> = ({
           sx={{
             minWidth: "100px",
             color: "#fff",
-            background: "#20ADA0",
+            background: "#29175e",
             borderRadius: "4px",
             marginLeft: "20px",
             ":hover": {
-              bgcolor: "#20ADA0",
+              bgcolor: "#b497d6",
               color: "white",
             },
           }}
